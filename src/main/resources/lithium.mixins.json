@@ -13,7 +13,6 @@
     "client.replace_timer.MixinSystemUtil"
   ],
   "mixins": [
-    "avoid_allocations.MixinFontStorage",
     "avoid_allocations.MixinLivingEntity",
     "avoid_allocations.MixinServerChunkManager",
     "avoid_allocations.MixinServerWorld",
