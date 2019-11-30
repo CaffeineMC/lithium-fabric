@@ -2,6 +2,7 @@ plugins {
 	id 'fabric-loom' version '0.2.5-SNAPSHOT'
 	id 'maven-publish'
 	id "me.champeau.gradle.jmh" version "0.5.0"
+	id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -19,8 +20,6 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}"
 	modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
-
-	compile "com.moandjiezana.toml:toml4j:0.7.2"
 }
 
 processResources {
@@ -53,30 +52,19 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 }
 
 jar {
-	from "LICENSE"
-}
-
-// configure the maven publication
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			// add all the jars that should be included when publishing to maven
-			artifact(remapJar) {
-				builtBy remapJar
-			}
-			artifact(sourcesJar) {
-				builtBy remapSourcesJar
-			}
-		}
-	}
-
-	// select the repositories you want to publish to
-	repositories {
-		// uncomment to publish to the local maven
-		// mavenLocal()
-	}
+	from "LICENSE.txt"
 }
 
 jmh {
 	duplicateClassesStrategy = 'warn'
 }
+
+shadowJar {
+	relocate('net.minecraft.util.shape', 'net.minecraft') {
+		include 'net.minecraft.util.shape.Lithium*'
+	}
+	configurations = [ ]
+	classifier = 'dev'
+}
+
+remapJar.dependsOn shadowJar
