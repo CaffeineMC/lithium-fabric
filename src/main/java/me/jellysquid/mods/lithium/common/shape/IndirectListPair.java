@@ -2,9 +2,9 @@ package me.jellysquid.mods.lithium.common.shape;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
-import net.minecraft.util.shape.Lithium_DoubleListPair;
+import me.jellysquid.mods.lithium.common.voxels.DoubleListPair;
 
-public final class IndirectListPair implements Lithium_DoubleListPair {
+public final class IndirectListPair extends DoubleListPair {
     private final double[] merged;
     private final int[] indicesFirst;
     private final int[] indicesSecond;
@@ -108,6 +108,7 @@ public final class IndirectListPair implements Lithium_DoubleListPair {
         }
     }
 
+    @Override
     public boolean forAllOverlappingSections(SectionPairPredicate predicate) {
         for (int i = 0; i < this.count - 1; ++i) {
             if (!predicate.merge(this.indicesFirst[i], this.indicesSecond[i], i)) {
@@ -118,6 +119,7 @@ public final class IndirectListPair implements Lithium_DoubleListPair {
         return true;
     }
 
+    @Override
     public DoubleList getMergedList() {
         return this.list;
     }

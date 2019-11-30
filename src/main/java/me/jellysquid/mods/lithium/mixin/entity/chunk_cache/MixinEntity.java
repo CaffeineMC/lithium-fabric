@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.mixin.entity.chunk_cache;
 import me.jellysquid.mods.lithium.common.LithiumMod;
 import me.jellysquid.mods.lithium.common.cache.EntityChunkCache;
 import me.jellysquid.mods.lithium.common.entity.ExtendedEntity;
+import me.jellysquid.mods.lithium.common.voxels.LithiumVoxelShapes;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -15,7 +16,6 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.tag.Tag;
 import net.minecraft.util.ReusableStream;
 import net.minecraft.util.math.*;
-import net.minecraft.util.shape.Lithium_VoxelShapes;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.ViewableWorld;
 import net.minecraft.world.World;
@@ -159,7 +159,7 @@ public abstract class MixinEntity implements ExtendedEntity {
         double z = vec.z;
 
         if (y != 0.0D) {
-            y = Lithium_VoxelShapes.calculateSoftOffset(Direction.Axis.Y, box, chunkCache, y, context, reusableStream.stream());
+            y = LithiumVoxelShapes.calculateSoftOffset(Direction.Axis.Y, box, chunkCache, y, context, reusableStream.stream());
 
             if (y != 0.0D) {
                 box = box.offset(0.0D, y, 0.0D);
@@ -168,7 +168,7 @@ public abstract class MixinEntity implements ExtendedEntity {
 
         boolean boolean_1 = Math.abs(x) < Math.abs(z);
         if (boolean_1 && z != 0.0D) {
-            z = Lithium_VoxelShapes.calculateSoftOffset(Direction.Axis.Z, box, chunkCache, z, context, reusableStream.stream());
+            z = LithiumVoxelShapes.calculateSoftOffset(Direction.Axis.Z, box, chunkCache, z, context, reusableStream.stream());
 
             if (z != 0.0D) {
                 box = box.offset(0.0D, 0.0D, z);
@@ -176,7 +176,7 @@ public abstract class MixinEntity implements ExtendedEntity {
         }
 
         if (x != 0.0D) {
-            x = Lithium_VoxelShapes.calculateSoftOffset(Direction.Axis.X, box, chunkCache, x, context, reusableStream.stream());
+            x = LithiumVoxelShapes.calculateSoftOffset(Direction.Axis.X, box, chunkCache, x, context, reusableStream.stream());
 
             if (!boolean_1 && x != 0.0D) {
                 box = box.offset(x, 0.0D, 0.0D);
@@ -184,7 +184,7 @@ public abstract class MixinEntity implements ExtendedEntity {
         }
 
         if (!boolean_1 && z != 0.0D) {
-            z = Lithium_VoxelShapes.calculateSoftOffset(Direction.Axis.Z, box, chunkCache, z, context, reusableStream.stream());
+            z = LithiumVoxelShapes.calculateSoftOffset(Direction.Axis.Z, box, chunkCache, z, context, reusableStream.stream());
         }
 
         return new Vec3d(x, y, z);

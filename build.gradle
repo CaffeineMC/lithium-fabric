@@ -2,7 +2,6 @@ plugins {
 	id 'fabric-loom' version '0.2.5-SNAPSHOT'
 	id 'maven-publish'
 	id "me.champeau.gradle.jmh" version "0.5.0"
-	id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -58,13 +57,3 @@ jar {
 jmh {
 	duplicateClassesStrategy = 'warn'
 }
-
-shadowJar {
-	relocate('net.minecraft.util.shape', 'net.minecraft') {
-		include 'net.minecraft.util.shape.Lithium*'
-	}
-	configurations = [ ]
-	classifier = 'dev'
-}
-
-remapJar.dependsOn shadowJar
