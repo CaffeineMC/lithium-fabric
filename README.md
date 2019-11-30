@@ -18,6 +18,11 @@ You can help buy me food and support development while getting early access buil
 
 <a href="https://www.patreon.com/bePatron?u=824442"><img src="https://github.com/jellysquid3/Phosphor/raw/master/doc/patreon.png" width="200"></a>
 
+### Join the Discord
+
+You can join the official Discord for my mods by [clicking here](https://discord.gg/UEa6r3d).
+
+<a href="https://discord.gg/ApPrpT"><img src="https://i.vgy.me/YrTrsE.png"></a>
 
 ### Compiling the mod
 
