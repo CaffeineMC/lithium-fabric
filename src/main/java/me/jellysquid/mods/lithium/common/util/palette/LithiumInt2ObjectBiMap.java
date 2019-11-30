@@ -21,6 +21,7 @@ public class LithiumInt2ObjectBiMap<K> implements IndexedIterable<K> {
     public LithiumInt2ObjectBiMap(int capacity) {
         this.lookupById = (K[]) new Object[capacity];
         this.lookupByObj = new Object2IntOpenHashMap<>(capacity, FAST_LOAD_FACTOR);
+        this.lookupByObj.defaultReturnValue(-1);
     }
 
     @Override
