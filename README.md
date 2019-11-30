@@ -2,9 +2,9 @@
 ![Project icon](https://github.com/jellysquid3/Lithium/raw/master/doc/logo.png)
 
 # Lithium
-![GitHub license](https://img.shields.io/github/license/jellysquid3/lithium.svg)
-![GitHub issues](https://img.shields.io/github/issues/jellysquid3/lithium.svg)
-![GitHub tag](https://img.shields.io/github/tag/jellysquid3/lithium.svg)
+![GitHub license](https://img.shields.io/github/license/jellysquid3/Lithium.svg)
+![GitHub issues](https://img.shields.io/github/issues/jellysquid3/Lithium.svg)
+![GitHub tag](https://img.shields.io/github/tag/jellysquid3/Lithium.svg)
 
 Lithium is a free and open-source Minecraft mod (under GNU LGPLv3) which works to optimize many areas of the game
 in order to provide better overall performance. It works on both the **client and server**, and **doesn't require the mod to be installed on both sides**.
