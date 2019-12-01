@@ -62,63 +62,61 @@ public abstract class MixinCuboid {
      */
     @Overwrite
     public void render(float scale) {
-        if (!this.field_3664) {
-            if (this.visible) {
-                if (!this.compiled) {
-                    this.compile(scale);
+        if (this.field_3664 || !this.visible) {
+            return;
+        }
+
+        if (!this.compiled) {
+            this.compile(scale);
+        }
+
+        GlStateManager.pushMatrix();
+
+        if (this.pitch == 0.0F && this.yaw == 0.0F && this.roll == 0.0F) {
+            if (this.rotationPointX == 0.0F && this.rotationPointY == 0.0F && this.rotationPointZ == 0.0F) {
+                GlStateManager.translatef(this.x, this.y, this.z);
+                GlStateManager.callList(this.list);
+
+                if (this.children != null) {
+                    for (Cuboid child : this.children) {
+                        child.render(scale);
+                    }
                 }
+            } else {
+                GlStateManager.translatef(this.x + (this.rotationPointX * scale), this.y + (this.rotationPointY * scale), this.z + (this.rotationPointZ * scale));
+                GlStateManager.callList(this.list);
 
-                if (this.pitch == 0.0F && this.yaw == 0.0F && this.roll == 0.0F) {
-                    GlStateManager.pushMatrix();
-
-                    if (this.rotationPointX == 0.0F && this.rotationPointY == 0.0F && this.rotationPointZ == 0.0F) {
-                        GlStateManager.translatef(this.x, this.y, this.z);
-                        GlStateManager.callList(this.list);
-
-                        if (this.children != null) {
-                            for (Cuboid child : this.children) {
-                                child.render(scale);
-                            }
-                        }
-                    } else {
-                        GlStateManager.translatef(this.x + (this.rotationPointX * scale), this.y + (this.rotationPointY * scale), this.z + (this.rotationPointZ * scale));
-                        GlStateManager.callList(this.list);
-
-                        if (this.children != null) {
-                            for (Cuboid child : this.children) {
-                                child.render(scale);
-                            }
-                        }
+                if (this.children != null) {
+                    for (Cuboid child : this.children) {
+                        child.render(scale);
                     }
+                }
+            }
+        } else {
+            GlStateManager.translatef(this.x + (this.rotationPointX * scale), this.y + (this.rotationPointY * scale), this.z + (this.rotationPointZ * scale));
 
-                    GlStateManager.popMatrix();
-                } else {
-                    GlStateManager.pushMatrix();
-                    GlStateManager.translatef(this.x + (this.rotationPointX * scale), this.y + (this.rotationPointY * scale), this.z + (this.rotationPointZ * scale));
+            if (this.roll != 0.0F) {
+                GlStateManager.rotatef(this.roll * 57.295776F, 0.0F, 0.0F, 1.0F);
+            }
 
-                    if (this.roll != 0.0F) {
-                        GlStateManager.rotatef(this.roll * 57.295776F, 0.0F, 0.0F, 1.0F);
-                    }
+            if (this.yaw != 0.0F) {
+                GlStateManager.rotatef(this.yaw * 57.295776F, 0.0F, 1.0F, 0.0F);
+            }
 
-                    if (this.yaw != 0.0F) {
-                        GlStateManager.rotatef(this.yaw * 57.295776F, 0.0F, 1.0F, 0.0F);
-                    }
+            if (this.pitch != 0.0F) {
+                GlStateManager.rotatef(this.pitch * 57.295776F, 1.0F, 0.0F, 0.0F);
+            }
 
-                    if (this.pitch != 0.0F) {
-                        GlStateManager.rotatef(this.pitch * 57.295776F, 1.0F, 0.0F, 0.0F);
-                    }
+            GlStateManager.callList(this.list);
 
-                    GlStateManager.callList(this.list);
-
-                    if (this.children != null) {
-                        for (Cuboid child : this.children) {
-                            child.render(scale);
-                        }
-                    }
-
-                    GlStateManager.popMatrix();
+            if (this.children != null) {
+                for (Cuboid child : this.children) {
+                    child.render(scale);
                 }
             }
         }
+
+        GlStateManager.popMatrix();
+
     }
 }

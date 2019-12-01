@@ -15,6 +15,8 @@ import java.util.Set;
 
 @SuppressWarnings("unused")
 public class LithiumMixinPlugin implements IMixinConfigPlugin {
+    private static final String MIXIN_PACKAGE_ROOT = "me.jellysquid.mods.lithium.mixin.";
+
     private final Logger logger = LogManager.getLogger("Lithium");
     private final HashSet<String> disabledPackages = new HashSet<>();
 
@@ -65,16 +67,16 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (!mixinClassName.startsWith("me.jellysquid.mods.lithium.mixin.")) {
+        if (!mixinClassName.startsWith(MIXIN_PACKAGE_ROOT)) {
             return true;
         }
 
-        int s = "me.jellysquid.mods.lithium.mixin.".length();
-        int i = s;
-        int c;
+        int start = MIXIN_PACKAGE_ROOT.length();
+        int lastSplit = start;
+        int nextSplit;
 
-        while ((c = mixinClassName.indexOf('.', i + 1)) != -1) {
-            String part = mixinClassName.substring(s, c);
+        while ((nextSplit = mixinClassName.indexOf('.', lastSplit + 1)) != -1) {
+            String part = mixinClassName.substring(start, nextSplit);
 
             if (this.disabledPackages.contains(part)) {
                 this.logger.info(String.format("Not applying mixin '%s' as the package '%s' is disabled by configuration", mixinClassName, part));
@@ -82,7 +84,7 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
                 return false;
             }
 
-            i = c;
+            lastSplit = nextSplit;
         }
 
         return true;

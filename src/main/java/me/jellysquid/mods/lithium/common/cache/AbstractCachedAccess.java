@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.cache;
 
-class AbstractCachedAccess {
+abstract class AbstractCachedAccess {
     static class CachedEntry<T> {
         T obj;
         long pos;
