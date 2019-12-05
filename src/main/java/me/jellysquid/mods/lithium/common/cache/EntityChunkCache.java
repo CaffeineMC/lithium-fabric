@@ -79,7 +79,7 @@ public class EntityChunkCache extends AbstractCachedAccess {
     }
 
     private ChunkSection getChunkSection(int x, int y, int z) {
-        if (World.isHeightInvalid(y)) {
+        if (y < 0 || y >= 16) {
             return null;
         }
 
