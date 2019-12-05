@@ -1,4 +1,4 @@
-### Issues
+## Issues
 
 When opening issues, please be sure to include the following information as applicable.
 
@@ -8,7 +8,7 @@ attach these as a file (preferred) or host them on a service such as [GitHub Gis
 - If your issue is a bug or otherwise unexpected behavior, explain what you expected to happen.
 - If your issue only occurs with other mods installed, be sure to specify the names and versions of those mods.
 
-## Merge Requests
+## Pull Requests
 
 It's super awesome to hear you're wishing to contribute to the project! Before you open a pull request, you'll need to
 give a quick read to the following guidelines.
