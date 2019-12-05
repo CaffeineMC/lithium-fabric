@@ -1,18 +1,14 @@
 package me.jellysquid.mods.lithium.common.voxels;
 
-import java.util.stream.Stream;
-
+import me.jellysquid.mods.lithium.common.cache.EntityChunkCache;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityContext;
-import net.minecraft.util.math.AxisCycleDirection;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
-import me.jellysquid.mods.lithium.common.cache.EntityChunkCache;
+
+import java.util.stream.Stream;
 
 public class LithiumVoxelShapes {
     public static double calculateSoftOffset(Direction.Axis axis, Box box, EntityChunkCache world, double initial, EntityContext context, Stream<VoxelShape> stream) {
@@ -107,7 +103,9 @@ public class LithiumVoxelShapes {
         return ugly[0];
     }
 
-    /** Clone of {@link VoxelShapes#method_17943}, could use an accessor */
+    /**
+     * Clone of {@link VoxelShapes#method_17943}, could use an accessor
+     */
     private static int clamp(double value, double min, double max) {
         return value > 0.0D ? MathHelper.floor(max + value) + 1 : MathHelper.floor(min + value) - 1;
     }
