@@ -17,8 +17,7 @@ public class MixinDirection {
     private int idOpposite;
 
     /**
-     * Avoid the modulo/abs operations.
-     *
+     * @reason Avoid the modulo/abs operations
      * @author JellySquid
      */
     @Overwrite

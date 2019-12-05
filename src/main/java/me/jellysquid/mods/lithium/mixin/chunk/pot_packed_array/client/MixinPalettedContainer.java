@@ -31,8 +31,7 @@ public abstract class MixinPalettedContainer<T> {
     public abstract void unlock();
 
     /**
-     * We need to read back the data in the vanilla format, so we use an intermediary array.
-     *
+     * @reason Decode the chunk data in the vanilla format with an intermediate array
      * @author JellySquid
      */
     @Overwrite

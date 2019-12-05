@@ -27,6 +27,9 @@ public class MixinBlockNeighborGroup {
 
     private int hash;
 
+    /**
+     * @reason Initialize the object's hashcode
+     */
     @Inject(method = "<init>", at = @At("RETURN"))
     private void generateHash(BlockState blockState_1, BlockState blockState_2, Direction direction_1, CallbackInfo ci) {
         int hash = this.self.hashCode();
@@ -37,8 +40,7 @@ public class MixinBlockNeighborGroup {
     }
 
     /**
-     * Uses the stored hashcode.
-     *
+     * @reason Uses the cached hashcode.
      * @author JellySquid
      */
     @Overwrite

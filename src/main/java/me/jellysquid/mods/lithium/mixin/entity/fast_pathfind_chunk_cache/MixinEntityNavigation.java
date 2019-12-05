@@ -49,6 +49,7 @@ public abstract class MixinEntityNavigation {
      * <p>
      * TODO: Avoid the Overwrite here.
      *
+     * @reason Replace the ChunkCache object
      * @author JellySquid
      */
     @SuppressWarnings("OverwriteModifiers")

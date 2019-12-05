@@ -20,10 +20,7 @@ public class MixinWorldChunk {
     private ChunkSection[] sections;
 
     /**
-     * Remove a bunch of checks. We don't care about debug worlds or empty sections.
-     * <p>
-     * TODO: Can we implement this without an Overwrite?
-     *
+     * @reason Remove the debug world check
      * @author JellySquid
      */
     @Overwrite

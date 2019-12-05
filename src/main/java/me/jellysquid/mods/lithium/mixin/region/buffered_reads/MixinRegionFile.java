@@ -39,9 +39,9 @@ public abstract class MixinRegionFile {
     /**
      * Prevents any reading from taking place, short-circuiting two loops.
      */
-    @ModifyConstant(method = "<init>", constant = @Constant(intValue = 1024), slice = @Slice(
-            from = @At(value = "INVOKE", target = "Ljava/io/RandomAccessFile;seek(J)V")
-    ))
+    @ModifyConstant(method = "<init>",
+            constant = @Constant(intValue = 1024),
+            slice = @Slice(from = @At(value = "INVOKE", target = "Ljava/io/RandomAccessFile;seek(J)V")))
     private static int modifyInitField(int unused) {
         return 0;
     }
@@ -84,6 +84,7 @@ public abstract class MixinRegionFile {
      * the game will simply generate a new chunk, likely overwriting the unreadable one. Perhaps someone should make
      * these checks fail with an exception...
      *
+     * @reason Replace smaller reads with one large read
      * @author JellySquid
      */
     @SuppressWarnings("OverwriteModifiers")

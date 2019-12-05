@@ -27,6 +27,7 @@ public class MixinSimpleVoxelShape {
     }
 
     /**
+     * @reason Use the cached array.
      * @author JellySquid
      */
     @Overwrite

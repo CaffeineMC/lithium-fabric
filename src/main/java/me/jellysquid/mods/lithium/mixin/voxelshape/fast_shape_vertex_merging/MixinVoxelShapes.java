@@ -45,7 +45,9 @@ public abstract class MixinVoxelShapes {
         return true;
     }
 
-    @Inject(method = "createListPair", at = @At(value = "NEW", target = "net/minecraft/util/shape/SimpleDoubleListPair"), cancellable = true)
+    @Inject(method = "createListPair",
+            at = @At(value = "NEW", target = "net/minecraft/util/shape/SimpleDoubleListPair"),
+            cancellable = true)
 	private static void betterSimpleList(int size, DoubleList a, DoubleList b, boolean includeA, boolean includeB, CallbackInfoReturnable<Object> callback) {
     	callback.setReturnValue(IndirectListPairCache.create(a, b, includeA, includeB)); //Little bit of naughtiness with the generics as we can't see the real return type
     }

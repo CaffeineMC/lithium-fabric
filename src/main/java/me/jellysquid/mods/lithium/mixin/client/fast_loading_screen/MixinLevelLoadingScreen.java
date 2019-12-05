@@ -29,11 +29,12 @@ public class MixinLevelLoadingScreen {
     private static final Color4 DEFAULT_STATUS_COLOR = Color4.fromRGBA(-16772609);
 
     /**
-     * Significantly optimized implementation. This implementation differs from vanilla's in the following key ways.
+     * This implementation differs from vanilla's in the following key ways.
      * - All tiles are batched together in one draw call, reducing CPU overhead by an order of magnitudes.
      * - Identity hashing is used for faster ChunkStatus -> Color lookup.
      * - Colors are stored in unpacked RGBA format so conversion is not necessary every tile draw
      *
+     * @reason Significantly optimized implementation.
      * @author JellySquid
      */
     @Overwrite

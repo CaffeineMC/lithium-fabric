@@ -17,6 +17,7 @@ public class MixinSystemUtil {
      * Patches the method to return the time passed since timer initialization. We return a relative time
      * instead of an absolute time to mimic the behavior of GLFW's timer.
      *
+     * @reason System timer replacement patch
      * @author JellySquid
      */
     @Overwrite

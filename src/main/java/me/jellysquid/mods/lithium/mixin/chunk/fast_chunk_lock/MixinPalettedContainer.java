@@ -24,6 +24,7 @@ public class MixinPalettedContainer<T> {
      * Try-acquire the lock normally. It should be faster. We also move the crash report generation logic
      * to a new thread to encourage the JVM to inline this method.
      *
+     * @reason Replace the manual "is locked" check with ReentrantLock#tryLock.
      * @author JellySquid
      */
     @Overwrite
@@ -32,7 +33,6 @@ public class MixinPalettedContainer<T> {
             this.crash();
         }
     }
-
 
     private void crash() {
         String stacktrace = Thread.getAllStackTraces().keySet().stream().filter(Objects::nonNull).map((thread_1) -> {

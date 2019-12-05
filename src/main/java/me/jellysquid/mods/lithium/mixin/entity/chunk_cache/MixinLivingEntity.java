@@ -14,17 +14,15 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @SuppressWarnings("InvalidMemberReference")
 @Mixin(LivingEntity.class)
 public abstract class MixinLivingEntity {
-    @Redirect(method = {
-            "baseTick", "onDeath", "method_16212", "method_6077", "handleFallDamage", "method_6038", "travel"
-    }, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"))
+    @Redirect(method = {"baseTick", "onDeath", "method_16212", "method_6077", "handleFallDamage", "method_6038", "travel"},
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"))
     private BlockState redirectGetBlockState(World world, BlockPos pos) {
         EntityChunkCache cache = ((ExtendedEntity) this).getEntityChunkCache();
         return cache == null ? world.getBlockState(pos) : cache.getBlockState(pos);
     }
 
-    @Redirect(method = {
-            "method_6038"
-    }, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getFluidState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/fluid/FluidState;"))
+    @Redirect(method = {"method_6038"},
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getFluidState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/fluid/FluidState;"))
     private FluidState redirectGetFluidState(World world, BlockPos pos) {
         EntityChunkCache cache = ((ExtendedEntity) this).getEntityChunkCache();
         return cache == null ? world.getFluidState(pos) : cache.getFluidState(pos);

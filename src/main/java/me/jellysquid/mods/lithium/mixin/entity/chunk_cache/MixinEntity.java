@@ -60,8 +60,7 @@ public abstract class MixinEntity implements ExtendedEntity {
     private final BlockPos.Mutable scratchPos = new BlockPos.Mutable();
 
     /**
-     * Use the chunk cache.
-     *
+     * @reason Use the chunk cache.
      * @author JellySquid
      */
     @Overwrite
@@ -86,8 +85,7 @@ public abstract class MixinEntity implements ExtendedEntity {
     }
 
     /**
-     * Use the chunk cache.
-     *
+     * @reason Use the chunk cache.
      * @author JellySquid
      */
     @Overwrite
@@ -102,16 +100,14 @@ public abstract class MixinEntity implements ExtendedEntity {
         }
     }
 
-    @Redirect(method = {
-            "move", "checkBlockCollision", "playStepSound", "isInsideWall"
-    }, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"))
+    @Redirect(method = {"move", "checkBlockCollision", "playStepSound", "isInsideWall"},
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"))
     private BlockState redirectGetBlockState(World world, BlockPos pos) {
         return this.chunkCache == null ? world.getBlockState(pos) : this.chunkCache.getBlockState(pos);
     }
 
-    @Redirect(method = {
-            "updateMovementInFluid", "isSubmergedIn"
-    }, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getFluidState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/fluid/FluidState;"))
+    @Redirect(method = {"updateMovementInFluid", "isSubmergedIn"},
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getFluidState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/fluid/FluidState;"))
     private FluidState redirectGetFluidState(World world, BlockPos pos) {
         return this.chunkCache == null ? world.getFluidState(pos) : this.chunkCache.getFluidState(pos);
     }
@@ -146,7 +142,8 @@ public abstract class MixinEntity implements ExtendedEntity {
         return false;
     }
 
-    @Redirect(method = "calculateMotionVector", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;calculateTangentialMotionVector(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Lnet/minecraft/world/ViewableWorld;Lnet/minecraft/entity/EntityContext;Lnet/minecraft/util/ReusableStream;)Lnet/minecraft/util/math/Vec3d;"))
+    @Redirect(method = "calculateMotionVector",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;calculateTangentialMotionVector(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Lnet/minecraft/world/ViewableWorld;Lnet/minecraft/entity/EntityContext;Lnet/minecraft/util/ReusableStream;)Lnet/minecraft/util/math/Vec3d;"))
     private static Vec3d redirectCalculateTangentialMotionVector(Vec3d vec, Box box, ViewableWorld world, EntityContext context, ReusableStream<VoxelShape> reusableStream, Entity entity, Vec3d dup0, Box dup1, World dup3, EntityContext dup4, ReusableStream<VoxelShape> dup5) {
         if (entity == null) {
             return Entity.calculateTangentialMotionVector(vec, box, world, context, reusableStream);

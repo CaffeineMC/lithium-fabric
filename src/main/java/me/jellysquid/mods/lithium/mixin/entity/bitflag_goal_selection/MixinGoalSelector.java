@@ -41,6 +41,7 @@ public abstract class MixinGoalSelector {
      * This method originally allocates a ton of objects due to the use of lambdas and streams. It also isn't
      * particularly fast while doing so. This performs significantly better.
      *
+     * @reason Remove lambdas and complex stream logic
      * @author JellySquid
      */
     @Overwrite

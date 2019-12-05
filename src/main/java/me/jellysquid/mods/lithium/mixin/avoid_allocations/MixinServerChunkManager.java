@@ -10,6 +10,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public abstract class MixinServerChunkManager {
     private static final EntityCategory[] ENTITY_CATEGORIES = EntityCategory.values();
 
+    /**
+     * @reason Avoid cloning enum values
+     */
     @Redirect(method = "tickChunks", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/EntityCategory;values()[Lnet/minecraft/entity/EntityCategory;"))
     private EntityCategory[] redirectEntityCategoryValues() {
         return ENTITY_CATEGORIES;

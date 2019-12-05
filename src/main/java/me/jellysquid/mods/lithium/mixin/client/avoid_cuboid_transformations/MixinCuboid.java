@@ -56,8 +56,7 @@ public abstract class MixinCuboid {
     protected abstract void compile(float float_1);
 
     /**
-     * Reduces the number of matrix operations by combining translations or avoiding them all together.
-     *
+     * @reason Reduces the number of matrix operations by combining translations or avoiding them all together.
      * @author JellySquid
      */
     @Overwrite

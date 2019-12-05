@@ -33,10 +33,11 @@ public interface MixinViewableWorld {
     Chunk getChunk(int x, int z, ChunkStatus status, boolean var4);
 
     /**
-     * Uses a simpler and much faster collision detection algo. If we run into shapes our system can't handle, we'll
-     * fallback to the vanilla algo. This provides a massive improvement in some situations, such as ticking items on
-     * the ground.
+     * Uses a simpler and much faster collision detection algorithm. If we run into shapes our system can't handle, this
+     * code will fallback to the vanilla algorithm. This provides a massive improvement in some situations, such as
+     * ticking items on the ground.
      *
+     * @reason Use a faster collision detection algorithm with simple shapes.
      * @author JellySquid
      */
     @Overwrite

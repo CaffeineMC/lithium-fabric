@@ -42,8 +42,7 @@ public abstract class MixinPalettedContainer<T> {
 
 
     /**
-     * We need to serialize the data in the vanilla format, so we use an intermediary array.
-     *
+     * @reason Encode the chunk data in the vanilla format with an intermediate array
      * @author JellySquid
      */
     @Overwrite

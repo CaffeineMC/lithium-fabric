@@ -21,10 +21,7 @@ public class MixinTag<T> {
 
     private T[] valuesSmallArray;
 
-    @Inject(
-            method = "<init>(Lnet/minecraft/util/Identifier;Ljava/util/Collection;Z)V",
-            at = @At("RETURN")
-    )
+    @Inject(method = "<init>(Lnet/minecraft/util/Identifier;Ljava/util/Collection;Z)V", at = @At("RETURN"))
     private void postConstructed(Identifier id, Collection<Tag.Entry<T>> collection, boolean ordered, CallbackInfo ci) {
         if (this.values.size() < 6) {
             //noinspection unchecked
@@ -36,6 +33,7 @@ public class MixinTag<T> {
      * Makes use of the small values array for quicker indexing if the number of elements is small. This can improve
      * tag matching performance significantly for tags with only one or two objects.
      *
+     * @reason Use array scanning when the number of elements is small
      * @author JellySquid
      */
     @Overwrite

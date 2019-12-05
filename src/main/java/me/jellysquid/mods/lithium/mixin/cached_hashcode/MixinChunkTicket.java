@@ -4,6 +4,7 @@ import net.minecraft.server.world.ChunkTicket;
 import net.minecraft.server.world.ChunkTicketType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,6 +26,9 @@ public class MixinChunkTicket<T> {
 
     private int hashCode;
 
+    /**
+     * @reason Initialize the object's hashcode
+     */
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onConstructed(ChunkTicketType<T> type, int level, T argument, long pos, CallbackInfo ci) {
         int hash = 1;
@@ -36,11 +40,10 @@ public class MixinChunkTicket<T> {
     }
 
     /**
-     * Uses the stored hashcode.
-     *
+     * @reason Uses the stored hashcode.
      * @author JellySquid
      */
-    @Override
+    @Overwrite
     public int hashCode() {
         return this.hashCode;
     }
