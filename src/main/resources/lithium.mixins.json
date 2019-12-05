@@ -20,7 +20,6 @@
     "avoid_allocations.MixinWorld",
     "cached_hashcode.MixinBlockNeighborGroup",
     "cached_hashcode.MixinChunkTicket",
-    "chunk.fast_chunk_lock.MixinPalettedContainer",
     "chunk.fast_chunk_palette.MixinPalettedContainer",
     "chunk.pot_packed_array.MixinPalettedContainer",
     "entity.bitflag_goal_selection.MixinGoalSelector",

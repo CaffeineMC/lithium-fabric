@@ -167,12 +167,6 @@ public class LithiumConfig {
          * with a version that has better performance when placing blocks into chunks.
          */
         public boolean useOptimizedHashPalette = true;
-
-        /**
-         * If true, the locking mechanism for chunk containers will simply use a try-lock instead of a custom check. This
-         * might be a tiny amount faster.
-         */
-        public boolean useTryLockInContainers = true;
     }
 
     public static class GeneralConfig {

@@ -34,7 +34,6 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
     private void setupMixins(LithiumConfig config) {
         this.disableIf("avoid_allocations", !config.general.reduceObjectAllocations);
         this.disableIf("cached_hashcode", !config.general.cacheHashcodeCalculations);
-        this.disableIf("chunk.fast_chunk_lock", !config.chunk.useTryLockInContainers);
         this.disableIf("chunk.fast_chunk_palette", !config.chunk.useOptimizedHashPalette);
         this.disableIf("chunk.pot_packed_array", !config.chunk.usePOTPackedIntegerArrays);
         this.disableIf("client.avoid_cuboid_transformations", !config.client.reduceCuboidTransformations);
