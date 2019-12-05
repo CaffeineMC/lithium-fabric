@@ -14,10 +14,12 @@ public class PrecomputedFractionalDoubleList extends AbstractDoubleList {
         }
     }
 
+    @Override
     public double getDouble(int idx) {
         return this.items[idx];
     }
 
+    @Override
     public int size() {
         return this.items.length;
     }

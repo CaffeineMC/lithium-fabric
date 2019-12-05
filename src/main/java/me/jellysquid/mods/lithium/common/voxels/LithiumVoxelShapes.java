@@ -102,9 +102,7 @@ public class LithiumVoxelShapes {
         // This is a silly hack to allow the lambda to mutate the return value.
         double[] ugly = new double[]{out};
 
-        stream.forEach((shape) -> {
-            ugly[0] = shape.method_1108(zAxis, box, ugly[0]);
-        });
+        stream.forEach((shape) -> ugly[0] = shape.method_1108(zAxis, box, ugly[0]));
 
         return ugly[0];
     }

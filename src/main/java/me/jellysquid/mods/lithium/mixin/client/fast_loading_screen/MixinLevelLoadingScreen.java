@@ -42,9 +42,8 @@ public class MixinLevelLoadingScreen {
         if (STATUS_TO_COLOR_FAST == null) {
             STATUS_TO_COLOR_FAST = new IdentityHashMap<>(STATUS_TO_COLOR.size());
             STATUS_TO_COLOR_FAST.put(null, NULL_STATUS_COLOR);
-            STATUS_TO_COLOR.object2IntEntrySet().forEach(entry -> {
-                STATUS_TO_COLOR_FAST.put(entry.getKey(), Color4.fromRGBA(entry.getIntValue() | -16777216));
-            });
+            STATUS_TO_COLOR.object2IntEntrySet()
+                    .forEach(entry -> STATUS_TO_COLOR_FAST.put(entry.getKey(), Color4.fromRGBA(entry.getIntValue() | -16777216)));
         }
 
         Tessellator tessellator = Tessellator.getInstance();

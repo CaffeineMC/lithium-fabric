@@ -35,9 +35,13 @@ public class MixinPalettedContainer<T> {
     }
 
     private void crash() {
-        String stacktrace = Thread.getAllStackTraces().keySet().stream().filter(Objects::nonNull).map((thread_1) -> {
-            return thread_1.getName() + ": \n\tat " + Arrays.stream(thread_1.getStackTrace()).map(Object::toString).collect(Collectors.joining("\n\tat "));
-        }).collect(Collectors.joining("\n"));
+        String stacktrace = Thread.getAllStackTraces().keySet()
+                .stream()
+                .filter(Objects::nonNull)
+                .map((t) -> t.getName() + ": \n\tat " + Arrays.stream(t.getStackTrace())
+                        .map(Object::toString)
+                        .collect(Collectors.joining("\n\tat ")))
+                .collect(Collectors.joining("\n"));
 
         CrashReport report = new CrashReport("Writing into PalettedContainer from multiple threads", new IllegalStateException());
         CrashReportSection section = report.addElement("Thread dumps");

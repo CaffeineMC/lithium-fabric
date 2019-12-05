@@ -85,10 +85,12 @@ public class NavigationChunkCache implements ViewableWorld {
         }
     }
 
+    @Override
     public int getLightLevel(BlockPos pos, int int_1) {
         return this.world.getLightLevel(pos, int_1);
     }
 
+    @Override
     public Chunk getChunk(int chunkX, int chunkZ, ChunkStatus status, boolean flag) {
         int i = indexChunk(chunkX - this.minX, chunkZ - this.minZ);
 
@@ -109,48 +111,59 @@ public class NavigationChunkCache implements ViewableWorld {
         }
     }
 
+    @Override
     public boolean isChunkLoaded(int chunkX, int chunkZ) {
         int i = indexChunk(chunkX - this.minX, chunkZ - this.minZ);
 
         return i >= 0 && i < this.chunks.length;
     }
 
+    @Override
     public BlockPos getTopPosition(Heightmap.Type type, BlockPos pos) {
         return this.world.getTopPosition(type, pos);
     }
 
+    @Override
     public int getTop(Heightmap.Type type, int x, int z) {
         return this.world.getTop(type, x, z);
     }
 
+    @Override
     public int getAmbientDarkness() {
         return this.world.getAmbientDarkness();
     }
 
+    @Override
     public WorldBorder getWorldBorder() {
         return this.world.getWorldBorder();
     }
 
+    @Override
     public boolean intersectsEntities(Entity entity, VoxelShape shape) {
         return true;
     }
 
+    @Override
     public boolean isClient() {
         return false;
     }
 
+    @Override
     public int getSeaLevel() {
         return this.world.getSeaLevel();
     }
 
+    @Override
     public Dimension getDimension() {
         return this.world.getDimension();
     }
 
+    @Override
     public BlockEntity getBlockEntity(BlockPos pos) {
         return this.getChunk(pos).getBlockEntity(pos);
     }
 
+    @Override
     public BlockState getBlockState(BlockPos pos) {
         if (World.isHeightInvalid(pos)) {
             return Blocks.AIR.getDefaultState();
@@ -160,6 +173,7 @@ public class NavigationChunkCache implements ViewableWorld {
         }
     }
 
+    @Override
     public FluidState getFluidState(BlockPos pos) {
         if (World.isHeightInvalid(pos)) {
             return Fluids.EMPTY.getDefaultState();
@@ -169,10 +183,12 @@ public class NavigationChunkCache implements ViewableWorld {
         }
     }
 
+    @Override
     public Biome getBiome(BlockPos pos) {
         return this.getChunk(pos).getBiome(pos);
     }
 
+    @Override
     public int getLightLevel(LightType type, BlockPos pos) {
         return this.world.getLightLevel(type, pos);
     }
