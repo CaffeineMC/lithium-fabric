@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.entity.item_self_insert;
 
 import me.jellysquid.mods.lithium.common.blockentities.HopperAccess;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.HopperBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -14,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(HopperBlockEntity.class)
 public abstract class HopperBlockEntityMixin extends BlockEntity implements HopperAccess {
+
     @Shadow
     protected abstract boolean isFull();
 
@@ -43,5 +45,10 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     @Override
     public void setCooldown(int cooldown) {
         this.transferCooldown = cooldown;
+    }
+
+    @Override
+    public int getCooldown() {
+        return this.transferCooldown;
     }
 }
