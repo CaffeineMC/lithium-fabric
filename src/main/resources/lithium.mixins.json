@@ -36,6 +36,10 @@
     "region.buffered_reads.MixinRegionFile",
     "small_tag_arrays.MixinTag",
     "voxelshape.fast_shape_vertex_merging.MixinVoxelShapes",
-    "voxelshape.precompute_shape_arrays.MixinSimpleVoxelShape"
+    "voxelshape.precompute_shape_arrays.MixinSimpleVoxelShape",
+    "entity.item_self_insert.standard.HopperBlockEntityMixin",
+    "entity.item_self_insert.standard.ItemEntityMixin",
+    "entity.item_self_insert.vanilish.HopperBlockEntityMixin",
+    "entity.item_self_insert.vanilish.ItemEntityMixin"
   ]
 }

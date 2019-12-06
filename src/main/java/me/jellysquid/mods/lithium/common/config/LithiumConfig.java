@@ -107,6 +107,19 @@ public class LithiumConfig {
          * If true, an optimized implementation of the chunk cache will be used when entities are path-finding.
          */
         public boolean useOptimizedChunkCacheForPathFinding = true;
+
+        /**
+         * If true, items will insert themselves into hoppers, rather than hoppers scanning all the entities
+         * it does improve performance, but there is an edge case pointed out by 2no
+         *
+         * "During the TE tick phase the hoppers are ticked. Always in the same order (assuming no chunk reload etc).
+         * Lets say hopper A and then Hopper B. Now an item lands ontop of Hopper B that is almost full.
+         * Vanilla: Hopper A transfers an item into B, hopper B is full and cannot pick up the item anymore.
+         * Your approach: The item transfers itself into hopper B before A transfers the item"
+         *
+         * TODO a possible solution would be to only insert the item entity after the BEs are ticked
+         */
+        public boolean itemHopperSelfInsert = false;
     }
 
     public static class RegionConfig {
