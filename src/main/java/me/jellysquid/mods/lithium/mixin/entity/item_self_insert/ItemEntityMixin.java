@@ -1,6 +1,6 @@
-package me.jellysquid.mods.lithium.mixin.entity.item_self_insert.standard;
+package me.jellysquid.mods.lithium.mixin.entity.item_self_insert;
 
-import me.jellysquid.mods.lithium.common.blockentities.HopperCooldown;
+import me.jellysquid.mods.lithium.common.blockentities.HopperAccess;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.entity.Entity;
@@ -25,11 +25,11 @@ public abstract class ItemEntityMixin extends Entity {
 	@Inject (method = "tick", at = @At ("RETURN"))
 	public void tick(CallbackInfo ci) {
 		int y = (int) (this.y - 1); // we want only hoppers underneath the item, hoppers already deal with items that are physically colliding with itself, or atleast in theory
-		Box box = getBoundingBox();
+		Box box = this.getBoundingBox();
 		for (double x = box.minX; x < box.maxX; x++) // we want to check all the hoppers that intersect with the following item
 			for (double z = box.minZ; z < box.maxZ; z++) {
-				BlockEntity entity = world.getBlockEntity(new BlockPos(x, y, z)); // check if the block entity underneath it is a hopper
-				if (entity instanceof HopperBlockEntity && ((HopperCooldown)entity).cooled()) // check if hopper is on cooldown
+				BlockEntity entity = this.world.getBlockEntity(new BlockPos(x, y, z)); // check if the block entity underneath it is a hopper
+				if (entity instanceof HopperBlockEntity && ((HopperAccess)entity).shouldAcceptItems()) // check if hopper is on cooldown
 					HopperBlockEntity.extract((Inventory) entity, (ItemEntity) (Object) this); // yeet ourselves into the hopper
 			}
 	}

@@ -51,7 +51,7 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.disableIf("small_tag_arrays", !config.other.useSmallTagArrayOptimization);
         this.disableIf("voxelshape.fast_shape_vertex_merging", !config.physics.useOptimizedShapeVertexListMerging);
         this.disableIf("voxelshape.precompute_shape_arrays", !config.physics.alwaysUnpackBlockShapes);
-        this.disableIf("entity.item_self_insert.standard", !config.entity.itemHopperSelfInsert);
+        this.disableIf("entity.item_self_insert", !config.entity.itemHopperSelfInsert);
     }
 
     private void disableIf(String packageName, boolean condition) {
