@@ -13,16 +13,18 @@ public interface HopperAccess {
      * set the cooldown of the hopper
      * @param cooldown vanilla sets it to 8 each operation
      */
-    void setCooldown(int cooldown);
+    void setCool(int cooldown);
 
     /**
-     * get the cooldown of the hopper
-     * @return
+     * get the ticks until the cooldown of the hopper from a previous action is over
+     * the reason we don't use the normal counter is that it is reset back to 8 no matter what, it's more of a counter
+     * rather than a cooldown
+     *
+     * @return 0 if the hopper is ready to accept items
      */
-    int getCooldown();
+    int realCooldown();
 
     default boolean shouldAcceptItems() {
-        // entities are ticked before block entities, so we need to check if the cooldown is less than equal to one rather than 0
-        return this.getCooldown() <= 1 && this.enabled();
+        return this.realCooldown() <= 1 && this.enabled();
     }
 }
