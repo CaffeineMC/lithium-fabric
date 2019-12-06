@@ -14,15 +14,34 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(HopperBlockEntity.class)
 public abstract class HopperBlockEntityMixin extends BlockEntity implements HopperAccess {
-    public HopperBlockEntityMixin(BlockEntityType<?> type) { super(type); }
+    @Shadow
+    protected abstract boolean isFull();
 
-    @Inject(method = "extract(Lnet/minecraft/block/entity/Hopper;)Z",cancellable = true, at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getInputItemEntities(Lnet/minecraft/block/entity/Hopper;)Ljava/util/List;"))
+    @Shadow
+    private int transferCooldown;
+
+    public boolean full() {
+        return this.isFull();
+    }
+
+    public HopperBlockEntityMixin(BlockEntityType<?> type) {
+        super(type);
+    }
+
+    @Inject(method = "extract(Lnet/minecraft/block/entity/Hopper;)Z", cancellable = true, at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getInputItemEntities(Lnet/minecraft/block/entity/Hopper;)Ljava/util/List;"))
     private static void extract(Hopper hopper, CallbackInfoReturnable<Boolean> cir) {
-		cir.setReturnValue(false); // this is just to exit the entity searching loop and return
-	}
+        if (hopper instanceof HopperBlockEntity && !((HopperBlockEntityMixin) hopper).full()) {
+            cir.setReturnValue(true); // this is just to exit the entity searching loop and return
+        }
+    }
 
     @Override
     public boolean enabled() {
         return this.getCachedState().get(HopperBlock.ENABLED);
+    }
+
+    @Override
+    public void setCooldown(int cooldown) {
+        this.transferCooldown = cooldown;
     }
 }
