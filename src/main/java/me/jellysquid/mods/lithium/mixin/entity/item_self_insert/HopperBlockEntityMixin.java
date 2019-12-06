@@ -18,7 +18,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
 
     @Inject(method = "extract(Lnet/minecraft/block/entity/Hopper;)Z",cancellable = true, at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getInputItemEntities(Lnet/minecraft/block/entity/Hopper;)Ljava/util/List;"))
     private static void extract(Hopper hopper, CallbackInfoReturnable<Boolean> cir) {
-		cir.setReturnValue(false);
+		cir.setReturnValue(false); // this is just to exit the entity searching loop and return
 	}
 
     @Override
