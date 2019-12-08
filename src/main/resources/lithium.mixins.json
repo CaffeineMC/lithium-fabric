@@ -37,6 +37,7 @@
     "small_tag_arrays.MixinTag",
     "voxelshape.fast_shape_vertex_merging.MixinVoxelShapes",
     "voxelshape.precompute_shape_arrays.MixinSimpleVoxelShape",
-    "voxelshape.fast_shape_comparisons.MixinVoxelShapes"
+    "voxelshape.fast_shape_comparisons.MixinVoxelShapes",
+    "chunk.no_chunk_locking.MixinPalettedContainer"
   ]
 }

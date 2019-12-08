@@ -172,6 +172,16 @@ public class LithiumConfig {
          * with a version that has better performance when placing blocks into chunks.
          */
         public boolean useOptimizedHashPalette = true;
+
+        /**
+         * If true, checks which see if a chunk is being concurrently modified will be removed. This may slightly improve
+         * performance in some situations, but comes with the dangerous side effect that these kinds of threading issues
+         * will not be detected and could go on to create serious problems. This option **does not** make it valid to
+         * access chunks from multiple threads.
+         *
+         * Disabled by default until further testing in vanilla is performed and alternatives are looked into.
+         */
+        public boolean removeConcurrentModificationChecks = false;
     }
 
     public static class GeneralConfig {
