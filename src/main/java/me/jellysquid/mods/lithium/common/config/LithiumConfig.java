@@ -54,6 +54,11 @@ public class LithiumConfig {
          * blocks. This algorithm will fallback to the vanilla one if complex block shapes are encountered.
          */
         public boolean useSimpleEntityCollisionTesting = true;
+
+        /**
+         * If true, some comparisons involving voxel shapes will be optimized to avoid combining shapes unnecessarily.
+         */
+        public boolean useFastShapeComparisons = true;
     }
 
     public static class ClientConfig {
