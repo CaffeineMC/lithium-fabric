@@ -38,6 +38,8 @@
     "voxelshape.fast_shape_vertex_merging.MixinVoxelShapes",
     "voxelshape.precompute_shape_arrays.MixinSimpleVoxelShape",
     "entity.item_self_insert.HopperBlockEntityMixin",
-    "entity.item_self_insert.ItemEntityMixin"
+    "entity.item_self_insert.ItemEntityMixin",
+    "voxelshape.fast_shape_comparisons.MixinVoxelShapes",
+    "chunk.no_chunk_locking.MixinPalettedContainer"
   ]
 }
