@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -33,7 +32,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
 
     @Inject(method = "extract(Lnet/minecraft/block/entity/Hopper;)Z", cancellable = true, at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getInputItemEntities(Lnet/minecraft/block/entity/Hopper;)Ljava/util/List;"))
     private static void extract(Hopper hopper, CallbackInfoReturnable<Boolean> cir) {
-        if (hopper instanceof HopperBlockEntity && !((HopperBlockEntityMixin) hopper).full()) {
+        if (hopper instanceof HopperBlockEntity && !((HopperAccess) hopper).full()) {
             cir.setReturnValue(false); // this is just to exit the entity searching loop and return
         }
     }
@@ -66,6 +65,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         return this.realCooldown;
     }
 
+    @Override
     public boolean full() {
         return this.isFull();
     }

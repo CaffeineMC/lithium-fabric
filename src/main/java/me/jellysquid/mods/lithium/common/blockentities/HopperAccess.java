@@ -24,6 +24,12 @@ public interface HopperAccess {
      */
     int realCooldown();
 
+    /**
+     * returns true if the HopperBlockEntity#isFull is true
+     * @return
+     */
+    boolean full();
+
     default boolean shouldAcceptItems() {
         return this.realCooldown() <= 1 && this.enabled();
     }
