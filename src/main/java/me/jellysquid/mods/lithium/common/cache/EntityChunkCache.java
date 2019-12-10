@@ -1,81 +1,69 @@
 package me.jellysquid.mods.lithium.common.cache;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.WorldChunk;
 
-/**
- * Maintains a cached collection of chunks around an entity. This allows for much faster access to nearby chunks for
- * many entity related functions.
- */
-@SuppressWarnings("ForLoopReplaceableByForEach")
 public class EntityChunkCache extends AbstractCachedAccess {
-    private final Long2ObjectMap<WorldChunk> chunks = new Long2ObjectOpenHashMap<>(9);
+    private static final int DIMENSIONS = 2;
+    private static final int CHUNKS = DIMENSIONS * DIMENSIONS;
 
-    @SuppressWarnings("unchecked")
-    private final CachedEntry<WorldChunk>[] mra = new CachedEntry[3];
-
+    private WorldChunk[] chunks = new WorldChunk[CHUNKS];
+    private WorldChunk[] swap = new WorldChunk[CHUNKS];
     private final World world;
-
-    private int minX, minZ, maxX, maxZ;
+    private int lastXCorner, lastZCorner;
 
     public EntityChunkCache(World world) {
         this.world = world;
-
-        for (int i = 0; i < this.mra.length; i++) {
-            this.mra[i] = new CachedEntry<>();
-        }
     }
 
-    public World getWorld() {
-        return this.world;
-    }
+    public void updateChunks(Box hitbox) {
+        int baseX = MathHelper.floor(hitbox.minX / 16);
+        int baseZ = MathHelper.floor(hitbox.minZ / 16);
+        int maxX = MathHelper.floor(hitbox.maxX / 16);
+        int maxZ = MathHelper.floor(hitbox.maxZ / 16);
 
-    public void updateChunks(Box box) {
-        int blockMinX = MathHelper.floor(box.minX - 16.0D);
-        int blockMaxX = MathHelper.ceil(box.maxX + 16.0D);
-        int blockMinZ = MathHelper.floor(box.minZ - 16.0D);
-        int blockMaxZ = MathHelper.ceil(box.maxZ + 16.0D);
-
-        int minX = blockMinX >> 4;
-        int maxX = blockMaxX >> 4;
-        int minZ = blockMinZ >> 4;
-        int maxZ = blockMaxZ >> 4;
-
-        // If we're not watching any new chunks, we have no need to update the set.
-        if (!this.chunks.isEmpty() && this.minX == minX && this.maxX == maxX && this.minZ == minZ && this.maxZ == maxZ) {
-            return;
-        }
-
-        this.chunks.clear();
-
-        for (int i = 0; i < this.mra.length; i++) {
-            this.mra[i].reset();
-        }
-
-        for (int x = minX; x < maxX; x++) {
-            for (int z = minZ; z < maxZ; z++) {
-                WorldChunk chunk = this.world.getChunkManager().getWorldChunk(x, z, false);
-
-                this.chunks.put(ChunkPos.toLong(x, z), chunk);
+        for (int x = baseX; x < maxX; x++) {
+            for (int z = baseZ; z < maxZ; z++) {
+                this.swap[(x-baseX) * DIMENSIONS + (z-baseZ)] = this.getWorldChunk(x, z);
             }
         }
 
-        this.minX = minX;
-        this.maxX = maxX;
-        this.minZ = minZ;
-        this.maxZ = maxZ;
+        WorldChunk[] former = this.chunks;
+        this.chunks = this.swap;
+        this.swap = former;
+
+        this.lastXCorner = baseX;
+        this.lastZCorner = baseZ;
+    }
+
+    public WorldChunk getWorldChunk(Entity entity) {
+        return this.getWorldChunk(entity.chunkX, entity.chunkZ);
+    }
+
+    public WorldChunk getWorldChunk(BlockPos pos) {
+        return this.getWorldChunk(pos.getX() >> 4, pos.getZ() >> 4);
+    }
+
+    public WorldChunk getWorldChunk(int chunkX, int chunkZ) {
+        int offsetX = chunkX - this.lastXCorner;
+        int offsetZ = chunkZ - this.lastZCorner;
+        if (offsetX >= 0 && offsetZ >= 0 && offsetX < DIMENSIONS && offsetZ < DIMENSIONS) {
+            WorldChunk chunk = this.chunks[offsetX * DIMENSIONS + offsetZ];
+            if(chunk == null)
+                return this.world.method_8497(chunkX, chunkZ);
+            return chunk;
+        }
+        return this.world.getChunkManager().getWorldChunk(chunkX, chunkZ, true);
     }
 
     private ChunkSection getChunkSection(int x, int y, int z) {
@@ -124,30 +112,7 @@ public class EntityChunkCache extends AbstractCachedAccess {
         return Fluids.EMPTY.getDefaultState();
     }
 
-    // We can avoid performing a lookup if the map is empty, which can sometimes happen.
-    public WorldChunk getWorldChunk(int x, int z) {
-        if (this.chunks.size() > 0) {
-            long key = ChunkPos.toLong(x, z);
-
-            for (int i = 0; i < this.mra.length; i++) {
-                if (this.mra[i].pos == key) {
-                    return this.mra[i].obj;
-                }
-            }
-
-            WorldChunk chunk = this.chunks.get(key);
-
-            CachedEntry<WorldChunk> c2 = this.mra[2];
-            c2.obj = chunk;
-            c2.pos = key;
-
-            this.mra[2] = this.mra[1];
-            this.mra[1] = this.mra[0];
-            this.mra[0] = c2;
-
-            return chunk;
-        } else {
-            return null;
-        }
+    public World getWorld() {
+        return this.world;
     }
 }

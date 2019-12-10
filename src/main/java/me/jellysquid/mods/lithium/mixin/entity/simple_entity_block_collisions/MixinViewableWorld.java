@@ -42,10 +42,10 @@ public interface MixinViewableWorld {
      */
     @Overwrite
     default boolean doesNotCollide(Entity entity, Box box, Set<Entity> ignore) {
-        EntityChunkCache entityChunkCache = null;
+        EntityChunkCache EntityChunkCache = null;
 
         if (entity != null) {
-            entityChunkCache = ((ExtendedEntity) entity).getEntityChunkCache();
+            EntityChunkCache = ((ExtendedEntity) entity).getEntityChunkCache();
         }
 
         int minX = MathHelper.floor(box.minX - 1.0E-7D) - 1;
@@ -70,8 +70,8 @@ public interface MixinViewableWorld {
 
             BlockState state;
 
-            if (entityChunkCache != null) {
-                state = entityChunkCache.getBlockState(x, y, z);
+            if (EntityChunkCache != null) {
+                state = EntityChunkCache.getBlockState(x, y, z);
             } else {
                 Chunk chunk = this.getChunk(x >> 4, z >> 4, this.getLeastChunkStatusForCollisionCalculation(), false);
 
