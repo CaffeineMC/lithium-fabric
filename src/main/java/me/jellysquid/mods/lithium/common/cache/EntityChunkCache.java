@@ -59,7 +59,7 @@ public class EntityChunkCache extends AbstractCachedAccess {
         int offsetZ = chunkZ - this.lastZCorner;
         if (offsetX >= 0 && offsetZ >= 0 && offsetX < DIMENSIONS && offsetZ < DIMENSIONS) {
             WorldChunk chunk = this.chunks[offsetX * DIMENSIONS + offsetZ];
-            if(chunk == null)
+            if(chunk == null || chunk.getPos().x != chunkX || chunk.getPos().z != chunkZ)
                 return this.world.method_8497(chunkX, chunkZ);
             return chunk;
         }
