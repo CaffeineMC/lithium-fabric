@@ -116,10 +116,22 @@ public class LithiumConfig {
 
     public static class RegionConfig {
         /**
-         * If true, reading from world region files will be buffered, offering a significant speed improvement to loading
-         * chunks in a world. This will not increase memory usage, despite the name.
+         * If true, the number of I/O operations when reading/writing sector data from a region file will be reduced
+         * to a single operation.
          */
-        public boolean useLargeReads = true;
+        public boolean useLargeIO = true;
+
+        /**
+         * If true, memory-mapped file regions will be used to access and modify the chunk offset and timestamp tables
+         * of a region file. This can provide a significant boost when opening new region files and when saving chunks.
+         */
+        public boolean useMemoryMappedFileRegions = true;
+
+        /**
+         * If true, the world's session lock will only be checked once before saving all pending chunks versus once
+         * for every chunk saved.
+         */
+        public boolean reduceSessionLockChecks = true;
     }
 
     public static class ChunkConfig {
