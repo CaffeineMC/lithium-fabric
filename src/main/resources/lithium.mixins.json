@@ -1,45 +1,45 @@
 {
-  "package": "me.jellysquid.mods.lithium.mixin",
-  "required": true,
-  "compatibilityLevel": "JAVA_8",
-  "plugin": "me.jellysquid.mods.lithium.mixin.LithiumMixinPlugin",
-  "injectors": {
-    "defaultRequire": 1
-  },
-  "client": [
-    "client.avoid_cuboid_transformations.MixinCuboid",
-    "client.fast_loading_screen.MixinLevelLoadingScreen",
-    "client.replace_timer.MixinMinecraftClient",
-    "client.replace_timer.MixinSystemUtil",
-    "chunk.pot_packed_array.client.MixinPalettedContainer"
-  ],
-  "mixins": [
-    "avoid_allocations.MixinLivingEntity",
-    "avoid_allocations.MixinServerChunkManager",
-    "avoid_allocations.MixinServerWorld",
-    "avoid_allocations.MixinWorld",
-    "cached_hashcode.MixinBlockNeighborGroup",
-    "cached_hashcode.MixinChunkTicket",
-    "chunk.fast_chunk_palette.MixinPalettedContainer",
-    "chunk.pot_packed_array.MixinPalettedContainer",
-    "entity.bitflag_goal_selection.MixinGoalSelector",
-    "entity.chunk_cache.MixinEntity",
-    "entity.chunk_cache.MixinLivingEntity",
-    "entity.fast_data_tracker.MixinDataTracker",
-    "entity.fast_pathfind_chunk_cache.MixinEntityNavigation",
-    "entity.simple_entity_block_collisions.MixinViewableWorld",
-    "entity.simple_world_border_collisions.MixinEntity",
-    "entity.skip_movement_tick.MixinEntity",
-    "fast_direction_lookup.MixinDirection",
-    "fast_tick_scheduler.MixinServerWorld",
-    "no_debug_world_type.MixinWorldChunk",
-    "region.large_io.MixinRegionFile",
-    "region.mmap_files.MixinRegionFile",
-    "region.fast_session_lock.MixinThreadedAnvilChunkStorage",
-    "small_tag_arrays.MixinTag",
-    "voxelshape.fast_shape_vertex_merging.MixinVoxelShapes",
-    "voxelshape.precompute_shape_arrays.MixinSimpleVoxelShape",
-    "voxelshape.fast_shape_comparisons.MixinVoxelShapes",
-    "chunk.no_chunk_locking.MixinPalettedContainer"
-  ]
+    "package": "me.jellysquid.mods.lithium.mixin",
+    "required": true,
+    "compatibilityLevel": "JAVA_8",
+    "plugin": "me.jellysquid.mods.lithium.mixin.LithiumMixinPlugin",
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "client": [
+        "chunk.pot_packed_array.client.MixinPalettedContainer",
+        "client.avoid_cuboid_transformations.MixinCuboid",
+        "client.fast_loading_screen.MixinLevelLoadingScreen",
+        "client.replace_timer.MixinMinecraftClient",
+        "client.replace_timer.MixinSystemUtil"
+    ],
+    "mixins": [
+        "avoid_allocations.MixinLivingEntity",
+        "avoid_allocations.MixinServerChunkManager",
+        "avoid_allocations.MixinServerWorld",
+        "avoid_allocations.MixinWorld",
+        "cached_hashcode.MixinBlockNeighborGroup",
+        "cached_hashcode.MixinChunkTicket",
+        "chunk.fast_chunk_palette.MixinPalettedContainer",
+        "chunk.no_chunk_locking.MixinPalettedContainer",
+        "chunk.pot_packed_array.MixinPalettedContainer",
+        "entity.bitflag_goal_selection.MixinGoalSelector",
+        "entity.chunk_cache.MixinEntity",
+        "entity.chunk_cache.MixinLivingEntity",
+        "entity.fast_data_tracker.MixinDataTracker",
+        "entity.fast_pathfind_chunk_cache.MixinEntityNavigation",
+        "entity.simple_entity_block_collisions.MixinViewableWorld",
+        "entity.simple_world_border_collisions.MixinEntity",
+        "entity.skip_movement_tick.MixinEntity",
+        "fast_direction_lookup.MixinDirection",
+        "fast_tick_scheduler.MixinServerWorld",
+        "no_debug_world_type.MixinWorldChunk",
+        "region.fast_session_lock.MixinThreadedAnvilChunkStorage",
+        "region.large_io.MixinRegionFile",
+        "region.mmap_files.MixinRegionFile",
+        "small_tag_arrays.MixinTag",
+        "voxelshape.fast_shape_comparisons.MixinVoxelShapes",
+        "voxelshape.fast_shape_vertex_merging.MixinVoxelShapes",
+        "voxelshape.precompute_shape_arrays.MixinSimpleVoxelShape"
+    ]
 }
