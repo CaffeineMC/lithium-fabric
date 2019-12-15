@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.region.buffered_reads;
+package me.jellysquid.mods.lithium.mixin.region.large_io;
 
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.storage.RegionFile;
@@ -6,8 +6,6 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.*;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -19,15 +17,7 @@ import java.util.zip.InflaterInputStream;
 public abstract class MixinRegionFile {
     @Shadow
     @Final
-    private int[] offsets;
-
-    @Shadow
-    @Final
     private RandomAccessFile file;
-
-    @Shadow
-    @Final
-    private int[] chunkTimestamps;
 
     @Shadow
     @Final
@@ -35,45 +25,6 @@ public abstract class MixinRegionFile {
 
     @Shadow
     protected abstract int getOffset(ChunkPos pos);
-
-    /**
-     * Prevents any reading from taking place, short-circuiting two loops.
-     */
-    @ModifyConstant(method = "<init>",
-            constant = @Constant(intValue = 1024),
-            slice = @Slice(from = @At(value = "INVOKE", target = "Ljava/io/RandomAccessFile;seek(J)V")))
-    private static int modifyInitField(int unused) {
-        return 0;
-    }
-
-    /**
-     * Perform the read initialization we canceled just prior, but this time with one large buffered read. This makes it
-     * so we only have to perform one I/O call versus two thousand of them.
-     */
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void reinit(File file_1, CallbackInfo ci) throws IOException {
-        byte[] bufBytes = new byte[(1024 * 2) * 4];
-
-        this.file.readFully(bufBytes);
-
-        ByteBuffer buf = ByteBuffer.wrap(bufBytes);
-
-        for (int i = 0; i < 1024; ++i) {
-            int offset = buf.getInt();
-
-            this.offsets[i] = offset;
-
-            if (offset != 0 && (offset >> 8) + (offset & 255) <= this.sectorFree.size()) {
-                for (int j = 0; j < (offset & 255); ++j) {
-                    this.sectorFree.set((offset >> 8) + j, false);
-                }
-            }
-        }
-
-        for (int i = 0; i < 1024; ++i) {
-            this.chunkTimestamps[i] = buf.getInt();
-        }
-    }
 
     /**
      * We can't get around overwriting this method as it is too complex. This re-implements the function with a single
@@ -129,4 +80,18 @@ public abstract class MixinRegionFile {
         return null;
     }
 
+    /**
+     * @reason Write data in one operation
+     * @author JellySquid
+     */
+    @Overwrite
+    private void write(int index, byte[] bytes, int len) throws IOException {
+        ByteBuffer buf = ByteBuffer.allocate(len + 5);
+        buf.putInt(len + 1); // Header: Size
+        buf.put((byte) 2); // Header: Version
+        buf.put(bytes, 0, len); // Data
+
+        this.file.seek(index * 4096);
+        this.file.write(buf.array());
+    }
 }

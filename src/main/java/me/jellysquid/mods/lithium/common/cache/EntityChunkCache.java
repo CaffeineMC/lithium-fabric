@@ -10,12 +10,18 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkManager;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.WorldChunk;
 
+/**
+ * Maintains a cached collection of chunks around an entity. This allows for much faster access to nearby chunks for
+ * many entity related functions.
+ */
 public class EntityChunkCache extends AbstractCachedAccess {
     private static final int DIMENSIONS = 2;
     private static final int CHUNKS = DIMENSIONS * DIMENSIONS;
+
 
     private WorldChunk[] chunks = new WorldChunk[CHUNKS];
     private WorldChunk[] swap = new WorldChunk[CHUNKS];
@@ -49,7 +55,7 @@ public class EntityChunkCache extends AbstractCachedAccess {
     public WorldChunk getWorldChunk(Entity entity) {
         return this.getWorldChunk(entity.chunkX, entity.chunkZ);
     }
-
+  
     public WorldChunk getWorldChunk(BlockPos pos) {
         return this.getWorldChunk(pos.getX() >> 4, pos.getZ() >> 4);
     }
@@ -74,7 +80,7 @@ public class EntityChunkCache extends AbstractCachedAccess {
         Chunk chunk = this.getWorldChunk(x, z);
 
         if (chunk == null) {
-            chunk = this.world.getChunk(x, z);
+            chunk = this.chunkManager.getWorldChunk(x, z, false);
         }
 
         if (chunk != null) {

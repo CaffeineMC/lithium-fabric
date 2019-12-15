@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.chunk.fast_chunk_palette;
 
+import me.jellysquid.mods.lithium.common.util.LithiumMath;
 import me.jellysquid.mods.lithium.common.util.palette.LithiumHashPalette;
 import me.jellysquid.mods.lithium.common.util.palette.LithiumPaletteResizeListener;
 import net.minecraft.nbt.CompoundTag;
@@ -63,27 +64,26 @@ public abstract class MixinPalettedContainer<T> implements LithiumPaletteResizeL
     public int onLithiumResize(int size, T obj) {
         this.lock();
 
-        PackedIntegerArray oldData = this.data;
-        Palette<T> oldPalette = this.palette;
+        if (size > this.paletteSize) {
+            PackedIntegerArray oldData = this.data;
+            Palette<T> oldPalette = this.palette;
 
-        this.setPaletteSize(size);
+            this.setPaletteSize(size);
 
-        int i;
+            for (int i = 0; i < oldData.getSize(); ++i) {
+                T oldObj = oldPalette.getByIndex(oldData.get(i));
 
-        for (i = 0; i < oldData.getSize(); ++i) {
-            T oldObj = oldPalette.getByIndex(oldData.get(i));
-
-            if (oldObj != null) {
-                this.set(i, oldObj);
+                if (oldObj != null) {
+                    this.set(i, oldObj);
+                }
             }
         }
 
-        i = this.palette.getIndex(obj);
+        int ret = this.palette.getIndex(obj);
 
         this.unlock();
 
-        return i;
-
+        return ret;
     }
 
     /**
@@ -100,11 +100,11 @@ public abstract class MixinPalettedContainer<T> implements LithiumPaletteResizeL
             if (this.paletteSize <= 2) {
                 this.paletteSize = 2;
                 this.palette = new ArrayPalette<>(this.idList, this.paletteSize, (PalettedContainer<T>) (Object) this, this.elementDeserializer);
-            } else if (this.paletteSize < 9) {
+            } else if (this.paletteSize <= 8) {
                 this.palette = new LithiumHashPalette<>(this.idList, this.paletteSize, this, this.elementDeserializer, this.elementSerializer);
             } else {
-                this.palette = this.fallbackPalette;
                 this.paletteSize = MathHelper.log2DeBrujin(this.idList.size());
+                this.palette = this.fallbackPalette;
             }
 
             this.palette.getIndex(this.field_12935);

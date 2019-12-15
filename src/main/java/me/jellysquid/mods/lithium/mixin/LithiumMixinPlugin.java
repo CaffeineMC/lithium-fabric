@@ -47,7 +47,9 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.disableIf("entity.skip_movement_tick", !config.entity.allowSkippingEntityMovementTicks);
         this.disableIf("fast_tick_scheduler", !config.general.useOptimizedTickScheduler);
         this.disableIf("no_debug_world_type", !config.chunk.disableDebugWorldType);
-        this.disableIf("region.buffered_reads", !config.region.useLargeReads);
+        this.disableIf("region.fast_session_lock", !config.region.reduceSessionLockChecks);
+        this.disableIf("region.large_io", !config.region.useLargeIO);
+        this.disableIf("region.mmap_files", !config.region.useMemoryMappedFileRegions);
         this.disableIf("small_tag_arrays", !config.other.useSmallTagArrayOptimization);
         this.disableIf("voxelshape.fast_shape_vertex_merging", !config.physics.useOptimizedShapeVertexListMerging);
         this.disableIf("voxelshape.precompute_shape_arrays", !config.physics.alwaysUnpackBlockShapes);
