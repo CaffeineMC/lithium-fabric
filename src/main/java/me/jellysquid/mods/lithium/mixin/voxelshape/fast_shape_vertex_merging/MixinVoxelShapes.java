@@ -1,8 +1,8 @@
 package me.jellysquid.mods.lithium.mixin.voxelshape.fast_shape_vertex_merging;
 
 import it.unimi.dsi.fastutil.doubles.DoubleList;
-import me.jellysquid.mods.lithium.common.shape.IndirectListPair;
-import me.jellysquid.mods.lithium.common.shape.IndirectListPairCache;
+import me.jellysquid.mods.lithium.common.shapes.merging.IndirectListPair;
+import me.jellysquid.mods.lithium.common.shapes.merging.IndirectListPairCache;
 import net.minecraft.util.BooleanBiFunction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;

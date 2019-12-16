@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.voxels;
+package me.jellysquid.mods.lithium.common.shapes;
 
 import me.jellysquid.mods.lithium.common.cache.EntityChunkCache;
 import net.minecraft.block.BlockState;

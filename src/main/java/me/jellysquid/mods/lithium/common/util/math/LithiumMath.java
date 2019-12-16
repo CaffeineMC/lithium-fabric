@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.util;
+package me.jellysquid.mods.lithium.common.util.math;
 
 import it.unimi.dsi.fastutil.HashCommon;
 

@@ -1,8 +1,8 @@
-package me.jellysquid.mods.lithium.common.shape;
+package me.jellysquid.mods.lithium.common.shapes.merging;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
-import me.jellysquid.mods.lithium.common.voxels.DoubleListPair;
+import me.jellysquid.mods.lithium.common.shapes.lists.PrecomputedFractionalDoubleList;
 
 public final class IndirectListPair extends DoubleListPair {
     private final double[] merged;

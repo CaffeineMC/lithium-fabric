@@ -2,7 +2,7 @@ package me.jellysquid.mods.lithium.mixin.entity.chunk_cache;
 
 import com.google.common.collect.Lists;
 import me.jellysquid.mods.lithium.common.cache.EntityChunkCache;
-import me.jellysquid.mods.lithium.common.entity.ExtendedEntity;
+import me.jellysquid.mods.lithium.common.entity.EntityWithChunkCache;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
@@ -27,7 +27,7 @@ public abstract class MixinWorld {
      */
     @Overwrite
     public List<Entity> getEntities(Entity entity, Box box, Predicate<? super Entity> predicate) {
-        EntityChunkCache cache = entity instanceof ExtendedEntity ? ((ExtendedEntity) entity).getEntityChunkCache() : null;
+        EntityChunkCache cache = entity instanceof EntityWithChunkCache ? ((EntityWithChunkCache) entity).getEntityChunkCache() : null;
 
         List<Entity> ret = Lists.newArrayList();
 

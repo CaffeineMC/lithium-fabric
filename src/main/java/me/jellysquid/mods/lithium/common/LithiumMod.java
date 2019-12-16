@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.common;
 
 import me.jellysquid.mods.lithium.common.config.LithiumConfig;
-import me.jellysquid.mods.lithium.common.shape.IndirectListPairCache;
+import me.jellysquid.mods.lithium.common.shapes.merging.IndirectListPairCache;
 import net.fabricmc.api.ModInitializer;
 
 public class LithiumMod implements ModInitializer {

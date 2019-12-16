@@ -2,8 +2,8 @@ package me.jellysquid.mods.lithium.mixin.entity.chunk_cache;
 
 import me.jellysquid.mods.lithium.common.LithiumMod;
 import me.jellysquid.mods.lithium.common.cache.EntityChunkCache;
-import me.jellysquid.mods.lithium.common.entity.ExtendedEntity;
-import me.jellysquid.mods.lithium.common.voxels.LithiumVoxelShapes;
+import me.jellysquid.mods.lithium.common.entity.EntityWithChunkCache;
+import me.jellysquid.mods.lithium.common.shapes.LithiumVoxelShapes;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -28,7 +28,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Entity.class)
-public abstract class MixinEntity implements ExtendedEntity {
+public abstract class MixinEntity implements EntityWithChunkCache {
     @Shadow
     public abstract Entity getVehicle();
 
@@ -148,7 +148,7 @@ public abstract class MixinEntity implements ExtendedEntity {
             return Entity.calculateTangentialMotionVector(vec, box, world, context, reusableStream);
         }
 
-        EntityChunkCache chunkCache = ((ExtendedEntity) entity).getEntityChunkCache();
+        EntityChunkCache chunkCache = ((EntityWithChunkCache) entity).getEntityChunkCache();
 
         double x = vec.x;
         double y = vec.y;

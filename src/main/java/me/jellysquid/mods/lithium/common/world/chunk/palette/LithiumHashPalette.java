@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.util.palette;
+package me.jellysquid.mods.lithium.common.world.chunk.palette;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

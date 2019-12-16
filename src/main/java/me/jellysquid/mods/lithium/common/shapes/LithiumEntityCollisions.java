@@ -1,7 +1,7 @@
-package me.jellysquid.mods.lithium.common.shape;
+package me.jellysquid.mods.lithium.common.shapes;
 
 import me.jellysquid.mods.lithium.common.cache.EntityChunkCache;
-import me.jellysquid.mods.lithium.common.entity.ExtendedEntity;
+import me.jellysquid.mods.lithium.common.entity.EntityWithChunkCache;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class EntityCollisions {
+public class LithiumEntityCollisions {
     /**
      * [VanillaCopy] ViewableWorld#method_20812(Entity, Box)
      * This is a much, much faster implementation which uses simple collision testing against full-cube block shapes.
@@ -30,7 +30,7 @@ public class EntityCollisions {
      * chunks.
      */
     public static Stream<VoxelShape> method_20812(ViewableWorld world, final Entity entity, Box entityBox) {
-        EntityChunkCache cache = entity instanceof ExtendedEntity ? ((ExtendedEntity) entity).getEntityChunkCache() : null;
+        EntityChunkCache cache = entity instanceof EntityWithChunkCache ? ((EntityWithChunkCache) entity).getEntityChunkCache() : null;
 
         int minX = MathHelper.floor(entityBox.minX - 1.0E-7D) - 1;
         int maxX = MathHelper.floor(entityBox.maxX + 1.0E-7D) + 1;

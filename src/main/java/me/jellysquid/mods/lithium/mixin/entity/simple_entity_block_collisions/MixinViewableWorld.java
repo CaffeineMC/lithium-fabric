@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.entity.simple_entity_block_collisions;
 
-import me.jellysquid.mods.lithium.common.shape.EntityCollisions;
+import me.jellysquid.mods.lithium.common.shapes.LithiumEntityCollisions;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.shape.VoxelShape;
@@ -18,6 +18,6 @@ public interface MixinViewableWorld {
      */
     @Overwrite
     default Stream<VoxelShape> method_20812(final Entity entity, Box box) {
-        return EntityCollisions.method_20812((ViewableWorld) this, entity, box);
+        return LithiumEntityCollisions.method_20812((ViewableWorld) this, entity, box);
     }
 }

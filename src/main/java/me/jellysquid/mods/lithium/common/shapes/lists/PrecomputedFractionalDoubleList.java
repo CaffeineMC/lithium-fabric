@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.shape;
+package me.jellysquid.mods.lithium.common.shapes.lists;
 
 import it.unimi.dsi.fastutil.doubles.AbstractDoubleList;
 

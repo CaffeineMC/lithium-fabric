@@ -1,9 +1,9 @@
-package me.jellysquid.mods.lithium.common.util.palette;
+package me.jellysquid.mods.lithium.common.world.chunk.palette;
 
 import com.google.common.collect.Iterators;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import me.jellysquid.mods.lithium.common.util.LithiumMath;
+import me.jellysquid.mods.lithium.common.util.math.LithiumMath;
 import net.minecraft.util.IndexedIterable;
 
 import java.util.Arrays;

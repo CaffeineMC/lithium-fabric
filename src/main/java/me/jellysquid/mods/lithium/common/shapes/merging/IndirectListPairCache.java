@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.shape;
+package me.jellysquid.mods.lithium.common.shapes.merging;
 
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;

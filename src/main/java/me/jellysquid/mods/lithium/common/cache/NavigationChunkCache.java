@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.cache;
 
-import me.jellysquid.mods.lithium.common.entity.ExtendedEntity;
+import me.jellysquid.mods.lithium.common.entity.EntityWithChunkCache;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
@@ -38,7 +38,7 @@ public class NavigationChunkCache implements ViewableWorld {
     private final World world;
 
     public NavigationChunkCache(Entity entity, World world, BlockPos min, BlockPos max) {
-        EntityChunkCache cache = entity instanceof ExtendedEntity ? ((ExtendedEntity) entity).getEntityChunkCache() : null;
+        EntityChunkCache cache = entity instanceof EntityWithChunkCache ? ((EntityWithChunkCache) entity).getEntityChunkCache() : null;
 
         this.world = world;
 

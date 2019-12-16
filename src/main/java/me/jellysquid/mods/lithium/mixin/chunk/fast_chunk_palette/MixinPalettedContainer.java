@@ -1,8 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.chunk.fast_chunk_palette;
 
-import me.jellysquid.mods.lithium.common.util.LithiumMath;
-import me.jellysquid.mods.lithium.common.util.palette.LithiumHashPalette;
-import me.jellysquid.mods.lithium.common.util.palette.LithiumPaletteResizeListener;
+import me.jellysquid.mods.lithium.common.world.chunk.palette.LithiumHashPalette;
+import me.jellysquid.mods.lithium.common.world.chunk.palette.LithiumPaletteResizeListener;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.IdList;
 import net.minecraft.util.PackedIntegerArray;
