@@ -53,8 +53,8 @@ public class LithiumEntityCollisions {
 
                     VoxelShape border = world.getWorldBorder().asVoxelShape();
 
-                    boolean isInsideBorder = VoxelShapes.matchesAnywhere(border, VoxelShapes.cuboid(entity.getBoundingBox().contract(1.0E-7D)), BooleanBiFunction.AND);
-                    boolean isCrossingBorder = VoxelShapes.matchesAnywhere(border, VoxelShapes.cuboid(entity.getBoundingBox().expand(1.0E-7D)), BooleanBiFunction.AND);
+                    boolean isInsideBorder = doesEntityCollideWithWorldBorder(border, entity.getBoundingBox().contract(1.0E-7D));
+                    boolean isCrossingBorder = doesEntityCollideWithWorldBorder(border, entity.getBoundingBox().expand(1.0E-7D));
 
                     if (!isInsideBorder && isCrossingBorder) {
                         consumer.accept(border);
@@ -129,5 +129,17 @@ public class LithiumEntityCollisions {
         }
 
         return VoxelShapes.matchesAnywhere(block.offset(x, y, z), entityShape, BooleanBiFunction.AND);
+    }
+
+    public static boolean doesEntityCollideWithWorldBorder(WorldBorder border, Box entityBox) {
+        double wboxMinX = border.getCenterX() - (border.getSize() / 2);
+        double wboxMinZ = border.getCenterZ() - (border.getSize() / 2);
+
+        double wboxMaxX = border.getCenterX() + (border.getSize() / 2);
+        double wboxMaxZ = border.getCenterZ() + (border.getSize() / 2);
+
+        // Entities and world borders both use AABBs, so we can use a very simple and fast collision check
+        return wboxMinX < ebox.minX && wboxMaxX > ebox.minX && wboxMinX < ebox.maxX && wboxMaxX > ebox.maxX &&
+            wboxMinZ < ebox.minZ && wboxMaxZ > ebox.minZ && wboxMinZ < ebox.maxZ && wboxMaxZ > ebox.maxZ;
     }
 }

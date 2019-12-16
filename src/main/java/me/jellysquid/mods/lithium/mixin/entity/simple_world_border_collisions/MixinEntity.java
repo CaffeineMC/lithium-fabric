@@ -32,24 +32,7 @@ public abstract class MixinEntity {
         }
 
         WorldBorder border = this.world.getWorldBorder();
-
-        double wboxMinX = border.getCenterX() - (border.getSize() / 2);
-        double wboxMinZ = border.getCenterZ() - (border.getSize() / 2);
-
-        double wboxMaxX = border.getCenterX() + (border.getSize() / 2);
-        double wboxMaxZ = border.getCenterZ() + (border.getSize() / 2);
-
         Box ebox = this.getBoundingBox().stretch(motion);
-
-        // The entity's bounding box is fully within the world border and will not collide with it. We can safely remove
-        // it from the stream of shapes to do collision checking against.
-        if (wboxMinX < ebox.minX && wboxMaxX > ebox.minX && wboxMinX < ebox.maxX && wboxMaxX > ebox.maxX &&
-                wboxMinZ < ebox.minZ && wboxMaxZ > ebox.minZ && wboxMinZ < ebox.maxZ && wboxMaxZ > ebox.maxZ) {
-            return true;
-        }
-
-        return VoxelShapes.matchesAnywhere(borderShape, entityShape, func);
+        return LithiumEntityCollisions.doesEntityCollideWithWorldBorder(border, ebox);
     }
-
-
 }
