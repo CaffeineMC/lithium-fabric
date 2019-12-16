@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.common.cache;
 
+import me.jellysquid.mods.lithium.common.entity.ExtendedEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
@@ -28,58 +29,45 @@ import net.minecraft.world.dimension.Dimension;
 public class NavigationChunkCache implements ViewableWorld {
     private static final ChunkSection EMPTY_SECTION = new ChunkSection(0);
 
-    private final int minX;
-    private final int minZ;
+    private final int startX, startZ;
+    private final int width, height;
 
     private final Chunk[] chunks;
     private final ChunkSection[] sections;
 
     private final World world;
 
-    public NavigationChunkCache(World world, BlockPos min, BlockPos max) {
+    public NavigationChunkCache(Entity entity, World world, BlockPos min, BlockPos max) {
+        EntityChunkCache cache = entity instanceof ExtendedEntity ? ((ExtendedEntity) entity).getEntityChunkCache() : null;
+
         this.world = world;
 
-        this.minX = min.getX() >> 4;
-        this.minZ = min.getZ() >> 4;
+        this.startX = min.getX() >> 4;
+        this.startZ = min.getZ() >> 4;
 
         int maxX = max.getX() >> 4;
         int maxZ = max.getZ() >> 4;
 
-        int width = maxX - this.minX + 1;
-        int height = maxZ - this.minZ + 1;
+        this.width = maxX - this.startX;
+        this.height = maxZ - this.startZ;
 
-        this.chunks = new Chunk[width * height];
-        this.sections = new ChunkSection[width * height * 16];
+        this.chunks = new Chunk[(this.width + 1) * (this.height + 1)];
+        this.sections = new ChunkSection[this.chunks.length * 16];
 
-        for (int x = this.minX; x <= maxX; ++x) {
-            for (int z = this.minZ; z <= maxZ; ++z) {
-                Chunk chunk = world.getChunk(x, z, ChunkStatus.FULL, false);
+        for (int x = this.startX; x <= maxX; ++x) {
+            for (int z = this.startZ; z <= maxZ; ++z) {
+                Chunk chunk = cache != null ? cache.getChunk(x, z) : world.getChunk(x, z, ChunkStatus.FULL, false);
 
                 if (chunk == null) {
                     chunk = new EmptyChunk(this.world, new ChunkPos(x, z));
                 }
 
-                this.chunks[indexChunk(x - this.minX, z - this.minZ)] = chunk;
+                int i = indexChunk(x - this.startX, z - this.startZ);
 
-                for (int y = 0; y < 16; y++) {
-                    ChunkSection section = chunk.getSectionArray()[y];
+                this.chunks[i] = chunk;
 
-                    if (section == null) {
-                        section = EMPTY_SECTION;
-                    }
-
-                    this.sections[indexSection(x - this.minX, y, z - this.minZ)] = section;
-                }
-            }
-        }
-
-        for (int x = min.getX() >> 4; x <= max.getX() >> 4; ++x) {
-            for (int z = min.getZ() >> 4; z <= max.getZ() >> 4; ++z) {
-                Chunk chunk = this.chunks[indexChunk(x - this.minX, z - this.minZ)];
-
-                if (chunk != null && !chunk.method_12228(min.getY(), max.getY())) {
-
-                    return;
+                for (int j = 0; j < 16; j++) {
+                    this.sections[(i * 16) + j] = chunk.getSectionArray()[j] == null ? EMPTY_SECTION : chunk.getSectionArray()[j];
                 }
             }
         }
@@ -92,7 +80,7 @@ public class NavigationChunkCache implements ViewableWorld {
 
     @Override
     public Chunk getChunk(int chunkX, int chunkZ, ChunkStatus status, boolean flag) {
-        int i = indexChunk(chunkX - this.minX, chunkZ - this.minZ);
+        int i = indexChunk(chunkX - this.startX, chunkZ - this.startZ);
 
         if (i >= 0 && i < this.chunks.length) {
             return this.chunks[i];
@@ -102,20 +90,30 @@ public class NavigationChunkCache implements ViewableWorld {
     }
 
     public ChunkSection getChunkSection(int chunkX, int chunkY, int chunkZ) {
-        int i = indexSection(chunkX - this.minX, chunkY, chunkZ - this.minZ);
-
-        if (i >= 0 && i < this.sections.length) {
-            return this.sections[i];
-        } else {
+        if (chunkY < 0 || chunkY >= 16) {
             return EMPTY_SECTION;
         }
+
+        int offsetX = chunkX - this.startX;
+        int offsetZ = chunkZ - this.startZ;
+
+        if (offsetX < 0 || offsetX >= this.width || offsetZ < 0 || offsetZ >= this.height) {
+            return EMPTY_SECTION;
+        }
+
+        return this.sections[this.indexChunk(offsetX, chunkY, offsetZ)];
+    }
+
+    private int indexChunk(int x, int y, int z) {
+        return (((x * this.width) + z) * 16) + y;
     }
 
     @Override
     public boolean isChunkLoaded(int chunkX, int chunkZ) {
-        int i = indexChunk(chunkX - this.minX, chunkZ - this.minZ);
+        int x = chunkX - this.startX;
+        int z = chunkZ - this.startZ;
 
-        return i >= 0 && i < this.chunks.length;
+        return x >= 0 && x < this.width && z >= 0 && z < this.height;
     }
 
     @Override
@@ -167,20 +165,20 @@ public class NavigationChunkCache implements ViewableWorld {
     public BlockState getBlockState(BlockPos pos) {
         if (World.isHeightInvalid(pos)) {
             return Blocks.AIR.getDefaultState();
-        } else {
-            return this.getChunkSection(pos.getX() >> 4, pos.getY() >> 4, pos.getZ() >> 4)
-                    .getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
         }
+
+        return this.getChunkSection(pos.getX() >> 4, pos.getY() >> 4, pos.getZ() >> 4)
+                .getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
     }
 
     @Override
     public FluidState getFluidState(BlockPos pos) {
         if (World.isHeightInvalid(pos)) {
             return Fluids.EMPTY.getDefaultState();
-        } else {
-            return this.getChunkSection(pos.getX() >> 4, pos.getY() >> 4, pos.getZ() >> 4)
-                    .getFluidState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
         }
+
+        return this.getChunkSection(pos.getX() >> 4, pos.getY() >> 4, pos.getZ() >> 4)
+                .getFluidState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
     }
 
     @Override
@@ -193,12 +191,7 @@ public class NavigationChunkCache implements ViewableWorld {
         return this.world.getLightLevel(type, pos);
     }
 
-    private static int indexChunk(int x, int z) {
-        return x * z;
+    private int indexChunk(int x, int z) {
+        return (x * this.width) + z;
     }
-
-    private static int indexSection(int x, int y, int z) {
-        return (x * z * 16) + y;
-    }
-
 }

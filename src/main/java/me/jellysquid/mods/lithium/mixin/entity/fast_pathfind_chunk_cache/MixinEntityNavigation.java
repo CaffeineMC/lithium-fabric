@@ -79,7 +79,7 @@ public abstract class MixinEntityNavigation {
 
         int radius = (int) range + additionalRange;
 
-        ViewableWorld worldAccess = new NavigationChunkCache(this.world, blockPos_1.add(-radius, -radius, -radius), blockPos_1.add(radius, radius, radius));
+        ViewableWorld worldAccess = new NavigationChunkCache(this.entity, this.world, blockPos_1.add(-radius, -radius, -radius), blockPos_1.add(radius, radius, radius));
 
         Path path = this.pathNodeNavigator.pathfind(worldAccess, this.entity, set, range, int_2);
 
