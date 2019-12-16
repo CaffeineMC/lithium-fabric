@@ -24,6 +24,7 @@
         "entity.bitflag_goal_selection.MixinGoalSelector",
         "entity.chunk_cache.MixinEntity",
         "entity.chunk_cache.MixinLivingEntity",
+        "entity.chunk_cache.MixinWorld",
         "entity.data_tracker.no_locks.MixinDataTracker",
         "entity.data_tracker.no_locks.network.MixinPlayerSpawnS2CPacket",
         "entity.data_tracker.no_locks.network.MixinMobSpawnS2CPacket",

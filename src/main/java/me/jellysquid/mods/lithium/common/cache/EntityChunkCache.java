@@ -25,6 +25,7 @@ import static net.minecraft.util.math.ChunkSectionPos.toLocalCoord;
  */
 public class EntityChunkCache {
     private static final int RADIUS = 1;
+
     private static final int LENGTH = (RADIUS * 2) + 1;
 
     private final Entity entity;
@@ -35,7 +36,7 @@ public class EntityChunkCache {
 
     private int startX, startZ;
 
-    private boolean isCacheEnabled = false;
+    private boolean isCacheEmpty = true;
 
     public EntityChunkCache(Entity entity) {
         this.entity = entity;
@@ -47,14 +48,16 @@ public class EntityChunkCache {
     }
 
     public void updateChunks(Box box) {
-        int startX = toChunkCoord(MathHelper.floor(box.minX - 16.0D)) - RADIUS;
-        int startZ = toChunkCoord(MathHelper.floor(box.minZ - 16.0D)) - RADIUS;
+        int startX = toChunkCoord(MathHelper.floor(box.minX)) - RADIUS;
+        int startZ = toChunkCoord(MathHelper.floor(box.minZ)) - RADIUS;
 
         ChunkManager chunkManager = this.getWorld().getChunkManager();
 
         // If the world/chunk manager has changed, we need to reset
         if (chunkManager != this.chunkManager) {
             Arrays.fill(this.cache, null);
+
+            this.isCacheEmpty = true;
         } else {
             // If we're not watching any new chunks, we have no need to update anything
             if (startX == this.startX && startZ == this.startZ) {
@@ -62,7 +65,7 @@ public class EntityChunkCache {
             }
         }
 
-        if (this.isCacheEnabled) {
+        if (!this.isCacheEmpty) {
             WorldChunk[] cache = new WorldChunk[LENGTH * LENGTH];
 
             for (int x = 0; x < LENGTH; x++) {
@@ -78,7 +81,7 @@ public class EntityChunkCache {
         this.startZ = startZ;
         this.chunkManager = chunkManager;
 
-        this.isCacheEnabled = true;
+        this.isCacheEmpty = false;
     }
 
     private ChunkSection getChunkSection(int x, int y, int z) {
@@ -123,8 +126,7 @@ public class EntityChunkCache {
         return Fluids.EMPTY.getDefaultState();
     }
 
-    // We can avoid performing a lookup if the map is empty, which can sometimes happen.
-    private WorldChunk getChunk(int x, int z) {
+    public WorldChunk getChunk(int x, int z) {
         int iX = x - this.startX;
         int iZ = z - this.startZ;
 
@@ -134,7 +136,7 @@ public class EntityChunkCache {
             WorldChunk chunk = this.cache[i];
 
             if (chunk == null) {
-                this.cache[i] = chunk = this.chunkManager.getWorldChunk(x, z, true);
+                this.cache[i] = chunk = this.chunkManager.getWorldChunk(x, z, false);
             }
 
             return chunk;
@@ -143,8 +145,7 @@ public class EntityChunkCache {
         return this.chunkManager.getWorldChunk(x, z, true);
     }
 
-    // We can avoid performing a lookup if the map is empty, which can sometimes happen.
-    private WorldChunk getCachedChunk(int x, int z) {
+    public WorldChunk getCachedChunk(int x, int z) {
         int iX = x - this.startX;
         int iZ = z - this.startZ;
 

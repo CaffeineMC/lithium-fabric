@@ -54,7 +54,7 @@ public abstract class MixinEntity implements ExtendedEntity {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onConstructed(EntityType<?> type, World world, CallbackInfo ci) {
-        this.chunkCache = new EntityChunkCache(this.world);
+        this.chunkCache = new EntityChunkCache((Entity) (Object) this);
     }
 
     private final BlockPos.Mutable scratchPos = new BlockPos.Mutable();
@@ -117,15 +117,14 @@ public abstract class MixinEntity implements ExtendedEntity {
         return this.chunkCache;
     }
 
-
     @Redirect(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;doesAreaContainFireSource(Lnet/minecraft/util/math/Box;)Z"))
-    private boolean redirectDoesAreaContainFireSource(World world, Box box_1) {
-        int minX = MathHelper.floor(box_1.minX);
-        int maxX = MathHelper.ceil(box_1.maxX);
-        int minY = MathHelper.floor(box_1.minY);
-        int maxY = MathHelper.ceil(box_1.maxY);
-        int minZ = MathHelper.floor(box_1.minZ);
-        int maxZ = MathHelper.ceil(box_1.maxZ);
+    private boolean redirectDoesAreaContainFireSource(World world, Box box) {
+        int minX = MathHelper.floor(box.minX);
+        int maxX = MathHelper.ceil(box.maxX);
+        int minY = MathHelper.floor(box.minY);
+        int maxY = MathHelper.ceil(box.maxY);
+        int minZ = MathHelper.floor(box.minZ);
+        int maxZ = MathHelper.ceil(box.maxZ);
 
         for (int x = minX; x < maxX; ++x) {
             for (int y = minY; y < maxY; ++y) {
@@ -163,8 +162,9 @@ public abstract class MixinEntity implements ExtendedEntity {
             }
         }
 
-        boolean boolean_1 = Math.abs(x) < Math.abs(z);
-        if (boolean_1 && z != 0.0D) {
+        boolean flag = Math.abs(x) < Math.abs(z);
+
+        if (flag && z != 0.0D) {
             z = LithiumVoxelShapes.calculateSoftOffset(Direction.Axis.Z, box, chunkCache, z, context, reusableStream.stream());
 
             if (z != 0.0D) {
@@ -175,17 +175,15 @@ public abstract class MixinEntity implements ExtendedEntity {
         if (x != 0.0D) {
             x = LithiumVoxelShapes.calculateSoftOffset(Direction.Axis.X, box, chunkCache, x, context, reusableStream.stream());
 
-            if (!boolean_1 && x != 0.0D) {
+            if (!flag && x != 0.0D) {
                 box = box.offset(x, 0.0D, 0.0D);
             }
         }
 
-        if (!boolean_1 && z != 0.0D) {
+        if (!flag && z != 0.0D) {
             z = LithiumVoxelShapes.calculateSoftOffset(Direction.Axis.Z, box, chunkCache, z, context, reusableStream.stream());
         }
 
         return new Vec3d(x, y, z);
     }
-
-
 }
