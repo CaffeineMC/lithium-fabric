@@ -7,7 +7,6 @@
         "defaultRequire": 1
     },
     "client": [
-        "chunk.pot_packed_array.client.MixinPalettedContainer",
         "client.avoid_cuboid_transformations.MixinCuboid",
         "client.fast_loading_screen.MixinLevelLoadingScreen",
         "client.replace_timer.MixinMinecraftClient",
@@ -22,7 +21,6 @@
         "cached_hashcode.MixinChunkTicket",
         "chunk.fast_chunk_palette.MixinPalettedContainer",
         "chunk.no_chunk_locking.MixinPalettedContainer",
-        "chunk.pot_packed_array.MixinPalettedContainer",
         "entity.bitflag_goal_selection.MixinGoalSelector",
         "entity.chunk_cache.MixinEntity",
         "entity.chunk_cache.MixinLivingEntity",

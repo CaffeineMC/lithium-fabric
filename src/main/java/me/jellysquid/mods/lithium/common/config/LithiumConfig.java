@@ -136,43 +136,6 @@ public class LithiumConfig {
 
     public static class ChunkConfig {
         /**
-         * If true, a faster implementation of the packed integer array used for storing block and fluid data in chunks will
-         * be used. This can provide a significant reduction in CPU overhead when accessing chunk data (up to 40%), but will
-         * significantly increase memory usage (up to 85% in the worst case) for filled chunk sections due to the requirement
-         * that integer lengths must be a power-of-two. In other words, this tweak sacrifices memory for speed.
-         * <p>
-         * You might be concerned that this tweak uses too much extra memory for the performance gain it gives in some
-         * situations, but consider that even with a render distance of 24 for each player (double the default) and the
-         * absolute worst case scenario with every chunk section filled and the worst memory efficiency (+85%), you would
-         * only add another 2.7MB per player (assuming no player shares loaded chunks between any other player.) In the
-         * real world, such a statement would be absurd. The actual amount of additional memory consumption will be
-         * closer to perhaps 400KB per player even with said high render distance.
-         * <p>
-         * However, on some hardware configurations, this will be too much extra burden. In which case, you're in the
-         * config file for a reason and likely know what you want already.
-         * <p>
-         * The following table compares the amount of memory between the two implementations based upon the maximum
-         * number of unique blocks in a chunk.
-         * <p>
-         * Int Size      Vanilla       Ours     Mem Wasted    Notes
-         * (max blocks)    Bytes      Bytes     Bytes  (%)
-         * <p>
-         * 4* (16)          2048       2048     0             The common size of a chunk after initial world gen.
-         * 5  (32)          2560       4096     1536 (60%)    The usual upper-end for a chunk.
-         * 6  (64)          3072       4096     1024 (33%)    Large chunk with significant player modification.
-         * 7  (128)         3584       4096     512  (14%)    Very large chunk with very heavy player modification.
-         * 8* (256)         4096       4096     0             Extremely rare. Approaches upper-limit of player modification.
-         * 9  (512)         4608       8096     3488 (85%)    Performance rapidly degrades even in vanilla. Practically never seen.
-         * 10 (1024)        5120       8096     2976 (58%)    ... Ditto.
-         * 11 (2048)        5632       8096     2464 (43%)    ... Ditto.
-         * 12 (4096)        6144       8096     1952 (31%)    Absolute worse case scenario, impossible to achieve without
-         * purposefully trying. The game doesn't like this.
-         * <p>
-         * Sizes marked with asterisks are powers-of-two where no memory is wasted between either implementation.
-         */
-        public boolean usePOTPackedIntegerArrays = true;
-
-        /**
          * If true, extra conditional logic for checking if a world is of the debug type will be removed. This may slightly
          * improve performance in some situations, but will make it impossible to use the debug world type. It's very likely
          * you didn't know that was a feature or will ever need to use it, so this option is generally worthwhile.
