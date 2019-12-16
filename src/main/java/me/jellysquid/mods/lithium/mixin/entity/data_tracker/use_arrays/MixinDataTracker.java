@@ -1,6 +1,5 @@
-package me.jellysquid.mods.lithium.mixin.entity.fast_data_tracker;
+package me.jellysquid.mods.lithium.mixin.entity.data_tracker.use_arrays;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -15,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
 
 @Mixin(DataTracker.class)
 public abstract class MixinDataTracker {
@@ -22,21 +22,37 @@ public abstract class MixinDataTracker {
     @Final
     private Map<Integer, DataTracker.Entry<?>> entries;
 
-    // Immutable! Updates must replace the variable. TODO: Replace with immutable map type
-    private volatile Int2ObjectOpenHashMap<DataTracker.Entry<?>> entriesVolatile = new Int2ObjectOpenHashMap<>();
+    @Shadow
+    @Final
+    private ReadWriteLock lock;
+
+    private DataTracker.Entry<?>[] entriesArray = new DataTracker.Entry<?>[0];
 
     /**
      * We redirect the call to add a tracked data to the internal map so we can add it to our own, faster map. The
      * map field is never mutated in-place so we can avoid expensive locking, but this might hurt for memory allocations...
      */
     @Redirect(method = "addTrackedData", at = @At(value = "INVOKE", target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"))
-    private Object onAddTrackedDataInsertMap(Map<Class<? extends Entity>, Integer> map, Object key, Object value) {
-        Int2ObjectOpenHashMap<DataTracker.Entry<?>> copy = this.entriesVolatile.clone();
-        copy.put((int) key, (DataTracker.Entry<?>) value);
+    private Object onAddTrackedDataInsertMap(Map<Class<? extends Entity>, Integer> map, Object keyObj, Object valueObj) {
+        int key = (int) keyObj;
 
-        this.entriesVolatile = copy;
+        if (key > Byte.MAX_VALUE) {
+            throw new IllegalArgumentException("Key index too large (>127)");
+        }
 
-        return this.entries.put((Integer) key, (DataTracker.Entry<?>) value);
+        DataTracker.Entry<?>[] entries = this.entriesArray;
+
+        if (entries.length <= key) {
+            DataTracker.Entry<?>[] copy = new DataTracker.Entry[key + 1];
+
+            System.arraycopy(entries, 0, copy, 0, entries.length);
+
+            this.entriesArray = entries = copy;
+        }
+
+        entries[(byte) key] = (DataTracker.Entry<?>) valueObj;
+
+        return this.entries.put(key, (DataTracker.Entry<?>) valueObj);
     }
 
     /**
@@ -45,12 +61,22 @@ public abstract class MixinDataTracker {
      */
     @Overwrite
     private <T> DataTracker.Entry<T> getEntry(TrackedData<T> data) {
+        this.lock.readLock().lock();
+
         try {
+            int id = data.getId();
+
+            if (id >= this.entriesArray.length) {
+                return null;
+            }
+
             //noinspection unchecked
-            return (DataTracker.Entry<T>) this.entriesVolatile.get(data.getId());
+            return (DataTracker.Entry<T>) this.entriesArray[id];
         } catch (Throwable cause) {
             // Move to another method so this function can be in-lined better
             throw onGetException(cause, data);
+        } finally {
+            this.lock.readLock().unlock();
         }
     }
 

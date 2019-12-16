@@ -91,10 +91,18 @@ public class LithiumConfig {
         public boolean allowSkippingEntityMovementTicks = true;
 
         /**
-         * If true, an optimized map implementation will be used for entity data tracking which avoids integer boxing and
-         * object locking.
+         * If true, an optimized map implementation will be used for entity data tracking which avoids integer boxing
+         * and a map lookup by using a simple array.
          */
         public boolean useOptimizedDataTracker = true;
+
+        /**
+         * If true, the data tracker for entities will not perform locking. This works by making additional patches
+         * to some network packet classes, requiring them to copy their data on the main-thread which will be serialized
+         * later off-thread. This could (however unlikely) cause issues if mods are installed which try to access the
+         * data tracker on the wrong thread.
+         */
+        public boolean avoidLockingDataTracker = false;
 
         /**
          * If true, a faster implementation will be used for selecting AI goals for entities. The original code was
