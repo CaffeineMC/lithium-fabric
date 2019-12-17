@@ -42,6 +42,21 @@
         "small_tag_arrays.MixinTag",
         "voxelshape.fast_shape_comparisons.MixinVoxelShapes",
         "voxelshape.fast_shape_vertex_merging.MixinVoxelShapes",
-        "voxelshape.precompute_shape_arrays.MixinSimpleVoxelShape"
+        "voxelshape.precompute_shape_arrays.MixinSimpleVoxelShape",
+        "nbt.fast_serialization.MixinByteArrayTag",
+        "nbt.fast_serialization.MixinByteTag",
+        "nbt.fast_serialization.MixinCompoundTag",
+        "nbt.fast_serialization.MixinDoubleTag",
+        "nbt.fast_serialization.MixinEndTag",
+        "nbt.fast_serialization.MixinFloatTag",
+        "nbt.fast_serialization.MixinIntArrayTag",
+        "nbt.fast_serialization.MixinIntTag",
+        "nbt.fast_serialization.MixinListTag",
+        "nbt.fast_serialization.MixinLongArrayTag",
+        "nbt.fast_serialization.MixinLongTag",
+        "nbt.fast_serialization.MixinShortTag",
+        "nbt.fast_serialization.MixinStringTag",
+        "nbt.fast_serialization.region.MixinRegionBasedStorage",
+        "nbt.fast_serialization.region.MixinRegionFile"
     ]
 }

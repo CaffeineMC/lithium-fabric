@@ -136,6 +136,11 @@ public class LithiumConfig {
         public boolean useMemoryMappedFileRegions = true;
 
         /**
+         * If true, a faster implementation will be used for serializing and deserializing the NBT data of chunks.
+         */
+        public boolean useFastNBTSerialization = false;
+
+        /**
          * If true, the world's session lock will only be checked once before saving all pending chunks versus once
          * for every chunk saved.
          */
