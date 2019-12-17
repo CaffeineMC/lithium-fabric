@@ -14,6 +14,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.ViewableWorld;
+import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.chunk.Chunk;
 
 import java.util.Spliterator;
@@ -51,13 +52,13 @@ public class LithiumEntityCollisions {
                 if (!this.skipWorldBorderCheck) {
                     this.skipWorldBorderCheck = true;
 
-                    VoxelShape border = world.getWorldBorder().asVoxelShape();
+                    WorldBorder border = world.getWorldBorder();
 
                     boolean isInsideBorder = doesEntityCollideWithWorldBorder(border, entity.getBoundingBox().contract(1.0E-7D));
                     boolean isCrossingBorder = doesEntityCollideWithWorldBorder(border, entity.getBoundingBox().expand(1.0E-7D));
 
                     if (!isInsideBorder && isCrossingBorder) {
-                        consumer.accept(border);
+                        consumer.accept(border.asVoxelShape());
 
                         return true;
                     }
@@ -131,7 +132,7 @@ public class LithiumEntityCollisions {
         return VoxelShapes.matchesAnywhere(block.offset(x, y, z), entityShape, BooleanBiFunction.AND);
     }
 
-    public static boolean doesEntityCollideWithWorldBorder(WorldBorder border, Box entityBox) {
+    public static boolean doesEntityCollideWithWorldBorder(WorldBorder border, Box ebox) {
         double wboxMinX = border.getCenterX() - (border.getSize() / 2);
         double wboxMinZ = border.getCenterZ() - (border.getSize() / 2);
 

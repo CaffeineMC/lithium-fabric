@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.entity.simple_world_border_collisions;
 
 import me.jellysquid.mods.lithium.common.LithiumMod;
+import me.jellysquid.mods.lithium.common.shapes.LithiumEntityCollisions;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BooleanBiFunction;
 import net.minecraft.util.math.Box;
