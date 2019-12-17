@@ -1,7 +1,5 @@
 package me.jellysquid.mods.lithium.common.nbt.io;
 
-import java.nio.ByteBuffer;
-
 public interface NbtOut {
     void writeInt(int value);
 
@@ -69,5 +67,5 @@ public interface NbtOut {
         this.writeBytes(bytearr, 0, utflen + 2);
     }
 
-    ByteBuffer finish();
+    byte[] finish();
 }

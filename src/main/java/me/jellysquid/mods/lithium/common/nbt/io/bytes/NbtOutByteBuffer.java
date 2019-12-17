@@ -13,10 +13,13 @@ public class NbtOutByteBuffer implements NbtOut {
 
     public void ensure(int len) {
         if (this.buf.remaining() <= len) {
-            ByteBuffer old = this.buf;
+            int newCapacity = this.buf.limit() * 2;
 
-            this.buf = ByteBuffer.allocateDirect(this.buf.limit() * 2);
-            this.buf.put(old.flip());
+            ByteBuffer old = this.buf;
+            old.flip();
+
+            this.buf = ByteBuffer.allocateDirect(newCapacity);
+            this.buf.put(old);
         }
     }
 
@@ -77,7 +80,13 @@ public class NbtOutByteBuffer implements NbtOut {
     }
 
     @Override
-    public ByteBuffer finish() {
-        return this.buf.flip();
+    public byte[] finish() {
+        this.buf.flip();
+
+        byte[] copy = new byte[this.buf.limit()];
+
+        this.buf.get(copy);
+
+        return copy;
     }
 }

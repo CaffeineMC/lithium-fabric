@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.zip.Deflater;
 
 @Mixin(RegionFile.class)
@@ -34,7 +33,7 @@ public abstract class MixinRegionFile implements RegionFileDirectWritable {
 
     @Override
     public void write(ChunkPos pos, NbtOut out) throws IOException {
-        ByteBuffer buf = out.finish();
+        byte[] buf = out.finish();
 
         this.deflater.reset();
         this.deflater.setInput(buf);
@@ -42,7 +41,7 @@ public abstract class MixinRegionFile implements RegionFileDirectWritable {
 
         byte[] compressed;
 
-        try (ByteArrayOutputStream bout = new ByteArrayOutputStream(buf.limit())) {
+        try (ByteArrayOutputStream bout = new ByteArrayOutputStream(buf.length)) {
             while (!this.deflater.finished()) {
                 int count = deflater.deflate(this.tmp);
 
