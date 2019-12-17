@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.nbt.fast_serialization;
 
 import com.google.common.collect.Lists;
-import me.jellysquid.mods.lithium.common.nbt.TagFIO;
+import me.jellysquid.mods.lithium.common.nbt.TagSerializer;
 import me.jellysquid.mods.lithium.common.nbt.io.NbtIn;
 import me.jellysquid.mods.lithium.common.nbt.io.NbtOut;
 import net.minecraft.nbt.ListTag;
@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.List;
 
 @Mixin(ListTag.class)
-public class MixinListTag implements TagFIO {
+public class MixinListTag implements TagSerializer {
     @Shadow
     private List<Tag> value;
 
@@ -32,7 +32,7 @@ public class MixinListTag implements TagFIO {
         out.writeInt(this.value.size());
 
         for (Tag tag : this.value) {
-            ((TagFIO) tag).serialize(out);
+            ((TagSerializer) tag).serialize(out);
         }
     }
 
@@ -58,7 +58,7 @@ public class MixinListTag implements TagFIO {
 
         for(int i = 0; i < count; ++i) {
             Tag tag = Tag.createTag(this.type);
-            ((TagFIO) tag).deserialize(in, level + 1, positionTracker);
+            ((TagSerializer) tag).deserialize(in, level + 1, positionTracker);
 
             this.value.add(tag);
         }

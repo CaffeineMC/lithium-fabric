@@ -19,6 +19,7 @@ public interface NbtOut {
 
     void writeLong(long value);
 
+    // Mimics DataOutputStream#writeUTF
     default void writeString(String str) {
         final int strlen = str.length();
         int utflen = strlen; // optimized for ASCII

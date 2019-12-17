@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.nbt.fast_serialization;
 
-import me.jellysquid.mods.lithium.common.nbt.TagFIO;
+import me.jellysquid.mods.lithium.common.nbt.TagSerializer;
 import me.jellysquid.mods.lithium.common.nbt.io.NbtIn;
 import me.jellysquid.mods.lithium.common.nbt.io.NbtOut;
 import net.minecraft.nbt.FloatTag;
@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(FloatTag.class)
-public class MixinFloatTag implements TagFIO {
+public class MixinFloatTag implements TagSerializer {
     @Shadow
     private float value;
 

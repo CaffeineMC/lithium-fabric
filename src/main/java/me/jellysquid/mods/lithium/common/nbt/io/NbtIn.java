@@ -11,14 +11,13 @@ public interface NbtIn {
 
     short readShort();
 
-    char readChar();
-
     double readDouble();
 
     float readFloat();
 
     long readLong();
 
+    // Mimics DataInputStream#readUTF
     default String readString() {
         int utflen = Short.toUnsignedInt(this.readShort());
 

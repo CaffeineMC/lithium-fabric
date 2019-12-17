@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.nbt.fast_serialization.region;
 
 import me.jellysquid.mods.lithium.common.nbt.io.NbtOut;
-import me.jellysquid.mods.lithium.common.nbt.region.RegionFileNbtBuf;
+import me.jellysquid.mods.lithium.common.nbt.region.RegionFileDirectWritable;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.storage.RegionFile;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,7 +17,7 @@ import java.nio.ByteBuffer;
 import java.util.zip.Deflater;
 
 @Mixin(RegionFile.class)
-public abstract class MixinRegionFile implements RegionFileNbtBuf {
+public abstract class MixinRegionFile implements RegionFileDirectWritable {
     private Deflater deflater;
     private byte[] tmp;
 

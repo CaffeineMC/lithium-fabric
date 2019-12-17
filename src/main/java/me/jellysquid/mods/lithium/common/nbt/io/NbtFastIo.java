@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.nbt.io;
 
-import me.jellysquid.mods.lithium.common.nbt.TagFIO;
+import me.jellysquid.mods.lithium.common.nbt.TagSerializer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
 import net.minecraft.nbt.PositionTracker;
@@ -19,7 +19,7 @@ public class NbtFastIo {
         if (tag.getType() != 0) {
             out.writeString("");
 
-            ((TagFIO) tag).serialize(out);
+            ((TagSerializer) tag).serialize(out);
         }
     }
 
@@ -47,7 +47,7 @@ public class NbtFastIo {
         in.readString();
 
         Tag tag = Tag.createTag(type);
-        ((TagFIO) tag).deserialize(in, level, positionTracker);
+        ((TagSerializer) tag).deserialize(in, level, positionTracker);
 
         return tag;
     }

@@ -37,11 +37,6 @@ public class NbtInByteBuffer implements NbtIn {
     }
 
     @Override
-    public char readChar() {
-        return this.buf.getChar();
-    }
-
-    @Override
     public double readDouble() {
         return this.buf.getDouble();
     }

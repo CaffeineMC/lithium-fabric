@@ -4,7 +4,7 @@ import me.jellysquid.mods.lithium.common.nbt.io.NbtFastIo;
 import me.jellysquid.mods.lithium.common.nbt.io.NbtOut;
 import me.jellysquid.mods.lithium.common.nbt.io.bytes.NbtInByteBuffer;
 import me.jellysquid.mods.lithium.common.nbt.io.bytes.NbtOutByteBuffer;
-import me.jellysquid.mods.lithium.common.nbt.region.RegionFileNbtBuf;
+import me.jellysquid.mods.lithium.common.nbt.region.RegionFileDirectWritable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.storage.RegionBasedStorage;
@@ -66,6 +66,6 @@ public abstract class MixinRegionBasedStorage {
         NbtOut out = new NbtOutByteBuffer(8192);
         NbtFastIo.write(tag, out);
 
-        ((RegionFileNbtBuf) file).write(pos, out);
+        ((RegionFileDirectWritable) file).write(pos, out);
     }
 }

@@ -5,6 +5,6 @@ import net.minecraft.util.math.ChunkPos;
 
 import java.io.IOException;
 
-public interface RegionFileNbtBuf {
+public interface RegionFileDirectWritable {
     void write(ChunkPos pos, NbtOut out) throws IOException;
 }

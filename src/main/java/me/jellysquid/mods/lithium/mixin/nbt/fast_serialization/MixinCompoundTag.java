@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.nbt.fast_serialization;
 
-import me.jellysquid.mods.lithium.common.nbt.TagFIO;
+import me.jellysquid.mods.lithium.common.nbt.TagSerializer;
 import me.jellysquid.mods.lithium.common.nbt.io.NbtIn;
 import me.jellysquid.mods.lithium.common.nbt.io.NbtOut;
 import net.minecraft.nbt.CompoundTag;
@@ -12,11 +12,8 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.Map;
 
-import static me.jellysquid.mods.lithium.common.nbt.TagFIOHelper.createTag;
-import static me.jellysquid.mods.lithium.common.nbt.TagFIOHelper.write;
-
 @Mixin(CompoundTag.class)
-public class MixinCompoundTag implements TagFIO {
+public class MixinCompoundTag implements TagSerializer {
     @Shadow
     @Final
     private Map<String, Tag> tags;
@@ -55,6 +52,24 @@ public class MixinCompoundTag implements TagFIO {
                 positionTracker.add(288L);
             }
         }
+    }
+
+    private static void write(String name, Tag tag, NbtOut out) {
+        out.writeByte(tag.getType());
+
+        if (tag.getType() != 0) {
+            out.writeString(name);
+
+            ((TagSerializer) tag).serialize(out);
+        }
+    }
+
+    private static Tag createTag(byte type, String key, NbtIn in, int level, PositionTracker positionTracker) {
+        Tag tag = Tag.createTag(type);
+
+        ((TagSerializer) tag).deserialize(in, level, positionTracker);
+
+        return tag;
     }
 
 }
