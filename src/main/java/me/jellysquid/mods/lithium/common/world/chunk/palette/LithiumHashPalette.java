@@ -110,4 +110,13 @@ public class LithiumHashPalette<T> implements Palette<T> {
         }
     }
 
+    public void toTag(ListTag list) {
+        for (int i = 0; i < this.getIndexBits(); ++i) {
+            list.add(this.elementSerializer.apply(this.map.get(i)));
+        }
+    }
+
+    public int getSize() {
+        return this.map.size();
+    }
 }

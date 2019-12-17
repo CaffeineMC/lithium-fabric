@@ -57,6 +57,8 @@
         "nbt.fast_serialization.MixinShortTag",
         "nbt.fast_serialization.MixinStringTag",
         "nbt.fast_serialization.region.MixinRegionBasedStorage",
-        "nbt.fast_serialization.region.MixinRegionFile"
+        "nbt.fast_serialization.region.MixinRegionFile",
+        "chunk.fast_chunk_serialization.MixinPalettedContainer",
+        "chunk.fast_chunk_serialization.MixinPackedIntegerArray"
     ]
 }

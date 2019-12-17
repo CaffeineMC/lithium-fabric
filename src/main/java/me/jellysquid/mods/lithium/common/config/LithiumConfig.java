@@ -136,7 +136,8 @@ public class LithiumConfig {
         public boolean useMemoryMappedFileRegions = true;
 
         /**
-         * If true, a faster implementation will be used for serializing and deserializing the NBT data of chunks.
+         * If true, a faster system for (de)serializing NBT data will be used. This is generally much faster than
+         * vanilla's implementation.
          */
         public boolean useFastNBTSerialization = false;
 
@@ -160,6 +161,12 @@ public class LithiumConfig {
          * with a version that has better performance when placing blocks into chunks.
          */
         public boolean useOptimizedHashPalette = true;
+
+        /**
+         * If true, an optimized method for compacting chunk data arrays and palettes upon serialization will be used.
+         * This is greatly faster than the vanilla implementation and should be safe to use.
+         */
+        public boolean useFastCompaction = false;
 
         /**
          * If true, checks which see if a chunk is being concurrently modified will be removed. This may slightly improve
