@@ -118,6 +118,11 @@ public abstract class MixinEntity implements EntityWithChunkCache {
         return this.chunkCache == null ? world.getBlockState(pos) : this.chunkCache.getBlockState(pos);
     }
 
+    @Redirect(method = "checkBlockCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;isRegionLoaded(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;)Z"))
+    private boolean redirectIsRegionLoaded(World world, BlockPos min, BlockPos max) {
+        return this.chunkCache == null ? world.isRegionLoaded(min, max) : this.chunkCache.isRegionLoaded(min, max);
+    }
+
     @Override
     public EntityChunkCache getEntityChunkCache() {
         return this.chunkCache;
