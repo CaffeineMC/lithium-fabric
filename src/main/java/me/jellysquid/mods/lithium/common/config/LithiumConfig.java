@@ -181,6 +181,12 @@ public class LithiumConfig {
 
     public static class GeneralConfig {
         /**
+         * If true, the expensive check to see if a TypeFilterableList can be filtered by a specific class will only be
+         * made when a new list for that type needs to be created.
+         */
+        public boolean useFastListTypeFiltering = true;
+
+        /**
          * If true, the tick scheduler will be replaced with an optimized variant which allows for significantly reduced CPU
          * usage with many scheduled ticks and much faster checking of in-progress ticks. In real world terms, this means
          * that the tick settling which occurs right after generating chunks will take much less time, and redstone ticking
