@@ -10,14 +10,14 @@ import java.util.concurrent.locks.Lock;
 @Mixin(value = DataTracker.class, priority = 1001)
 public abstract class MixinDataTracker {
     @Redirect(method = {
-            "getEntry", "addTrackedData", "getDirtyEntries", "toPacketByteBuf", "getAllEntries", "writeUpdatedEntries", "clearDirty"
+            "getEntry", "addTrackedData", "getDirtyEntries", "getAllEntries", "writeUpdatedEntries", "clearDirty"
     }, at = @At(value = "INVOKE", target = "Ljava/util/concurrent/locks/Lock;lock()V"))
     private void nullifyLock(Lock lock) {
 
     }
 
     @Redirect(method = {
-            "getEntry", "addTrackedData", "getDirtyEntries", "toPacketByteBuf", "getAllEntries", "writeUpdatedEntries", "clearDirty"
+            "getEntry", "addTrackedData", "getDirtyEntries", "getAllEntries", "writeUpdatedEntries", "clearDirty"
     }, at = @At(value = "INVOKE", target = "Ljava/util/concurrent/locks/Lock;unlock()V"))
     private void nullifyUnlock(Lock lock) {
 

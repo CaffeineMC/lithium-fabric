@@ -102,7 +102,7 @@ public abstract class MixinPalettedContainer<T> implements LithiumPaletteResizeL
             } else if (this.paletteSize <= 8) {
                 this.palette = new LithiumHashPalette<>(this.idList, this.paletteSize, this, this.elementDeserializer, this.elementSerializer);
             } else {
-                this.paletteSize = MathHelper.log2DeBrujin(this.idList.size());
+                this.paletteSize = MathHelper.log2DeBruijn(this.idList.size());
                 this.palette = this.fallbackPalette;
             }
 

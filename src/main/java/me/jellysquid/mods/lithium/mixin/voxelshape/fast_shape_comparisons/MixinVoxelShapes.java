@@ -14,7 +14,7 @@ public class MixinVoxelShapes {
      * @author JellySquid
      */
     @Overwrite
-    public static boolean method_20713(VoxelShape a, VoxelShape b) {
+    public static boolean unionCoversFullCube(VoxelShape a, VoxelShape b) {
         // At least one shape is a full cube and will match
         if (a == VoxelShapes.fullCube() || b == VoxelShapes.fullCube()) {
             return true;
@@ -31,11 +31,7 @@ public class MixinVoxelShapes {
                 return false;
             }
 
-            if (!be && VoxelShapes.matchesAnywhere(VoxelShapes.fullCube(), b, BooleanBiFunction.ONLY_FIRST)) {
-                return false;
-            }
-
-            return true;
+            return be || !VoxelShapes.matchesAnywhere(VoxelShapes.fullCube(), b, BooleanBiFunction.ONLY_FIRST);
         }
     }
 }

@@ -75,7 +75,7 @@ public abstract class MixinPalettedContainer<T> {
                 .compact(this.palette, compactedPalette, this.field_12935);
 
         int originalIntSize = this.data.getElementBits();
-        int copyIntSize = Math.max(4, MathHelper.log2DeBrujin(compactedPalette.getSize()));
+        int copyIntSize = Math.max(4, MathHelper.log2DeBruijn(compactedPalette.getSize()));
 
         // If the palette didn't change sizes, there's no reason to copy anything
         if (this.palette instanceof LithiumHashPalette && originalIntSize == copyIntSize) {

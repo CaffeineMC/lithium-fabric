@@ -109,7 +109,12 @@ public final class IndirectListPair extends DoubleListPair {
     }
 
     @Override
-    public boolean forAllOverlappingSections(SectionPairPredicate predicate) {
+    public DoubleList getPairs() {
+        return this.list;
+    }
+
+    @Override
+    public boolean forEachPair(DoubleListPair.Consumer predicate) {
         for (int i = 0; i < this.count - 1; ++i) {
             if (!predicate.merge(this.indicesFirst[i], this.indicesSecond[i], i)) {
                 return false;
@@ -117,11 +122,6 @@ public final class IndirectListPair extends DoubleListPair {
         }
 
         return true;
-    }
-
-    @Override
-    public DoubleList getMergedList() {
-        return this.list;
     }
 
     public int getSize() {

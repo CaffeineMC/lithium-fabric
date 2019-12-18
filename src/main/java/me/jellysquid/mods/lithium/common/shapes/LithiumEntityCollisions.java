@@ -13,8 +13,8 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.ViewableWorld;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.BlockView;
+import net.minecraft.world.CollisionView;
 
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -29,15 +29,15 @@ public class LithiumEntityCollisions {
      * Additionally, we make use of the entity's nearby chunk cache if available to reduce the overhead of looking up
      * chunks.
      */
-    public static Stream<VoxelShape> method_20812(ViewableWorld world, final Entity entity, Box entityBox) {
+    public static Stream<VoxelShape> getBlockCollisions(CollisionView world, final Entity entity, Box entityBox) {
         EntityChunkCache cache = entity instanceof EntityWithChunkCache ? ((EntityWithChunkCache) entity).getEntityChunkCache() : null;
 
-        int minX = MathHelper.floor(entityBox.minX - 1.0E-7D) - 1;
-        int maxX = MathHelper.floor(entityBox.maxX + 1.0E-7D) + 1;
-        int minY = MathHelper.floor(entityBox.minY - 1.0E-7D) - 1;
-        int maxY = MathHelper.floor(entityBox.maxY + 1.0E-7D) + 1;
-        int minZ = MathHelper.floor(entityBox.minZ - 1.0E-7D) - 1;
-        int maxZ = MathHelper.floor(entityBox.maxZ + 1.0E-7D) + 1;
+        int minX = MathHelper.floor(entityBox.x1 - 1.0E-7D) - 1;
+        int maxX = MathHelper.floor(entityBox.x2 + 1.0E-7D) + 1;
+        int minY = MathHelper.floor(entityBox.y1 - 1.0E-7D) - 1;
+        int maxY = MathHelper.floor(entityBox.y2 + 1.0E-7D) + 1;
+        int minZ = MathHelper.floor(entityBox.z1 - 1.0E-7D) - 1;
+        int maxZ = MathHelper.floor(entityBox.z2 + 1.0E-7D) + 1;
 
         final EntityContext context = entity == null ? EntityContext.absent() : EntityContext.of(entity);
         final CuboidBlockIterator cuboidIt = new CuboidBlockIterator(minX, minY, minZ, maxX, maxY, maxZ);
@@ -67,13 +67,13 @@ public class LithiumEntityCollisions {
                 boolean flag;
 
                 do {
-                    int axisHit;
+                    int edgesHit;
                     BlockState state;
                     int x, y, z;
 
                     do {
                         do {
-                            Chunk chunk;
+                            BlockView chunk;
                             do {
                                 do {
                                     if (!cuboidIt.step()) {
@@ -83,8 +83,8 @@ public class LithiumEntityCollisions {
                                     x = cuboidIt.getX();
                                     y = cuboidIt.getY();
                                     z = cuboidIt.getZ();
-                                    axisHit = cuboidIt.method_20789();
-                                } while (axisHit == 3);
+                                    edgesHit = cuboidIt.getEdgeCoordinatesCount();
+                                } while (edgesHit == 3);
 
                                 int chunkX = x >> 4;
                                 int chunkZ = z >> 4;
@@ -92,15 +92,15 @@ public class LithiumEntityCollisions {
                                 if (cache != null) {
                                     chunk = cache.getChunk(chunkX, chunkZ);
                                 } else {
-                                    chunk = world.getChunk(chunkX, chunkZ, world.getLeastChunkStatusForCollisionCalculation(), false);
+                                    chunk = world.getExistingChunk(chunkX, chunkZ);
                                 }
                             } while (chunk == null);
 
                             pos.set(x, y, z);
 
                             state = chunk.getBlockState(pos);
-                        } while (axisHit == 1 && !state.method_17900());
-                    } while (axisHit == 2 && state.getBlock() != Blocks.MOVING_PISTON);
+                        } while (edgesHit == 1 && !state.exceedsCube());
+                    } while (edgesHit == 2 && state.getBlock() != Blocks.MOVING_PISTON);
 
                     VoxelShape blockShape = state.getCollisionShape(world, pos, context);
                     flag = doesEntityCollideWithShape(blockShape, entityShape, entityBox, x, y, z);

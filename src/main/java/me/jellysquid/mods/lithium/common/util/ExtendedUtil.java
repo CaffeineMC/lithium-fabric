@@ -1,8 +1,8 @@
 package me.jellysquid.mods.lithium.common.util;
 
-import net.minecraft.util.SystemUtil;
+import net.minecraft.util.Util;
 
-public class ExtendedSystemUtil {
+public class ExtendedUtil {
     public static long initTime = 0;
 
     /**
@@ -12,7 +12,7 @@ public class ExtendedSystemUtil {
      * client and server threads) simultaneously. Replacing it can yield a bit of improvement.
      */
     public static void initTimeSource() {
-        SystemUtil.nanoTimeSupplier = System::nanoTime;
-        initTime = SystemUtil.nanoTimeSupplier.getAsLong();
+        Util.nanoTimeSupplier = System::nanoTime;
+        initTime = Util.nanoTimeSupplier.getAsLong();
     }
 }

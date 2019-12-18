@@ -106,7 +106,7 @@ public class LithiumHashPalette<T> implements Palette<T> {
         this.map.clear();
 
         for (int i = 0; i < list.size(); ++i) {
-            this.map.add(this.elementDeserializer.apply(list.getCompoundTag(i)));
+            this.map.add(this.elementDeserializer.apply(list.getCompound(i)));
         }
     }
 

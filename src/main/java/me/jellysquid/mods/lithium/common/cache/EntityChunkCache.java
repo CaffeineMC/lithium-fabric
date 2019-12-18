@@ -16,8 +16,8 @@ import net.minecraft.world.chunk.WorldChunk;
 
 import java.util.Arrays;
 
-import static net.minecraft.util.math.ChunkSectionPos.toChunkCoord;
-import static net.minecraft.util.math.ChunkSectionPos.toLocalCoord;
+import static net.minecraft.util.math.ChunkSectionPos.getLocalCoord;
+import static net.minecraft.util.math.ChunkSectionPos.getSectionCoord;
 
 /**
  * Maintains a cached collection of chunks around an entity. This allows for much faster access to nearby chunks for
@@ -48,8 +48,8 @@ public class EntityChunkCache {
     }
 
     public void updateChunks(Box box) {
-        int startX = toChunkCoord(MathHelper.floor(box.minX)) - RADIUS;
-        int startZ = toChunkCoord(MathHelper.floor(box.minZ)) - RADIUS;
+        int startX = getSectionCoord(MathHelper.floor(box.x1)) - RADIUS;
+        int startZ = getSectionCoord(MathHelper.floor(box.z1)) - RADIUS;
 
         ChunkManager chunkManager = this.getWorld().getChunkManager();
 
@@ -84,12 +84,12 @@ public class EntityChunkCache {
         this.isCacheEmpty = false;
     }
 
-    private ChunkSection getChunkSection(int x, int y, int z) {
+    private ChunkSection getChunkSection(int x, int y, int z, boolean required) {
         if (y < 0 || y >= 16) {
             return null;
         }
 
-        Chunk chunk = this.getChunk(x, z);
+        Chunk chunk = required ? this.getChunk(x, z) : this.getCachedChunk(x, z);
 
         if (chunk != null) {
             return chunk.getSectionArray()[y];
@@ -103,24 +103,32 @@ public class EntityChunkCache {
     }
 
     public BlockState getBlockState(int x, int y, int z) {
-        ChunkSection section = this.getChunkSection(toChunkCoord(x), toChunkCoord(y), toChunkCoord(z));
+        ChunkSection section = this.getChunkSection(getSectionCoord(x), getSectionCoord(y), getSectionCoord(z), true);
 
         if (section != null) {
-            return section.getBlockState(toLocalCoord(x), toLocalCoord(y), toLocalCoord(z));
+            return section.getBlockState(getLocalCoord(x), getLocalCoord(y), getLocalCoord(z));
         }
 
         return Blocks.AIR.getDefaultState();
     }
 
+    public FluidState getFluidState(BlockPos pos, boolean required) {
+        return this.getFluidState(pos.getX(), pos.getY(), pos.getZ(), required);
+    }
+
     public FluidState getFluidState(BlockPos pos) {
-        return this.getFluidState(pos.getX(), pos.getY(), pos.getZ());
+        return this.getFluidState(pos.getX(), pos.getY(), pos.getZ(), true);
     }
 
     public FluidState getFluidState(int x, int y, int z) {
-        ChunkSection section = this.getChunkSection(toChunkCoord(x), toChunkCoord(y), toChunkCoord(z));
+        return this.getFluidState(x, y, z, true);
+    }
+
+    public FluidState getFluidState(int x, int y, int z, boolean required) {
+        ChunkSection section = this.getChunkSection(getSectionCoord(x), getSectionCoord(y), getSectionCoord(z), required);
 
         if (section != null) {
-            return section.getFluidState(toLocalCoord(x), toLocalCoord(y), toLocalCoord(z));
+            return section.getFluidState(getLocalCoord(x), getLocalCoord(y), getLocalCoord(z));
         }
 
         return Fluids.EMPTY.getDefaultState();

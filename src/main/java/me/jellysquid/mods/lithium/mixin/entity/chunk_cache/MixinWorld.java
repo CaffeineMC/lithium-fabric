@@ -31,17 +31,17 @@ public abstract class MixinWorld {
 
         List<Entity> ret = Lists.newArrayList();
 
-        int minX = MathHelper.floor((box.minX - 2.0D) / 16.0D);
-        int maxX = MathHelper.floor((box.maxX + 2.0D) / 16.0D);
-        int minZ = MathHelper.floor((box.minZ - 2.0D) / 16.0D);
-        int maxZ = MathHelper.floor((box.maxZ + 2.0D) / 16.0D);
+        int minX = MathHelper.floor((box.x1 - 2.0D) / 16.0D);
+        int maxX = MathHelper.floor((box.x2 + 2.0D) / 16.0D);
+        int minZ = MathHelper.floor((box.x1 - 2.0D) / 16.0D);
+        int maxZ = MathHelper.floor((box.x2 + 2.0D) / 16.0D);
 
         for (int x = minX; x <= maxX; ++x) {
             for (int z = minZ; z <= maxZ; ++z) {
                 WorldChunk chunk = cache != null ? cache.getChunk(x, z) : this.getChunkManager().getWorldChunk(x, z, false);
 
                 if (chunk != null) {
-                    chunk.appendEntities(entity, box, ret, predicate);
+                    chunk.getEntities(entity, box, ret, predicate);
                 }
             }
         }

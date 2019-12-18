@@ -11,12 +11,12 @@ import net.minecraft.util.shape.VoxelShapes;
 import java.util.stream.Stream;
 
 public class LithiumVoxelShapes {
-    public static double calculateSoftOffset(Direction.Axis axis, Box box, EntityChunkCache world, double initial, EntityContext context, Stream<VoxelShape> stream) {
-        return method_17944(box, world, initial, context, AxisCycleDirection.between(axis, Direction.Axis.Z), stream);
+    public static double calculatePushVelocity(Direction.Axis axis, Box box, EntityChunkCache world, double initial, EntityContext context, Stream<VoxelShape> stream) {
+        return calculatePushVelocity(box, world, initial, context, AxisCycleDirection.between(axis, Direction.Axis.Z), stream);
     }
 
-    public static double method_17944(Box box, EntityChunkCache chunks, double out, EntityContext context, AxisCycleDirection cycleDirection, Stream<VoxelShape> stream) {
-        if (!(box.getXSize() >= 1.0E-6D) || !(box.getYSize() >= 1.0E-6D) || !(box.getZSize() >= 1.0E-6D)) {
+    public static double calculatePushVelocity(Box box, EntityChunkCache chunks, double out, EntityContext context, AxisCycleDirection cycleDirection, Stream<VoxelShape> stream) {
+        if (!(box.getXLength() >= 1.0E-6D) || !(box.getYLength() >= 1.0E-6D) || !(box.getZLength() >= 1.0E-6D)) {
             return out;
         }
 
@@ -76,11 +76,11 @@ public class LithiumVoxelShapes {
                     if (hitAxis < 3) {
                         pos.set(oppositeCycleDirection, x, y, z);
 
-                        BlockState blockState_1 = chunks.getBlockState(pos);
+                        BlockState state = chunks.getBlockState(pos);
 
-                        if ((hitAxis != 1 || blockState_1.method_17900()) && (hitAxis != 2 || blockState_1.getBlock() == Blocks.MOVING_PISTON)) {
-                            out = blockState_1.getCollisionShape(chunks.getWorld(), pos, context)
-                                    .method_1108(zAxis, box.offset(-pos.getX(), -pos.getY(), -pos.getZ()), out);
+                        if ((hitAxis != 1 || state.exceedsCube()) && (hitAxis != 2 || state.getBlock() == Blocks.MOVING_PISTON)) {
+                            VoxelShape shape = state.getCollisionShape(chunks.getWorld(), pos, context);
+                            out = shape.calculateMaxDistance(zAxis, box.offset(-pos.getX(), -pos.getY(), -pos.getZ()), out);
 
                             if (Math.abs(out) < 1.0E-7D) {
                                 return 0.0D;
@@ -98,13 +98,13 @@ public class LithiumVoxelShapes {
         // This is a silly hack to allow the lambda to mutate the return value.
         double[] ugly = new double[]{out};
 
-        stream.forEach((shape) -> ugly[0] = shape.method_1108(zAxis, box, ugly[0]));
+        stream.forEach((shape) -> ugly[0] = shape.calculateMaxDistance(zAxis, box, ugly[0]));
 
         return ugly[0];
     }
 
     /**
-     * Clone of {@link VoxelShapes#method_17943}, could use an accessor
+     * Clone of {@link VoxelShapes#clamp}, could use an accessor
      */
     private static int clamp(double value, double min, double max) {
         return value > 0.0D ? MathHelper.floor(max + value) + 1 : MathHelper.floor(min + value) - 1;

@@ -1,19 +1,25 @@
 package me.jellysquid.mods.lithium.mixin.client.replace_timer;
 
-import me.jellysquid.mods.lithium.common.util.ExtendedSystemUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
+import me.jellysquid.mods.lithium.common.util.ExtendedUtil;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.Util;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.Redirect;
+
+import java.util.function.LongSupplier;
 
 @Mixin(MinecraftClient.class)
 public class MixinMinecraftClient {
     /**
-     * Hook which takes place right after Minecraft switches timer implementations.
+     * Replace the timer function.
      */
-    @Inject(method = "init", at = @At(value = "FIELD", target = "Lnet/minecraft/util/SystemUtil;nanoTimeSupplier:Ljava/util/function/LongSupplier;", shift = At.Shift.AFTER))
-    private void afterTimeSet(CallbackInfo ci) {
-        ExtendedSystemUtil.initTimeSource();
+    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;initBackendSystem()Ljava/util/function/LongSupplier;"))
+    private LongSupplier redirectBackendInit() {
+        RenderSystem.initBackendSystem();
+        ExtendedUtil.initTimeSource();
+
+        return Util.nanoTimeSupplier;
     }
 }

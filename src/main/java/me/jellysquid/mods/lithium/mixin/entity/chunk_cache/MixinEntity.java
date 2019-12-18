@@ -10,6 +10,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityContext;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
@@ -17,8 +18,8 @@ import net.minecraft.tag.Tag;
 import net.minecraft.util.ReusableStream;
 import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.ViewableWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -50,6 +51,17 @@ public abstract class MixinEntity implements EntityWithChunkCache {
     @Shadow
     public abstract Box getBoundingBox();
 
+    @Shadow
+    public abstract boolean canFly();
+
+    @Shadow
+    public abstract void setVelocity(Vec3d velocity);
+
+    @Shadow
+    public abstract Vec3d getVelocity();
+
+    @Shadow
+    protected double waterHeight;
     private EntityChunkCache chunkCache;
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -100,16 +112,10 @@ public abstract class MixinEntity implements EntityWithChunkCache {
         }
     }
 
-    @Redirect(method = {"move", "checkBlockCollision", "playStepSound", "isInsideWall"},
+    @Redirect(method = {"move", "checkBlockCollision", "playStepSound", "isInsideWall", "getLandingPos", "checkBlockCollision", "getVelocityMultiplier" },
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"))
     private BlockState redirectGetBlockState(World world, BlockPos pos) {
         return this.chunkCache == null ? world.getBlockState(pos) : this.chunkCache.getBlockState(pos);
-    }
-
-    @Redirect(method = {"updateMovementInFluid", "isSubmergedIn"},
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getFluidState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/fluid/FluidState;"))
-    private FluidState redirectGetFluidState(World world, BlockPos pos) {
-        return this.chunkCache == null ? world.getFluidState(pos) : this.chunkCache.getFluidState(pos);
     }
 
     @Override
@@ -119,12 +125,12 @@ public abstract class MixinEntity implements EntityWithChunkCache {
 
     @Redirect(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;doesAreaContainFireSource(Lnet/minecraft/util/math/Box;)Z"))
     private boolean redirectDoesAreaContainFireSource(World world, Box box) {
-        int minX = MathHelper.floor(box.minX);
-        int maxX = MathHelper.ceil(box.maxX);
-        int minY = MathHelper.floor(box.minY);
-        int maxY = MathHelper.ceil(box.maxY);
-        int minZ = MathHelper.floor(box.minZ);
-        int maxZ = MathHelper.ceil(box.maxZ);
+        int minX = MathHelper.floor(box.x1);
+        int maxX = MathHelper.ceil(box.x2);
+        int minY = MathHelper.floor(box.y1);
+        int maxY = MathHelper.ceil(box.y2);
+        int minZ = MathHelper.floor(box.z1);
+        int maxZ = MathHelper.ceil(box.z2);
 
         for (int x = minX; x < maxX; ++x) {
             for (int y = minY; y < maxY; ++y) {
@@ -141,49 +147,135 @@ public abstract class MixinEntity implements EntityWithChunkCache {
         return false;
     }
 
-    @Redirect(method = "calculateMotionVector",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;calculateTangentialMotionVector(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Lnet/minecraft/world/ViewableWorld;Lnet/minecraft/entity/EntityContext;Lnet/minecraft/util/ReusableStream;)Lnet/minecraft/util/math/Vec3d;"))
-    private static Vec3d redirectCalculateTangentialMotionVector(Vec3d vec, Box box, ViewableWorld world, EntityContext context, ReusableStream<VoxelShape> reusableStream, Entity entity, Vec3d dup0, Box dup1, World dup3, EntityContext dup4, ReusableStream<VoxelShape> dup5) {
+    @Redirect(method = "adjustMovementForCollisions(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Lnet/minecraft/world/World;Lnet/minecraft/entity/EntityContext;Lnet/minecraft/util/ReusableStream;)Lnet/minecraft/util/math/Vec3d;",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;adjustSingleAxisMovementForCollisions(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Lnet/minecraft/world/WorldView;Lnet/minecraft/entity/EntityContext;Lnet/minecraft/util/ReusableStream;)Lnet/minecraft/util/math/Vec3d;"))
+    private static Vec3d redirectCalculateTangentialMotionVector(Vec3d movement, Box entityBoundingBox, WorldView world, EntityContext context, ReusableStream<VoxelShape> collisions, Entity entity, Vec3d a5, Box a4, World a3, EntityContext a2, ReusableStream<VoxelShape> a1) {
         if (entity == null) {
-            return Entity.calculateTangentialMotionVector(vec, box, world, context, reusableStream);
+            return Entity.adjustSingleAxisMovementForCollisions(movement, entityBoundingBox, world, context, collisions);
         }
 
         EntityChunkCache chunkCache = ((EntityWithChunkCache) entity).getEntityChunkCache();
 
-        double x = vec.x;
-        double y = vec.y;
-        double z = vec.z;
+        double x = movement.x;
+        double y = movement.y;
+        double z = movement.z;
 
         if (y != 0.0D) {
-            y = LithiumVoxelShapes.calculateSoftOffset(Direction.Axis.Y, box, chunkCache, y, context, reusableStream.stream());
+            y = LithiumVoxelShapes.calculatePushVelocity(Direction.Axis.Y, entityBoundingBox, chunkCache, y, context, collisions.stream());
 
             if (y != 0.0D) {
-                box = box.offset(0.0D, y, 0.0D);
+                entityBoundingBox = entityBoundingBox.offset(0.0D, y, 0.0D);
             }
         }
 
         boolean flag = Math.abs(x) < Math.abs(z);
 
         if (flag && z != 0.0D) {
-            z = LithiumVoxelShapes.calculateSoftOffset(Direction.Axis.Z, box, chunkCache, z, context, reusableStream.stream());
+            z = LithiumVoxelShapes.calculatePushVelocity(Direction.Axis.Z, entityBoundingBox, chunkCache, z, context, collisions.stream());
 
             if (z != 0.0D) {
-                box = box.offset(0.0D, 0.0D, z);
+                entityBoundingBox = entityBoundingBox.offset(0.0D, 0.0D, z);
             }
         }
 
         if (x != 0.0D) {
-            x = LithiumVoxelShapes.calculateSoftOffset(Direction.Axis.X, box, chunkCache, x, context, reusableStream.stream());
+            x = LithiumVoxelShapes.calculatePushVelocity(Direction.Axis.X, entityBoundingBox, chunkCache, x, context, collisions.stream());
 
             if (!flag && x != 0.0D) {
-                box = box.offset(x, 0.0D, 0.0D);
+                entityBoundingBox = entityBoundingBox.offset(x, 0.0D, 0.0D);
             }
         }
 
         if (!flag && z != 0.0D) {
-            z = LithiumVoxelShapes.calculateSoftOffset(Direction.Axis.Z, box, chunkCache, z, context, reusableStream.stream());
+            z = LithiumVoxelShapes.calculatePushVelocity(Direction.Axis.Z, entityBoundingBox, chunkCache, z, context, collisions.stream());
         }
 
         return new Vec3d(x, y, z);
     }
+
+    /**
+     * @author JellySquid
+     */
+    @Overwrite
+    public boolean updateMovementInFluid(Tag<Fluid> tag) {
+        EntityChunkCache cache = this.getEntityChunkCache();
+
+        Box box = this.getBoundingBox().contract(0.001D);
+
+        int minX = MathHelper.floor(box.x1);
+        int maxX = MathHelper.ceil(box.x2);
+        int minY = MathHelper.floor(box.y1);
+        int maxY = MathHelper.ceil(box.y2);
+        int minZ = MathHelper.floor(box.z1);
+        int maxZ = MathHelper.ceil(box.z2);
+
+        if (cache == null && !this.world.isRegionLoaded(minX, minY, minZ, maxX, maxY, maxZ)) {
+            return false;
+        }
+
+        double penetration = 0.0D;
+
+        boolean canFly = this.canFly();
+        boolean inFluid = false;
+
+        Vec3d force = Vec3d.ZERO;
+        int forceContributors = 0;
+
+        try (BlockPos.PooledMutable pos = BlockPos.PooledMutable.get()) {
+            for (int x = minX; x < maxX; ++x) {
+                for (int y = minY; y < maxY; ++y) {
+                    for (int z = minZ; z < maxZ; ++z) {
+                        pos.set(x, y, z);
+
+                        FluidState fluidState = cache != null ? cache.getFluidState(pos, false) : this.world.getFluidState(pos);
+
+                        if (!fluidState.matches(tag)) {
+                            continue;
+                        }
+
+                        double fluidHeight = (float) y + fluidState.getHeight(this.world, pos);
+
+                        if (fluidHeight < box.y1) {
+                            continue;
+                        }
+
+                        inFluid = true;
+                        penetration = Math.max(fluidHeight - box.y1, penetration);
+
+                        if (!canFly) {
+                            continue;
+                        }
+
+                        Vec3d fluidVelocity = fluidState.getVelocity(this.world, pos);
+
+                        if (penetration < 0.4D) {
+                            fluidVelocity = fluidVelocity.multiply(penetration);
+                        }
+
+                        force = force.add(fluidVelocity);
+
+                        ++forceContributors;
+                    }
+                }
+            }
+        }
+
+        if (force.length() > 0.0D) {
+            if (forceContributors > 0) {
+                force = force.multiply(1.0D / (double)forceContributors);
+            }
+
+            //noinspection ConstantConditions
+            if (!(((Object) this) instanceof PlayerEntity)) {
+                force = force.normalize();
+            }
+
+            this.setVelocity(this.getVelocity().add(force.multiply(0.014D)));
+        }
+
+        this.waterHeight = penetration;
+
+        return inFluid;
+    }
+
 }

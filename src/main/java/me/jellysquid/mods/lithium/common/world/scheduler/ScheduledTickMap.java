@@ -6,13 +6,13 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectSortedMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.util.TaskPriority;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.ScheduledTick;
+import net.minecraft.world.TickPriority;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +48,7 @@ class ScheduledTickMap<T> {
         return index != null && index.status == (executing ? Status.EXECUTING : Status.SCHEDULED);
     }
 
-    private static long getTimeKey(long time, TaskPriority priority) {
+    private static long getTimeKey(long time, TickPriority priority) {
         return (time << 4L) | (priority.ordinal() & 15);
     }
 

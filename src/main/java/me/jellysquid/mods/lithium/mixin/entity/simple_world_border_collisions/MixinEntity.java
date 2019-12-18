@@ -25,7 +25,7 @@ public abstract class MixinEntity {
     /**
      * Uses a very quick check to determine if the world border should even be considered in collision resolution.
      */
-    @Redirect(method = "handleCollisions", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/shape/VoxelShapes;matchesAnywhere(Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/BooleanBiFunction;)Z"))
+    @Redirect(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/shape/VoxelShapes;matchesAnywhere(Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/BooleanBiFunction;)Z"))
     private boolean redirectWorldBorderMatchesAnywhere(VoxelShape borderShape, VoxelShape entityShape, BooleanBiFunction func, Vec3d motion) {
         if (!LithiumMod.CONFIG.physics.useFastWorldBorderChecks) {
             return VoxelShapes.matchesAnywhere(borderShape, entityShape, func);
@@ -43,8 +43,8 @@ public abstract class MixinEntity {
 
         // The entity's bounding box is fully within the world border and will not collide with it. We can safely remove
         // it from the stream of shapes to do collision checking against.
-        if (wboxMinX < ebox.minX && wboxMaxX > ebox.minX && wboxMinX < ebox.maxX && wboxMaxX > ebox.maxX &&
-                wboxMinZ < ebox.minZ && wboxMaxZ > ebox.minZ && wboxMinZ < ebox.maxZ && wboxMaxZ > ebox.maxZ) {
+        if (wboxMinX < ebox.x1 && wboxMaxX > ebox.x1 && wboxMinX < ebox.x2 && wboxMaxX > ebox.x2 &&
+                wboxMinZ < ebox.z1 && wboxMaxZ > ebox.z1 && wboxMinZ < ebox.z2 && wboxMaxZ > ebox.z2) {
             return true;
         }
 

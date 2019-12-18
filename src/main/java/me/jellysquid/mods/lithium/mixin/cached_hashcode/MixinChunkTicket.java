@@ -30,7 +30,7 @@ public class MixinChunkTicket<T> {
      * @reason Initialize the object's hashcode
      */
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void onConstructed(ChunkTicketType<T> type, int level, T argument, long pos, CallbackInfo ci) {
+    private void onConstructed(ChunkTicketType<T> type, int level, T argument, CallbackInfo ci) {
         int hash = 1;
         hash = 31 * hash + this.type.hashCode();
         hash = 31 * hash + this.level;

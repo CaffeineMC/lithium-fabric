@@ -7,11 +7,11 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.server.world.ServerTickScheduler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.TaskPriority;
+import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MutableIntBoundingBox;
 import net.minecraft.world.ScheduledTick;
+import net.minecraft.world.TickPriority;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -43,7 +43,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     public void tick() {
         this.world.getProfiler().push("cleaning");
 
-        this.tickMap.cleanup(this.world.method_14178(), this.world.getTime() + 1);
+        this.tickMap.cleanup(this.world.getChunkManager(), this.world.getTime() + 1);
 
         this.world.getProfiler().swap("executing");
 
@@ -93,12 +93,12 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     }
 
     @Override
-    public List<ScheduledTick<T>> getScheduledTicks(MutableIntBoundingBox box, boolean remove, boolean includeConsumed) {
+    public List<ScheduledTick<T>> getScheduledTicks(BlockBox box, boolean remove, boolean includeConsumed) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void copyScheduledTicks(MutableIntBoundingBox box, BlockPos pos) {
+    public void copyScheduledTicks(BlockBox box, BlockPos pos) {
         List<ScheduledTick<T>> ret = null;
 
         for (ScheduledTickMap.Mut<T> mut : this.tickMap.getAllTicks()) {
@@ -140,7 +140,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
             compoundTag_1.putInt("y", tick.pos.getY());
             compoundTag_1.putInt("z", tick.pos.getZ());
             compoundTag_1.putInt("t", (int) (tick.time - offset));
-            compoundTag_1.putInt("p", tick.priority.getPriorityIndex());
+            compoundTag_1.putInt("p", tick.priority.getIndex());
             listTag_1.add(compoundTag_1);
         }
 
@@ -153,7 +153,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     }
 
     @Override
-    public void schedule(BlockPos pos, T obj, int delay, TaskPriority priority) {
+    public void schedule(BlockPos pos, T obj, int delay, TickPriority priority) {
         if (!this.invalidObjPredicate.test(obj)) {
             this.addScheduledTick(new ScheduledTick<>(pos, obj, (long) delay + this.world.getTime(), priority));
         }

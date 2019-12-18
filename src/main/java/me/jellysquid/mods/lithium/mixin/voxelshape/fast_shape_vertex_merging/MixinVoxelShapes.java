@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public abstract class MixinVoxelShapes {
     @Inject(method = "matchesAnywhere(Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/BooleanBiFunction;)Z",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/util/shape/VoxelShapes;matchesAnywhere(Lnet/minecraft/util/shape/DoubleListPair;Lnet/minecraft/util/shape/DoubleListPair;Lnet/minecraft/util/shape/DoubleListPair;Lnet/minecraft/util/shape/VoxelSet;Lnet/minecraft/util/shape/VoxelSet;Lnet/minecraft/util/BooleanBiFunction;)Z"
+                    target = "Lnet/minecraft/util/shape/VoxelShapes;matchesAnywhere(Lnet/minecraft/util/shape/PairList;Lnet/minecraft/util/shape/PairList;Lnet/minecraft/util/shape/PairList;Lnet/minecraft/util/shape/VoxelSet;Lnet/minecraft/util/shape/VoxelSet;Lnet/minecraft/util/BooleanBiFunction;)Z"
             ), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     //Be very weary of this during updates, the final three arguments will match anything but primitives if the method changes
     private static void releaseListPairs(VoxelShape aShape, VoxelShape bShape, BooleanBiFunction func, CallbackInfoReturnable<Boolean> callback, boolean ab, boolean ba, @Coerce Object listX, @Coerce Object listY, @Coerce Object listZ) {
@@ -45,9 +45,10 @@ public abstract class MixinVoxelShapes {
     }
 
     @Inject(method = "createListPair",
-            at = @At(value = "NEW", target = "net/minecraft/util/shape/SimpleDoubleListPair"),
+            at = @At(value = "NEW", target = "net/minecraft/util/shape/SimplePairList"),
             cancellable = true)
     private static void betterSimpleList(int size, DoubleList a, DoubleList b, boolean includeA, boolean includeB, CallbackInfoReturnable<Object> callback) {
         callback.setReturnValue(IndirectListPairCache.create(a, b, includeA, includeB)); //Little bit of naughtiness with the generics as we can't see the real return type
     }
+
 }

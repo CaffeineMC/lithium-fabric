@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Shadow;
 public class MixinDirection {
     @Shadow
     @Final
-    private static Direction[] ID_TO_DIRECTION;
+    private static Direction[] ALL;
 
     @Shadow
     @Final
@@ -22,7 +22,7 @@ public class MixinDirection {
      */
     @Overwrite
     public Direction getOpposite() {
-        return ID_TO_DIRECTION[this.idOpposite];
+        return ALL[this.idOpposite];
     }
 
 }

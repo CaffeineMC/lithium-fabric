@@ -1,8 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.client.fast_loading_screen;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
-import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
+import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import me.jellysquid.mods.lithium.common.util.math.Color4;
 import net.minecraft.client.gui.WorldGenerationProgressTracker;
@@ -48,11 +47,11 @@ public class MixinLevelLoadingScreen {
 
         Tessellator tessellator = Tessellator.getInstance();
 
-        GlStateManager.enableBlend();
-        GlStateManager.disableTexture();
-        GlStateManager.blendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO);
+        RenderSystem.enableBlend();
+        RenderSystem.disableTexture();
+        RenderSystem.defaultBlendFunc();
 
-        BufferBuilder buffer = tessellator.getBufferBuilder();
+        BufferBuilder buffer = Tessellator.getInstance().getBuffer();
         buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR);
 
         int centerSize = tracker.getCenterSize();

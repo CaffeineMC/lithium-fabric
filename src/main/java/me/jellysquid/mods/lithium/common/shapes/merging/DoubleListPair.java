@@ -1,19 +1,18 @@
 package me.jellysquid.mods.lithium.common.shapes.merging;
 
 import it.unimi.dsi.fastutil.doubles.DoubleList;
-import net.minecraft.util.shape.IdentityListMerger;
+import net.minecraft.util.shape.IdentityPairList;
 
 /**
- * Fake version of {@link IdentityListMerger} designed for implementing {@link net.minecraft.util.shape.DoubleListPair}
+ * Fake version of {@link IdentityPairList} designed for implementing {@link net.minecraft.util.shape.PairList}
  */
-public abstract class DoubleListPair extends IdentityListMerger {
+public abstract class DoubleListPair extends IdentityPairList {
     public DoubleListPair() {
         super(null);
     }
 
     @Override
-    public abstract DoubleList getMergedList();
+    public abstract DoubleList getPairs();
 
-    @Override
-    public abstract boolean forAllOverlappingSections(SectionPairPredicate predicate);
+    public abstract boolean forEachPair(DoubleListPair.Consumer predicate);
 }
