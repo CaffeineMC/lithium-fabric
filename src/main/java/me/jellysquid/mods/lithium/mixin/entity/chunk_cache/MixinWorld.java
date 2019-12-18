@@ -33,8 +33,8 @@ public abstract class MixinWorld {
 
         int minX = MathHelper.floor((box.x1 - 2.0D) / 16.0D);
         int maxX = MathHelper.floor((box.x2 + 2.0D) / 16.0D);
-        int minZ = MathHelper.floor((box.x1 - 2.0D) / 16.0D);
-        int maxZ = MathHelper.floor((box.x2 + 2.0D) / 16.0D);
+        int minZ = MathHelper.floor((box.z1 - 2.0D) / 16.0D);
+        int maxZ = MathHelper.floor((box.z2 + 2.0D) / 16.0D);
 
         for (int x = minX; x <= maxX; ++x) {
             for (int z = minZ; z <= maxZ; ++z) {
