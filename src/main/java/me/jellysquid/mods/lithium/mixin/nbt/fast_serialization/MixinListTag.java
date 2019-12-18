@@ -1,9 +1,9 @@
 package me.jellysquid.mods.lithium.mixin.nbt.fast_serialization;
 
 import com.google.common.collect.Lists;
-import me.jellysquid.mods.lithium.common.nbt.TagSerializer;
-import me.jellysquid.mods.lithium.common.nbt.io.NbtIn;
-import me.jellysquid.mods.lithium.common.nbt.io.NbtOut;
+import me.jellysquid.mods.lithium.common.nbt.NbtFastSerializer;
+import me.jellysquid.mods.lithium.common.nbt.io.NbtFastReader;
+import me.jellysquid.mods.lithium.common.nbt.io.NbtFastWriter;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.PositionTracker;
 import net.minecraft.nbt.Tag;
@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.List;
 
 @Mixin(ListTag.class)
-public class MixinListTag implements TagSerializer {
+public class MixinListTag implements NbtFastSerializer {
     @Shadow
     private List<Tag> value;
 
@@ -21,32 +21,32 @@ public class MixinListTag implements TagSerializer {
     private byte type;
 
     @Override
-    public void serialize(NbtOut out) {
+    public void serialize(NbtFastWriter writer) {
         if (this.value.isEmpty()) {
             this.type = 0;
         } else {
             this.type = this.value.get(0).getType();
         }
 
-        out.writeByte(this.type);
-        out.writeInt(this.value.size());
+        writer.writeByte(this.type);
+        writer.writeInt(this.value.size());
 
         for (Tag tag : this.value) {
-            ((TagSerializer) tag).serialize(out);
+            ((NbtFastSerializer) tag).serialize(writer);
         }
     }
 
     @Override
-    public void deserialize(NbtIn in, int level, PositionTracker positionTracker) {
+    public void deserialize(NbtFastReader reader, int level, PositionTracker positionTracker) {
         positionTracker.add(296L);
 
         if (level > 512) {
             throw new RuntimeException("Tried to read NBT tag with too high complexity, depth > 512");
         }
 
-        this.type = in.readByte();
+        this.type = reader.readByte();
 
-        int count = in.readInt();
+        int count = reader.readInt();
 
         if (this.type == 0 && count > 0) {
             throw new RuntimeException("Missing type on ListTag");
@@ -58,7 +58,7 @@ public class MixinListTag implements TagSerializer {
 
         for(int i = 0; i < count; ++i) {
             Tag tag = Tag.createTag(this.type);
-            ((TagSerializer) tag).deserialize(in, level + 1, positionTracker);
+            ((NbtFastSerializer) tag).deserialize(reader, level + 1, positionTracker);
 
             this.value.add(tag);
         }

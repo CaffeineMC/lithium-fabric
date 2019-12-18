@@ -1,9 +1,8 @@
 package me.jellysquid.mods.lithium.mixin.nbt.fast_serialization.region;
 
 import me.jellysquid.mods.lithium.common.nbt.io.NbtFastIo;
-import me.jellysquid.mods.lithium.common.nbt.io.NbtOut;
-import me.jellysquid.mods.lithium.common.nbt.io.bytes.NbtInByteBuffer;
-import me.jellysquid.mods.lithium.common.nbt.io.bytes.NbtOutByteBuffer;
+import me.jellysquid.mods.lithium.common.nbt.io.bytes.NbtByteArrayReader;
+import me.jellysquid.mods.lithium.common.nbt.io.unsafe.NbtUnsafeWriter;
 import me.jellysquid.mods.lithium.common.nbt.region.RegionFileDirectWritable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.math.ChunkPos;
@@ -17,15 +16,17 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 
 @SuppressWarnings("OverwriteModifiers")
 @Mixin(RegionBasedStorage.class)
 public abstract class MixinRegionBasedStorage {
+    private static final int INITIAL_SIZE = 1024 * 32;
+
     @Shadow
     protected abstract RegionFile getRegionFile(ChunkPos pos) throws IOException;
 
     /**
+     * @reason Use optimized NBT serialization
      * @author JellySquid
      */
     @Overwrite
@@ -38,34 +39,37 @@ public abstract class MixinRegionBasedStorage {
             return null;
         }
 
-        ByteBuffer buf;
+        byte[] buf;
 
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream(8192)) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream(INITIAL_SIZE)) {
             IOUtils.copy(data, out);
 
-            buf = ByteBuffer.allocateDirect(out.size());
-            buf.put(out.toByteArray());
-            buf.flip();
+            buf = out.toByteArray();
         } finally {
             data.close();
         }
 
-        NbtInByteBuffer in = new NbtInByteBuffer(buf);
+        NbtByteArrayReader in = new NbtByteArrayReader(buf);
 
         return NbtFastIo.read(in);
     }
 
 
     /**
+     * @reason Use optimized NBT serialization
      * @author JellySquid
      */
     @Overwrite
     public void setTagAt(ChunkPos pos, CompoundTag tag) throws IOException {
         RegionFile file = this.getRegionFile(pos);
 
-        NbtOut out = new NbtOutByteBuffer(8192);
-        NbtFastIo.write(tag, out);
+        byte[] bytes;
 
-        ((RegionFileDirectWritable) file).write(pos, out);
+        try (NbtUnsafeWriter writer = new NbtUnsafeWriter(INITIAL_SIZE)) {
+            NbtFastIo.write(tag, writer);
+            bytes = writer.finish();
+        }
+
+        ((RegionFileDirectWritable) file).write(pos, bytes);
     }
 }

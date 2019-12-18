@@ -1,8 +1,8 @@
 package me.jellysquid.mods.lithium.mixin.nbt.fast_serialization;
 
-import me.jellysquid.mods.lithium.common.nbt.TagSerializer;
-import me.jellysquid.mods.lithium.common.nbt.io.NbtIn;
-import me.jellysquid.mods.lithium.common.nbt.io.NbtOut;
+import me.jellysquid.mods.lithium.common.nbt.NbtFastSerializer;
+import me.jellysquid.mods.lithium.common.nbt.io.NbtFastReader;
+import me.jellysquid.mods.lithium.common.nbt.io.NbtFastWriter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.PositionTracker;
 import net.minecraft.nbt.Tag;
@@ -13,24 +13,24 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.Map;
 
 @Mixin(CompoundTag.class)
-public class MixinCompoundTag implements TagSerializer {
+public class MixinCompoundTag implements NbtFastSerializer {
     @Shadow
     @Final
     private Map<String, Tag> tags;
 
     @Override
-    public void serialize(NbtOut out) {
+    public void serialize(NbtFastWriter writer) {
         for (String key : this.tags.keySet()) {
             Tag tag = this.tags.get(key);
 
-            write(key, tag, out);
+            write(key, tag, writer);
         }
 
-        out.writeByte((byte) 0);
+        writer.writeByte((byte) 0);
     }
 
     @Override
-    public void deserialize(NbtIn in, int level, PositionTracker positionTracker) {
+    public void deserialize(NbtFastReader reader, int level, PositionTracker positionTracker) {
         positionTracker.add(384L);
 
         if (level > 512) {
@@ -41,12 +41,12 @@ public class MixinCompoundTag implements TagSerializer {
 
         byte type;
 
-        while((type = in.readByte()) != 0) {
-            String name = in.readString();
+        while((type = reader.readByte()) != 0) {
+            String name = reader.readString();
 
             positionTracker.add(224 + 16 * name.length());
 
-            Tag tag = createTag(type, name, in, level + 1, positionTracker);
+            Tag tag = createTag(type, name, reader, level + 1, positionTracker);
 
             if (this.tags.put(name, tag) != null) {
                 positionTracker.add(288L);
@@ -54,20 +54,20 @@ public class MixinCompoundTag implements TagSerializer {
         }
     }
 
-    private static void write(String name, Tag tag, NbtOut out) {
+    private static void write(String name, Tag tag, NbtFastWriter out) {
         out.writeByte(tag.getType());
 
         if (tag.getType() != 0) {
             out.writeString(name);
 
-            ((TagSerializer) tag).serialize(out);
+            ((NbtFastSerializer) tag).serialize(out);
         }
     }
 
-    private static Tag createTag(byte type, String key, NbtIn in, int level, PositionTracker positionTracker) {
+    private static Tag createTag(byte type, String key, NbtFastReader in, int level, PositionTracker positionTracker) {
         Tag tag = Tag.createTag(type);
 
-        ((TagSerializer) tag).deserialize(in, level, positionTracker);
+        ((NbtFastSerializer) tag).deserialize(in, level, positionTracker);
 
         return tag;
     }

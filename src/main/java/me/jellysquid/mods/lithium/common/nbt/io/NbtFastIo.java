@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.nbt.io;
 
-import me.jellysquid.mods.lithium.common.nbt.TagSerializer;
+import me.jellysquid.mods.lithium.common.nbt.NbtFastSerializer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
 import net.minecraft.nbt.PositionTracker;
@@ -9,45 +9,45 @@ import net.minecraft.nbt.Tag;
 import java.io.IOException;
 
 public class NbtFastIo {
-    public static void write(CompoundTag compoundTag, NbtOut out) {
-        write((Tag) compoundTag, out);
+    public static void write(CompoundTag compoundTag, NbtFastWriter writer) {
+        write((Tag) compoundTag, writer);
     }
 
-    private static void write(Tag tag, NbtOut out) {
-        out.writeByte(tag.getType());
+    private static void write(Tag tag, NbtFastWriter writer) {
+        writer.writeByte(tag.getType());
 
         if (tag.getType() != 0) {
-            out.writeString("");
+            writer.writeString("");
 
-            ((TagSerializer) tag).serialize(out);
+            ((NbtFastSerializer) tag).serialize(writer);
         }
     }
 
-    public static CompoundTag read(NbtIn in) throws IOException {
-        return read(in, PositionTracker.DEFAULT);
+    public static CompoundTag read(NbtFastReader reader) throws IOException {
+        return read(reader, PositionTracker.DEFAULT);
     }
 
-    public static CompoundTag read(NbtIn in, PositionTracker positionTracker) throws IOException {
-        Tag tag_1 = read(in, 0, positionTracker);
+    public static CompoundTag read(NbtFastReader reader, PositionTracker positionTracker) throws IOException {
+        Tag tag = read(reader, 0, positionTracker);
 
-        if (tag_1 instanceof CompoundTag) {
-            return (CompoundTag)tag_1;
-        } else {
-            throw new IOException("Root tag must be a named compound tag");
+        if (tag instanceof CompoundTag) {
+            return (CompoundTag) tag;
         }
+
+        throw new IOException("Root tag must be a named compound tag");
     }
 
-    private static Tag read(NbtIn in, int level, PositionTracker positionTracker) {
-        byte type = in.readByte();
+    private static Tag read(NbtFastReader reader, int level, PositionTracker positionTracker) {
+        byte type = reader.readByte();
 
         if (type == 0) {
             return new EndTag();
         }
 
-        in.readString();
+        reader.readString();
 
         Tag tag = Tag.createTag(type);
-        ((TagSerializer) tag).deserialize(in, level, positionTracker);
+        ((NbtFastSerializer) tag).deserialize(reader, level, positionTracker);
 
         return tag;
     }

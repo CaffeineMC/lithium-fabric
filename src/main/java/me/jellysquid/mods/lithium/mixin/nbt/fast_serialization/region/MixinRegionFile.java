@@ -1,6 +1,5 @@
 package me.jellysquid.mods.lithium.mixin.nbt.fast_serialization.region;
 
-import me.jellysquid.mods.lithium.common.nbt.io.NbtOut;
 import me.jellysquid.mods.lithium.common.nbt.region.RegionFileDirectWritable;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.storage.RegionFile;
@@ -32,18 +31,16 @@ public abstract class MixinRegionFile implements RegionFileDirectWritable {
     protected abstract void write(ChunkPos chunkPos, byte[] bs, int i) throws IOException;
 
     @Override
-    public void write(ChunkPos pos, NbtOut out) throws IOException {
-        byte[] buf = out.finish();
-
+    public void write(ChunkPos pos, byte[] bytes) throws IOException {
         this.deflater.reset();
-        this.deflater.setInput(buf);
+        this.deflater.setInput(bytes);
         this.deflater.finish();
 
         byte[] compressed;
 
-        try (ByteArrayOutputStream bout = new ByteArrayOutputStream(buf.length)) {
+        try (ByteArrayOutputStream bout = new ByteArrayOutputStream(bytes.length)) {
             while (!this.deflater.finished()) {
-                int count = deflater.deflate(this.tmp);
+                int count = this.deflater.deflate(this.tmp);
 
                 bout.write(this.tmp, 0, count);
             }
@@ -53,4 +50,5 @@ public abstract class MixinRegionFile implements RegionFileDirectWritable {
 
         this.write(pos, compressed, compressed.length);
     }
+
 }

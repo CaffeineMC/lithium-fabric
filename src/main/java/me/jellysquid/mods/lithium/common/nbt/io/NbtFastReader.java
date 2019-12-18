@@ -1,9 +1,11 @@
 package me.jellysquid.mods.lithium.common.nbt.io;
 
-public interface NbtIn {
+public interface NbtFastReader {
     int readInt();
 
-    void readBytes(byte[] value);
+    default void readBytes(byte[] value) {
+        this.readBytes(value, value.length);
+    }
 
     void readBytes(byte[] bytes, int len);
 
@@ -11,9 +13,13 @@ public interface NbtIn {
 
     short readShort();
 
-    double readDouble();
+    default double readDouble() {
+        return Double.longBitsToDouble(this.readLong());
+    }
 
-    float readFloat();
+    default float readFloat() {
+        return Float.intBitsToFloat(this.readInt());
+    }
 
     long readLong();
 
@@ -63,7 +69,7 @@ public interface NbtIn {
                         throw new IllegalArgumentException(
                                 "malformed input: partial character at end");
                     }
-                    char2 = (int) bytearr[count - 1];
+                    char2 = bytearr[count - 1];
                     if ((char2 & 0xC0) != 0x80) {
                         throw new IllegalArgumentException(
                                 "malformed input around byte " + count);
@@ -78,8 +84,8 @@ public interface NbtIn {
                         throw new IllegalArgumentException(
                                 "malformed input: partial character at end");
                     }
-                    char2 = (int) bytearr[count - 2];
-                    char3 = (int) bytearr[count - 1];
+                    char2 = bytearr[count - 2];
+                    char3 = bytearr[count - 1];
                     if (((char2 & 0xC0) != 0x80) || ((char3 & 0xC0) != 0x80)) {
                         throw new IllegalArgumentException(
                                 "malformed input around byte " + (count - 1));

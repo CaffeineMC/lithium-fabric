@@ -1,24 +1,21 @@
 package me.jellysquid.mods.lithium.common.nbt.io.bytes;
 
-import me.jellysquid.mods.lithium.common.nbt.io.NbtIn;
+import me.jellysquid.mods.lithium.common.nbt.io.NbtFastReader;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
-public class NbtInByteBuffer implements NbtIn {
+public class NbtByteArrayReader implements NbtFastReader {
     private final ByteBuffer buf;
 
-    public NbtInByteBuffer(ByteBuffer buf) {
-        this.buf = buf;
+    public NbtByteArrayReader(byte[] data) {
+        this.buf = ByteBuffer.wrap(data);
+        this.buf.order(ByteOrder.BIG_ENDIAN);
     }
 
     @Override
     public int readInt() {
         return this.buf.getInt();
-    }
-
-    @Override
-    public void readBytes(byte[] value) {
-        this.buf.get(value);
     }
 
     @Override
@@ -34,16 +31,6 @@ public class NbtInByteBuffer implements NbtIn {
     @Override
     public short readShort() {
         return this.buf.getShort();
-    }
-
-    @Override
-    public double readDouble() {
-        return this.buf.getDouble();
-    }
-
-    @Override
-    public float readFloat() {
-        return this.buf.getFloat();
     }
 
     @Override
