@@ -1,5 +1,23 @@
 # Changelog
 
+### 0.2.0
+- fix: Use the correct bounds check for chunk sections in the entity chunk cache
+- fix: Ensure the entity chunk cache is purged on entity teleportation, fixes issues where the player would collide
+with blocks in another dimension
+- new: Use a simple AABB test to determine if an entity is colliding with a block if it's a normal, full cube. Provides
+a decent speed up for the collision step for entities.
+- new: Use a faster algorithm for compacting chunks during serialization (done when saving to disk)
+- new: Use a flat array instead of a HashMap to store nearby chunks in the entity chunk cache and only populate
+the range of chunks on demand
+- new: Avoid the unnecessary Class#isAssignableFrom call in TypeFilterableList unless we are building a new cached list
+- new: Use the entity chunk cache even when filtering nearby entities
+- new: Replace World#isRegionLoaded calls made by entities to calls which go through the entity chunk cache
+- new: Optimize VoxelShapes#method_20713 for a small improvement in light propagation code
+- new: Added experimental (and disabled by default) patches to disable concurrent modification checks in chunks
+- new: Avoid locking the DataTracker on every access and use a flat array for faster lookups
+- new: Avoid constantly checking the world's session lock when saving chunks
+- change: Removed the POT packed integer array patches as they don't improve performance
+ 
 ### 0.1.3
 - fix: Mixins which target methods that only exist on the client side are loaded on the server, causing a crash
 on startup
