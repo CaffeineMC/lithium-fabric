@@ -28,37 +28,37 @@ public final class IndirectListPair extends DoubleListPair {
     public void initBest(DoubleList a, DoubleList b, boolean flag1, boolean flag2) {
         if (a instanceof DoubleArrayList && b instanceof DoubleArrayList) {
             this.init(((DoubleArrayList) a).elements(), ((DoubleArrayList) b).elements(), a.size(), b.size(), flag1, flag2);
-        } else {
-            double[] araw;
-
-            if (a instanceof DoubleArrayList) {
-                araw = ((DoubleArrayList) a).elements();
-            } else if (a instanceof PrecomputedFractionalDoubleList) {
-                araw = ((PrecomputedFractionalDoubleList) a).items;
-            } else {
-                araw = new double[a.size()];
-
-                for (int i = 0; i < a.size(); i++) {
-                    araw[i] = a.getDouble(i);
-                }
-            }
-
-            double[] braw;
-
-            if (b instanceof DoubleArrayList) {
-                braw = ((DoubleArrayList) b).elements();
-            } else if (b instanceof PrecomputedFractionalDoubleList) {
-                braw = ((PrecomputedFractionalDoubleList) b).items;
-            } else {
-                braw = new double[b.size()];
-
-                for (int i = 0; i < b.size(); i++) {
-                    braw[i] = b.getDouble(i);
-                }
-            }
-
-            this.init(araw, braw, a.size(), b.size(), flag1, flag2);
         }
+
+        double[] araw;
+
+        if (a instanceof DoubleArrayList) {
+            araw = ((DoubleArrayList) a).elements();
+        } else if (a instanceof PrecomputedFractionalDoubleList) {
+            araw = ((PrecomputedFractionalDoubleList) a).items;
+        } else {
+            araw = new double[a.size()];
+
+            for (int i = 0; i < araw.length; i++) {
+                araw[i] = a.getDouble(i);
+            }
+        }
+
+        double[] braw;
+
+        if (b instanceof DoubleArrayList) {
+            braw = ((DoubleArrayList) b).elements();
+        } else if (b instanceof PrecomputedFractionalDoubleList) {
+            braw = ((PrecomputedFractionalDoubleList) b).items;
+        } else {
+            braw = new double[b.size()];
+
+            for (int i = 0; i < braw.length; i++) {
+                braw[i] = b.getDouble(i);
+            }
+        }
+
+        this.init(araw, braw, araw.length, braw.length, flag1, flag2);
     }
 
     private void init(double[] a, double[] b, int aSize, int bSize, boolean flag1, boolean flag2) {
