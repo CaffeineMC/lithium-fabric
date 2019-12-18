@@ -30,7 +30,7 @@ public class LithiumEntityCollisions {
      * chunks.
      */
     public static Stream<VoxelShape> getBlockCollisions(CollisionView world, final Entity entity, Box entityBox) {
-        EntityChunkCache cache = entity instanceof EntityWithChunkCache ? ((EntityWithChunkCache) entity).getEntityChunkCache() : null;
+        EntityChunkCache cache = EntityWithChunkCache.getChunkCache(entity);
 
         int minX = MathHelper.floor(entityBox.x1 - 1.0E-7D) - 1;
         int maxX = MathHelper.floor(entityBox.x2 + 1.0E-7D) + 1;

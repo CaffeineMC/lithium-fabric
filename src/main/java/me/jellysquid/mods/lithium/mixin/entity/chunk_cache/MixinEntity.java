@@ -1,6 +1,5 @@
 package me.jellysquid.mods.lithium.mixin.entity.chunk_cache;
 
-import me.jellysquid.mods.lithium.common.LithiumMod;
 import me.jellysquid.mods.lithium.common.cache.EntityChunkCache;
 import me.jellysquid.mods.lithium.common.entity.EntityWithChunkCache;
 import me.jellysquid.mods.lithium.common.shapes.LithiumVoxelShapes;
@@ -62,6 +61,8 @@ public abstract class MixinEntity implements EntityWithChunkCache {
 
     @Shadow
     protected double waterHeight;
+    @Shadow
+    private Box entityBounds;
     private EntityChunkCache chunkCache;
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -107,9 +108,7 @@ public abstract class MixinEntity implements EntityWithChunkCache {
 
     @Inject(method = "baseTick", at = @At("HEAD"))
     private void onBaseTick(CallbackInfo ci) {
-        if (LithiumMod.CONFIG.entity.useChunkCacheForEntities) {
-            this.chunkCache.updateChunks(this.getBoundingBox());
-        }
+        this.chunkCache.updateChunks(this.getBoundingBox());
     }
 
     @Redirect(method = {"move", "checkBlockCollision", "playStepSound", "isInsideWall", "getLandingPos", "checkBlockCollision", "getVelocityMultiplier" },
@@ -159,7 +158,7 @@ public abstract class MixinEntity implements EntityWithChunkCache {
             return Entity.adjustSingleAxisMovementForCollisions(movement, entityBoundingBox, world, context, collisions);
         }
 
-        EntityChunkCache chunkCache = ((EntityWithChunkCache) entity).getEntityChunkCache();
+        EntityChunkCache chunkCache = EntityWithChunkCache.getChunkCache(entity);
 
         double x = movement.x;
         double y = movement.y;
@@ -203,7 +202,7 @@ public abstract class MixinEntity implements EntityWithChunkCache {
      */
     @Overwrite
     public boolean updateMovementInFluid(Tag<Fluid> tag) {
-        EntityChunkCache cache = this.getEntityChunkCache();
+        EntityChunkCache cache = EntityWithChunkCache.getChunkCache((Entity) (Object) this);
 
         Box box = this.getBoundingBox().contract(0.001D);
 

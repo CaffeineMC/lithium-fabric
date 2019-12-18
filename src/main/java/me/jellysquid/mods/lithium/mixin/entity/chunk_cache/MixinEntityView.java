@@ -46,7 +46,7 @@ public interface MixinEntityView {
     }
 
     default <T extends Entity> List<T> getEntitiesIncludingUngeneratedChunks(Entity entity, Class<? extends T> entityClass, Box box, Predicate<? super T> predicate) {
-        EntityChunkCache cache = entity instanceof EntityWithChunkCache ? ((EntityWithChunkCache) entity).getEntityChunkCache() : null;
+        EntityChunkCache cache = EntityWithChunkCache.getChunkCache(entity);
 
         int minX = MathHelper.floor((box.x1 - 2.0D) / 16.0D);
         int maxX = MathHelper.ceil((box.x2 + 2.0D) / 16.0D);

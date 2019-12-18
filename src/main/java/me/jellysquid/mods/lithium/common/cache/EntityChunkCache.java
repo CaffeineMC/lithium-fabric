@@ -163,4 +163,29 @@ public class EntityChunkCache {
 
         return null;
     }
+
+    public boolean isRegionLoaded(BlockPos min, BlockPos max) {
+        return this.isRegionLoaded(min.getX(), min.getY(), min.getZ(), max.getX(), max.getY(), max.getZ());
+    }
+
+    public boolean isRegionLoaded(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+        if (maxY < 0 || minY >= 256) {
+            return false;
+        }
+
+        minX >>= 4;
+        minZ >>= 4;
+        maxX >>= 4;
+        maxZ >>= 4;
+
+        for (int x = minX; x <= maxX; ++x) {
+            for (int z = minZ; z <= maxZ; ++z) {
+                if (this.getChunk(x, z) == null) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 }

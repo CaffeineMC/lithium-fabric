@@ -27,7 +27,7 @@ public abstract class MixinWorld {
      */
     @Overwrite
     public List<Entity> getEntities(Entity entity, Box box, Predicate<? super Entity> predicate) {
-        EntityChunkCache cache = entity instanceof EntityWithChunkCache ? ((EntityWithChunkCache) entity).getEntityChunkCache() : null;
+        EntityChunkCache cache = EntityWithChunkCache.getChunkCache(entity);
 
         List<Entity> ret = Lists.newArrayList();
 
