@@ -1,6 +1,5 @@
 package me.jellysquid.mods.lithium.common.world.scheduler;
 
-import com.google.common.collect.Iterables;
 import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectSortedMap;
@@ -62,7 +61,7 @@ class ScheduledTickMap<T> {
     }
 
     Iterable<Mut<T>> getAllTicks() {
-        return Iterables.concat(this.scheduled.values());
+        return this.scheduled.values();
     }
 
     private final ArrayList<UpdateList<T>> updating = new ArrayList<>();
@@ -79,6 +78,12 @@ class ScheduledTickMap<T> {
                 int chunkX = ChunkPos.getPackedX(list.key);
                 int chunkZ = ChunkPos.getPackedZ(list.key);
 
+                if (list.executed) {
+                    chunkIdxIt.remove();
+
+                    continue;
+                }
+
                 // Hack to determine if the chunk is loaded
                 if (chunks.shouldTickBlock(pos.set(chunkX << 4, 0, chunkZ << 4))) {
                     for (Mut<T> mut : list) {
@@ -87,7 +92,7 @@ class ScheduledTickMap<T> {
 
                     this.updating.add(list);
 
-                    chunkIdxIt.remove();
+                    list.executed = true;
                 }
             }
 
@@ -142,6 +147,7 @@ class ScheduledTickMap<T> {
 
     static class UpdateList<T> extends ArrayList<Mut<T>> {
         private final long key;
+        private boolean executed = false;
 
         private UpdateList(long key) {
             this.key = key;
