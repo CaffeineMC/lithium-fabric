@@ -58,7 +58,7 @@ public final class IndirectListPair extends DoubleListPair {
             }
         }
 
-        this.init(araw, braw, araw.length, braw.length, flag1, flag2);
+        this.init(araw, braw, a.size(), b.size(), flag1, flag2);
     }
 
     private void init(double[] a, double[] b, int aSize, int bSize, boolean flag1, boolean flag2) {
