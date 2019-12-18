@@ -43,12 +43,8 @@ public abstract class MixinEntity {
 
         // The entity's bounding box is fully within the world border and will not collide with it. We can safely remove
         // it from the stream of shapes to do collision checking against.
-        if (wboxMinX < ebox.x1 && wboxMaxX > ebox.x1 && wboxMinX < ebox.x2 && wboxMaxX > ebox.x2 &&
-                wboxMinZ < ebox.z1 && wboxMaxZ > ebox.z1 && wboxMinZ < ebox.z2 && wboxMaxZ > ebox.z2) {
-            return true;
-        }
-
-        return VoxelShapes.matchesAnywhere(borderShape, entityShape, func);
+        return wboxMinX < ebox.x1 && wboxMaxX > ebox.x1 && wboxMinX < ebox.x2 && wboxMaxX > ebox.x2 &&
+                wboxMinZ < ebox.z1 && wboxMaxZ > ebox.z1 && wboxMinZ < ebox.z2 && wboxMaxZ > ebox.z2;
     }
 
 

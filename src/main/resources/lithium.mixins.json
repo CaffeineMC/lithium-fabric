@@ -24,6 +24,7 @@
         "entity.chunk_cache.MixinEntity",
         "entity.chunk_cache.MixinLivingEntity",
         "entity.chunk_cache.MixinWorld",
+        "entity.chunk_cache.MixinEntityView",
         "entity.data_tracker.no_locks.MixinDataTracker",
         "entity.data_tracker.use_arrays.MixinDataTracker",
         "entity.simple_entity_block_collisions.MixinCollisionView",
