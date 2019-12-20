@@ -121,13 +121,13 @@ public class LithiumEntityCollisions {
         }, false);
     }
 
-    public static boolean doesEntityCollideWithShape(VoxelShape block, VoxelShape entityShape, Box entityBox, int x, int y, int z) {
-        if (block == VoxelShapes.fullCube()) {
+    public static boolean doesEntityCollideWithShape(VoxelShape blockShape, VoxelShape entityShape, Box entityBox, int x, int y, int z) {
+        if (blockShape == VoxelShapes.fullCube()) {
             return entityBox.intersects(x, y, z, x + 1.0D, y + 1.0D, z + 1.0D);
-        } else if (block == VoxelShapes.empty()) {
+        } else if (blockShape == VoxelShapes.empty()) {
             return false;
         }
 
-        return VoxelShapes.matchesAnywhere(block.offset(x, y, z), entityShape, BooleanBiFunction.AND);
+        return VoxelShapes.matchesAnywhere(blockShape.offset(x, y, z), entityShape, BooleanBiFunction.AND);
     }
 }
