@@ -8,9 +8,10 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.EnumSet;
-import java.util.Map;
 import java.util.Set;
 
 @Mixin(GoalSelector.class)
@@ -21,38 +22,33 @@ public abstract class MixinGoalSelector {
 
     @Shadow
     @Final
-    private Map<Goal.Control, WeightedGoal> goalsByControl;
-
-    @Shadow
-    @Final
-    private EnumSet<Goal.Control> disabledControls;
-
-    private int disabledControlsBitFlag;
-
-    @Shadow
-    @Final
     private Set<WeightedGoal> goals;
 
-    @Shadow
-    @Final
-    private static WeightedGoal activeGoal;
+    private boolean[] disabledControlsArray;
+
+    private WeightedGoal[] goalsByControlArray;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void init(Profiler profiler, CallbackInfo ci) {
+        this.disabledControlsArray = new boolean[4];
+        this.goalsByControlArray = new WeightedGoal[4];
+    }
 
     /**
-     * This method originally allocates a ton of objects due to the use of lambdas and streams. It also isn't
-     * particularly fast while doing so. This performs significantly better.
+     * Makes use of a simple ordinal-indexed array to track the controls of each goal. We also avoid the usage of
+     * streams entirely to squeeze out additional performance.
      *
      * @reason Remove lambdas and complex stream logic
      * @author JellySquid
      */
     @Overwrite
     public void tick() {
-        this.profiler.push("goalCleanup");
+        this.selectGoals();
+        this.tickGoals();
+    }
 
-        this.disabledControlsBitFlag = 0;
-
-        for (Goal.Control control : this.disabledControls) {
-            this.disabledControlsBitFlag |= (1 << control.ordinal());
-        }
+    private void selectGoals() {
+        this.profiler.push("goalUpdate");
 
         // Stop goals which are disabled
         for (WeightedGoal goal : this.goals) {
@@ -60,42 +56,51 @@ public abstract class MixinGoalSelector {
                 continue;
             }
 
-            if (goal.shouldContinue() && !this.anyControlsDisabled(goal)) {
-                continue;
-            }
-
-            goal.stop();
-        }
-
-        for (Map.Entry<Goal.Control, WeightedGoal> entry : this.goalsByControl.entrySet()) {
-            if (!entry.getValue().isRunning()) {
-                this.goalsByControl.remove(entry.getKey());
+            // If the goal shouldn't continue or any of its controls have been disabled, then stop the goal
+            if (!goal.shouldContinue() || this.anyControlsDisabled(goal)) {
+                goal.stop();
             }
         }
 
-        this.profiler.pop();
-        this.profiler.push("goalUpdate");
+        // Disassociate controls from stopped goals
+        for (int i = 0; i < this.goalsByControlArray.length; i++) {
+            WeightedGoal goal = this.goalsByControlArray[i];
 
+            if (goal != null && !goal.isRunning()) {
+                this.goalsByControlArray[i] = null;
+            }
+        }
+
+        // Try to start new goals where possible
         for (WeightedGoal goal : this.goals) {
+            // Filter out goals which can be started
             if (goal.isRunning() || !goal.canStart()) {
                 continue;
             }
 
-            if (!this.areControlsAvailable(goal)) {
-                return;
+            // Check if the goal's controls are available or can be replaced
+            if (!this.areGoalControlsAvailableForReplacement(goal)) {
+                continue;
             }
 
+            // Hand over controls to this goal and stop any goals which depended on those controls
             for (Goal.Control control : goal.getControls()) {
-                WeightedGoal otherGoal = this.goalsByControl.getOrDefault(control, activeGoal);
-                otherGoal.stop();
+                WeightedGoal otherGoal = this.getGoalForControl(control);
 
-                this.goalsByControl.put(control, goal);
+                if (otherGoal != null) {
+                    otherGoal.stop();
+                }
+
+                this.setGoalForControl(control, goal);
             }
 
             goal.start();
         }
 
         this.profiler.pop();
+    }
+
+    private void tickGoals() {
         this.profiler.push("goalTick");
 
         for (WeightedGoal goal : this.goals) {
@@ -109,7 +114,7 @@ public abstract class MixinGoalSelector {
 
     private boolean anyControlsDisabled(WeightedGoal goal) {
         for (Goal.Control control : goal.getControls()) {
-            if ((this.disabledControlsBitFlag & (1 << control.ordinal())) != 0) {
+            if (this.isControlDisabled(control)) {
                 return true;
             }
         }
@@ -117,17 +122,49 @@ public abstract class MixinGoalSelector {
         return false;
     }
 
-    private boolean areControlsAvailable(WeightedGoal goal) {
+    private boolean areGoalControlsAvailableForReplacement(WeightedGoal goal) {
         for (Goal.Control control : goal.getControls()) {
-            if ((this.disabledControlsBitFlag & (1 << control.ordinal())) != 0) {
+            if (this.isControlDisabled(control)) {
                 return false;
             }
 
-            if (!this.goalsByControl.getOrDefault(control, activeGoal).canBeReplacedBy(goal)) {
+            WeightedGoal occupied = this.getGoalForControl(control);
+
+            if (occupied != null && !occupied.canBeReplacedBy(goal)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    /**
+     * @reason Update our array instead
+     * @author JellySquid
+     */
+    @Overwrite
+    public void disableControl(Goal.Control control) {
+        this.disabledControlsArray[control.ordinal()] = true;
+    }
+
+    /**
+     * @reason Update our array instead
+     * @author JellySquid
+     */
+    @Overwrite
+    public void enableControl(Goal.Control control) {
+        this.disabledControlsArray[control.ordinal()] = false;
+    }
+
+    private boolean isControlDisabled(Goal.Control control) {
+        return this.disabledControlsArray[control.ordinal()];
+    }
+
+    private WeightedGoal getGoalForControl(Goal.Control control) {
+        return this.goalsByControlArray[control.ordinal()];
+    }
+
+    private void setGoalForControl(Goal.Control control, WeightedGoal goal) {
+        this.goalsByControlArray[control.ordinal()] = goal;
     }
 }
