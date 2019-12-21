@@ -36,7 +36,7 @@ public class EntityChunkCache {
 
     private int startX, startZ;
 
-    private boolean isCacheEmpty = true;
+    private boolean isCacheReusable = false;
 
     public EntityChunkCache(Entity entity) {
         this.entity = entity;
@@ -53,35 +53,35 @@ public class EntityChunkCache {
 
         ChunkManager chunkManager = this.getWorld().getChunkManager();
 
-        // If the world/chunk manager has changed, we need to reset
+        // If the entity's world changes (such as due to a teleportation), wipe the cache
         if (chunkManager != this.chunkManager) {
-            Arrays.fill(this.cache, null);
-
-            this.isCacheEmpty = true;
-        } else {
-            // If we're not watching any new chunks, we have no need to update anything
-            if (startX == this.startX && startZ == this.startZ) {
-                return;
-            }
+            this.isCacheReusable = false;
+            this.chunkManager = chunkManager;
         }
 
-        if (!this.isCacheEmpty) {
-            WorldChunk[] cache = new WorldChunk[LENGTH * LENGTH];
+        if (!this.isCacheReusable) {
+            Arrays.fill(this.cache, null);
 
-            for (int x = 0; x < LENGTH; x++) {
-                for (int z = 0; z < LENGTH; z++) {
-                    cache[(x * LENGTH) + z] = this.getCachedChunk(startX + x, startZ + z);
+            this.isCacheReusable = true;
+        } else {
+            // We can re-use the chunks in the cache! If our position hasn't changed, we're good to go
+            if (startX == this.startX && startZ == this.startZ) {
+                return;
+            } else {
+                WorldChunk[] cache = new WorldChunk[LENGTH * LENGTH];
+
+                for (int x = 0; x < LENGTH; x++) {
+                    for (int z = 0; z < LENGTH; z++) {
+                        cache[index(x, z)] = this.getCachedChunk(startX + x, startZ + z);
+                    }
                 }
-            }
 
-            this.cache = cache;
+                this.cache = cache;
+            }
         }
 
         this.startX = startX;
         this.startZ = startZ;
-        this.chunkManager = chunkManager;
-
-        this.isCacheEmpty = false;
     }
 
     private ChunkSection getChunkSection(int x, int y, int z, boolean required) {
@@ -139,12 +139,12 @@ public class EntityChunkCache {
         int iZ = z - this.startZ;
 
         if (iX >= 0 && iX < LENGTH && iZ >= 0 && iZ < LENGTH) {
-            int i = (iX * LENGTH) + iZ;
+            int i = index(iX, iZ);
 
             WorldChunk chunk = this.cache[i];
 
             if (chunk == null) {
-                this.cache[i] = chunk = this.chunkManager.getWorldChunk(x, z, false);
+                return this.cache[i] = this.chunkManager.getWorldChunk(x, z, false);
             }
 
             return chunk;
@@ -158,7 +158,7 @@ public class EntityChunkCache {
         int iZ = z - this.startZ;
 
         if (iX >= 0 && iX < LENGTH && iZ >= 0 && iZ < LENGTH) {
-            return this.cache[(iX * LENGTH) + iZ];
+            return this.cache[index(iX, iZ)];
         }
 
         return null;
@@ -187,5 +187,9 @@ public class EntityChunkCache {
         }
 
         return true;
+    }
+
+    private static int index(int x, int z) {
+        return (x * LENGTH) + z;
     }
 }
