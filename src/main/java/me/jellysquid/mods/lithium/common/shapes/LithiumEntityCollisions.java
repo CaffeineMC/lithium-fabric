@@ -15,6 +15,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.CollisionView;
+import net.minecraft.world.border.WorldBorder;
 
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -26,8 +27,8 @@ public class LithiumEntityCollisions {
     /**
      * [VanillaCopy] ViewableWorld#method_20812(Entity, Box)
      * This is a much, much faster implementation which uses simple collision testing against full-cube block shapes.
-     * Additionally, we make use of the entity's nearby chunk cache if available to reduce the overhead of looking up
-     * chunks.
+     * Chunk retrieval makes use of the entity's nearby chunk cache if available. Checks against the world border are
+     * replaced with our own optimized functions.
      */
     public static Stream<VoxelShape> getBlockCollisions(CollisionView world, final Entity entity, Box entityBox) {
         EntityChunkCache cache = EntityWithChunkCache.getChunkCache(entity);
@@ -51,13 +52,13 @@ public class LithiumEntityCollisions {
                 if (!this.skipWorldBorderCheck) {
                     this.skipWorldBorderCheck = true;
 
-                    VoxelShape border = world.getWorldBorder().asVoxelShape();
+                    WorldBorder border = world.getWorldBorder();
 
-                    boolean isInsideBorder = VoxelShapes.matchesAnywhere(border, VoxelShapes.cuboid(entity.getBoundingBox().contract(1.0E-7D)), BooleanBiFunction.AND);
-                    boolean isCrossingBorder = VoxelShapes.matchesAnywhere(border, VoxelShapes.cuboid(entity.getBoundingBox().expand(1.0E-7D)), BooleanBiFunction.AND);
+                    boolean isInsideBorder = LithiumEntityCollisions.isBoxFullyWithinWorldBorder(border, entity.getBoundingBox().contract(1.0E-7D));
+                    boolean isCrossingBorder = LithiumEntityCollisions.isBoxFullyWithinWorldBorder(border, entity.getBoundingBox().expand(1.0E-7D));
 
                     if (!isInsideBorder && isCrossingBorder) {
-                        consumer.accept(border);
+                        consumer.accept(border.asVoxelShape());
 
                         return true;
                     }
@@ -115,7 +116,7 @@ public class LithiumEntityCollisions {
                 }
 
                 consumer.accept(shape);
-                
+
                 return true;
             }
         }, false);
@@ -130,4 +131,17 @@ public class LithiumEntityCollisions {
 
         return VoxelShapes.matchesAnywhere(blockShape.offset(x, y, z), entityShape, BooleanBiFunction.AND);
     }
+
+    public static boolean isBoxFullyWithinWorldBorder(WorldBorder border, Box box) {
+        double wboxMinX = Math.floor(border.getBoundWest());
+        double wboxMinZ = Math.floor(border.getBoundNorth());
+
+        double wboxMaxX = Math.ceil(border.getBoundEast());
+        double wboxMaxZ = Math.ceil(border.getBoundSouth());
+        
+        return box.x1 >= wboxMinX && box.x1 < wboxMaxX && box.z1 >= wboxMinZ && box.z1 < wboxMaxZ && 
+                box.x2 >= wboxMinX && box.x2 < wboxMaxX && box.z2 >= wboxMinZ && box.z2 < wboxMaxZ;
+    }
+
+
 }
