@@ -1,9 +1,5 @@
 package me.jellysquid.mods.lithium.common.world.scheduler;
 
-import com.google.common.collect.Lists;
-import me.jellysquid.mods.lithium.common.world.scheduler.ScheduledTickMap.Status;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.server.world.ServerTickScheduler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -14,7 +10,6 @@ import net.minecraft.world.ScheduledTick;
 import net.minecraft.world.TickPriority;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -43,7 +38,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     public void tick() {
         this.world.getProfiler().push("cleaning");
 
-        this.tickMap.cleanup(this.world.getChunkManager(), this.world.getTime() + 1);
+        this.tickMap.selectTicksForExecution(this.world.getChunkManager(), this.world.getTime() + 1);
 
         this.world.getProfiler().swap("executing");
 
@@ -54,7 +49,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
 
     @Override
     public boolean isTicking(BlockPos pos, T obj) {
-        return this.tickMap.getScheduledTickStatus(pos, obj, true);
+        return this.tickMap.isExecuting(pos, obj);
     }
 
     @Override
@@ -63,93 +58,40 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     }
 
     @Override
-    public List<ScheduledTick<T>> getScheduledTicksInChunk(ChunkPos chunkPos, boolean consumed, boolean remove) {
-        List<ScheduledTick<T>> ret = new ArrayList<>();
+    public List<ScheduledTick<T>> getScheduledTicksInChunk(ChunkPos chunkPos, boolean mutates, boolean getStaleTicks) {
+        BlockBox box = new BlockBox(chunkPos.getStartX() - 2, chunkPos.getStartZ() - 2, chunkPos.getEndX() + 2, chunkPos.getEndZ() + 2);
 
-        Iterator<ScheduledTickMap.UpdateList<T>> listIt = this.tickMap.getTicksForChunk(chunkPos.toLong());
+        return this.getScheduledTicks(box, mutates, getStaleTicks);
+    }
 
-        while (listIt.hasNext()) {
-            ScheduledTickMap.UpdateList<T> next = listIt.next();
+    @Override
+    public List<ScheduledTick<T>> getScheduledTicks(BlockBox box, boolean mutates, boolean getStaleTicks) {
+        final List<ScheduledTick<T>> ret = new ArrayList<>();
 
-            for (Iterator<ScheduledTickMap.Mut<T>> mutIt = next.iterator(); mutIt.hasNext(); ) {
-                ScheduledTickMap.Mut<T> mut = mutIt.next();
-
-                if (mut.status == Status.CONSUMED && !consumed) {
-                    continue;
-                }
-
-                ScheduledTick<T> tick = mut.tick;
-                ret.add(tick);
-
-                if (remove) {
-                    mutIt.remove();
-
-                    this.tickMap.removeTick(tick);
-                }
+        this.tickMap.iterateTicks(box, entry -> {
+            if (entry.consumed && !getStaleTicks) {
+                return;
             }
-        }
+
+            ScheduledTick<T> tick = entry.tick;
+            ret.add(tick);
+        }, mutates);
 
         return ret;
     }
 
     @Override
-    public List<ScheduledTick<T>> getScheduledTicks(BlockBox box, boolean remove, boolean includeConsumed) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void copyScheduledTicks(BlockBox box, BlockPos pos) {
-        List<ScheduledTick<T>> ret = null;
+        List<ScheduledTick<T>> list = this.getScheduledTicks(box, false, false);
 
-        for (ScheduledTickMap.Mut<T> mut : this.tickMap.getAllTicks()) {
-            ScheduledTick<T> tick = mut.tick;
-
-            if (tick.pos.getX() >= box.minX && tick.pos.getX() < box.maxX && tick.pos.getZ() >= box.minZ && tick.pos.getZ() < box.maxZ) {
-                if (ret == null) {
-                    ret = Lists.newArrayList();
-                }
-
-                ret.add(tick);
-            }
+        for (ScheduledTick<T> tick : list) {
+            this.addScheduledTick(new ScheduledTick<>(tick.pos.add(pos), tick.getObject(), tick.time, tick.priority));
         }
-
-        if (ret == null) {
-            return;
-        }
-
-        for (ScheduledTick<T> tick : ret) {
-            if (box.contains(tick.pos)) {
-                this.addScheduledTick(new ScheduledTick<>(tick.pos.add(pos), tick.getObject(), tick.time, tick.priority));
-            }
-        }
-    }
-
-    @Override
-    public ListTag toTag(ChunkPos chunkPos) {
-        List<ScheduledTick<T>> ticks = this.getScheduledTicksInChunk(chunkPos, false, true);
-        return serializeScheduledTicks(this.idToName, ticks, this.world.getTime());
-    }
-
-    public static <T> ListTag serializeScheduledTicks(Function<T, Identifier> function_1, Iterable<ScheduledTick<T>> ticks, long offset) {
-        ListTag listTag_1 = new ListTag();
-
-        for (ScheduledTick<T> tick : ticks) {
-            CompoundTag compoundTag_1 = new CompoundTag();
-            compoundTag_1.putString("i", function_1.apply(tick.getObject()).toString());
-            compoundTag_1.putInt("x", tick.pos.getX());
-            compoundTag_1.putInt("y", tick.pos.getY());
-            compoundTag_1.putInt("z", tick.pos.getZ());
-            compoundTag_1.putInt("t", (int) (tick.time - offset));
-            compoundTag_1.putInt("p", tick.priority.getIndex());
-            listTag_1.add(compoundTag_1);
-        }
-
-        return listTag_1;
     }
 
     @Override
     public boolean isScheduled(BlockPos pos, T obj) {
-        return this.tickMap.getScheduledTickStatus(pos, obj, false);
+        return this.tickMap.isScheduled(pos, obj);
     }
 
     @Override
@@ -160,7 +102,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     }
 
     private void addScheduledTick(ScheduledTick<T> tick) {
-        this.tickMap.addScheduledTick(tick);
+        this.tickMap.enqueueTick(tick);
     }
 
     @Override

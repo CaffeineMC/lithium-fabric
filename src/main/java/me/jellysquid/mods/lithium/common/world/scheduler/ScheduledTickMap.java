@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.common.world.scheduler;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectSortedMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -8,6 +9,7 @@ import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
+import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.ScheduledTick;
@@ -21,115 +23,154 @@ import java.util.function.Consumer;
 
 class ScheduledTickMap<T> {
     private final Long2ObjectSortedMap<UpdateTimeIndex<T>> activeTicksByTime = new Long2ObjectAVLTreeMap<>();
-    private final Map<ScheduledTick<T>, Mut<T>> scheduled = new HashMap<>();
 
-    void addScheduledTick(ScheduledTick<T> tick) {
-        Mut<T> mut = this.scheduled.computeIfAbsent(tick, Mut::new);
+    private final Map<ScheduledTick<T>, TickEntry<T>> scheduled = new HashMap<>();
 
-        if (mut.status == Status.SCHEDULED) {
-            return;
+    public void enqueueTick(ScheduledTick<T> tick) {
+        TickEntry<T> entry = this.scheduled.computeIfAbsent(tick, TickEntry::new);
+
+        if (!entry.scheduled) {
+            UpdateTimeIndex<T> timeIdx = this.activeTicksByTime.computeIfAbsent(getTimeKey(tick.time, tick.priority), UpdateTimeIndex::new);
+
+            UpdateList<T> chunkIdx = timeIdx.computeIfAbsent(getChunkKey(tick.pos), UpdateList::new);
+            chunkIdx.add(entry);
+
+            entry.scheduled = true;
+        }
+    }
+
+    public boolean isExecuting(BlockPos pos, T obj) {
+        TickEntry<T> entry = this.scheduled.get(new ScheduledTick<>(pos, obj));
+
+        if (entry == null) {
+            return false;
         }
 
-        mut.status = Status.SCHEDULED;
-
-        UpdateList<T> idx = this.activeTicksByTime.computeIfAbsent(getTimeKey(tick.time, tick.priority), UpdateTimeIndex::new)
-                .computeIfAbsent(getChunkKey(tick.pos), UpdateList::new);
-        idx.add(mut);
+        return entry.executing;
     }
 
-    private static long getChunkKey(BlockPos pos) {
-        return ChunkPos.toLong(pos.getX() >> 4, pos.getZ() >> 4);
+    public boolean isScheduled(BlockPos pos, T obj) {
+        TickEntry<T> entry = this.scheduled.get(new ScheduledTick<>(pos, obj));
+
+        if (entry == null) {
+            return false;
+        }
+
+        return entry.scheduled;
     }
 
-    boolean getScheduledTickStatus(BlockPos pos, T obj, boolean executing) {
-        Mut<T> index = this.scheduled.get(new ScheduledTick<>(pos, obj));
+    public void iterateTicks(BlockBox box, Consumer<TickEntry<T>> consumer, boolean remove) {
+        for (ObjectIterator<UpdateTimeIndex<T>> timeIdxIt = this.activeTicksByTime.values().iterator(); timeIdxIt.hasNext(); ) {
+            UpdateTimeIndex<T> timeIdx = timeIdxIt.next();
 
-        return index != null && index.status == (executing ? Status.EXECUTING : Status.SCHEDULED);
-    }
+            for (ObjectIterator<UpdateList<T>> chunkIdxIt = timeIdx.values().iterator(); chunkIdxIt.hasNext(); ) {
+                UpdateList<T> chunkIdx = chunkIdxIt.next();
 
-    private static long getTimeKey(long time, TickPriority priority) {
-        return (time << 4L) | (priority.ordinal() & 15);
-    }
+                int x = chunkIdx.getX();
+                int z = chunkIdx.getZ();
 
-    Iterator<UpdateList<T>> getTicksForChunk(long chunk) {
-        return this.activeTicksByTime
-                .values()
-                .stream()
-                .filter(table -> table.key == chunk)
-                .flatMap(table -> table.values().stream())
-                .iterator();
-    }
-
-    Iterable<Mut<T>> getAllTicks() {
-        return this.scheduled.values();
-    }
-
-    private final ArrayList<UpdateList<T>> updating = new ArrayList<>();
-
-    void cleanup(ServerChunkManager chunks, long time) {
-        final BlockPos.Mutable pos = new BlockPos.Mutable();
-
-        for (ObjectIterator<UpdateTimeIndex<T>> timeIdxIt = this.activeTicksByTime.headMap(time << 4L).values().iterator(); timeIdxIt.hasNext(); ) {
-            UpdateTimeIndex<T> table = timeIdxIt.next();
-
-            for (Iterator<UpdateList<T>> chunkIdxIt = table.values().iterator(); chunkIdxIt.hasNext(); ) {
-                UpdateList<T> list = chunkIdxIt.next();
-
-                int chunkX = ChunkPos.getPackedX(list.key);
-                int chunkZ = ChunkPos.getPackedZ(list.key);
-
-                if (list.executed) {
-                    chunkIdxIt.remove();
-
+                if (!box.intersectsXZ(x, z, x + 16, z + 16)) {
                     continue;
                 }
 
-                // Hack to determine if the chunk is loaded
-                if (chunks.shouldTickBlock(pos.set(chunkX << 4, 0, chunkZ << 4))) {
-                    for (Mut<T> mut : list) {
-                        mut.status = Status.EXECUTING;
+                for (Iterator<TickEntry<T>> entryIt = chunkIdx.iterator(); entryIt.hasNext(); ) {
+                    TickEntry<T> entry = entryIt.next();
+
+                    if (!box.contains(entry.tick.pos)) {
+                        continue;
                     }
 
-                    this.updating.add(list);
+                    consumer.accept(entry);
 
-                    list.executed = true;
+                    if (remove) {
+                        entryIt.remove();
+
+                        this.scheduled.remove(entry.tick);
+                    }
+                }
+
+                if (remove && chunkIdx.isEmpty()) {
+                    chunkIdxIt.remove();
                 }
             }
 
-            if (table.isEmpty()) {
+            if (remove && timeIdx.isEmpty()) {
                 timeIdxIt.remove();
             }
         }
     }
 
-    void performTicks(Consumer<ScheduledTick<T>> consumer) {
-        for (UpdateList<T> list : this.updating) {
-            this.execute(list, consumer);
-        }
+    private final ArrayList<UpdateList<T>> selectedTickLists = new ArrayList<>();
 
-        this.updating.clear();
+    public void selectTicksForExecution(ServerChunkManager chunks, long time) {
+        final BlockPos.Mutable pos = new BlockPos.Mutable();
+
+        for (ObjectIterator<Long2ObjectMap.Entry<UpdateTimeIndex<T>>> timeIdxIt = this.activeTicksByTime.headMap(time << 4L).long2ObjectEntrySet().iterator(); timeIdxIt.hasNext(); ) {
+            Long2ObjectMap.Entry<UpdateTimeIndex<T>> entry = timeIdxIt.next();
+
+            UpdateTimeIndex<T> timeIdx = entry.getValue();
+
+            for (ObjectIterator<UpdateList<T>> chunkIdxIt = timeIdx.values().iterator(); chunkIdxIt.hasNext(); ) {
+                UpdateList<T> chunkIdx = chunkIdxIt.next();
+
+                // Hack to determine if the chunk is loaded
+                if (chunks.shouldTickBlock(pos.set(chunkIdx.getX() + 8, 0, chunkIdx.getZ() + 8))) {
+                    for (TickEntry<T> tickEntry : chunkIdx) {
+                        tickEntry.scheduled = false;
+                        tickEntry.executing = true;
+                    }
+
+                    this.selectedTickLists.add(chunkIdx);
+
+                    chunkIdxIt.remove();
+                }
+            }
+
+            if (timeIdx.isEmpty()) {
+                timeIdxIt.remove();
+            }
+        }
     }
 
-    private void execute(UpdateList<T> list, Consumer<ScheduledTick<T>> consumer) {
-        for (Mut<T> mut : list) {
-            try {
-                mut.status = Status.CONSUMED;
+    public void performTicks(Consumer<ScheduledTick<T>> consumer) {
+        // Execute all pending ticks
+        for (UpdateList<T> list : this.selectedTickLists) {
+            this.executeList(list, consumer);
+        }
 
-                consumer.accept(mut.tick);
+        // Remove all ticks which haven't been re-scheduled
+        for (UpdateList<T> list : this.selectedTickLists) {
+            for (TickEntry<T> entry : list) {
+                if (!entry.scheduled) {
+                    this.scheduled.remove(entry.tick);
+                }
+            }
+        }
+
+        this.selectedTickLists.clear();
+    }
+
+    private void executeList(UpdateList<T> list, Consumer<ScheduledTick<T>> consumer) {
+        for (TickEntry<T> entry : list) {
+            try {
+                entry.executing = false;
+                entry.consumed = true;
+
+                consumer.accept(entry.tick);
             } catch (Throwable e) {
                 CrashReport crash = CrashReport.create(e, "Exception while ticking");
                 CrashReportSection section = crash.addElement("Block being ticked");
-                CrashReportSection.addBlockInfo(section, mut.tick.pos, null);
+                CrashReportSection.addBlockInfo(section, entry.tick.pos, null);
                 throw new CrashException(crash);
             }
         }
     }
 
-    int getScheduledCount() {
+    public int getScheduledCount() {
         int count = 0;
 
-        for (Mut<T> mut : this.scheduled.values()) {
-            if (mut.status == Status.SCHEDULED) {
+        for (TickEntry<T> entry : this.scheduled.values()) {
+            if (entry.scheduled) {
                 count += 1;
             }
         }
@@ -138,39 +179,43 @@ class ScheduledTickMap<T> {
     }
 
     private static class UpdateTimeIndex<T> extends Long2ObjectOpenHashMap<UpdateList<T>> {
-        private final long key;
-
-        private UpdateTimeIndex(long key) {
-            this.key = key;
-        }
+        private UpdateTimeIndex(long key) { }
     }
 
-    static class UpdateList<T> extends ArrayList<Mut<T>> {
-        private final long key;
-        private boolean executed = false;
+    private static class UpdateList<T> extends ArrayList<TickEntry<T>> {
+        public final long key;
 
         private UpdateList(long key) {
             this.key = key;
         }
+
+        public int getX() {
+            return ChunkPos.getPackedX(this.key) << 4;
+        }
+
+        public int getZ() {
+            return ChunkPos.getPackedZ(this.key) << 4;
+        }
     }
 
-    enum Status {
-        SCHEDULED,
-        EXECUTING,
-        CONSUMED
-    }
+    // Wrapper to extend ScheduledTick, adds some overhead.
+    public static class TickEntry<T> {
+        public final ScheduledTick<T> tick;
 
-    static class Mut<T> {
-        final ScheduledTick<T> tick;
+        public boolean scheduled = false;
+        public boolean executing = false;
+        public boolean consumed = false;
 
-        Status status = null;
-
-        private Mut(ScheduledTick<T> tick) {
+        public TickEntry(ScheduledTick<T> tick) {
             this.tick = tick;
         }
     }
 
-    void removeTick(ScheduledTick<T> tick) {
-        this.scheduled.remove(tick);
+    private static long getTimeKey(long time, TickPriority priority) {
+        return (time << 4L) | (priority.ordinal() & 15);
+    }
+
+    private static long getChunkKey(BlockPos pos) {
+        return ChunkPos.toLong(pos.getX() >> 4, pos.getZ() >> 4);
     }
 }
