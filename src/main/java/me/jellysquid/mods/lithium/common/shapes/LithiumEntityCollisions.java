@@ -64,72 +64,67 @@ public class LithiumEntityCollisions {
                     }
                 }
 
-                VoxelShape shape = null;
-                boolean flag;
+                while (cuboidIt.step()) {
+                    int x = cuboidIt.getX();
+                    int y = cuboidIt.getY();
+                    int z = cuboidIt.getZ();
 
-                do {
-                    int edgesHit;
-                    BlockState state;
-                    int x, y, z;
+                    int edgesHit = cuboidIt.getEdgeCoordinatesCount();
 
-                    do {
-                        do {
-                            BlockView chunk;
-                            do {
-                                do {
-                                    if (!cuboidIt.step()) {
-                                        return false;
-                                    }
+                    if (edgesHit == 3) {
+                        continue;
+                    }
 
-                                    x = cuboidIt.getX();
-                                    y = cuboidIt.getY();
-                                    z = cuboidIt.getZ();
-                                    edgesHit = cuboidIt.getEdgeCoordinatesCount();
-                                } while (edgesHit == 3);
+                    BlockView chunk;
 
-                                int chunkX = x >> 4;
-                                int chunkZ = z >> 4;
+                    if (cache != null) {
+                        chunk = cache.getChunk(x >> 4, z >> 4);
+                    } else {
+                        chunk = world.getExistingChunk(x >> 4, z >> 4);
+                    }
 
-                                if (cache != null) {
-                                    chunk = cache.getChunk(chunkX, chunkZ);
-                                } else {
-                                    chunk = world.getExistingChunk(chunkX, chunkZ);
-                                }
-                            } while (chunk == null);
+                    if (chunk == null) {
+                        continue;
+                    }
 
-                            pos.set(x, y, z);
+                    pos.set(x, y, z);
 
-                            state = chunk.getBlockState(pos);
-                        } while (edgesHit == 1 && !state.exceedsCube());
-                    } while (edgesHit == 2 && state.getBlock() != Blocks.MOVING_PISTON);
+                    BlockState state = chunk.getBlockState(pos);
+
+                    if (edgesHit == 1 && !state.exceedsCube()) {
+                        continue;
+                    }
+
+                    if (edgesHit == 2 && state.getBlock() == Blocks.MOVING_PISTON) {
+                        continue;
+                    }
 
                     VoxelShape blockShape = state.getCollisionShape(world, pos, context);
-                    flag = doesEntityCollideWithShape(blockShape, entityShape, entityBox, x, y, z);
 
-                    if (flag) {
-                        shape = blockShape.offset(x, y, z);
+                    if (blockShape == VoxelShapes.empty()) {
+                        continue;
                     }
-                } while (!flag);
 
-                if (shape == null) {
-                    throw new IllegalStateException();
+                    if (blockShape == VoxelShapes.fullCube()) {
+                        if (entityBox.intersects(x, y, z, x + 1.0D, y + 1.0D, z + 1.0D)) {
+                            consumer.accept(blockShape.offset(x, y, z));
+
+                            return true;
+                        }
+                    } else {
+                        VoxelShape shape = blockShape.offset(x, y, z);
+
+                        if (VoxelShapes.matchesAnywhere(shape, entityShape, BooleanBiFunction.AND)) {
+                            consumer.accept(shape);
+
+                            return true;
+                        }
+                    }
                 }
 
-                consumer.accept(shape);
-
-                return true;
+                return false;
             }
         }, false);
-    }
-
-    public static boolean doesEntityCollideWithShape(VoxelShape blockShape, VoxelShape entityShape, Box entityBox, int x, int y, int z) {
-        if (blockShape == VoxelShapes.fullCube()) {
-            return entityBox.intersects(x, y, z, x + 1.0D, y + 1.0D, z + 1.0D);
-        } else if (blockShape == VoxelShapes.empty()) {
-            return false;
-        }
-
-        return VoxelShapes.matchesAnywhere(blockShape.offset(x, y, z), entityShape, BooleanBiFunction.AND);
     }
 
     public static boolean isBoxFullyWithinWorldBorder(WorldBorder border, Box box) {
