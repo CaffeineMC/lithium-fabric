@@ -11,8 +11,10 @@ import net.minecraft.world.chunk.Palette;
 import net.minecraft.world.chunk.PalettedContainer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Function;
 
@@ -64,8 +66,13 @@ public abstract class MixinPalettedContainer<T> {
      * @reason Optimize serialization
      * @author JellySquid
      */
-    @Overwrite
-    public void write(CompoundTag tag, String paletteKey, String dataKey) {
+    @Inject(method = "write", at = @At("HEAD"), cancellable = true)
+    public void write(CompoundTag tag, String paletteKey, String dataKey, CallbackInfo ci) {
+        // We're using a fallback map and it doesn't need compaction!
+        if (this.paletteSize > 8) {
+            return;
+        }
+
         this.lock();
 
         LithiumHashPalette<T> compactedPalette = new LithiumHashPalette<>(this.idList, this.paletteSize, null, this.elementDeserializer, this.elementSerializer);
@@ -104,6 +111,8 @@ public abstract class MixinPalettedContainer<T> {
         }
 
         this.unlock();
+
+        ci.cancel();
     }
 
 }
