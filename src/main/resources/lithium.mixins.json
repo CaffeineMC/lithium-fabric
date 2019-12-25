@@ -42,6 +42,8 @@
         "voxelshape.precompute_shape_arrays.MixinSimpleVoxelShape",
         "chunk.fast_chunk_serialization.MixinPalettedContainer",
         "chunk.fast_chunk_serialization.MixinPackedIntegerArray",
-        "fast_type_filterable_list.MixinTypeFilterableList"
+        "fast_type_filterable_list.MixinTypeFilterableList",
+        "redstone.MixinRedstoneWireBlock",
+        "redstone.MixinWorld"
     ]
 }

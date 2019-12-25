@@ -173,7 +173,7 @@ public class LithiumConfig {
          * performance in some situations, but comes with the dangerous side effect that these kinds of threading issues
          * will not be detected and could go on to create serious problems. This option **does not** make it valid to
          * access chunks from multiple threads.
-         *
+         * <p>
          * Disabled by default until further testing in vanilla is performed and alternatives are looked into.
          */
         public boolean removeConcurrentModificationChecks = false;
@@ -205,6 +205,25 @@ public class LithiumConfig {
         public boolean cacheHashcodeCalculations = true;
     }
 
+    public static class RedstoneConfig {
+        /**
+         * If true, Redstone dust will use an optimized update system which avoids unnecessary block updates (fixing MC-81098).
+         * Additionally, the update order of redstone dust is made deterministic (fixing MC-11193).
+         *
+         * These patches will provide a huge improvement when updating dust, but might affect contraptions which rely on the
+         * non-deterministic update order of dust (known as "locational contraptions"). This is unfortunate and goes
+         * against the strongest belief of the mod (being that we don't change vanilla behaviours) but it is impossible
+         * to maintain behaviour which is non-deterministic. Even though this behaviour is often said to be consistent
+         * given the same location in a world, this is only a happy coincidence. The implementation of Set (which is the
+         * type responsible for ordering these updates) makes no guarantees about its order, meaning that a simple update
+         * to Java or the usage of another JVM could result in the order being changed.
+         *
+         * This is disabled by default as it is an INCUBATING feature. This will likely conflict with any other mods
+         * which make similar patches. Please report issues with this option enabled.
+         */
+        public boolean useRedstoneDustOptimizations = false;
+    }
+
     public static class OtherConfig {
 
         /**
@@ -225,6 +244,7 @@ public class LithiumConfig {
     public ClientConfig client = new ClientConfig();
     public OtherConfig other = new OtherConfig();
     public RegionConfig region = new RegionConfig();
+    public RedstoneConfig redstone = new RedstoneConfig();
 
     /**
      * Loads the configuration file from the specified location. If it does not exist, a new configuration file will be

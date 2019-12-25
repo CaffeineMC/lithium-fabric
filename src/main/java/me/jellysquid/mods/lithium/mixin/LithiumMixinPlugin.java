@@ -59,6 +59,7 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.disableIf("chunk.fast_chunk_serialization", !config.chunk.useFastCompaction);
         this.disableIf("fast_type_filterable_list", !config.general.useFastListTypeFiltering);
         this.disableIf("entity.chunk_cache", !config.entity.useChunkCacheForEntities);
+        this.disableIf("redstone", !config.redstone.useRedstoneDustOptimizations);
     }
 
     private void disableIf(String packageName, boolean condition) {
