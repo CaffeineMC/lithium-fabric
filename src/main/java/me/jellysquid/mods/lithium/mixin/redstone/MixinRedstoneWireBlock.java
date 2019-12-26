@@ -29,7 +29,7 @@ public abstract class MixinRedstoneWireBlock {
         RedstoneEngine engine = ((WorldWithRedstoneEngine) world).getRedstoneEngine();
 
         if (!engine.isUpdating()) {
-            engine.finish();
+            engine.flush();
         }
 
         return state;
@@ -38,8 +38,8 @@ public abstract class MixinRedstoneWireBlock {
     private void updateLogic(World world, BlockPos pos, BlockState state) {
         RedstoneEngine engine = ((WorldWithRedstoneEngine) world).getRedstoneEngine();
 
-        int power = engine.getPower(pos, state);
-        int powerReceived = engine.getReceivedRedstonePower(pos);
+        int power = engine.getWireCurrentPower(pos, state);
+        int powerReceived = engine.getReceivedPower(pos);
 
         int powerContributed = 0;
 
@@ -54,7 +54,7 @@ public abstract class MixinRedstoneWireBlock {
         }
 
         if (power != powerAdjusted) {
-            engine.setWireStrength(pos, powerAdjusted);
+            engine.setWireCurrentPower(pos, powerAdjusted);
 
             for (Vec3i offset : RedstoneLogic.WIRE_UPDATE_ORDER) {
                 engine.enqueueNeighbor(pos.add(offset), Blocks.REDSTONE_WIRE, pos);

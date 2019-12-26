@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Stack;
 
 public class RedstoneEngine {
-    private final RedstoneGraph graph = new RedstoneGraph();
+    private final RedstoneGraph graph;
 
     private List<PendingUpdate> pendingUpdates = new ArrayList<>();
 
@@ -26,15 +26,16 @@ public class RedstoneEngine {
 
     public RedstoneEngine(World world) {
         this.world = world;
+        this.graph = new RedstoneGraph(world);
     }
 
-    public int getReceivedRedstonePower(BlockPos pos) {
+    public int getReceivedPower(BlockPos pos) {
         int power = 0;
 
-        RedstoneNode info = this.graph.getNode(this.world, pos);
+        RedstoneNode info = this.graph.getNodeByPosition(pos);
 
         for (Direction dir : RedstoneLogic.AFFECTED_NEIGHBORS) {
-            int adjPower = this.getEmittedRedstonePower(info.getAdjacentNode(dir), dir);
+            int adjPower = info.getAdjacentNode(dir).getOutgoingPower(dir);
 
             if (adjPower > power) {
                 power = adjPower;
@@ -48,34 +49,8 @@ public class RedstoneEngine {
         return power;
     }
 
-    public int getEmittedRedstonePower(RedstoneNode info, Direction direction) {
-        int power;
-
-        if (info.canBlockPower()) {
-            power = this.getIncomingDirectPower(info);
-        } else {
-            power = info.isWireBlock() ? 0 : info.getBlockState().getWeakRedstonePower(this.world, info.getPosition(), direction);
-        }
-
-        return power;
-    }
-
-    public int getIncomingDirectPower(RedstoneNode info) {
-        int i = 0;
-
-        for (Direction dir : RedstoneLogic.AFFECTED_NEIGHBORS) {
-            i = Math.max(i, info.getAdjacentNode(dir).getIncomingPower(dir));
-
-            if (i >= 15) {
-                break;
-            }
-        }
-
-        return i;
-    }
-
     public void enqueueNeighbor(BlockPos updatingPos, Block originBlock, BlockPos originPos) {
-        BlockState updatingState = this.graph.getNode(this.world, updatingPos).getBlockState();
+        BlockState updatingState = this.graph.getNodeByPosition(updatingPos).getBlockState();
 
         if (updatingState.getBlock() != originBlock) {
             this.pendingUpdates.add(new PendingUpdate(updatingPos, updatingState, originBlock, originPos));
@@ -84,12 +59,12 @@ public class RedstoneEngine {
         }
     }
 
-    public void setWireStrength(BlockPos pos, int power) {
-        this.graph.getNode(this.world, pos).setWirePower(power);
+    public void setWireCurrentPower(BlockPos pos, int power) {
+        this.graph.getNodeByPosition(pos).setWirePower(power);
     }
 
-    public int getPower(BlockPos pos, BlockState state) {
-        RedstoneNode info = this.graph.getNode(this.world, pos);
+    public int getWireCurrentPower(BlockPos pos, BlockState state) {
+        RedstoneNode info = this.graph.getNodeByPosition(pos);
 
         if (info.isWireBlock()) {
             return info.getWirePower();
@@ -98,15 +73,7 @@ public class RedstoneEngine {
         return state.get(RedstoneWireBlock.POWER);
     }
 
-    public int increasePower(int power, RedstoneNode node) {
-        if (!node.isWireBlock()) {
-            return power;
-        }
-
-        return Math.max(node.getWirePower(), power);
-    }
-
-    public void finish() {
+    public void flush() {
         if (this.isUpdating) {
             throw new IllegalStateException("Already updating!");
         }
@@ -152,26 +119,37 @@ public class RedstoneEngine {
     }
 
     public int getPowerContributed(BlockPos pos) {
-        RedstoneNode aboveNode = this.graph.getNode(this.world, pos.up());
+        BlockPos.Mutable mut = new BlockPos.Mutable();
 
-        int powerContributed = 0;
+        RedstoneNode aboveNode = this.graph.getNodeByPosition(mut.set(pos.getX(), pos.getY() + 1, pos.getZ()));
+
+        int power = 0;
 
         for (Direction dir : RedstoneLogic.HORIZONTAL_ITERATION_ORDER) {
-            BlockPos adjPos = pos.offset(dir);
-            RedstoneNode adjNode = this.graph.getNode(this.world, adjPos);
+            mut.set(pos.getX() + dir.getOffsetX(), pos.getY() + dir.getOffsetY(), pos.getZ() + dir.getOffsetZ());
 
-            powerContributed = this.increasePower(powerContributed, adjNode);
+            RedstoneNode adjNode = this.graph.getNodeByPosition(mut);
 
-            if (adjNode.canBlockPower()) {
-                if (!aboveNode.canBlockPower()) {
-                    powerContributed = this.increasePower(powerContributed, this.graph.getNode(this.world, adjPos.up()));
+            power = this.mergePowerLevel(power, adjNode);
+
+            if (adjNode.doesBlockProvideStrongPower()) {
+                if (!aboveNode.doesBlockProvideStrongPower()) {
+                    power = this.mergePowerLevel(power, this.graph.getNodeByPosition(mut.setOffset(Direction.UP)));
                 }
             } else {
-                powerContributed = this.increasePower(powerContributed, this.graph.getNode(this.world, adjPos.down()));
+                power = this.mergePowerLevel(power, this.graph.getNodeByPosition(mut.setOffset(Direction.DOWN)));
             }
         }
 
-        return powerContributed;
+        return power;
+    }
+
+    private int mergePowerLevel(int power, RedstoneNode node) {
+        if (!node.isWireBlock()) {
+            return power;
+        }
+
+        return Math.max(node.getWirePower(), power);
     }
 
     public boolean isUpdating() {

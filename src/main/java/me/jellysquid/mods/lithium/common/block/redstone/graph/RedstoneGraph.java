@@ -2,29 +2,41 @@ package me.jellysquid.mods.lithium.common.block.redstone.graph;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 
 import java.util.Iterator;
 
 public class RedstoneGraph implements Iterable<RedstoneNode> {
-    private final Long2ObjectLinkedOpenHashMap<RedstoneNode> nodes = new Long2ObjectLinkedOpenHashMap<>();
+    private final World world;
 
-    public RedstoneNode getNode(BlockView world, BlockPos pos) {
-        RedstoneNode info = this.nodes.get(pos.asLong());
+    private final Long2ObjectLinkedOpenHashMap<RedstoneNode> nodesByPosition = new Long2ObjectLinkedOpenHashMap<>();
+
+    public RedstoneGraph(World world) {
+        this.world = world;
+    }
+
+    public RedstoneNode getNodeByPosition(BlockPos pos) {
+        long id = pos.asLong();
+
+        RedstoneNode info = this.nodesByPosition.get(id);
 
         if (info == null) {
-            this.nodes.put(pos.asLong(), info = new RedstoneNode(this, world, pos));
+            this.nodesByPosition.put(id, info = new RedstoneNode(this, pos));
         }
 
         return info;
     }
 
+    public World getWorld() {
+        return this.world;
+    }
+
     @Override
     public Iterator<RedstoneNode> iterator() {
-        return this.nodes.values().iterator();
+        return this.nodesByPosition.values().iterator();
     }
 
     public void clear() {
-        this.nodes.clear();
+        this.nodesByPosition.clear();
     }
 }
