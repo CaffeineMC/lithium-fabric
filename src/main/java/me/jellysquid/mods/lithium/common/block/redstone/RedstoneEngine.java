@@ -10,6 +10,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Stack;
 
@@ -109,7 +110,7 @@ public class RedstoneEngine {
     }
 
     private void processOtherUpdates() {
-        List<PendingUpdate> updates = this.pendingUpdates;
+        LinkedHashSet<PendingUpdate> updates = new LinkedHashSet<>(this.pendingUpdates);
 
         this.pendingUpdates = new ArrayList<>();
 

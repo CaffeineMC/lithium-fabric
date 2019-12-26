@@ -21,7 +21,7 @@ public class RedstoneGraph implements Iterable<RedstoneNode> {
         RedstoneNode info = this.nodesByPosition.get(id);
 
         if (info == null) {
-            this.nodesByPosition.put(id, info = new RedstoneNode(this, pos));
+            this.nodesByPosition.put(id, info = new RedstoneNode(this, pos.toImmutable()));
         }
 
         return info;
