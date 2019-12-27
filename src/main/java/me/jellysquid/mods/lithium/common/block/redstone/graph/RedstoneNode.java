@@ -17,12 +17,13 @@ public class RedstoneNode {
 
     private final RedstoneNode[] adjacentNodes = new RedstoneNode[6];
 
-    private final boolean wire;
-    private final boolean providesStrongPower;
-    private boolean modified = false;
+    private final boolean isWire, isFullBlock;
 
-    private final byte[] outgoingPower = new byte[6];
-    private byte wirePower;
+    public int wirePower, prevWirePower;
+    public int traversalFlag;
+
+    public byte[] strongPower = new byte[6];
+    public byte[] weakPower = new byte[6];
 
     RedstoneNode(RedstoneGraph graph, BlockPos pos) {
         this.graph = graph;
@@ -30,93 +31,99 @@ public class RedstoneNode {
 
         this.state = this.getWorld().getBlockState(this.pos);
 
-        this.wire = this.state.getBlock() == Blocks.REDSTONE_WIRE;
-        this.wirePower = this.wire ? this.getBlockState().get(RedstoneWireBlock.POWER).byteValue() : 0;
+        this.isWire = this.state.getBlock() == Blocks.REDSTONE_WIRE;
+        this.isFullBlock = this.state.isSimpleFullBlock(this.getWorld(), this.getPosition());
 
-        // Wire can never provide outgoing power
-        Arrays.fill(this.outgoingPower, (byte) (this.wire ? 0 : -1));
+        this.wirePower = this.isWire ? this.state.get(RedstoneWireBlock.POWER) : 0;
 
-        this.providesStrongPower = this.state.isSimpleFullBlock(this.getWorld(), this.getPosition());
+        Arrays.fill(this.strongPower, (byte) -1);
+        Arrays.fill(this.weakPower, (byte) -1);
     }
 
     public RedstoneNode getAdjacentNode(Direction direction) {
         int i = direction.ordinal();
 
         if (this.adjacentNodes[i] == null) {
-            return this.adjacentNodes[i] = this.graph.getNodeByPosition(this.pos.offset(direction));
+            return this.adjacentNodes[i] = this.graph.getOrCreateNode(this.pos.offset(direction));
         }
 
         return this.adjacentNodes[i];
     }
 
     public boolean isWireBlock() {
-        return this.wire;
+        return this.isWire;
     }
 
     public BlockState getBlockState() {
         return this.state;
     }
 
-    public boolean doesBlockProvideStrongPower() {
-        return this.providesStrongPower;
-    }
-
     public int getWirePower() {
         return this.wirePower;
     }
 
-    public void setWirePower(int power) {
-        this.wirePower = (byte) power;
-        this.modified = true;
+    public void setWirePower(int wirePower) {
+        this.wirePower = wirePower;
     }
 
     public BlockPos getPosition() {
         return this.pos;
     }
 
-    public boolean isModified() {
-        return this.modified;
-    }
-
-    public int getOutgoingStrongPower(Direction dir) {
-        int i = dir.ordinal();
-
-        if (this.outgoingPower[i] == -1) {
-            this.outgoingPower[i] = (byte) this.state.getStrongRedstonePower(this.getWorld(), this.getPosition(), dir);
-        }
-
-        return this.outgoingPower[i];
-    }
-
-    public int getOutgoingWeakPower(Direction dir) {
-        int i = dir.ordinal();
-
-        if (this.outgoingPower[i] == -1) {
-            this.outgoingPower[i] = (byte) this.state.getWeakRedstonePower(this.getWorld(), this.getPosition(), dir);
-        }
-
-        return this.outgoingPower[i];
-    }
-
-    public int getOutgoingStrongPower() {
-        int i = 0;
-
-        for (Direction dir : RedstoneLogic.AFFECTED_NEIGHBORS) {
-            i = Math.max(i, this.getAdjacentNode(dir).getOutgoingStrongPower(dir));
-
-            if (i >= 15) {
-                break;
-            }
-        }
-
-        return i;
-    }
-
-    public int getOutgoingPower(Direction dir) {
-        return this.doesBlockProvideStrongPower() ? this.getOutgoingStrongPower() : this.getOutgoingWeakPower(dir);
-    }
-
     private World getWorld() {
         return this.graph.getWorld();
     }
+
+    public boolean isFullBlock() {
+        return this.isFullBlock;
+    }
+
+    public int getPreviousWirePower() {
+        return this.prevWirePower;
+    }
+
+    public void setPreviousWirePower(int power) {
+        this.prevWirePower = power;
+    }
+
+    public int getProvidedStrongPower(Direction dir) {
+        if (this.isWireBlock()) {
+            return 0;
+        }
+
+        int i = dir.ordinal();
+
+        if (this.strongPower[i] >= 0) {
+            return this.strongPower[i];
+        }
+
+        return this.strongPower[i] = (byte) this.getBlockState().getStrongRedstonePower(this.getWorld(), this.getPosition(), dir);
+    }
+
+    public int getProvidedWeakPower(Direction dir) {
+        if (this.isWireBlock()) {
+            return this.getWirePower() - RedstoneLogic.WIRE_POWER_LOSS_PER_BLOCK;
+        }
+
+        int i = dir.ordinal();
+
+        if (this.weakPower[i] >= 0) {
+            return this.weakPower[i];
+        }
+
+        return this.weakPower[i] = (byte) this.getBlockState().getWeakRedstonePower(this.getWorld(), this.getPosition(), dir);
+    }
+
+    public int getPowerFromNeighbors() {
+        boolean covered = this.getAdjacentNode(Direction.UP).isFullBlock();
+
+        int power = 0;
+
+        for (Direction dir : RedstoneLogic.ALL_NEIGHBORS) {
+            power = Math.max(power, RedstoneLogic.getEmittedPowerInDirection(this, dir, covered));
+        }
+
+        return Math.min(power, RedstoneLogic.WIRE_MAX_POWER);
+    }
+
 }

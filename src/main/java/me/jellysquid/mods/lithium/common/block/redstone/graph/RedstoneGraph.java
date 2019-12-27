@@ -15,7 +15,7 @@ public class RedstoneGraph implements Iterable<RedstoneNode> {
         this.world = world;
     }
 
-    public RedstoneNode getNodeByPosition(BlockPos pos) {
+    public RedstoneNode getOrCreateNode(BlockPos pos) {
         long id = pos.asLong();
 
         RedstoneNode info = this.nodesByPosition.get(id);

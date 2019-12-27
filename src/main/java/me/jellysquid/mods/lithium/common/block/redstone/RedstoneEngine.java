@@ -1,25 +1,27 @@
 package me.jellysquid.mods.lithium.common.block.redstone;
 
+import it.unimi.dsi.fastutil.longs.LongIterator;
+import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import me.jellysquid.mods.lithium.common.block.redstone.graph.RedstoneGraph;
 import me.jellysquid.mods.lithium.common.block.redstone.graph.RedstoneNode;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.RedstoneWireBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 public class RedstoneEngine {
+    private final Queue<RedstoneNode> addQueue = new ArrayDeque<>();
+
+    private final Queue<RedstoneNode> removeQueue = new ArrayDeque<>();
+
+    private final List<RedstoneNode> dirtyNodes = new ArrayList<>();
+
     private final RedstoneGraph graph;
-
-    private List<PendingUpdate> pendingUpdates = new ArrayList<>();
-
-    private Stack<PendingUpdate> pendingWireUpdates = new Stack<>();
 
     private final World world;
 
@@ -30,145 +32,193 @@ public class RedstoneEngine {
         this.graph = new RedstoneGraph(world);
     }
 
-    public int getReceivedPower(BlockPos pos) {
-        int power = 0;
-
-        RedstoneNode info = this.graph.getNodeByPosition(pos);
-
-        for (Direction dir : RedstoneLogic.AFFECTED_NEIGHBORS) {
-            int adjPower = info.getAdjacentNode(dir).getOutgoingPower(dir);
-
-            if (adjPower > power) {
-                power = adjPower;
-            }
-
-            if (power >= 15) {
-                break;
-            }
-        }
-
-        return power;
-    }
-
-    public void enqueueNeighbor(BlockPos updatingPos, Block originBlock, BlockPos originPos) {
-        BlockState updatingState = this.graph.getNodeByPosition(updatingPos).getBlockState();
-
-        if (updatingState.getBlock() != originBlock) {
-            this.pendingUpdates.add(new PendingUpdate(updatingPos, updatingState, originBlock, originPos));
-        } else {
-            this.pendingWireUpdates.add(new PendingUpdate(updatingPos, updatingState, originBlock, originPos));
-        }
-    }
-
-    public void setWireCurrentPower(BlockPos pos, int power) {
-        this.graph.getNodeByPosition(pos).setWirePower(power);
-    }
-
-    public int getWireCurrentPower(BlockPos pos, BlockState state) {
-        RedstoneNode info = this.graph.getNodeByPosition(pos);
-
-        if (info.isWireBlock()) {
-            return info.getWirePower();
-        }
-
-        return state.get(RedstoneWireBlock.POWER);
-    }
-
-    public void flush() {
-        if (this.isUpdating) {
-            throw new IllegalStateException("Already updating!");
-        }
-
+    private void performUpdates() {
         this.isUpdating = true;
 
-        try {
-            this.processWireUpdates();
-            this.processWireStateChanges();
-            this.processOtherUpdates();
-        } finally {
-            this.isUpdating = false;
+        this.processQueues();
+        this.updateWireStates();
+        this.notifyListeningBlocks();
+
+        this.dirtyNodes.clear();
+        this.graph.clear();
+
+        this.isUpdating = false;
+    }
+
+    private void processQueues() {
+        while (!this.removeQueue.isEmpty()) {
+            RedstoneNode node = this.removeQueue.poll();
+            int power = node.getPreviousWirePower();
+
+            this.updateLevel(node, power, true);
+        }
+
+        while (!this.addQueue.isEmpty()) {
+            RedstoneNode node = this.addQueue.poll();
+            int power = node.getWirePower();
+
+            this.updateLevel(node, power, false);
         }
     }
 
-    private void processWireUpdates() {
-        while (!this.pendingWireUpdates.isEmpty()) {
-            PendingUpdate update = this.pendingWireUpdates.pop();
-            update.updatingState.neighborUpdate(this.world, update.updatingPos, update.originBlock, update.originPos, false);
-        }
-    }
-
-    private void processWireStateChanges() {
-        for (RedstoneNode info : this.graph) {
-            if (!info.isModified()) {
+    private void updateWireStates() {
+        for (RedstoneNode info : this.dirtyNodes) {
+            if (!info.isWireBlock()) {
                 continue;
             }
 
             this.world.setBlockState(info.getPosition(), info.getBlockState().with(RedstoneWireBlock.POWER, info.getWirePower()), 2);
         }
-
-        this.graph.clear();
     }
 
-    private void processOtherUpdates() {
-        LinkedHashSet<PendingUpdate> updates = new LinkedHashSet<>(this.pendingUpdates);
+    private void notifyListeningBlocks() {
+        LongSet set = this.calculatePendingBlockUpdates();
+        LongIterator it = set.iterator();
 
-        this.pendingUpdates = new ArrayList<>();
+        BlockPos.Mutable pos = new BlockPos.Mutable();
 
-        for (PendingUpdate update : updates) {
-            update.updatingState.neighborUpdate(this.world, update.updatingPos, update.originBlock, update.originPos, false);
+        while (it.hasNext()) {
+            pos.set(it.nextLong());
+
+            this.world.getBlockState(pos).neighborUpdate(this.world, pos.toImmutable(), Blocks.REDSTONE_WIRE, BlockPos.ORIGIN, false);
         }
     }
 
-    public int getPowerContributed(BlockPos pos) {
-        BlockPos.Mutable mut = new BlockPos.Mutable();
+    private LongSet calculatePendingBlockUpdates() {
+        LongSet set = new LongLinkedOpenHashSet();
 
-        RedstoneNode aboveNode = this.graph.getNodeByPosition(mut.set(pos.getX(), pos.getY() + 1, pos.getZ()));
+        ListIterator<RedstoneNode> it = this.dirtyNodes.listIterator(this.dirtyNodes.size());
 
-        int power = 0;
+        while (it.hasPrevious()) {
+            RedstoneNode node = it.previous();
+            BlockPos pos = node.getPosition();
 
-        for (Direction dir : RedstoneLogic.HORIZONTAL_ITERATION_ORDER) {
-            mut.set(pos.getX() + dir.getOffsetX(), pos.getY() + dir.getOffsetY(), pos.getZ() + dir.getOffsetZ());
-
-            RedstoneNode adjNode = this.graph.getNodeByPosition(mut);
-
-            power = this.mergePowerLevel(power, adjNode);
-
-            if (adjNode.doesBlockProvideStrongPower()) {
-                if (!aboveNode.doesBlockProvideStrongPower()) {
-                    power = this.mergePowerLevel(power, this.graph.getNodeByPosition(mut.setOffset(Direction.UP)));
-                }
-            } else {
-                power = this.mergePowerLevel(power, this.graph.getNodeByPosition(mut.setOffset(Direction.DOWN)));
+            for (Vec3i offset : RedstoneLogic.WIRE_UPDATE_ORDER) {
+                set.add(BlockPos.asLong(pos.getX() + offset.getX(), pos.getY() + offset.getY(), pos.getZ() + offset.getZ()));
             }
         }
 
-        return power;
+        return set;
     }
 
-    private int mergePowerLevel(int power, RedstoneNode node) {
-        if (!node.isWireBlock()) {
-            return power;
+    public void notifyWireAdded(BlockPos pos) {
+        if (this.isUpdating()) {
+            return;
         }
 
-        return Math.max(node.getWirePower(), power);
+        RedstoneNode node = this.graph.getOrCreateNode(pos);
+
+        this.addWire(node, node.getPowerFromNeighbors());
+    }
+
+    private void addWire(RedstoneNode node, int level) {
+        node.setWirePower(level);
+
+        this.addQueue.add(node);
+
+        this.dirtyNodes.add(node);
+        this.performUpdates();
+    }
+
+    public void notifyWireRemoved(BlockPos pos) {
+        if (this.isUpdating()) {
+            return;
+        }
+
+        RedstoneNode node = this.graph.getOrCreateNode(pos);
+
+        this.removeWire(node, node.getPowerFromNeighbors());
+    }
+
+    private void removeWire(RedstoneNode node, int level) {
+        node.setPreviousWirePower(level);
+
+        this.removeQueue.add(node);
+
+        node.setWirePower(0);
+
+        this.dirtyNodes.add(node);
+        this.performUpdates();
+    }
+
+    private void updateLevel(RedstoneNode node, int power, boolean removing) {
+        boolean covered = node.getAdjacentNode(Direction.UP).isFullBlock();
+
+        for (Direction dir : RedstoneLogic.HORIZONTAL_NEIGHBORS) {
+            RedstoneNode neighbor = RedstoneLogic.getNextWireInDirection(node, dir, covered);
+
+            if (neighbor != null) {
+                this.modifyLevel(neighbor, power, removing);
+            }
+        }
+    }
+
+    private void modifyLevel(RedstoneNode node, int power, boolean removing) {
+        if (removing) {
+            this.decreaseLevel(node, power);
+        } else {
+            this.increaseLevel(node, power);
+        }
+    }
+
+    private void decreaseLevel(RedstoneNode neighbor, int power) {
+        if (neighbor.traversalFlag > 0) {
+            return;
+        }
+
+        neighbor.traversalFlag = 1;
+
+        int neighborPower = neighbor.getWirePower();
+
+        if (neighborPower != 0 && neighborPower < power) {
+            neighbor.setWirePower(0);
+            neighbor.setPreviousWirePower(neighborPower);
+
+            this.dirtyNodes.add(neighbor);
+            this.removeQueue.add(neighbor);
+        } else if (neighborPower >= power) {
+            this.addQueue.add(neighbor);
+        }
+    }
+
+    private void increaseLevel(RedstoneNode neighbor, int power) {
+        if (neighbor.traversalFlag > 1) {
+            return;
+        }
+
+        neighbor.traversalFlag = 2;
+
+        if (neighbor.getWirePower() + 2 <= power) {
+            neighbor.setWirePower(power - 1);
+
+            this.dirtyNodes.add(neighbor);
+            this.addQueue.add(neighbor);
+        }
+    }
+
+    public void clean() {
+        this.graph.clear();
     }
 
     public boolean isUpdating() {
         return this.isUpdating;
     }
 
-    private static class PendingUpdate {
-        final BlockPos updatingPos;
-        final BlockState updatingState;
-        final Block originBlock;
-        final BlockPos originPos;
-
-        private PendingUpdate(BlockPos updatingPos, BlockState updatingState, Block originBlock, BlockPos originPos) {
-            this.updatingPos = updatingPos;
-            this.updatingState = updatingState;
-            this.originBlock = originBlock;
-            this.originPos = originPos;
+    public void notifyWireChange(BlockPos pos, int curPower) {
+        if (this.isUpdating()) {
+            return;
         }
-    }
 
+        RedstoneNode node = this.graph.getOrCreateNode(pos);
+
+        int updatedPower = node.getPowerFromNeighbors();
+
+        if (updatedPower > curPower) {
+            this.addWire(node, updatedPower);
+        } else if (updatedPower < curPower) {
+            this.removeWire(node, curPower);
+        }
+
+        this.clean();
+    }
 }
