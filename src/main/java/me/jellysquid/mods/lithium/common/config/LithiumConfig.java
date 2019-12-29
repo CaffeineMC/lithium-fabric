@@ -12,35 +12,11 @@ import java.io.IOException;
 public class LithiumConfig {
     public static class PhysicsConfig {
         /**
-         * If true, the code responsible for merging vertices when resolving collision models will be replaced with a faster
-         * implementation which avoids bounds checking. This generally provides a significant boost and shouldn't cause
-         * any issues.
+         * If true, shape comparision will use optimized algorithms when simple cube shapes are involved. This allows
+         * for much faster collision resolution against shapes which only contain one cube and will provide a large
+         * boost to performance.
          */
-        public boolean useOptimizedShapeVertexListMerging = true;
-
-        /**
-         * If true, the temporary arrays which are used for vertex merging during collision detection will be cached and
-         * stored in an object pool. This brings a huge reduction to the object allocation rate and significantly reduces
-         * the garbage collector pressure caused by collision detection. However, this does have a very, very small impact
-         * to the overall throughput of collision resolution.
-         * <p>
-         * In my testing, this trade-off is almost unmeasurable, and when it is measurable, the reduction to the amount of
-         * time being spent in garbage collection often far outweighs it. Though, if you are using the Zero memory allocator
-         * in Java 11+ with a very large heap (12GB+) that has plenty of free space for object allocations, it *might* be
-         * faster to just let the garbage collector do its thing.
-         * <p>
-         * Summarily, you should never turn this off because it will almost always improve performance. In the cases where
-         * it won't, you understand your software configuration very closely, have benchmarked the issue, and know exactly
-         * what you're doing.
-         */
-        public boolean useAllocationPoolingForVertexListMerging = true;
-
-        /**
-         * If true, an array of values will be pre-calculated for every block shape. This will increase memory usage by a
-         * small, but constant amount, while generally providing a performance boost when combined with the
-         * useOptimizedCollisionVertexMerging option.
-         */
-        public boolean alwaysUnpackBlockShapes = true;
+        public boolean useFastShapeComparisons = true;
 
         /**
          * If true, the algorithm for checking whether or not an entity is within the world border will be replaced
@@ -51,14 +27,17 @@ public class LithiumConfig {
 
         /**
          * If true, a simpler (and much faster) collision testing algorithm will be used to test if an entity is inside
-         * blocks. This algorithm will fallback to the vanilla one if complex block shapes are encountered.
+         * blocks. Additionally, the world border will not be included in a collision test if the player will not collide
+         * with it in a physics step.
          */
         public boolean useSimpleEntityCollisionTesting = true;
 
         /**
-         * If true, some comparisons involving voxel shapes will be optimized to avoid combining shapes unnecessarily.
+         * If true, an array of values will be pre-calculated for every block shape. This will increase memory usage by a
+         * small, but constant amount, while generally providing a performance boost when combined with the
+         * useOptimizedCollisionVertexMerging option.
          */
-        public boolean useFastShapeComparisons = true;
+        public boolean alwaysUnpackBlockShapes = true;
     }
 
     public static class ClientConfig {
