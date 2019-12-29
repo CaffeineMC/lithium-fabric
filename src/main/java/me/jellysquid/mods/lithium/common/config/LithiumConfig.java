@@ -63,13 +63,6 @@ public class LithiumConfig {
 
     public static class EntityConfig {
         /**
-         * If true, entity collision detection will not be performed if an entity is standing still or moving extremely
-         * slowly (<0.0001 blocks/tick). This can have massive gains when many entities exist in a world, but could
-         * (theoretically, at least) break mods which rely on this behavior.
-         */
-        public boolean allowSkippingEntityMovementTicks = true;
-
-        /**
          * If true, an optimized map implementation will be used for entity data tracking which avoids integer boxing
          * and a map lookup by using a simple array.
          */
