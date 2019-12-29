@@ -25,7 +25,7 @@ import java.util.stream.StreamSupport;
 
 public class LithiumEntityCollisions {
     /**
-     * [VanillaCopy] ViewableWorld#method_20812(Entity, Box)
+     * [VanillaCopy] CollisionView#getBlockCollisions(Entity, Box)
      * This is a much, much faster implementation which uses simple collision testing against full-cube block shapes.
      * Chunk retrieval makes use of the entity's nearby chunk cache if available. Checks against the world border are
      * replaced with our own optimized functions.
@@ -95,7 +95,7 @@ public class LithiumEntityCollisions {
                         continue;
                     }
 
-                    if (edgesHit == 2 && state.getBlock() == Blocks.MOVING_PISTON) {
+                    if (edgesHit == 2 && state.getBlock() != Blocks.MOVING_PISTON) {
                         continue;
                     }
 
