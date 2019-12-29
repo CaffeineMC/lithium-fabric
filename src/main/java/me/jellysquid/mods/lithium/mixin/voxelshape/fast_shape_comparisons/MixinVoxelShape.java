@@ -191,7 +191,7 @@ public abstract class MixinVoxelShape {
 
         if (yList.getDouble(0) + POSITIVE_EPSILON < box.getMax(yAxis) && box.getMin(yAxis) + POSITIVE_EPSILON < yList.getDouble(1)) {
             if (zList.getDouble(0) + POSITIVE_EPSILON < box.getMax(zAxis) && box.getMin(zAxis) + POSITIVE_EPSILON < zList.getDouble(1)) {
-                if (penetration < POSITIVE_EPSILON || penetration > NEGATIVE_EPSILON) {
+                if (penetration < POSITIVE_EPSILON && penetration > NEGATIVE_EPSILON) {
                     return 0.0D;
                 }
 
