@@ -8,7 +8,7 @@ import net.fabricmc.api.ClientModInitializer;
 public class LithiumClientMod implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        if (LithiumMod.CONFIG.debug.traceSweptCollisions) {
+        if (LithiumMod.CONFIG.debug.allowTracerVisualization && LithiumMod.CONFIG.debug.traceSweptCollisions) {
             CollisionTracer.IMPL = new CollisionTracerClient();
         }
     }
