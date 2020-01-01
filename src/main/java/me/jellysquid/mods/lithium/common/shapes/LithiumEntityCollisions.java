@@ -34,6 +34,7 @@ public class LithiumEntityCollisions {
      * avoids the expensive step of needing to test if every voxel after the fact is contained within a box.
      */
     public static Stream<VoxelShape> getBlockCollisionsSweeping(CollisionView world, Entity entity, Box box, Vec3d motion) {
+        final Box adjustedBox = box.expand(0.5D);
         final EntityContext context = entity == null ? EntityContext.absent() : EntityContext.of(entity);
         final EntityChunkCache cache = EntityWithChunkCache.getChunkCache(entity);
 
@@ -42,7 +43,7 @@ public class LithiumEntityCollisions {
 
             final ArrayDeque<VoxelShape> queue = new ArrayDeque<>();
 
-            final BoxSweeper sweeper = new BoxSweeper(box, motion, (x, y, z) -> {
+            final BoxSweeper sweeper = new BoxSweeper(adjustedBox, motion, (x, y, z) -> {
                 BlockView chunk;
 
                 if (cache != null) {
