@@ -12,6 +12,15 @@ import java.io.IOException;
 public class LithiumConfig {
     public static class PhysicsConfig {
         /**
+         * If true, a more precise algorithm will be used for determining which blocks an entity is going to intersect
+         * each tick. This can significantly reduce the number of blocks considered for collision resolution, which will
+         * in turn provide a performance boost for each entity. In situations where entities are trying to move very
+         * quickly (such as in a mob farm where an entity is being pushed by many others), this algorithm will reduce
+         * the number of blocks being collision tested by multiple orders of magnitudes and greatly improve performance.
+         */
+        public boolean useSweptCollisionSearch = true;
+
+        /**
          * If true, shape comparision will use optimized algorithms when simple cube shapes are involved. This allows
          * for much faster collision resolution against shapes which only contain one cube and will provide a large
          * boost to performance.
@@ -187,6 +196,18 @@ public class LithiumConfig {
         public boolean useSmallTagArrayOptimization = true;
     }
 
+    public static class DebugConfig {
+        /**
+         * If true, the client will be patched to allow the visualization of "tracers" used for debugging.
+         */
+        public boolean allowTracerVisualization = false;
+
+        /**
+         * If true, swept entity bounding box collisions will be traced. This will add non-trivial overhead!
+         */
+        public boolean traceSweptCollisions = false;
+    }
+
     private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .create();
@@ -199,6 +220,7 @@ public class LithiumConfig {
     public OtherConfig other = new OtherConfig();
     public RegionConfig region = new RegionConfig();
     public RedstoneConfig redstone = new RedstoneConfig();
+    public DebugConfig debug = new DebugConfig();
 
     /**
      * Loads the configuration file from the specified location. If it does not exist, a new configuration file will be
