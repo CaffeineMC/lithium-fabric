@@ -54,14 +54,27 @@ public class BoxSweeper {
     private int triX, triY, triZ;
 
     // The most recently crossed axis
-    private Axis axis;
+    // Initialized to null so the first step iteration will add all blocks the box is initially occupying
+    private Axis axis = null;
 
-    public BoxSweeper(Box box, Vec3d motion, SweepIterator iterator) {
+    /**
+     * @param box The bounding box to sweep through the voxel grid
+     * @param motion The motion vector of the bounding box
+     * @param voxelExtentLimit The maximum size of any voxel in the world
+     * @param iterator The iterator which is called for every voxel intersected during a step
+     */
+    public BoxSweeper(Box box, Vec3d motion, double voxelExtentLimit, SweepIterator iterator) {
+        if (voxelExtentLimit < 1.0D) {
+            throw new IllegalArgumentException("The voxel extent limit must be at least 1.0");
+        }
+
+        double excess = voxelExtentLimit - 1.0D;
+
         this.iterator = iterator;
 
-        boolean dirX = motion.getX() >= 0.0D;
-        boolean dirY = motion.getY() >= 0.0D;
-        boolean dirZ = motion.getZ() >= 0.0D;
+        boolean dirX = motion.x >= 0.0D;
+        boolean dirY = motion.y >= 0.0D;
+        boolean dirZ = motion.z >= 0.0D;
 
         this.maxDistance = motion.length();
 
@@ -73,13 +86,13 @@ public class BoxSweeper {
         this.stepY = dirY ? 1 : -1;
         this.stepZ = dirZ ? 1 : -1;
 
-        this.ldX = dirX ? box.x2 : box.x1;
-        this.ldY = dirY ? box.y2 : box.y1;
-        this.ldZ = dirZ ? box.z2 : box.z1;
+        this.ldX = (dirX ? box.x2 + excess : box.x1 - excess);
+        this.ldY = (dirY ? box.y2 + excess : box.y1 - excess);
+        this.ldZ = (dirZ ? box.z2 + excess : box.z1 - excess);
 
-        this.trX = dirX ? box.x1 : box.x2;
-        this.trY = dirY ? box.y1 : box.y2;
-        this.trZ = dirZ ? box.z1 : box.z2;
+        this.trX = (dirX ? box.x1 - excess : box.x2 + excess);
+        this.trY = (dirY ? box.y1 - excess : box.y2 + excess);
+        this.trZ = (dirZ ? box.z1 - excess : box.z2 + excess);
 
         this.ldiX = getLeadingEdgeToVoxel(this.ldX, this.stepX);
         this.ldiY = getLeadingEdgeToVoxel(this.ldY, this.stepY);
