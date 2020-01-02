@@ -29,7 +29,16 @@ public class CollisionTracerClient extends CollisionTracer {
         long l = this.lock.writeLock();
 
         try {
-            this.blocks.computeIfAbsent(BlockPos.asLong(x, y, z), p -> new TracedBlock(BlockPos.fromLong(p)));
+            final long pos = BlockPos.asLong(x, y, z);
+            final TracedBlock block = this.blocks.get(pos);
+
+            if (block == null) {
+                this.blocks.put(pos, new TracedBlock(new BlockPos(x, y, z)));
+
+                return;
+            }
+
+            block.ticks = 0;
         } finally {
             this.lock.unlockWrite(l);
         }
@@ -104,8 +113,14 @@ public class CollisionTracerClient extends CollisionTracer {
 
     @Override
     public void tick() {
-        this.blocks.values().removeIf(TracedBlock::tick);
-        this.rays.removeIf(TracedRay::tick);
+        long l = this.lock.writeLock();
+
+        try {
+            this.blocks.values().removeIf(TracedBlock::tick);
+            this.rays.removeIf(TracedRay::tick);
+        } finally {
+            this.lock.unlockWrite(l);
+        }
     }
 
     private static class TracedBlock extends TracedObject {
@@ -131,7 +146,7 @@ public class CollisionTracerClient extends CollisionTracer {
     }
 
     private static class TracedObject {
-        public final int duration = 60;
+        public final int duration = 30;
         public int ticks;
 
         public boolean tick() {
