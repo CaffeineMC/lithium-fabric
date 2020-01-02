@@ -44,7 +44,8 @@
         "voxelshape.fast_shape_comparisons.MixinVoxelShape",
         "voxelshape.fast_shape_comparisons.MixinVoxelShapes",
         "voxelshape.precompute_shape_arrays.MixinSimpleVoxelShape",
-        "entity.sweeping_collisions.MixinEntity"
+        "entity.sweeping_collisions.MixinEntity",
+        "entity.streamless_entity_selection.MixinEntityView"
 
     ]
 }

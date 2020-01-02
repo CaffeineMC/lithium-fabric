@@ -101,6 +101,12 @@ public class LithiumConfig {
          * If true, an optimized implementation of the chunk cache will be used when entities are path-finding.
          */
         public boolean useOptimizedChunkCacheForPathFinding = true;
+
+        /**
+         * If true, entities will be selected for collision using an optimized function which avoids functional
+         * stream-heavy code. This will generally provide a boost when entities are heavily crowded.
+         */
+        public boolean useStreamlessEntityRetrieval = true;
     }
 
     public static class RegionConfig {

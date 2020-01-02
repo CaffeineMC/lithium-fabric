@@ -57,6 +57,7 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.disableIf("redstone", !config.redstone.useRedstoneDustOptimizations);
         this.disableIf("entity.swept_collisions", !config.physics.useSweptCollisionSearch);
         this.disableIf("client.tracers", !config.debug.allowTracerVisualization);
+        this.disableIf("entity.streamless_entity_retrieval", !config.entity.useStreamlessEntityRetrieval);
     }
 
     private void disableIf(String packageName, boolean condition) {
