@@ -58,6 +58,7 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.disableIf("entity.swept_collisions", !config.physics.useSweptCollisionSearch);
         this.disableIf("client.tracers", !config.debug.allowTracerVisualization);
         this.disableIf("entity.streamless_entity_retrieval", !config.entity.useStreamlessEntityRetrieval);
+        this.disableIf("math.fast_util", !config.general.useFastMathUtilityLogic);
     }
 
     private void disableIf(String packageName, boolean condition) {

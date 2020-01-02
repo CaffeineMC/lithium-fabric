@@ -172,6 +172,13 @@ public class LithiumConfig {
          * If true, a handful of small patches will be made to avoid unnecessary hashcode recalculation throughout the game.
          */
         public boolean cacheHashcodeCalculations = true;
+
+        /**
+         * If true, some math utility classes will be patched with various optimizations in order to reduce the general
+         * overhead in operations such as switching/rotating axises or shifting block positions. This does not make
+         * any optimizations to trigonometric functions or the like of them!
+         */
+        public boolean useFastMathUtilityLogic = true;
     }
 
     public static class RedstoneConfig {
