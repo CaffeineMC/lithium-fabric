@@ -10,7 +10,6 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EntityView;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkManager;
 import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -27,6 +26,34 @@ public interface MixinEntityView {
 
     @Shadow
     <T extends LivingEntity> T getClosestEntity(List<? extends T> entityList, TargetPredicate targetPredicate, LivingEntity entity, double x, double y, double z);
+
+    /**
+     * @reason Use the entity's chunk cache if possible
+     * @author JellySquid
+     */
+    @Overwrite
+    default List<Entity> getEntities(Entity except, Box box, Predicate<? super Entity> predicate) {
+        EntityChunkCache cache = EntityWithChunkCache.getChunkCache(except);
+
+        List<Entity> list = Lists.newArrayList();
+
+        int minX = MathHelper.floor((box.x1 - 2.0D) / 16.0D);
+        int maxX = MathHelper.floor((box.x2 + 2.0D) / 16.0D);
+        int minZ = MathHelper.floor((box.z1 - 2.0D) / 16.0D);
+        int maxZ = MathHelper.floor((box.z2 + 2.0D) / 16.0D);
+
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                WorldChunk chunk = cache.getChunk(x, z);
+
+                if (chunk != null) {
+                    chunk.getEntities(except, box, list, predicate);
+                }
+            }
+        }
+
+        return list;
+    }
 
     /**
      * @reason Use the entity's chunk cache if possible
@@ -55,11 +82,9 @@ public interface MixinEntityView {
 
         List<T> list = Lists.newArrayList();
 
-        ChunkManager chunkManager = ((World) this).getChunkManager();
-
         for (int x = minX; x < maxX; ++x) {
             for (int z = minZ; z < maxZ; ++z) {
-                WorldChunk chunk = cache != null ? cache.getChunk(x, z) : chunkManager.getWorldChunk(x, z);
+                WorldChunk chunk = cache.getChunk(x, z);
 
                 if (chunk != null) {
                     chunk.getEntities(entityClass, box, list, predicate);
