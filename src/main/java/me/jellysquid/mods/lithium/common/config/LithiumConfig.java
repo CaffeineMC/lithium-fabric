@@ -93,16 +93,6 @@ public class LithiumConfig {
         public boolean useOptimizedAIGoalSelection = true;
 
         /**
-         * If true, entities will cache nearby chunks to avoid more expensive calls to the world object.
-         */
-        public boolean useChunkCacheForEntities = true;
-
-        /**
-         * If true, an optimized implementation of the chunk cache will be used when entities are path-finding.
-         */
-        public boolean useOptimizedChunkCacheForPathFinding = true;
-
-        /**
          * If true, entities will be selected for collision using an optimized function which avoids functional
          * stream-heavy code. This will generally provide a boost when entities are heavily crowded.
          */

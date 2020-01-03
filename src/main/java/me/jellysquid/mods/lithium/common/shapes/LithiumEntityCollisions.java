@@ -1,7 +1,5 @@
 package me.jellysquid.mods.lithium.common.shapes;
 
-import me.jellysquid.mods.lithium.common.cache.EntityChunkCache;
-import me.jellysquid.mods.lithium.common.entity.EntityWithChunkCache;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -35,7 +33,6 @@ public class LithiumEntityCollisions {
      */
     public static Stream<VoxelShape> getBlockCollisionsSweeping(CollisionView world, Entity entity, Box box, Vec3d motion) {
         final EntityContext context = entity == null ? EntityContext.absent() : EntityContext.of(entity);
-        final EntityChunkCache cache = EntityWithChunkCache.getChunkCache(entity);
 
         return StreamSupport.stream(new Spliterators.AbstractSpliterator<VoxelShape>(Long.MAX_VALUE, Spliterator.NONNULL | Spliterator.IMMUTABLE) {
             final BlockPos.Mutable pos = new BlockPos.Mutable();
@@ -43,13 +40,7 @@ public class LithiumEntityCollisions {
             final ArrayDeque<VoxelShape> queue = new ArrayDeque<>();
 
             final BoxSweeper sweeper = new BoxSweeper(box, motion, 1.5D, (x, y, z) -> {
-                BlockView chunk;
-
-                if (cache != null) {
-                    chunk = cache.getChunk(x >> 4, z >> 4);
-                } else {
-                    chunk = world.getExistingChunk(x >> 4, z >> 4);
-                }
+                BlockView chunk = world.getExistingChunk(x >> 4, z >> 4);
 
                 if (chunk == null) {
                     return;
@@ -66,7 +57,6 @@ public class LithiumEntityCollisions {
 
                 this.queue.add(blockShape.offset(x, y, z));
             });
-
 
             @Override
             public boolean tryAdvance(Consumer<? super VoxelShape> action) {
@@ -90,8 +80,6 @@ public class LithiumEntityCollisions {
      * replaced with our own optimized functions.
      */
     public static Stream<VoxelShape> getBlockCollisions(CollisionView world, final Entity entity, Box entityBox) {
-        EntityChunkCache cache = EntityWithChunkCache.getChunkCache(entity);
-
         int minX = MathHelper.floor(entityBox.x1 - 1.0E-7D) - 1;
         int maxX = MathHelper.floor(entityBox.x2 + 1.0E-7D) + 1;
         int minY = MathHelper.floor(entityBox.y1 - 1.0E-7D) - 1;
@@ -134,13 +122,7 @@ public class LithiumEntityCollisions {
                         continue;
                     }
 
-                    BlockView chunk;
-
-                    if (cache != null) {
-                        chunk = cache.getChunk(x >> 4, z >> 4);
-                    } else {
-                        chunk = world.getExistingChunk(x >> 4, z >> 4);
-                    }
+                    BlockView chunk = world.getExistingChunk(x >> 4, z >> 4);
 
                     if (chunk == null) {
                         continue;
