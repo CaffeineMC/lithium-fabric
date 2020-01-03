@@ -28,7 +28,6 @@
         "entity.data_tracker.use_arrays.MixinDataTracker",
         "entity.simple_entity_block_collisions.MixinCollisionView",
         "entity.simple_world_border_collisions.MixinEntity",
-        "fast_direction_lookup.MixinDirection",
         "fast_tick_scheduler.MixinServerWorld",
         "no_debug_world_type.MixinWorldChunk",
         "redstone.MixinRedstoneWireBlock",
@@ -42,5 +41,7 @@
         "voxelshape.precompute_shape_arrays.MixinSimpleVoxelShape",
         "entity.sweeping_collisions.MixinEntity",
         "entity.streamless_entity_retrieval.MixinEntityView",
-        "math.fast_util.MixinAxisCycleDirection"]
+        "math.fast_util.MixinAxisCycleDirection",
+        "math.fast_util.MixinDirection"
+    ]
 }

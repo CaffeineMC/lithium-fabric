@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.fast_direction_lookup;
+package me.jellysquid.mods.lithium.mixin.math.fast_util;
 
 import net.minecraft.util.math.Direction;
 import org.spongepowered.asm.mixin.Final;
