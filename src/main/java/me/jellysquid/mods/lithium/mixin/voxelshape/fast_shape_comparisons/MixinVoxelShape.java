@@ -6,7 +6,6 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelSet;
 import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -14,8 +13,6 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(VoxelShape.class)
 public abstract class MixinVoxelShape {
-    private static final Direction.Axis[] ALL_AXIS = Direction.Axis.values();
-
     private static final double POSITIVE_EPSILON = +1.0E-7D;
     private static final double NEGATIVE_EPSILON = -1.0E-7D;
 
@@ -32,10 +29,8 @@ public abstract class MixinVoxelShape {
     @Shadow
     protected abstract DoubleList getPointPositions(Direction.Axis axis);
 
-    private int simpleFlag;
-
     /**
-     * @reason Use optimized implementation
+     * @reason Use optimized implementation which delays searching for coordinates as long as possible
      * @author JellySquid
      */
     @Overwrite
@@ -48,47 +43,8 @@ public abstract class MixinVoxelShape {
             return 0.0D;
         }
 
-        if (this.isSimpleShape()) {
-            return this.calculateMaxDistanceInnerSimple(cycleDirection.opposite(), box, maxDist);
-        } else {
-            return this.calculateMaxDistanceInner(cycleDirection.opposite(), box, maxDist);
-        }
-    }
+        AxisCycleDirection cycle = cycleDirection.opposite();
 
-    protected boolean isSimpleShape() {
-        // Check to see if this is a simple shape with only one box. If we were able to extend VoxelShape, we could
-        // make this an implementation detail of a special shape. This property is cached and lazily initialized.
-        if (this.simpleFlag == 0) {
-            this.simpleFlag = this.calculateSimpleShape() ? 1 : -1;
-        }
-
-        return this.simpleFlag == 1;
-    }
-
-    protected boolean calculateSimpleShape() {
-        // The full cube shape is always simple.
-        if ((Object) this == VoxelShapes.fullCube()) {
-            return true;
-        }
-
-        // Check that the shape only contains two coordinates (a min/max of a simple cube) on each axis. If so, we're
-        // a simple shape.
-        for (Direction.Axis axis : ALL_AXIS) {
-            DoubleList list = this.getPointPositions(axis);
-
-            if (list.size() != 2) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * [VanillaCopy] VoxelShape#calculateMaxDistance
-     * Avoids performing a search for a coordinate's index until absolutely necessary.
-     */
-    private double calculateMaxDistanceInner(AxisCycleDirection cycle, Box box, double maxDist) {
         Direction.Axis axisX = cycle.cycle(Direction.Axis.X);
         Direction.Axis axisY = cycle.cycle(Direction.Axis.Y);
         Direction.Axis axisZ = cycle.cycle(Direction.Axis.Z);
@@ -160,49 +116,6 @@ public abstract class MixinVoxelShape {
     }
 
     /**
-     * Takes advantage of the fact that the shape is only a single cube. This allows us to replace the binary search
-     * with a simple check to select either the min/max coordinate.
-     */
-    private double calculateMaxDistanceInnerSimple(AxisCycleDirection cycle, Box box, double maxDist) {
-        Direction.Axis xAxis = cycle.cycle(Direction.Axis.X);
-        DoubleList xList = this.getPointPositions(xAxis);
-
-        double penetration;
-
-        if (maxDist > 0.0D) {
-            penetration = xList.getDouble(0) - box.getMax(xAxis);
-
-            if (penetration < NEGATIVE_EPSILON || maxDist < penetration) {
-                return maxDist;
-            }
-        } else {
-            penetration = xList.getDouble(1) - box.getMin(xAxis);
-
-            if (penetration > POSITIVE_EPSILON || maxDist > penetration) {
-                return maxDist;
-            }
-        }
-
-        Direction.Axis yAxis = cycle.cycle(Direction.Axis.Y);
-        Direction.Axis zAxis = cycle.cycle(Direction.Axis.Z);
-
-        DoubleList yList = this.getPointPositions(yAxis);
-        DoubleList zList = this.getPointPositions(zAxis);
-
-        if (yList.getDouble(0) + POSITIVE_EPSILON < box.getMax(yAxis) && box.getMin(yAxis) + POSITIVE_EPSILON < yList.getDouble(1)) {
-            if (zList.getDouble(0) + POSITIVE_EPSILON < box.getMax(zAxis) && box.getMin(zAxis) + POSITIVE_EPSILON < zList.getDouble(1)) {
-                if (penetration < POSITIVE_EPSILON && penetration > NEGATIVE_EPSILON) {
-                    return 0.0D;
-                }
-
-                return penetration;
-            }
-        }
-
-        return maxDist;
-    }
-
-    /**
      * In-lines the lambda passed to MathHelper#binarySearch. Simplifies the implementation very slightly for additional
      * speed.
      *
@@ -232,5 +145,4 @@ public abstract class MixinVoxelShape {
 
         return start - 1;
     }
-
 }

@@ -35,13 +35,12 @@
         "region.fast_session_lock.MixinThreadedAnvilChunkStorage",
         "small_tag_arrays.MixinTag",
         "voxelshape.fast_shape_comparisons.MixinBlock",
-        "voxelshape.fast_shape_comparisons.MixinBox",
         "voxelshape.fast_shape_comparisons.MixinVoxelShape",
         "voxelshape.fast_shape_comparisons.MixinVoxelShapes",
         "voxelshape.precompute_shape_arrays.MixinSimpleVoxelShape",
         "entity.sweeping_collisions.MixinEntity",
         "entity.streamless_entity_retrieval.MixinEntityView",
         "math.fast_util.MixinAxisCycleDirection",
-        "math.fast_util.MixinDirection"
-    ]
+        "math.fast_util.MixinDirection",
+        "math.fast_util.MixinBox"]
 }

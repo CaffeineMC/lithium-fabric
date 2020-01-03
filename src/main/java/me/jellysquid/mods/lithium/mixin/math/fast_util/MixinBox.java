@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.voxelshape.fast_shape_comparisons;
+package me.jellysquid.mods.lithium.mixin.math.fast_util;
 
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
