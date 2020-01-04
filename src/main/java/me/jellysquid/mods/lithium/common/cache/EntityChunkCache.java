@@ -25,7 +25,7 @@ import static net.minecraft.util.math.ChunkSectionPos.getSectionCoord;
  * many entity related functions.
  */
 public class EntityChunkCache {
-    private static final int RADIUS = 3;
+    private static final int RADIUS = 1;
 
     private static final int LENGTH = (RADIUS * 2) + 1;
 
