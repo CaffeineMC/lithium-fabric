@@ -10,6 +10,21 @@ import java.io.IOException;
 
 @SuppressWarnings("CanBeFinal")
 public class LithiumConfig {
+    public static class AiConfig {
+        /**
+         * If true, a faster implementation of the AI goal selector for entities will be used. This can significantly
+         * reduce the amount of CPU and memory allocation overhead and should be safe to always enable.
+         */
+        public boolean useFastGoalSelection = true;
+
+        /**
+         * If true, the "flee from entity" goals will be optimized to use an event-based entity tracking implementation.
+         * This modifies the AI goal to no longer constantly check the world for nearby entities but to instead query
+         * and process incoming events involving entities nearby, reducing in a massive improvement in overhead.
+         */
+        public boolean useNearbyEntityTracking = true;
+    }
+
     public static class PhysicsConfig {
         /**
          * If true, a more precise algorithm will be used for determining which blocks an entity is going to intersect
@@ -58,12 +73,6 @@ public class LithiumConfig {
         public boolean replaceClientTimeFunction = true;
 
         /**
-         * If true, matrix transformations performed during entity rendering will be reduced as much as possible. This
-         * generally is a safe option to enable and improves performance significantly for complex models with lots of parenting.
-         */
-        public boolean reduceCuboidTransformations = true;
-
-        /**
          * If true, a number of optimizations will be applied to the loading screen to reduce CPU usage while it is being
          * drawn by batching all progress square renders into a single draw call.
          */
@@ -86,17 +95,16 @@ public class LithiumConfig {
         public boolean avoidLockingDataTracker = false;
 
         /**
-         * If true, a faster implementation will be used for selecting AI goals for entities. The original code was
-         * heavily obfuscated and it is uncertain whether or not this behaves identically to vanilla, but it seems to work
-         * perfectly fine in limited testing.
-         */
-        public boolean useOptimizedAIGoalSelection = true;
-
-        /**
          * If true, entities will be selected for collision using an optimized function which avoids functional
          * stream-heavy code. This will generally provide a boost when entities are heavily crowded.
          */
         public boolean useStreamlessEntityRetrieval = true;
+
+        /**
+         * If true, living entities will cache which block is at their feet to improve performance in situations where
+         * it is repeatedly checked, such as when entities are heavily crowded and colliding with many bodies.
+         */
+        public boolean useBlockAtFeetCaching = true;
     }
 
     public static class RegionConfig {
@@ -122,10 +130,10 @@ public class LithiumConfig {
         public boolean useOptimizedHashPalette = true;
 
         /**
-         * If true, an optimized method for compacting chunk data arrays and palettes upon serialization will be used.
-         * This is greatly faster than the vanilla implementation and should be safe to use.
+         * If true, an optimized method for compacting a chunk's palette upon serialization will be used. This is
+         * greatly faster than the vanilla implementation and should be safe to use.
          */
-        public boolean useFastCompaction = false;
+        public boolean useFastPaletteCompaction = false;
 
         /**
          * If true, checks which see if a chunk is being concurrently modified will be removed. This may slightly improve
@@ -215,6 +223,7 @@ public class LithiumConfig {
             .setPrettyPrinting()
             .create();
 
+    public AiConfig ai = new AiConfig();
     public GeneralConfig general = new GeneralConfig();
     public PhysicsConfig physics = new PhysicsConfig();
     public EntityConfig entity = new EntityConfig();

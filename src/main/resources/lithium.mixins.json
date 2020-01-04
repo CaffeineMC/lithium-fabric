@@ -13,6 +13,13 @@
         "client.tracers.MixinDebugRenderer"
     ],
     "mixins": [
+        "ai.fast_goal_selection.MixinGoalSelector",
+        "ai.nearby_entity_tracking.MixinClientWorld",
+        "ai.nearby_entity_tracking.MixinLivingEntity",
+        "ai.nearby_entity_tracking.MixinLivingEntity",
+        "ai.nearby_entity_tracking.MixinServerWorld",
+        "ai.nearby_entity_tracking.MixinWorld",
+        "ai.nearby_entity_tracking.ai.MixinFleeEntityGoal",
         "avoid_allocations.MixinLivingEntity",
         "avoid_allocations.MixinServerChunkManager",
         "avoid_allocations.MixinServerWorld",
@@ -23,12 +30,17 @@
         "chunk.fast_chunk_serialization.MixinPackedIntegerArray",
         "chunk.fast_chunk_serialization.MixinPalettedContainer",
         "chunk.no_chunk_locking.MixinPalettedContainer",
-        "entity.bitflag_goal_selection.MixinGoalSelector",
+        "entity.block_cache.MixinLivingEntity",
         "entity.data_tracker.no_locks.MixinDataTracker",
         "entity.data_tracker.use_arrays.MixinDataTracker",
         "entity.simple_entity_block_collisions.MixinCollisionView",
         "entity.simple_world_border_collisions.MixinEntity",
+        "entity.streamless_entity_retrieval.MixinEntityView",
+        "entity.sweeping_collisions.MixinEntity",
         "fast_tick_scheduler.MixinServerWorld",
+        "math.fast_util.MixinAxisCycleDirection",
+        "math.fast_util.MixinBox",
+        "math.fast_util.MixinDirection",
         "no_debug_world_type.MixinWorldChunk",
         "redstone.MixinRedstoneWireBlock",
         "redstone.MixinWorld",
@@ -37,10 +49,6 @@
         "voxelshape.fast_shape_comparisons.MixinBlock",
         "voxelshape.fast_shape_comparisons.MixinVoxelShape",
         "voxelshape.fast_shape_comparisons.MixinVoxelShapes",
-        "voxelshape.precompute_shape_arrays.MixinSimpleVoxelShape",
-        "entity.sweeping_collisions.MixinEntity",
-        "entity.streamless_entity_retrieval.MixinEntityView",
-        "math.fast_util.MixinAxisCycleDirection",
-        "math.fast_util.MixinDirection",
-        "math.fast_util.MixinBox"]
+        "voxelshape.precompute_shape_arrays.MixinSimpleVoxelShape"
+    ]
 }

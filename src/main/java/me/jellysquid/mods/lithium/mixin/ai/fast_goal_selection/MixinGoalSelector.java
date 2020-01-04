@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.entity.bitflag_goal_selection;
+package me.jellysquid.mods.lithium.mixin.ai.fast_goal_selection;
 
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.GoalSelector;
@@ -103,6 +103,7 @@ public abstract class MixinGoalSelector {
     private void tickGoals() {
         this.profiler.push("goalTick");
 
+        // Tick all currently running goals
         for (WeightedGoal goal : this.goals) {
             if (goal.isRunning()) {
                 goal.tick();
