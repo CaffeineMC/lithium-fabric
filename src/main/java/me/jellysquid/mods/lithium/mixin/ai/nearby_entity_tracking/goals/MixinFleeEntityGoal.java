@@ -7,7 +7,6 @@ import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.FleeEntityGoal;
 import net.minecraft.entity.mob.MobEntityWithAi;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,7 +22,7 @@ public class MixinFleeEntityGoal<T extends LivingEntity> {
 
     @Inject(method = "<init>(Lnet/minecraft/entity/mob/MobEntityWithAi;Ljava/lang/Class;Ljava/util/function/Predicate;FDDLjava/util/function/Predicate;)V", at = @At("RETURN"))
     private void init(MobEntityWithAi mob, Class<T> fleeFromType, Predicate<LivingEntity> predicate, float distance, double slowSpeed, double fastSpeed, Predicate<LivingEntity> predicate2, CallbackInfo ci) {
-        this.tracker = new ClosestEntityTracker<>(fleeFromType, mob, MathHelper.ceil(distance));
+        this.tracker = new ClosestEntityTracker<>(fleeFromType, mob, distance);
 
         ((EntityWithNearbyListener) mob).getListener().addListener(this.tracker);
     }

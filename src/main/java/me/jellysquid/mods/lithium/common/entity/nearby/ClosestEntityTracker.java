@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.common.entity.nearby;
 
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,19 +10,19 @@ public class ClosestEntityTracker<T extends LivingEntity> implements NearbyEntit
     private final Class<T> clazz;
     private final LivingEntity self;
 
-    private final int range;
+    private final float range;
 
     private final Set<T> nearby = new HashSet<>();
 
-    public ClosestEntityTracker(Class<T> clazz, LivingEntity self, int range) {
+    public ClosestEntityTracker(Class<T> clazz, LivingEntity self, float range) {
         this.clazz = clazz;
         this.self = self;
         this.range = range;
     }
 
     @Override
-    public int getRange() {
-        return this.range;
+    public int getChunkRange() {
+        return MathHelper.roundUp(MathHelper.ceil(this.range), 16) >> 4;
     }
 
     @Override

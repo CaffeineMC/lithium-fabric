@@ -17,11 +17,11 @@ public class NearbyEntityListenerMulti implements NearbyEntityListener {
     }
 
     @Override
-    public int getRange() {
+    public int getChunkRange() {
         int range = 0;
 
         for (NearbyEntityListener listener : this.listeners) {
-            range = Math.max(range, listener.getRange());
+            range = Math.max(range, listener.getChunkRange());
         }
 
         return range;

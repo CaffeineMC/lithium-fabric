@@ -13,18 +13,43 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientWorld.class)
 public class MixinClientWorld {
+    @Inject(method = "checkChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/WorldChunk;addEntity(Lnet/minecraft/entity/Entity;)V", shift = At.Shift.BEFORE))
+    private void onEntityMoveAdd(Entity entity, CallbackInfo ci) {
+        if (!(entity instanceof LivingEntity)) {
+            return;
+        }
+
+        int x = MathHelper.floor(entity.getX()) >> 4;
+        int y = MathHelper.floor(entity.getY()) >> 4;
+        int z = MathHelper.floor(entity.getZ()) >> 4;
+
+        EntityTrackerEngine tracker = WorldWithEntityTrackerEngine.getEntityTracker(this);
+        tracker.onEntityAdded(x, y, z, (LivingEntity) entity);
+
+    }
+
+    @Inject(method = "checkChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/WorldChunk;remove(Lnet/minecraft/entity/Entity;I)V", shift = At.Shift.BEFORE))
+    private void onEntityMoveRemove(Entity entity, CallbackInfo ci) {
+        if (!(entity instanceof LivingEntity)) {
+            return;
+        }
+
+        EntityTrackerEngine tracker = WorldWithEntityTrackerEngine.getEntityTracker(this);
+        tracker.onEntityRemoved(entity.chunkX, entity.chunkY, entity.chunkZ, (LivingEntity) entity);
+    }
+
     @Inject(method = "addEntityPrivate", at = @At(value = "FIELD", target = "Lnet/minecraft/client/world/ClientWorld;regularEntities:Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;"))
     private void onEntityAdded(int id, Entity entity, CallbackInfo ci) {
         if (!(entity instanceof LivingEntity)) {
             return;
         }
 
-        int chunkX = MathHelper.floor(entity.getX() / 16.0D);
-        int chunkY = MathHelper.floor(entity.getY() / 16.0D);
-        int chunkZ = MathHelper.floor(entity.getZ() / 16.0D);
+        int chunkX = MathHelper.floor(entity.getX()) >> 4;
+        int chunkY = MathHelper.floor(entity.getY()) >> 4;
+        int chunkZ = MathHelper.floor(entity.getZ()) >> 4;
 
         EntityTrackerEngine tracker = WorldWithEntityTrackerEngine.getEntityTracker(this);
-        tracker.addEntity(chunkX, chunkY, chunkZ, (LivingEntity) entity);
+        tracker.onEntityAdded(chunkX, chunkY, chunkZ, (LivingEntity) entity);
     }
 
     @Inject(method = "finishRemovingEntity", at = @At(value = "HEAD"))
@@ -33,11 +58,11 @@ public class MixinClientWorld {
             return;
         }
 
-        int chunkX = MathHelper.floor(entity.getX() / 16.0D);
-        int chunkY = MathHelper.floor(entity.getY() / 16.0D);
-        int chunkZ = MathHelper.floor(entity.getZ() / 16.0D);
+        int chunkX = MathHelper.floor(entity.getX()) >> 4;
+        int chunkY = MathHelper.floor(entity.getY()) >> 4;
+        int chunkZ = MathHelper.floor(entity.getZ()) >> 4;
 
         EntityTrackerEngine tracker = WorldWithEntityTrackerEngine.getEntityTracker(this);
-        tracker.removeEntity(chunkX, chunkY, chunkZ, (LivingEntity) entity);
+        tracker.onEntityRemoved(chunkX, chunkY, chunkZ, (LivingEntity) entity);
     }
 }

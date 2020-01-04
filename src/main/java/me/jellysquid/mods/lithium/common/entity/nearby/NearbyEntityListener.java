@@ -6,7 +6,7 @@ public interface NearbyEntityListener {
     /**
      * Returns the range (in blocks) of this listener. This must never change during the lifetime of the listener.
      */
-    int getRange();
+    int getChunkRange();
 
     /**
      * Called by the entity tracker when an entity enters the range of this listener.
