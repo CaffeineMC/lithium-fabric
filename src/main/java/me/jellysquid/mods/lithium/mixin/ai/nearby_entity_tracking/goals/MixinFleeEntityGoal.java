@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking.ai;
+package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking.goals;
 
 import me.jellysquid.mods.lithium.common.entity.nearby.ClosestEntityTracker;
 import me.jellysquid.mods.lithium.common.entity.nearby.EntityWithNearbyListener;

@@ -1,5 +1,7 @@
 package me.jellysquid.mods.lithium.common.shapes;
 
+import me.jellysquid.mods.lithium.common.cache.EntityChunkCache;
+import me.jellysquid.mods.lithium.common.entity.EntityWithChunkCache;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -31,25 +33,36 @@ public class LithiumEntityCollisions {
      * This can provide a huge improvement in the number of voxels which need to be traversed at high velocities and
      * avoids the expensive step of needing to test if every voxel after the fact is contained within a box.
      */
-    public static Stream<VoxelShape> getBlockCollisionsSweeping(CollisionView world, Entity entity, Box box, Vec3d motion) {
-        final EntityContext context = entity == null ? EntityContext.absent() : EntityContext.of(entity);
-
+    public static Stream<VoxelShape> getBlockCollisionsSweeping(CollisionView view, Entity entity, Box box, Vec3d motion) {
         return StreamSupport.stream(new Spliterators.AbstractSpliterator<VoxelShape>(Long.MAX_VALUE, Spliterator.NONNULL | Spliterator.IMMUTABLE) {
-            final BlockPos.Mutable pos = new BlockPos.Mutable();
+            final CollisionView world = view;
+
+            final EntityContext context = entity == null ? EntityContext.absent() : EntityContext.of(entity);
+
+            final EntityChunkCache chunkCache = EntityWithChunkCache.getChunkCache(entity);
+
+            final BlockPos.Mutable posCache = new BlockPos.Mutable();
 
             final ArrayDeque<VoxelShape> queue = new ArrayDeque<>();
 
             final BoxSweeper sweeper = new BoxSweeper(box, motion, 1.5D, (x, y, z) -> {
-                BlockView chunk = world.getExistingChunk(x >> 4, z >> 4);
+                BlockState state;
 
-                if (chunk == null) {
-                    return;
+                this.posCache.set(x, y, z);
+
+                if (this.chunkCache != null) {
+                    state = this.chunkCache.getBlockState(x, y, z);
+                } else {
+                    BlockView chunk = this.world.getExistingChunk(x >> 4, z >> 4);
+
+                    if (chunk == null) {
+                        return;
+                    }
+
+                    state = chunk.getBlockState(this.posCache);
                 }
 
-                pos.set(x, y, z);
-
-                BlockState state = chunk.getBlockState(pos);
-                VoxelShape blockShape = state.getCollisionShape(world, pos, context);
+                VoxelShape blockShape = state.getCollisionShape(this.world, this.posCache, this.context);
 
                 if (blockShape == VoxelShapes.empty()) {
                     return;
@@ -80,6 +93,8 @@ public class LithiumEntityCollisions {
      * replaced with our own optimized functions.
      */
     public static Stream<VoxelShape> getBlockCollisions(CollisionView world, final Entity entity, Box entityBox) {
+        EntityChunkCache cache = EntityWithChunkCache.getChunkCache(entity);
+
         int minX = MathHelper.floor(entityBox.x1 - 1.0E-7D) - 1;
         int maxX = MathHelper.floor(entityBox.x2 + 1.0E-7D) + 1;
         int minY = MathHelper.floor(entityBox.y1 - 1.0E-7D) - 1;
@@ -122,7 +137,13 @@ public class LithiumEntityCollisions {
                         continue;
                     }
 
-                    BlockView chunk = world.getExistingChunk(x >> 4, z >> 4);
+                    BlockView chunk;
+
+                    if (cache != null) {
+                        chunk = cache.getChunk(x >> 4, z >> 4);
+                    } else {
+                        chunk = world.getExistingChunk(x >> 4, z >> 4);
+                    }
 
                     if (chunk == null) {
                         continue;

@@ -95,6 +95,11 @@ public class LithiumConfig {
         public boolean avoidLockingDataTracker = false;
 
         /**
+         * If true, entities will cache nearby chunks to avoid more expensive calls to the world object.
+         */
+        public boolean useChunkCacheForEntities = true;
+
+        /**
          * If true, entities will be selected for collision using an optimized function which avoids functional
          * stream-heavy code. This will generally provide a boost when entities are heavily crowded.
          */
@@ -133,7 +138,7 @@ public class LithiumConfig {
          * If true, an optimized method for compacting a chunk's palette upon serialization will be used. This is
          * greatly faster than the vanilla implementation and should be safe to use.
          */
-        public boolean useFastPaletteCompaction = false;
+        public boolean useFastPaletteCompaction = true;
 
         /**
          * If true, checks which see if a chunk is being concurrently modified will be removed. This may slightly improve
