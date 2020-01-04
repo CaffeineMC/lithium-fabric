@@ -21,6 +21,7 @@
         "ai.nearby_entity_tracking.MixinServerWorld",
         "ai.nearby_entity_tracking.MixinWorld",
         "ai.nearby_entity_tracking.goals.MixinFleeEntityGoal",
+        "ai.nearby_entity_tracking.goals.MixinLookAtGoal",
         "avoid_allocations.MixinLivingEntity",
         "avoid_allocations.MixinServerChunkManager",
         "avoid_allocations.MixinServerWorld",
