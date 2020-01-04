@@ -159,6 +159,24 @@ public class Lithium_VoxelShapeSimpleCube extends VoxelShape {
         return x >= this.x1 && x < this.x2 && y >= this.y1 && y < this.y2 && z >= this.z1 && z < this.z2;
     }
 
+    @Override
+    public boolean isEmpty() {
+        return this.x1 + EPSILON > this.x2 || this.y1 + EPSILON > this.y2 || this.z1 + EPSILON > this.z2;
+    }
+
+    @Override
+    protected int getCoordIndex(Direction.Axis axis, double coord) {
+        if (coord < this.getMinimum(axis)) {
+            return -1;
+        }
+
+        if (coord >= this.getMaximum(axis)) {
+            return 1;
+        }
+
+        return 0;
+    }
+
     private static boolean lessThan(double a, double b) {
         return a + EPSILON < b;
     }
