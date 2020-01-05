@@ -1,232 +1,132 @@
 package me.jellysquid.mods.lithium.common.config;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import me.jellysquid.mods.lithium.common.config.annotations.Category;
+import me.jellysquid.mods.lithium.common.config.annotations.Option;
+import me.jellysquid.mods.lithium.common.config.parser.ConfigParser;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 
+/**
+ * Documentation of these options: https://github.com/jellysquid3/Lithium/wiki/Configuration-File
+ */
 @SuppressWarnings("CanBeFinal")
 public class LithiumConfig {
+    @Category("ai")
     public static class AiConfig {
-        /**
-         * If true, a faster implementation of the AI goal selector for entities will be used. This can significantly
-         * reduce the amount of CPU and memory allocation overhead and should be safe to always enable.
-         */
+        @Option("use_fast_goal_selection")
         public boolean useFastGoalSelection = true;
 
-        /**
-         * If true, the "flee from entity" goals will be optimized to use an event-based entity tracking implementation.
-         * This modifies the AI goal to no longer constantly check the world for nearby entities but to instead query
-         * and process incoming events involving entities nearby, reducing in a massive improvement in overhead.
-         */
+        @Option("use_nearby_entity_tracking")
         public boolean useNearbyEntityTracking = true;
     }
 
+    @Category("physics")
     public static class PhysicsConfig {
-        /**
-         * If true, a more precise algorithm will be used for determining which blocks an entity is going to intersect
-         * each tick. This can significantly reduce the number of blocks considered for collision resolution, which will
-         * in turn provide a performance boost for each entity. In situations where entities are trying to move very
-         * quickly (such as in a mob farm where an entity is being pushed by many others), this algorithm will reduce
-         * the number of blocks being collision tested by multiple orders of magnitudes and greatly improve performance.
-         */
+        @Option("use_swept_collision_search")
         public boolean useSweptCollisionSearch = true;
 
-        /**
-         * If true, shape comparision will use optimized algorithms when simple cube shapes are involved. This allows
-         * for much faster collision resolution against shapes which only contain one cube and will provide a large
-         * boost to performance.
-         */
+        @Option("use_fast_shape_comparision")
         public boolean useFastShapeComparisons = true;
 
-        /**
-         * If true, the algorithm for checking whether or not an entity is within the world border will be replaced
-         * with a much faster axis-aligned bounding box check. This will provide a benefit for all entities even if you
-         * have not changed the default world border or are not near it.
-         */
+        @Option("use_fast_world_border_checks")
         public boolean useFastWorldBorderChecks = true;
 
-        /**
-         * If true, a simpler (and much faster) collision testing algorithm will be used to test if an entity is inside
-         * blocks. Additionally, the world border will not be included in a collision test if the player will not collide
-         * with it in a physics step.
-         */
+        @Option("use_simple_entity_collision_testing")
         public boolean useSimpleEntityCollisionTesting = true;
 
-        /**
-         * If true, an array of values will be pre-calculated for every block shape. This will increase memory usage by a
-         * small, but constant amount, while generally providing a performance boost when combined with the
-         * useOptimizedCollisionVertexMerging option.
-         */
+        @Option("always_unpack_block_shapes")
         public boolean alwaysUnpackBlockShapes = true;
     }
 
+    @Category("client")
     public static class ClientConfig {
-        /**
-         * If true, the client's time function (glfwGetTime()) will be replaced with standard Java calls. This can improve
-         * performance when multiple threads (i.e. the client and server) are both accessing the timer, which is usually
-         * always the case in single-player.
-         */
+        @Option("replace_client_time_function")
         public boolean replaceClientTimeFunction = true;
 
-        /**
-         * If true, a number of optimizations will be applied to the loading screen to reduce CPU usage while it is being
-         * drawn by batching all progress square renders into a single draw call.
-         */
+        @Option("use_loading_screen_optimizations")
         public boolean useLoadingScreenOptimizations = true;
     }
 
+    @Category("entity")
     public static class EntityConfig {
-        /**
-         * If true, an optimized map implementation will be used for entity data tracking which avoids integer boxing
-         * and a map lookup by using a simple array.
-         */
+        @Option("use_optimized_data_tracker")
         public boolean useOptimizedDataTracker = true;
 
-        /**
-         * If true, the data tracker for entities will not perform locking. This works by making additional patches
-         * to some network packet classes, requiring them to copy their data on the main-thread which will be serialized
-         * later off-thread. This could (however unlikely) cause issues if mods are installed which try to access the
-         * data tracker on the wrong thread.
-         */
-        public boolean avoidLockingDataTracker = false;
+        @Option("avoid_locking_data_tracker")
+        public boolean avoidLockingDataTracker = true;
 
-        /**
-         * If true, entities will cache nearby chunks to avoid more expensive calls to the world object.
-         */
+        @Option("use_chunk_cache_for_entities")
         public boolean useChunkCacheForEntities = true;
 
-        /**
-         * If true, entities will be selected for collision using an optimized function which avoids functional
-         * stream-heavy code. This will generally provide a boost when entities are heavily crowded.
-         */
+        @Option("use_streamless_entity_retrieval")
         public boolean useStreamlessEntityRetrieval = true;
 
-        /**
-         * If true, living entities will cache which block is at their feet to improve performance in situations where
-         * it is repeatedly checked, such as when entities are heavily crowded and colliding with many bodies.
-         */
+        @Option("use_block_at_feet_caching")
         public boolean useBlockAtFeetCaching = true;
     }
 
+    @Category("region")
     public static class RegionConfig {
-        /**
-         * If true, the world's session lock will only be checked once before saving all pending chunks versus once
-         * for every chunk saved.
-         */
+        @Option("reduce_session_lock_checks")
         public boolean reduceSessionLockChecks = true;
     }
 
+    @Category("chunk")
     public static class ChunkConfig {
-        /**
-         * If true, extra conditional logic for checking if a world is of the debug type will be removed. This may slightly
-         * improve performance in some situations, but will make it impossible to use the debug world type. It's very likely
-         * you didn't know that was a feature or will ever need to use it, so this option is generally worthwhile.
-         */
+        @Option("disable_debug_world_type")
         public boolean disableDebugWorldType = true;
 
-        /**
-         * If true, the vanilla hash palette which maps a small range of integers in chunk data into blocks will be replaced
-         * with a version that has better performance when placing blocks into chunks.
-         */
+        @Option("use_optimized_hash_palette")
         public boolean useOptimizedHashPalette = true;
 
-        /**
-         * If true, an optimized method for compacting a chunk's palette upon serialization will be used. This is
-         * greatly faster than the vanilla implementation and should be safe to use.
-         */
+        @Option("use_fast_palette_compaction")
         public boolean useFastPaletteCompaction = true;
 
-        /**
-         * If true, checks which see if a chunk is being concurrently modified will be removed. This may slightly improve
-         * performance in some situations, but comes with the dangerous side effect that these kinds of threading issues
-         * will not be detected and could go on to create serious problems. This option **does not** make it valid to
-         * access chunks from multiple threads.
-         * <p>
-         * Disabled by default until further testing in vanilla is performed and alternatives are looked into.
-         */
+        @Option("remove_concurrent_modification_checks")
         public boolean removeConcurrentModificationChecks = false;
     }
 
+    @Category("general")
     public static class GeneralConfig {
-        /**
-         * If true, the expensive check to see if a TypeFilterableList can be filtered by a specific class will only be
-         * made when a new list for that type needs to be created.
-         */
+        @Option("use_fast_list_type_filtering")
         public boolean useFastListTypeFiltering = true;
 
-        /**
-         * If true, the tick scheduler will be replaced with an optimized variant which allows for significantly reduced CPU
-         * usage with many scheduled ticks and much faster checking of in-progress ticks. In real world terms, this means
-         * that the tick settling which occurs right after generating chunks will take much less time, and redstone ticking
-         * will be slightly faster. This implementation has been tested extensively, but some issues might still lurk.
-         */
+        @Option("use_optimized_tick_scheduler")
         public boolean useOptimizedTickScheduler = true;
 
-        /**
-         * If true, a handful of small patches will be made to avoid unnecessary object allocation throughout the game.
-         */
+        @Option("reduce_object_allocations")
         public boolean reduceObjectAllocations = true;
 
-        /**
-         * If true, a handful of small patches will be made to avoid unnecessary hashcode recalculation throughout the game.
-         */
+        @Option("cache_hashcode_calculations")
         public boolean cacheHashcodeCalculations = true;
 
-        /**
-         * If true, some math utility classes will be patched with various optimizations in order to reduce the general
-         * overhead in operations such as switching/rotating axises or shifting block positions. This does not make
-         * any optimizations to trigonometric functions or the like of them!
-         */
+        @Option("use_fast_math_utility_logic")
         public boolean useFastMathUtilityLogic = true;
     }
 
+    @Category("redstone")
     public static class RedstoneConfig {
-        /**
-         * If true, Redstone dust will use an optimized update system which avoids unnecessary block updates (fixing MC-81098).
-         * Additionally, the update order of redstone dust is made deterministic (fixing MC-11193).
-         *
-         * These patches will provide a huge improvement when updating dust, but might affect contraptions which rely on the
-         * non-deterministic update order of dust (known as "locational contraptions"). This is unfortunate and goes
-         * against the strongest belief of the mod (being that we don't change vanilla behaviours) but it is impossible
-         * to maintain behaviour which is non-deterministic. Even though this behaviour is often said to be consistent
-         * given the same location in a world, this is only a happy coincidence. The implementation of Set (which is the
-         * type responsible for ordering these updates) makes no guarantees about its order, meaning that a simple update
-         * to Java or the usage of another JVM could result in the order being changed.
-         *
-         * This is disabled by default as it is an INCUBATING feature. This will likely conflict with any other mods
-         * which make similar patches. Please report issues with this option enabled.
-         */
+        @Option("use_redstone_dust_optimizations")
         public boolean useRedstoneDustOptimizations = false;
     }
 
+    @Category("other")
     public static class OtherConfig {
-
-        /**
-         * If true, tags with very few entries (<=5) will use array scanning instead of a hash table, which might slightly
-         * improve performance when checking to see if a block/fluid is contained within a tag.
-         */
+        @Option("use_small_tag_array_optimization")
         public boolean useSmallTagArrayOptimization = true;
     }
 
+    @Category("debug")
     public static class DebugConfig {
-        /**
-         * If true, the client will be patched to allow the visualization of "tracers" used for debugging.
-         */
+        @Option("allow_tracer_visualization")
         public boolean allowTracerVisualization = false;
 
-        /**
-         * If true, swept entity bounding box collisions will be traced. This will add non-trivial overhead!
-         */
+        @Option("trace_swept_collisions")
         public boolean traceSweptCollisions = false;
     }
-
-    private static final Gson gson = new GsonBuilder()
-            .setPrettyPrinting()
-            .create();
 
     public AiConfig ai = new AiConfig();
     public GeneralConfig general = new GeneralConfig();
@@ -244,37 +144,29 @@ public class LithiumConfig {
      * created. The file on disk will then be updated to include any new options.
      */
     public static LithiumConfig load(File file) {
-        LithiumConfig config;
-
         if (!file.exists()) {
-            config = new LithiumConfig();
-        } else {
-            try (FileReader in = new FileReader(file)) {
-                config = gson.fromJson(in, LithiumConfig.class);
-            } catch (IOException e) {
-                throw new RuntimeException("Couldn't load config", e);
-            }
+            writeDefaultConfig(file);
+
+            return new LithiumConfig();
         }
 
-        config.save(file);
-
-        return config;
+        try {
+            return ConfigParser.deserialize(LithiumConfig.class, file);
+        } catch (ConfigParser.ParseException e) {
+            throw new RuntimeException("Could not parse config", e);
+        }
     }
 
-    /**
-     * Saves the configuration file to disk, creating any directories as needed.
-     */
-    private void save(File file) {
-        File parent = file.getParentFile();
-
-        if (!parent.exists() && !parent.mkdirs()) {
-            throw new RuntimeException("Couldn't create config directory");
-        }
-
-        try (FileWriter writer = new FileWriter(file)) {
-            gson.toJson(this, writer);
+    private static void writeDefaultConfig(File file) {
+        try (Writer writer = new FileWriter(file)) {
+            writer.write("# This is the configuration file for Lithium.\n");
+            writer.write("#\n");
+            writer.write("# You can find information on editing this file and all the available options here:\n");
+            writer.write("# https://github.com/jellysquid3/Lithium/wiki/Configuration-File\n");
+            writer.write("#\n");
+            writer.write("# By default, this file will be empty except for this notice.\n");
         } catch (IOException e) {
-            throw new RuntimeException("Couldn't save config");
+            throw new RuntimeException("Could not write default config", e);
         }
     }
 }

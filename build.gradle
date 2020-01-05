@@ -13,11 +13,18 @@ group = project.maven_group
 minecraft {
 }
 
+configurations {
+    modShade
+    modCompile.extendsFrom modShade
+}
+
 dependencies {
 	//to change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    modShade "com.moandjiezana.toml:toml4j:0.7.2"
 }
 
 processResources {
@@ -54,10 +61,14 @@ jar {
 }
 
 shadowJar {
+    dependencies {
+        exclude(dependency('com.google.code.gson:gson'))
+    }
     relocate('net.minecraft.util.shape', 'net.minecraft') {
         include 'net.minecraft.util.shape.Lithium*'
     }
-    configurations = [ ]
+    relocate('com.moandjiezana.toml', 'me.jellysquid.mods.lithium.shaded.toml')
+    configurations = [project.configurations.modShade]
     classifier = 'dev'
 }
 

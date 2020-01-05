@@ -22,7 +22,7 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void onLoad(String mixinPackage) {
-        LithiumConfig config = LithiumConfig.load(new File("./config/lithium.json"));
+        LithiumConfig config = LithiumConfig.load(new File("./config/lithium.toml"));
 
         this.setupMixins(config);
 
