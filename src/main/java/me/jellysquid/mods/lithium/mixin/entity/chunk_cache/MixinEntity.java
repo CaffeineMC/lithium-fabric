@@ -112,12 +112,12 @@ public abstract class MixinEntity implements EntityWithChunkCache {
     }
 
     @Redirect(method = {"move", "checkBlockCollision", "playStepSound", "isInsideWall", "getLandingPos", "checkBlockCollision", "getVelocityMultiplier" },
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"))
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"), require = 0)
     private BlockState redirectGetBlockState(World world, BlockPos pos) {
         return this.chunkCache == null ? world.getBlockState(pos) : this.chunkCache.getBlockState(pos);
     }
 
-    @Redirect(method = "checkBlockCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;isRegionLoaded(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;)Z"))
+    @Redirect(method = "checkBlockCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;isRegionLoaded(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;)Z"), require = 0)
     private boolean redirectIsRegionLoaded(World world, BlockPos min, BlockPos max) {
         return this.chunkCache == null ? world.isRegionLoaded(min, max) : this.chunkCache.isRegionLoaded(min, max);
     }
@@ -127,7 +127,7 @@ public abstract class MixinEntity implements EntityWithChunkCache {
         return this.chunkCache;
     }
 
-    @Redirect(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;doesAreaContainFireSource(Lnet/minecraft/util/math/Box;)Z"))
+    @Redirect(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;doesAreaContainFireSource(Lnet/minecraft/util/math/Box;)Z"), require = 0)
     private boolean redirectDoesAreaContainFireSource(World world, Box box) {
         int minX = MathHelper.floor(box.x1);
         int maxX = MathHelper.ceil(box.x2);
@@ -152,7 +152,7 @@ public abstract class MixinEntity implements EntityWithChunkCache {
     }
 
     @Redirect(method = "adjustMovementForCollisions(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Lnet/minecraft/world/World;Lnet/minecraft/entity/EntityContext;Lnet/minecraft/util/ReusableStream;)Lnet/minecraft/util/math/Vec3d;",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;adjustSingleAxisMovementForCollisions(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Lnet/minecraft/world/WorldView;Lnet/minecraft/entity/EntityContext;Lnet/minecraft/util/ReusableStream;)Lnet/minecraft/util/math/Vec3d;"))
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;adjustSingleAxisMovementForCollisions(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Lnet/minecraft/world/WorldView;Lnet/minecraft/entity/EntityContext;Lnet/minecraft/util/ReusableStream;)Lnet/minecraft/util/math/Vec3d;"), require = 0)
     private static Vec3d redirectCalculateTangentialMotionVector(Vec3d movement, Box entityBoundingBox, WorldView world, EntityContext context, ReusableStream<VoxelShape> collisions, Entity entity, Vec3d a5, Box a4, World a3, EntityContext a2, ReusableStream<VoxelShape> a1) {
         if (entity == null) {
             return Entity.adjustSingleAxisMovementForCollisions(movement, entityBoundingBox, world, context, collisions);
