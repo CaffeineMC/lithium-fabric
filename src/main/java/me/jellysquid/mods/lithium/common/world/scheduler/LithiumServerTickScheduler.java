@@ -9,7 +9,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.ScheduledTick;
 import net.minecraft.world.TickPriority;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -17,9 +16,10 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
+    private static final Predicate<ScheduledTickMap.TickEntry<?>> PREDICATE_ANY_TICK = entry -> true;
+    private static final Predicate<ScheduledTickMap.TickEntry<?>> PREDICATE_ACTIVE_TICKS = entry -> !entry.consumed;
+
     private final Predicate<T> invalidObjPredicate;
-    private final Function<T, Identifier> idToName;
-    private final Function<Identifier, T> nameToId;
     private final ServerWorld world;
     private final Consumer<ScheduledTick<T>> tickConsumer;
     private final ScheduledTickMap<T> tickMap = new ScheduledTickMap<>();
@@ -28,8 +28,6 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
         super(world, invalidPredicate, idToName, nameToId, consumer);
 
         this.invalidObjPredicate = invalidPredicate;
-        this.idToName = idToName;
-        this.nameToId = nameToId;
         this.world = world;
         this.tickConsumer = consumer;
     }
@@ -38,7 +36,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     public void tick() {
         this.world.getProfiler().push("cleaning");
 
-        this.tickMap.selectTicksForExecution(this.world.getChunkManager(), this.world.getTime() + 1);
+        this.tickMap.selectTicksForExecution(this.world.getChunkManager(), this.world.getTime());
 
         this.world.getProfiler().swap("executing");
 
@@ -65,19 +63,8 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     }
 
     @Override
-    public List<ScheduledTick<T>> getScheduledTicks(BlockBox box, boolean mutates, boolean getStaleTicks) {
-        final List<ScheduledTick<T>> ret = new ArrayList<>();
-
-        this.tickMap.iterateTicks(box, entry -> {
-            if (entry.consumed && !getStaleTicks) {
-                return;
-            }
-
-            ScheduledTick<T> tick = entry.tick;
-            ret.add(tick);
-        }, mutates);
-
-        return ret;
+    public List<ScheduledTick<T>> getScheduledTicks(BlockBox box, boolean remove, boolean getStaleTicks) {
+        return this.tickMap.copyTicks(box, getStaleTicks ? PREDICATE_ANY_TICK : PREDICATE_ACTIVE_TICKS, remove);
     }
 
     @Override
