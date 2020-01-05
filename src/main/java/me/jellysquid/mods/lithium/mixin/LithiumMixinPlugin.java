@@ -18,7 +18,7 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
     private static final String MIXIN_PACKAGE_ROOT = "me.jellysquid.mods.lithium.mixin.";
 
     private final Logger logger = LogManager.getLogger("Lithium");
-    private final HashSet<String> disabledPackages = new HashSet<>();
+    private final HashSet<String> enabledPackages = new HashSet<>();
 
     @Override
     public void onLoad(String mixinPackage) {
@@ -32,38 +32,38 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
     }
 
     private void setupMixins(LithiumConfig config) {
-        this.disableIf("ai.fast_goal_selection", !config.ai.useFastGoalSelection);
-        this.disableIf("ai.nearby_entity_tracking", !config.ai.useNearbyEntityTracking);
-        this.disableIf("avoid_allocations", !config.general.reduceObjectAllocations);
-        this.disableIf("cached_hashcode", !config.general.cacheHashcodeCalculations);
-        this.disableIf("chunk.fast_chunk_palette", !config.chunk.useOptimizedHashPalette);
-        this.disableIf("chunk.fast_chunk_serialization", !config.chunk.useFastPaletteCompaction);
-        this.disableIf("chunk.no_chunk_locking", !config.chunk.removeConcurrentModificationChecks);
-        this.disableIf("client.fast_loading_screen", !config.client.useLoadingScreenOptimizations);
-        this.disableIf("client.replace_timer", !config.client.replaceClientTimeFunction);
-        this.disableIf("client.tracers", !config.debug.allowTracerVisualization);
-        this.disableIf("entity.block_cache", !config.entity.useBlockAtFeetCaching);
-        this.disableIf("entity.chunk_cache", !config.entity.useChunkCacheForEntities);
-        this.disableIf("entity.data_tracker.no_locks", !config.entity.avoidLockingDataTracker);
-        this.disableIf("entity.data_tracker.use_arrays", !config.entity.useOptimizedDataTracker);
-        this.disableIf("entity.simple_entity_block_collisions", !config.physics.useSimpleEntityCollisionTesting);
-        this.disableIf("entity.simple_world_border_collisions", !config.physics.useFastWorldBorderChecks);
-        this.disableIf("entity.streamless_entity_retrieval", !config.entity.useStreamlessEntityRetrieval);
-        this.disableIf("entity.swept_collisions", !config.physics.useSweptCollisionSearch);
-        this.disableIf("fast_tick_scheduler", !config.general.useOptimizedTickScheduler);
-        this.disableIf("fast_type_filterable_list", !config.general.useFastListTypeFiltering);
-        this.disableIf("math.fast_util", !config.general.useFastMathUtilityLogic);
-        this.disableIf("no_debug_world_type", !config.chunk.disableDebugWorldType);
-        this.disableIf("redstone", !config.redstone.useRedstoneDustOptimizations);
-        this.disableIf("region.fast_session_lock", !config.region.reduceSessionLockChecks);
-        this.disableIf("small_tag_arrays", !config.other.useSmallTagArrayOptimization);
-        this.disableIf("voxelshape.fast_shape_comparisons", !config.physics.useFastShapeComparisons);
-        this.disableIf("voxelshape.precompute_shape_arrays", !config.physics.alwaysUnpackBlockShapes);
+        this.enableIf("ai.fast_goal_selection", config.ai.useFastGoalSelection);
+        this.enableIf("ai.nearby_entity_tracking", config.ai.useNearbyEntityTracking);
+        this.enableIf("avoid_allocations", config.general.reduceObjectAllocations);
+        this.enableIf("cached_hashcode", config.general.cacheHashcodeCalculations);
+        this.enableIf("chunk.fast_chunk_palette", config.chunk.useOptimizedHashPalette);
+        this.enableIf("chunk.fast_chunk_serialization", config.chunk.useFastPaletteCompaction);
+        this.enableIf("chunk.no_chunk_locking", config.chunk.removeConcurrentModificationChecks);
+        this.enableIf("client.fast_loading_screen", config.client.useLoadingScreenOptimizations);
+        this.enableIf("client.replace_timer", config.client.replaceClientTimeFunction);
+        this.enableIf("client.tracers", config.debug.allowTracerVisualization);
+        this.enableIf("entity.block_cache", config.entity.useBlockAtFeetCaching);
+        this.enableIf("entity.chunk_cache", config.entity.useChunkCacheForEntities);
+        this.enableIf("entity.data_tracker.no_locks", config.entity.avoidLockingDataTracker);
+        this.enableIf("entity.data_tracker.use_arrays", config.entity.useOptimizedDataTracker);
+        this.enableIf("entity.simple_entity_block_collisions", config.physics.useSimpleEntityCollisionTesting);
+        this.enableIf("entity.simple_world_border_collisions", config.physics.useFastWorldBorderChecks);
+        this.enableIf("entity.streamless_entity_retrieval", config.entity.useStreamlessEntityRetrieval);
+        this.enableIf("entity.sweeping_collisions", config.physics.useSweptCollisionSearch);
+        this.enableIf("fast_tick_scheduler", config.general.useOptimizedTickScheduler);
+        this.enableIf("fast_type_filterable_list", config.general.useFastListTypeFiltering);
+        this.enableIf("math.fast_util", config.general.useFastMathUtilityLogic);
+        this.enableIf("no_debug_world_type", config.chunk.disableDebugWorldType);
+        this.enableIf("redstone", config.redstone.useRedstoneDustOptimizations);
+        this.enableIf("region.fast_session_lock", config.region.reduceSessionLockChecks);
+        this.enableIf("small_tag_arrays", config.other.useSmallTagArrayOptimization);
+        this.enableIf("voxelshape.fast_shape_comparisons", config.physics.useFastShapeComparisons);
+        this.enableIf("voxelshape.precompute_shape_arrays", config.physics.alwaysUnpackBlockShapes);
     }
 
-    private void disableIf(String packageName, boolean condition) {
+    private void enableIf(String packageName, boolean condition) {
         if (condition) {
-            this.disabledPackages.add(packageName);
+            this.enabledPackages.add(packageName);
         }
     }
 
@@ -85,16 +85,16 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         while ((nextSplit = mixinClassName.indexOf('.', lastSplit + 1)) != -1) {
             String part = mixinClassName.substring(start, nextSplit);
 
-            if (this.disabledPackages.contains(part)) {
-                this.logger.info(String.format("Not applying mixin '%s' as the package '%s' is disabled by configuration", mixinClassName, part));
-
-                return false;
+            if (this.enabledPackages.contains(part)) {
+                return true;
             }
 
             lastSplit = nextSplit;
         }
 
-        return true;
+        this.logger.info("Not applying mixin '" + mixinClassName + "' as no configuration enables it");
+
+        return false;
     }
 
     @Override
