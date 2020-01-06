@@ -27,7 +27,7 @@ You can join the official Discord for my mods by [clicking here](https://discord
 ### Compiling the mod
 
 You will need the latest version of Gradle 5.5 present on your system along with the Java 11 JDK. For Windows users, you can use [Chocolatey](https://chocolatey.org) or [SDKMAN](https://sdkman.io/)
-to manage these installations. These should be standard packages on most other operating systems.
+to manage these installations. These should be standard packages on most other operating systems. Alternatively, you can use the included Gradle wrapper with `gradlew`.
 
 Once the prerequisites have been met, start a build with:
 
