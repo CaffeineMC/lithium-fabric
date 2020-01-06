@@ -1,18 +1,17 @@
 package me.jellysquid.mods.lithium.common.config.parser.types;
 
 import com.moandjiezana.toml.Toml;
-
-import java.lang.reflect.Field;
+import me.jellysquid.mods.lithium.common.config.parser.binding.OptionBinding;
 
 public class BooleanSerializer implements OptionSerializer {
     @Override
-    public void read(Toml toml, String key, Field field, Object inst) throws IllegalAccessException {
-        Boolean value = toml.getBoolean(key);
+    public void read(Toml toml, OptionBinding binding) throws IllegalAccessException {
+        Boolean value = toml.getBoolean(binding.getName());
 
         if (value == null) {
             return;
         }
 
-        field.setBoolean(inst, value);
+        binding.setBoolean(value);
     }
 }

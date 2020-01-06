@@ -3,6 +3,8 @@ package me.jellysquid.mods.lithium.common.config.parser;
 import com.moandjiezana.toml.Toml;
 import me.jellysquid.mods.lithium.common.config.annotations.Category;
 import me.jellysquid.mods.lithium.common.config.annotations.Option;
+import me.jellysquid.mods.lithium.common.config.parser.binding.CategoryBinding;
+import me.jellysquid.mods.lithium.common.config.parser.binding.OptionBinding;
 import me.jellysquid.mods.lithium.common.config.parser.types.BooleanSerializer;
 import me.jellysquid.mods.lithium.common.config.parser.types.OptionSerializer;
 
@@ -11,7 +13,10 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 public class ConfigParser {
     private static final HashMap<Class<?>, OptionSerializer> optionSerializers = new HashMap<>();
@@ -48,60 +53,83 @@ public class ConfigParser {
     }
 
     private static void deserializeInto(Object config, Toml toml) throws ParseException {
-        Class<?> configType = config.getClass();
-        Field[] fields = configType.getDeclaredFields();
+        for (CategoryBinding category : getSerializableCategoryFields(config)) {
+            Toml table = toml.getTable(category.getName());
 
-        for (Field field : fields) {
-            Category categoryMarker = field.getType().getAnnotation(Category.class);
-
-            if (categoryMarker == null) {
+            if (table == null) {
                 continue;
             }
 
-            Toml categoryToml = toml.getTable(categoryMarker.value());
-
-            if (categoryToml == null) {
-                continue;
+            for (OptionBinding option : getSerializableOptionFields(category)) {
+                try {
+                    deserializeOption(table, option);
+                } catch (ParseException e) {
+                    throw new ParseException(String.format("Could not deserialize option %s in category %s", option.getName(), category.getName()), e);
+                }
             }
-
-            Object categoryInst;
-
-            try {
-                categoryInst = field.get(config);
-            } catch (IllegalAccessException e) {
-                throw new ParseException("Could not retrieve category object instance");
-            }
-
-            deserializeCategory(field, categoryToml, categoryInst);
         }
     }
 
-    private static void deserializeCategory(Field categoryField, Toml toml, Object inst) throws ParseException {
-        Field[] categoryOptionFields = categoryField.getType().getDeclaredFields();
+    private static Collection<CategoryBinding> getSerializableCategoryFields(Object config) throws ParseException {
+        Class<?> type = config.getClass();
+        List<CategoryBinding> bindings = new ArrayList<>();
 
-        for (Field optionField : categoryOptionFields) {
-            Option optionMarker = optionField.getAnnotation(Option.class);
+        for (Field field : type.getFields()) {
+            Category marker = field.getType().getAnnotation(Category.class);
 
-            if (optionMarker == null) {
-                continue;
+            if (marker != null) {
+                Object inst;
+
+                try {
+                    inst = field.get(config);
+                } catch (IllegalAccessException e) {
+                    throw new ParseException("Could not retrieve category field instance", e);
+                }
+
+                if (inst == null) {
+                    throw new ParseException("Category field must be non-null");
+                }
+
+                bindings.add(new CategoryBinding(marker, inst));
             }
-
-            deserializeOption(toml, optionField, inst, optionMarker.value());
         }
+
+        return bindings;
     }
 
-    private static void deserializeOption(Toml toml, Field field, Object inst, String name) throws ParseException {
-        OptionSerializer serializer = optionSerializers.get(field.getType());
+    private static Collection<OptionBinding> getSerializableOptionFields(CategoryBinding category) {
+        Class<?> type = category.getType();
+        List<OptionBinding> bindings = new ArrayList<>();
 
-        if (serializer == null) {
-            throw new ParseException("Cannot de-serialize type: " + field.getType().getName());
+        for (Field field : type.getFields()) {
+            Option marker = field.getAnnotation(Option.class);
+
+            if (marker != null) {
+                bindings.add(new OptionBinding(marker, field, category.getInstance()));
+            }
         }
+
+        return bindings;
+    }
+
+    private static void deserializeOption(Toml toml, OptionBinding binding) throws ParseException {
+        OptionSerializer serializer = getSerializerForType(binding.getFieldType());
 
         try {
-            serializer.read(toml, name, field, inst);
+            serializer.read(toml, binding);
         } catch (IllegalAccessException e) {
             throw new ParseException("Could not mutate field", e);
         }
+    }
+
+    private static OptionSerializer getSerializerForType(Class<?> type) throws ParseException {
+        OptionSerializer serializer = optionSerializers.get(type);
+
+        if (serializer == null) {
+            throw new ParseException("No serializer exists for the type " + type.getName());
+        }
+
+        return serializer;
     }
 
     public static class ParseException extends IOException {
