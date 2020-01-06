@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.entity;
+package me.jellysquid.mods.lithium.common.entity.tracker;
 
 public interface WorldWithEntityTrackerEngine {
     EntityTrackerEngine getEntityTracker();

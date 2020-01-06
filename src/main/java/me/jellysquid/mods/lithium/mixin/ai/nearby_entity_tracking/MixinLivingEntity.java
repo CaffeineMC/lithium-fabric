@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 
-import me.jellysquid.mods.lithium.common.entity.nearby.EntityWithNearbyListener;
-import me.jellysquid.mods.lithium.common.entity.nearby.NearbyEntityListenerMulti;
+import me.jellysquid.mods.lithium.common.entity.tracker.nearby.EntityWithNearbyListener;
+import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerMulti;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.World;

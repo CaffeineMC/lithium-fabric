@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.entity.nearby;
+package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.MathHelper;
@@ -6,7 +6,10 @@ import net.minecraft.util.math.MathHelper;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ClosestEntityTracker<T extends LivingEntity> implements NearbyEntityListener {
+/**
+ * Maintains a collection of all entities within the range of this listener.
+ */
+public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntityListener {
     private final Class<T> clazz;
     private final LivingEntity self;
 
@@ -14,7 +17,7 @@ public class ClosestEntityTracker<T extends LivingEntity> implements NearbyEntit
 
     private final Set<T> nearby = new HashSet<>();
 
-    public ClosestEntityTracker(Class<T> clazz, LivingEntity self, float range) {
+    public NearbyEntityTracker(Class<T> clazz, LivingEntity self, float range) {
         this.clazz = clazz;
         this.self = self;
         this.range = range;

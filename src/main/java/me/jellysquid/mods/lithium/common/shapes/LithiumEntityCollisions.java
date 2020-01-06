@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.common.shapes;
 
 import me.jellysquid.mods.lithium.common.cache.EntityChunkCache;
-import me.jellysquid.mods.lithium.common.entity.EntityWithChunkCache;
+import me.jellysquid.mods.lithium.common.entity.cache.EntityWithChunkCache;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -189,6 +189,9 @@ public class LithiumEntityCollisions {
         }, false);
     }
 
+    /**
+     * @return True if the {@param box} is fully within the {@param border}, otherwise false
+     */
     public static boolean isBoxFullyWithinWorldBorder(WorldBorder border, Box box) {
         double wboxMinX = Math.floor(border.getBoundWest());
         double wboxMinZ = Math.floor(border.getBoundNorth());
@@ -200,6 +203,10 @@ public class LithiumEntityCollisions {
                 box.x2 >= wboxMinX && box.x2 < wboxMaxX && box.z2 >= wboxMinZ && box.z2 < wboxMaxZ;
     }
 
+    /**
+     * [VanillaCopy] EntityView#getEntityCollisions
+     * Re-implements the function named above without stream code or unnecessary allocations.
+     */
     public static Stream<VoxelShape> getEntityCollisions(EntityView view, Entity entity, Box box, Set<Entity> excluded) {
         if (box.getAverageSideLength() < 1.0E-7D) {
             return Stream.empty();

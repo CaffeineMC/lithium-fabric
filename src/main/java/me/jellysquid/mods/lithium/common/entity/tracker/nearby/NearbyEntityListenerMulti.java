@@ -1,10 +1,14 @@
-package me.jellysquid.mods.lithium.common.entity.nearby;
+package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
 import net.minecraft.entity.LivingEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Allows for multiple listeners on an entity to be grouped under one logical listener. No guarantees are made about the
+ * order of which each sub-listener will be notified.
+ */
 public class NearbyEntityListenerMulti implements NearbyEntityListener {
     private final List<NearbyEntityListener> listeners = new ArrayList<>();
 

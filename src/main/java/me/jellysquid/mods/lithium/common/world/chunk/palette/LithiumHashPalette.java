@@ -10,6 +10,10 @@ import net.minecraft.world.chunk.Palette;
 
 import java.util.function.Function;
 
+/**
+ * Generally provides better performance over the vanilla {@link net.minecraft.world.chunk.BiMapPalette} when calling
+ * {@link LithiumHashPalette#getIndex(Object)} through using a faster backing map.
+ */
 public class LithiumHashPalette<T> implements Palette<T> {
     private final IdList<T> idList;
     private final LithiumInt2ObjectBiMap<T> map;
@@ -44,7 +48,7 @@ public class LithiumHashPalette<T> implements Palette<T> {
                 if (this.resizeHandler == null) {
                     throw new IllegalStateException("Cannot grow");
                 } else {
-                    id = this.resizeHandler.onLithiumResize(this.indexBits + 1, obj);
+                    id = this.resizeHandler.onLithiumPaletteResized(this.indexBits + 1, obj);
                 }
             }
         }
@@ -78,7 +82,7 @@ public class LithiumHashPalette<T> implements Palette<T> {
 
     @Override
     public void toPacket(PacketByteBuf buf) {
-        int paletteBits = this.getIndexBits();
+        int paletteBits = this.getSize();
         buf.writeVarInt(paletteBits);
 
         for (int i = 0; i < paletteBits; ++i) {
@@ -88,17 +92,13 @@ public class LithiumHashPalette<T> implements Palette<T> {
 
     @Override
     public int getPacketSize() {
-        int size = PacketByteBuf.getVarIntSizeBytes(this.getIndexBits());
+        int size = PacketByteBuf.getVarIntSizeBytes(this.getSize());
 
-        for (int i = 0; i < this.getIndexBits(); ++i) {
+        for (int i = 0; i < this.getSize(); ++i) {
             size += PacketByteBuf.getVarIntSizeBytes(this.idList.getId(this.map.get(i)));
         }
 
         return size;
-    }
-
-    private int getIndexBits() {
-        return this.map.size();
     }
 
     @Override
@@ -111,7 +111,7 @@ public class LithiumHashPalette<T> implements Palette<T> {
     }
 
     public void toTag(ListTag list) {
-        for (int i = 0; i < this.getIndexBits(); ++i) {
+        for (int i = 0; i < this.getSize(); ++i) {
             list.add(this.elementSerializer.apply(this.map.get(i)));
         }
     }

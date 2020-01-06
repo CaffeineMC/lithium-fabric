@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(PackedIntegerArray.class)
 public class MixinPackedIntegerArray implements CompactingPackedIntegerArray {
-
     @Shadow
     @Final
     private long[] storage;

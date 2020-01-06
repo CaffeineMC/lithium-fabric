@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.entity.chunk_cache;
 
 import me.jellysquid.mods.lithium.common.cache.EntityChunkCache;
-import me.jellysquid.mods.lithium.common.entity.EntityWithChunkCache;
+import me.jellysquid.mods.lithium.common.entity.cache.EntityWithChunkCache;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;

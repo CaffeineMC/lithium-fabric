@@ -60,7 +60,7 @@ public abstract class MixinPalettedContainer<T> implements LithiumPaletteResizeL
     public abstract void lock();
 
     @Override
-    public int onLithiumResize(int size, T obj) {
+    public int onLithiumPaletteResized(int size, T obj) {
         this.lock();
 
         if (size > this.paletteSize) {

@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking.goals;
 
-import me.jellysquid.mods.lithium.common.entity.nearby.ClosestEntityTracker;
-import me.jellysquid.mods.lithium.common.entity.nearby.EntityWithNearbyListener;
+import me.jellysquid.mods.lithium.common.entity.tracker.nearby.EntityWithNearbyListener;
+import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityTracker;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.FleeEntityGoal;
@@ -18,11 +18,11 @@ import java.util.function.Predicate;
 
 @Mixin(FleeEntityGoal.class)
 public class MixinFleeEntityGoal<T extends LivingEntity> {
-    private ClosestEntityTracker<T> tracker;
+    private NearbyEntityTracker<T> tracker;
 
     @Inject(method = "<init>(Lnet/minecraft/entity/mob/MobEntityWithAi;Ljava/lang/Class;Ljava/util/function/Predicate;FDDLjava/util/function/Predicate;)V", at = @At("RETURN"))
     private void init(MobEntityWithAi mob, Class<T> fleeFromType, Predicate<LivingEntity> predicate, float distance, double slowSpeed, double fastSpeed, Predicate<LivingEntity> predicate2, CallbackInfo ci) {
-        this.tracker = new ClosestEntityTracker<>(fleeFromType, mob, distance);
+        this.tracker = new NearbyEntityTracker<>(fleeFromType, mob, distance);
 
         ((EntityWithNearbyListener) mob).getListener().addListener(this.tracker);
     }

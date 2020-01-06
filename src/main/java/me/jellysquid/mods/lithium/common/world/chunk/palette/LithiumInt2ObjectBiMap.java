@@ -12,6 +12,9 @@ import java.util.Objects;
 
 import static it.unimi.dsi.fastutil.Hash.FAST_LOAD_FACTOR;
 
+/**
+ * A faster implementation of {@link net.minecraft.util.Int2ObjectBiMap} which makes use of a backing map from fastutil.
+ */
 @SuppressWarnings("unchecked")
 public class LithiumInt2ObjectBiMap<K> implements IndexedIterable<K> {
     private K[] lookupById;
@@ -26,7 +29,11 @@ public class LithiumInt2ObjectBiMap<K> implements IndexedIterable<K> {
 
     @Override
     public K get(int id) {
-        return id >= 0 && id < this.lookupById.length ? this.lookupById[id] : null;
+        if (id >= 0 && id < this.lookupById.length) {
+            return this.lookupById[id];
+        }
+
+        return null;
     }
 
     @Override

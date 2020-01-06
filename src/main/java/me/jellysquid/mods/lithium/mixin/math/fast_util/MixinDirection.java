@@ -24,5 +24,4 @@ public class MixinDirection {
     public Direction getOpposite() {
         return ALL[this.idOpposite];
     }
-
 }

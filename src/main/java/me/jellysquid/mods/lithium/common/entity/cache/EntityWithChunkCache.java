@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.entity;
+package me.jellysquid.mods.lithium.common.entity.cache;
 
 import me.jellysquid.mods.lithium.common.cache.EntityChunkCache;
 import net.minecraft.entity.Entity;

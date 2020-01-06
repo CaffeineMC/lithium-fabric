@@ -1,8 +1,8 @@
-package me.jellysquid.mods.lithium.common.entity;
+package me.jellysquid.mods.lithium.common.entity.tracker;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import me.jellysquid.mods.lithium.common.entity.nearby.EntityWithNearbyListener;
-import me.jellysquid.mods.lithium.common.entity.nearby.NearbyEntityListener;
+import me.jellysquid.mods.lithium.common.entity.tracker.nearby.EntityWithNearbyListener;
+import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListener;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
@@ -11,9 +11,17 @@ import net.minecraft.util.math.ChunkSectionPos;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Tracks the entities within a world and provides notifications to listeners when a tracked entity enters or leaves a
+ * watched area. This removes the necessity to constantly poll the world for nearby entities each tick and generally
+ * provides a sizable boost to performance.
+ */
 public class EntityTrackerEngine {
     private final Long2ObjectOpenHashMap<TrackedEntityList> sections = new Long2ObjectOpenHashMap<>();
 
+    /**
+     * Called when an entity is added to the world.
+     */
     public void onEntityAdded(int x, int y, int z, LivingEntity entity) {
         if (this.addEntity(x, y, z, entity)) {
             if (entity instanceof EntityWithNearbyListener) {
@@ -22,6 +30,9 @@ public class EntityTrackerEngine {
         }
     }
 
+    /**
+     * Called when an entity is removed from the world.
+     */
     public void onEntityRemoved(int x, int y, int z, LivingEntity entity) {
         if (this.removeEntity(x, y, z, entity)) {
             if (entity instanceof EntityWithNearbyListener) {
@@ -30,6 +41,10 @@ public class EntityTrackerEngine {
         }
     }
 
+    /**
+     * Called when an entity moves between chunks within a world. This is less expensive to call than manually
+     * removing/adding an entity from chunks each time it moves.
+     */
     public void onEntityMoved(int aX, int aY, int aZ, int bX, int bY, int bZ, LivingEntity entity) {
         if (this.removeEntity(aX, aY, aZ, entity) && this.addEntity(bX, bY, bZ, entity)) {
             if (entity instanceof EntityWithNearbyListener) {
@@ -102,10 +117,6 @@ public class EntityTrackerEngine {
         BlockBox before = new BlockBox(aX - radius, aY - radius, aZ - radius, aX + radius, aY + radius, aZ + radius);
         BlockBox after = new BlockBox(aX - radius, aY - radius, aZ - radius, bX + radius, bY + radius, bZ + radius);
 
-        this.moveListener(before, after, listener);
-    }
-
-    private void moveListener(BlockBox before, BlockBox after, NearbyEntityListener listener) {
         BlockBox merged = new BlockBox(before);
         merged.encompass(after);
 

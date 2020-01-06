@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.entity.chunk_cache;
 
 import me.jellysquid.mods.lithium.common.cache.EntityChunkCache;
-import me.jellysquid.mods.lithium.common.entity.EntityWithChunkCache;
+import me.jellysquid.mods.lithium.common.entity.cache.EntityWithChunkCache;
 import me.jellysquid.mods.lithium.common.shapes.LithiumVoxelShapes;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -9,7 +9,6 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityContext;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
@@ -50,19 +49,6 @@ public abstract class MixinEntity implements EntityWithChunkCache {
     @Shadow
     public abstract Box getBoundingBox();
 
-    @Shadow
-    public abstract boolean canFly();
-
-    @Shadow
-    public abstract void setVelocity(Vec3d velocity);
-
-    @Shadow
-    public abstract Vec3d getVelocity();
-
-    @Shadow
-    protected double waterHeight;
-    @Shadow
-    private Box entityBounds;
     private EntityChunkCache chunkCache;
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -120,11 +106,6 @@ public abstract class MixinEntity implements EntityWithChunkCache {
     @Redirect(method = "checkBlockCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;isRegionLoaded(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;)Z"), require = 0)
     private boolean redirectIsRegionLoaded(World world, BlockPos min, BlockPos max) {
         return this.chunkCache == null ? world.isRegionLoaded(min, max) : this.chunkCache.isRegionLoaded(min, max);
-    }
-
-    @Override
-    public EntityChunkCache getEntityChunkCache() {
-        return this.chunkCache;
     }
 
     @Redirect(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;doesAreaContainFireSource(Lnet/minecraft/util/math/Box;)Z"), require = 0)
@@ -197,89 +178,14 @@ public abstract class MixinEntity implements EntityWithChunkCache {
         return new Vec3d(x, y, z);
     }
 
-    /**
-     * @author JellySquid
-     */
-    @Overwrite
-    public boolean updateMovementInFluid(Tag<Fluid> tag) {
+    @Redirect(method = "updateMovementInFluid", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getFluidState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/fluid/FluidState;"))
+    private FluidState getFluidStateWhileUpdatingMovement(World world, BlockPos pos) {
         EntityChunkCache cache = EntityWithChunkCache.getChunkCache((Entity) (Object) this);
-
-        Box box = this.getBoundingBox().contract(0.001D);
-
-        int minX = MathHelper.floor(box.x1);
-        int maxX = MathHelper.ceil(box.x2);
-        int minY = MathHelper.floor(box.y1);
-        int maxY = MathHelper.ceil(box.y2);
-        int minZ = MathHelper.floor(box.z1);
-        int maxZ = MathHelper.ceil(box.z2);
-
-        if (cache == null && !this.world.isRegionLoaded(minX, minY, minZ, maxX, maxY, maxZ)) {
-            return false;
-        }
-
-        double penetration = 0.0D;
-
-        boolean canFly = this.canFly();
-        boolean inFluid = false;
-
-        Vec3d force = Vec3d.ZERO;
-        int forceContributors = 0;
-
-        try (BlockPos.PooledMutable pos = BlockPos.PooledMutable.get()) {
-            for (int x = minX; x < maxX; ++x) {
-                for (int y = minY; y < maxY; ++y) {
-                    for (int z = minZ; z < maxZ; ++z) {
-                        pos.set(x, y, z);
-
-                        FluidState fluidState = cache != null ? cache.getFluidState(pos) : this.world.getFluidState(pos);
-
-                        if (!fluidState.matches(tag)) {
-                            continue;
-                        }
-
-                        double fluidHeight = (float) y + fluidState.getHeight(this.world, pos);
-
-                        if (fluidHeight < box.y1) {
-                            continue;
-                        }
-
-                        inFluid = true;
-                        penetration = Math.max(fluidHeight - box.y1, penetration);
-
-                        if (!canFly) {
-                            continue;
-                        }
-
-                        Vec3d fluidVelocity = fluidState.getVelocity(this.world, pos);
-
-                        if (penetration < 0.4D) {
-                            fluidVelocity = fluidVelocity.multiply(penetration);
-                        }
-
-                        force = force.add(fluidVelocity);
-
-                        ++forceContributors;
-                    }
-                }
-            }
-        }
-
-        if (force.length() > 0.0D) {
-            if (forceContributors > 0) {
-                force = force.multiply(1.0D / (double)forceContributors);
-            }
-
-            //noinspection ConstantConditions
-            if (!(((Object) this) instanceof PlayerEntity)) {
-                force = force.normalize();
-            }
-
-            this.setVelocity(this.getVelocity().add(force.multiply(0.014D)));
-        }
-
-        this.waterHeight = penetration;
-
-        return inFluid;
+        return cache.getFluidState(pos);
     }
 
+    @Override
+    public EntityChunkCache getEntityChunkCache() {
+        return this.chunkCache;
+    }
 }
