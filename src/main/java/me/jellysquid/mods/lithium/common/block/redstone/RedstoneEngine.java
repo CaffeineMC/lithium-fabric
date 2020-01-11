@@ -45,13 +45,7 @@ public class RedstoneEngine {
      * enqueues all of its neighbors for darkening.
      */
     public void notifyWireRemoved(BlockPos pos) {
-        UpdateNode node = this.graph.get(pos);
-
-        if (node == null) {
-            return;
-        }
-
-        // The block state of this node has changed
+        UpdateNode node = this.graph.getOrCreateNode(pos);
         node.invalidateCache();
 
         this.enqueueNeighbors(node, node.calculatePowerFromNeighbors(), true);
