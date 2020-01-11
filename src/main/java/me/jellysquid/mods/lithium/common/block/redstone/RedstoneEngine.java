@@ -1,224 +1,209 @@
 package me.jellysquid.mods.lithium.common.block.redstone;
 
-import it.unimi.dsi.fastutil.longs.LongIterator;
-import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
-import me.jellysquid.mods.lithium.common.block.redstone.graph.RedstoneGraph;
-import me.jellysquid.mods.lithium.common.block.redstone.graph.RedstoneNode;
+import me.jellysquid.mods.lithium.common.block.redstone.graph.UpdateGraph;
+import me.jellysquid.mods.lithium.common.block.redstone.graph.UpdateNode;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.RedstoneWireBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 public class RedstoneEngine {
-    private final Queue<RedstoneNode> addQueue = new ArrayDeque<>();
+    private final Queue<UpdateNode> brightenQueue = new ArrayDeque<>();
 
-    private final Queue<RedstoneNode> removeQueue = new ArrayDeque<>();
+    private final Queue<UpdateNode> darkenQueue = new ArrayDeque<>();
 
-    private final List<RedstoneNode> dirtyNodes = new ArrayList<>();
-
-    private final RedstoneGraph graph;
+    private final UpdateGraph graph;
 
     private final World world;
 
-    private boolean isUpdating;
+    private boolean isUpdatingGraph;
 
     public RedstoneEngine(World world) {
         this.world = world;
-        this.graph = new RedstoneGraph(world);
+        this.graph = new UpdateGraph(world);
     }
 
-    private void performUpdates() {
-        this.isUpdating = true;
-
-        this.processQueues();
-        this.updateWireStates();
-        this.notifyListeningBlocks();
-
-        this.dirtyNodes.clear();
-        this.graph.clear();
-
-        this.isUpdating = false;
-    }
-
-    private void processQueues() {
-        while (!this.removeQueue.isEmpty()) {
-            RedstoneNode node = this.removeQueue.poll();
-            int power = node.getPreviousWirePower();
-
-            this.updateLevel(node, power, true);
-        }
-
-        while (!this.addQueue.isEmpty()) {
-            RedstoneNode node = this.addQueue.poll();
-            int power = node.getWirePower();
-
-            this.updateLevel(node, power, false);
-        }
-    }
-
-    private void updateWireStates() {
-        for (RedstoneNode info : this.dirtyNodes) {
-            if (!info.isWireBlock()) {
-                continue;
-            }
-
-            this.world.setBlockState(info.getPosition(), info.getBlockState().with(RedstoneWireBlock.POWER, info.getWirePower()), 2);
-        }
-    }
-
-    private void notifyListeningBlocks() {
-        LongSet set = this.calculatePendingBlockUpdates();
-        LongIterator it = set.iterator();
-
-        BlockPos.Mutable pos = new BlockPos.Mutable();
-
-        while (it.hasNext()) {
-            pos.set(it.nextLong());
-
-            this.world.getBlockState(pos).neighborUpdate(this.world, pos.toImmutable(), Blocks.REDSTONE_WIRE, BlockPos.ORIGIN, false);
-        }
-    }
-
-    private LongSet calculatePendingBlockUpdates() {
-        LongSet set = new LongLinkedOpenHashSet();
-
-        ListIterator<RedstoneNode> it = this.dirtyNodes.listIterator(this.dirtyNodes.size());
-
-        while (it.hasPrevious()) {
-            RedstoneNode node = it.previous();
-            BlockPos pos = node.getPosition();
-
-            for (Vec3i offset : RedstoneLogic.WIRE_UPDATE_ORDER) {
-                set.add(BlockPos.asLong(pos.getX() + offset.getX(), pos.getY() + offset.getY(), pos.getZ() + offset.getZ()));
-            }
-        }
-
-        return set;
-    }
-
+    /**
+     * Called when a Redstone wire block is added to the world. This creates a new node for the wire in the graph and
+     * brightens it to the correct incoming power level.
+     */
     public void notifyWireAdded(BlockPos pos) {
-        if (this.isUpdating()) {
-            return;
-        }
+        UpdateNode node = this.graph.getOrCreateNode(pos);
+        node.invalidateCache();
 
-        RedstoneNode node = this.graph.getOrCreateNode(pos);
-
-        this.addWire(node, node.getPowerFromNeighbors());
+        this.brightenNode(node, node.calculatePowerFromNeighbors());
+        this.processGraphChanges();
     }
 
-    private void addWire(RedstoneNode node, int level) {
-        node.setWirePower(level);
-
-        this.addQueue.add(node);
-
-        this.dirtyNodes.add(node);
-        this.performUpdates();
-    }
-
+    /**
+     * Called when a Redstone wire block is removed from the world. This checks if the wire exists in the graph and then
+     * enqueues all of its neighbors for darkening.
+     */
     public void notifyWireRemoved(BlockPos pos) {
-        if (this.isUpdating()) {
+        UpdateNode node = this.graph.get(pos);
+
+        if (node == null) {
             return;
         }
 
-        RedstoneNode node = this.graph.getOrCreateNode(pos);
+        // The block state of this node has changed
+        node.invalidateCache();
 
-        this.removeWire(node, node.getPowerFromNeighbors());
+        this.enqueueNeighbors(node, node.calculatePowerFromNeighbors(), true);
+        this.processGraphChanges();
     }
 
-    private void removeWire(RedstoneNode node, int level) {
-        node.setPreviousWirePower(level);
+    /**
+     * Called when a Redstone wire block is notified of an update.
+     */
+    public void notifyWireNeighborChanged(BlockPos pos, int prev) {
+        UpdateNode node = this.graph.get(pos);
 
-        this.removeQueue.add(node);
+        if (node != null) {
+            if (node.getCurrentWirePower() == prev) {
+                return;
+            }
+        } else {
+            node = this.graph.getOrCreateNode(pos);
+        }
 
-        node.setWirePower(0);
+        int cur = node.calculatePowerFromNeighbors();
 
-        this.dirtyNodes.add(node);
-        this.performUpdates();
+        if (cur > prev) {
+            this.brightenNode(node, cur);
+        } else if (cur < prev) {
+            this.darkenNode(node, prev);
+        }
+
+        // This must always be called as it will be responsible for deleting the nodes we instantiated above
+        this.processGraphChanges();
     }
 
-    private void updateLevel(RedstoneNode node, int power, boolean removing) {
-        boolean covered = node.getAdjacentNode(Direction.UP).isFullBlock();
+    private void brightenNode(UpdateNode node, int level) {
+        node.setCurrentWirePower(level);
 
-        for (Direction dir : RedstoneLogic.HORIZONTAL_NEIGHBORS) {
-            RedstoneNode neighbor = RedstoneLogic.getNextWireInDirection(node, dir, covered);
+        this.brightenQueue.add(node);
 
-            if (neighbor != null) {
-                this.modifyLevel(neighbor, power, removing);
+        this.processNodeChange(node);
+    }
+
+    private void darkenNode(UpdateNode node, int level) {
+        node.setDarkeningThreshold(level);
+        node.setCurrentWirePower(RedstoneLogic.WIRE_MIN_POWER);
+
+        this.darkenQueue.add(node);
+
+        this.processNodeChange(node);
+    }
+
+    private void enqueueNeighbors(UpdateNode node, int power, boolean darkening) {
+        boolean canAscend = !node.fetchAdjacentNode(Direction.UP).isFullBlock();
+        boolean canDescend = darkening || node.fetchAdjacentNode(Direction.DOWN).isFullBlock();
+
+        for (Direction dir : RedstoneLogic.WIRE_NEIGHBORS_HORIZONTAL) {
+            UpdateNode adj = node.fetchAdjacentNode(dir);
+
+            // Wires directly adjacent can always be updated
+            this.enqueueNode(adj, power, darkening);
+
+            // If no block is covering this node, we can check in the upwards direction
+            if (canAscend) {
+                this.enqueueNode(adj.fetchAdjacentNode(Direction.UP), power, darkening);
+            }
+
+            // If the adjacent block is non-full, we can check in the downwards direction
+            if (canDescend && !adj.isFullBlock()) {
+                this.enqueueNode(adj.fetchAdjacentNode(Direction.DOWN), power, darkening);
             }
         }
     }
 
-    private void modifyLevel(RedstoneNode node, int power, boolean removing) {
-        if (removing) {
-            this.decreaseLevel(node, power);
-        } else {
-            this.increaseLevel(node, power);
+    private void enqueueNode(UpdateNode node, int power, boolean darkening) {
+        if (node.isWireBlock()) {
+            if (darkening) {
+                this.enqueueNodeForDarkening(node, power);
+            } else {
+                this.enqueueNodeForBrightening(node, power);
+            }
         }
     }
 
-    private void decreaseLevel(RedstoneNode neighbor, int power) {
-        if (neighbor.traversalFlag > 0) {
+    private void enqueueNodeForDarkening(UpdateNode node, int power) {
+        if (node.getTraversalFlag() <= 0) {
+            node.setTraversalFlag(1);
+
+            int neighborPower = node.getCurrentWirePower();
+
+            if (neighborPower > RedstoneLogic.WIRE_MIN_POWER && neighborPower < power) {
+                this.darkenNode(node, neighborPower);
+            } else if (neighborPower >= power - RedstoneLogic.WIRE_POWER_LOSS_PER_BLOCK) {
+                this.brightenQueue.add(node);
+            }
+        }
+    }
+
+    private void enqueueNodeForBrightening(UpdateNode node, int power) {
+        if (node.getTraversalFlag() <= 1) {
+            node.setTraversalFlag(2);
+
+            if (node.getCurrentWirePower() + RedstoneLogic.WIRE_POWER_LOSS_PER_BLOCK < power) {
+                this.brightenNode(node, power - RedstoneLogic.WIRE_POWER_LOSS_PER_BLOCK);
+            }
+        }
+    }
+
+    private void processNodeChange(UpdateNode node) {
+        node.updateWireState();
+        node.getBlockState().neighborUpdate(this.world, node.getPosition(), Blocks.REDSTONE_WIRE, node.getPosition(), false);
+
+        // TODO: This still results in an unnecessary amount of updates between wire block changes...
+        for (Vec3i offset : RedstoneLogic.WIRE_NEIGHBOR_UPDATE_ORDER) {
+            // TODO: Use BlockPos.Mutable
+            BlockPos adj = node.getPosition().add(offset);
+            BlockState state = this.world.getBlockState(adj);
+
+            // TODO: Avoid this check by making sure we never even try updating redstone wire again
+            if (state.getBlock() != Blocks.REDSTONE_WIRE) {
+                state.neighborUpdate(this.world, adj, Blocks.REDSTONE_WIRE, node.getPosition(), false);
+            }
+        }
+    }
+
+    private void processGraphChanges() {
+        if (this.isUpdatingGraph) {
             return;
         }
 
-        neighbor.traversalFlag = 1;
+        this.isUpdatingGraph = true;
 
-        int neighborPower = neighbor.getWirePower();
-
-        if (neighborPower != 0 && neighborPower < power) {
-            neighbor.setWirePower(0);
-            neighbor.setPreviousWirePower(neighborPower);
-
-            this.dirtyNodes.add(neighbor);
-            this.removeQueue.add(neighbor);
-        } else if (neighborPower >= power) {
-            this.addQueue.add(neighbor);
-        }
-    }
-
-    private void increaseLevel(RedstoneNode neighbor, int power) {
-        if (neighbor.traversalFlag > 1) {
-            return;
+        while (!this.darkenQueue.isEmpty() || !this.brightenQueue.isEmpty()) {
+            this.processQueuedDarkenings();
+            this.processQueuedBrightenings();
         }
 
-        neighbor.traversalFlag = 2;
-
-        if (neighbor.getWirePower() + 2 <= power) {
-            neighbor.setWirePower(power - 1);
-
-            this.dirtyNodes.add(neighbor);
-            this.addQueue.add(neighbor);
-        }
-    }
-
-    public void clean() {
         this.graph.clear();
+
+        this.isUpdatingGraph = false;
     }
 
-    public boolean isUpdating() {
-        return this.isUpdating;
+    private void processQueuedDarkenings() {
+        while (!this.darkenQueue.isEmpty()) {
+            UpdateNode node = this.darkenQueue.poll();
+
+            this.enqueueNeighbors(node, node.getDarkeningThreshold(), true);
+        }
     }
 
-    public void notifyWireChange(BlockPos pos, int curPower) {
-        if (this.isUpdating()) {
-            return;
+    private void processQueuedBrightenings() {
+        while (!this.brightenQueue.isEmpty()) {
+            UpdateNode node = this.brightenQueue.poll();
+
+            this.enqueueNeighbors(node, node.getCurrentWirePower(), false);
         }
-
-        RedstoneNode node = this.graph.getOrCreateNode(pos);
-
-        int updatedPower = node.getPowerFromNeighbors();
-
-        if (updatedPower > curPower) {
-            this.addWire(node, updatedPower);
-        } else if (updatedPower < curPower) {
-            this.removeWire(node, curPower);
-        }
-
-        this.clean();
     }
 }

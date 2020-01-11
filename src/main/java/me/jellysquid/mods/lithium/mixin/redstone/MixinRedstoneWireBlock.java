@@ -17,8 +17,12 @@ public abstract class MixinRedstoneWireBlock {
      */
     @Overwrite
     private BlockState update(World world, BlockPos pos, BlockState state) {
+        if (world.isClient) {
+            return state;
+        }
+
         RedstoneEngine engine = ((WorldWithRedstoneEngine) world).getRedstoneEngine();
-        engine.notifyWireChange(pos, state.get(RedstoneWireBlock.POWER));
+        engine.notifyWireNeighborChanged(pos, state.get(RedstoneWireBlock.POWER));
 
         return state;
     }
@@ -29,7 +33,7 @@ public abstract class MixinRedstoneWireBlock {
      */
     @Overwrite
     public void onBlockRemoved(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (state.getBlock() == newState.getBlock()) {
+        if (world.isClient || state.getBlock() == newState.getBlock()) {
             return;
         }
 
@@ -43,7 +47,7 @@ public abstract class MixinRedstoneWireBlock {
      */
     @Overwrite
     public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean moved) {
-        if (state.getBlock() == oldState.getBlock()) {
+        if (world.isClient || state.getBlock() == oldState.getBlock()) {
             return;
         }
 

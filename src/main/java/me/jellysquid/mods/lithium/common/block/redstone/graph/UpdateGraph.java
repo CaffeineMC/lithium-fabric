@@ -6,22 +6,26 @@ import net.minecraft.world.World;
 
 import java.util.Iterator;
 
-public class RedstoneGraph implements Iterable<RedstoneNode> {
+public class UpdateGraph implements Iterable<UpdateNode> {
     private final World world;
 
-    private final Long2ObjectLinkedOpenHashMap<RedstoneNode> nodesByPosition = new Long2ObjectLinkedOpenHashMap<>();
+    private final Long2ObjectLinkedOpenHashMap<UpdateNode> nodesByPosition = new Long2ObjectLinkedOpenHashMap<>();
 
-    public RedstoneGraph(World world) {
+    public UpdateGraph(World world) {
         this.world = world;
     }
 
-    public RedstoneNode getOrCreateNode(BlockPos pos) {
+    public UpdateNode get(BlockPos pos) {
+        return this.nodesByPosition.get(pos.asLong());
+    }
+
+    public UpdateNode getOrCreateNode(BlockPos pos) {
         long id = pos.asLong();
 
-        RedstoneNode info = this.nodesByPosition.get(id);
+        UpdateNode info = this.nodesByPosition.get(id);
 
         if (info == null) {
-            this.nodesByPosition.put(id, info = new RedstoneNode(this, pos.toImmutable()));
+            this.nodesByPosition.put(id, info = new UpdateNode(this, pos));
         }
 
         return info;
@@ -32,7 +36,7 @@ public class RedstoneGraph implements Iterable<RedstoneNode> {
     }
 
     @Override
-    public Iterator<RedstoneNode> iterator() {
+    public Iterator<UpdateNode> iterator() {
         return this.nodesByPosition.values().iterator();
     }
 
