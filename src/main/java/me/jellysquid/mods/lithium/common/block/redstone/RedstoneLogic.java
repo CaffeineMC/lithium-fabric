@@ -53,7 +53,7 @@ public class RedstoneLogic {
                 power = RedstoneLogic.addWeakWirePower(adj, Direction.UP, power);
             }
         } else {
-            power = RedstoneLogic.addWeakWirePower(node, Direction.DOWN, power);
+            power = RedstoneLogic.addWeakWirePower(adj, Direction.DOWN, power);
         }
 
         return power;
