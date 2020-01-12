@@ -158,6 +158,16 @@ public class LithiumConfig {
     }
 
     private static void writeDefaultConfig(File file) {
+        File dir = file.getParentFile();
+
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                throw new RuntimeException("Could not create parent directories");
+            }
+        } else if (!dir.isDirectory()) {
+            throw new RuntimeException("The parent file is not a directory");
+        }
+
         try (Writer writer = new FileWriter(file)) {
             writer.write("# This is the configuration file for Lithium.\n");
             writer.write("#\n");
