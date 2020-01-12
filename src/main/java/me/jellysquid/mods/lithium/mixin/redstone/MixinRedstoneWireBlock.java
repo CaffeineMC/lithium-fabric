@@ -38,7 +38,7 @@ public abstract class MixinRedstoneWireBlock {
         }
 
         RedstoneEngine engine = ((WorldWithRedstoneEngine) world).getRedstoneEngine();
-        engine.notifyWireRemoved(pos);
+        engine.notifyWireRemoved(pos, state.get(RedstoneWireBlock.POWER));
     }
 
     /**

@@ -44,11 +44,11 @@ public class RedstoneEngine {
      * Called when a Redstone wire block is removed from the world. This checks if the wire exists in the graph and then
      * enqueues all of its neighbors for darkening.
      */
-    public void notifyWireRemoved(BlockPos pos) {
+    public void notifyWireRemoved(BlockPos pos, int prev) {
         UpdateNode node = this.graph.getOrCreateNode(pos);
         node.invalidateCache();
 
-        this.enqueueNeighbors(node, node.calculateIncomingEffectivePower(), true);
+        this.enqueueNeighbors(node, prev, true);
         this.processGraphChanges();
     }
 
