@@ -36,7 +36,7 @@ public class RedstoneEngine {
         UpdateNode node = this.graph.getOrCreateNode(pos);
         node.invalidateCache();
 
-        this.brightenNode(node, node.calculatePowerFromNeighbors());
+        this.brightenNode(node, node.calculateIncomingEffectivePower());
         this.processGraphChanges();
     }
 
@@ -48,7 +48,7 @@ public class RedstoneEngine {
         UpdateNode node = this.graph.getOrCreateNode(pos);
         node.invalidateCache();
 
-        this.enqueueNeighbors(node, node.calculatePowerFromNeighbors(), true);
+        this.enqueueNeighbors(node, node.calculateIncomingEffectivePower(), true);
         this.processGraphChanges();
     }
 
@@ -66,7 +66,7 @@ public class RedstoneEngine {
             node = this.graph.getOrCreateNode(pos);
         }
 
-        int cur = node.calculatePowerFromNeighbors();
+        int cur = node.calculateIncomingEffectivePower();
 
         if (cur > prev) {
             this.brightenNode(node, cur);

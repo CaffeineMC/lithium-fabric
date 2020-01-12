@@ -1,6 +1,5 @@
 package me.jellysquid.mods.lithium.common.block.redstone;
 
-import me.jellysquid.mods.lithium.common.block.redstone.graph.UpdateNode;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
@@ -39,35 +38,5 @@ public class RedstoneLogic {
         for (Direction dir : BLOCK_NEIGHBOR_UPDATE_ORDER) {
             set.add(pos.offset(dir));
         }
-    }
-
-    public static int getEmittedPowerInDirection(UpdateNode node, Direction facing, boolean isNodeCovered) {
-        UpdateNode adj = node.fetchAdjacentNode(facing);
-
-        int power = adj.getOutgoingWeakPower(facing);
-
-        if (adj.isFullBlock()) {
-            power = RedstoneLogic.addStrongPower(adj, power);
-
-            if (!isNodeCovered) {
-                power = RedstoneLogic.addWeakWirePower(adj, Direction.UP, power);
-            }
-        } else {
-            power = RedstoneLogic.addWeakWirePower(adj, Direction.DOWN, power);
-        }
-
-        return power;
-    }
-
-    private static int addStrongPower(UpdateNode node, int power) {
-        for (Direction dir : RedstoneLogic.BLOCK_NEIGHBOR_ALL) {
-            power = Math.max(power, node.fetchAdjacentNode(dir).getOutgoingStrongPower(dir));
-        }
-
-        return power;
-    }
-
-    private static int addWeakWirePower(UpdateNode node, Direction dir, int power) {
-        return Math.max(power, node.fetchAdjacentNode(dir).getCurrentWirePower() - 1);
     }
 }

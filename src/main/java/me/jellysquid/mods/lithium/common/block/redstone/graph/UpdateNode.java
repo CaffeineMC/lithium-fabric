@@ -17,7 +17,7 @@ public class UpdateNode {
     private BlockState state;
     private UpdateNodeBlockType type;
 
-    private byte currentWirePower = -1;
+    private byte currentWirePower = 0;
     private byte darkeningThreshold = -1;
 
     private byte traversalFlag;
@@ -120,25 +120,68 @@ public class UpdateNode {
      */
     public int getOutgoingWeakPower(Direction dir) {
         if (this.isWireBlock()) {
-            return this.getCurrentWirePower() - RedstoneLogic.WIRE_POWER_LOSS_PER_BLOCK;
+            return this.getOutgoingWirePower();
         }
 
         return this.getBlockState().getWeakRedstonePower(this.getWorld(), this.getPosition(), dir);
     }
 
     /**
+     * Returns the outgoing power provided by a wire node.
+     */
+    private int getOutgoingWirePower() {
+        return Math.max(0, this.getCurrentWirePower() - RedstoneLogic.WIRE_POWER_LOSS_PER_BLOCK);
+    }
+
+    /**
      * Totals the weak and strong power contributed to this node by all neighboring power sources.
      */
-    public int calculatePowerFromNeighbors() {
-        boolean covered = this.fetchAdjacentNode(Direction.UP).isFullBlock();
-
+    public int calculateIncomingEffectivePower() {
         int power = 0;
 
+        // We can only check in the upward direction if we are not covered
+        boolean canAscend = !this.fetchAdjacentNode(Direction.UP).isFullBlock();
+
+        // Find the incoming strong power and direct weak power of our neighbors
         for (Direction dir : RedstoneLogic.BLOCK_NEIGHBOR_ALL) {
-            power = Math.max(power, RedstoneLogic.getEmittedPowerInDirection(this, dir, covered));
+            UpdateNode adj = this.fetchAdjacentNode(dir);
+
+            if (adj.isFullBlock()) {
+                // Find the strongly provided power from our neighboring full block
+                power = Math.max(power, adj.calculateIncomingStrongPower());
+            }
+
+            // We can always be weakly powered by something directly adjacent to us
+            power = Math.max(power, adj.getOutgoingWeakPower(dir));
+        }
+
+        // For each horizontal neighbor, check if we can connect to a wire which in an upward or downward direction
+        for (Direction dir : RedstoneLogic.WIRE_NEIGHBORS_HORIZONTAL) {
+            UpdateNode adj = this.fetchAdjacentNode(dir);
+
+            // If no block is covering this node and the adjacent block is a full-block, we can
+            // check in the upwards direction for a wire
+            if (canAscend && adj.isFullBlock()) {
+                power = Math.max(power, adj.fetchAdjacentNode(Direction.UP).getOutgoingWirePower());
+            }
+
+            // If the adjacent block is non-full, we can check in the downwards direction for a wire
+            if (!adj.isFullBlock()) {
+                power = Math.max(power, adj.fetchAdjacentNode(Direction.DOWN).getOutgoingWirePower());
+            }
         }
 
         return Math.min(power, RedstoneLogic.WIRE_MAX_POWER);
+    }
+
+    private int calculateIncomingStrongPower() {
+        int power = 0;
+
+        for (Direction dir : RedstoneLogic.BLOCK_NEIGHBOR_ALL) {
+            power = Math.max(power, this.fetchAdjacentNode(dir).getOutgoingStrongPower(dir));
+        }
+
+        return power;
     }
 
     /**
@@ -153,10 +196,10 @@ public class UpdateNode {
             this.currentWirePower = this.state.get(RedstoneWireBlock.POWER).byteValue();
         } else if (this.state.isSimpleFullBlock(this.getWorld(), this.getPosition())) {
             this.type = UpdateNodeBlockType.FULL_BLOCK;
-            this.currentWirePower = -1;
+            this.currentWirePower = 0;
         } else {
             this.type = UpdateNodeBlockType.NON_FULL_BLOCK;
-            this.currentWirePower = -1;
+            this.currentWirePower = 0;
         }
     }
 
