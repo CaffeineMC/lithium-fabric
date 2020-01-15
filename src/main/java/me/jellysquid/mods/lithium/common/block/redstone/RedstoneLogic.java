@@ -21,13 +21,12 @@ public class RedstoneLogic {
 
     private static Vec3i[] initWireUpdateOrder() {
         LinkedHashSet<Vec3i> set = new LinkedHashSet<>();
-        set.add(BlockPos.ORIGIN);
-
-        addNeighbors(set, BlockPos.ORIGIN);
 
         for (Direction dir : BLOCK_NEIGHBOR_UPDATE_ORDER) {
             addNeighbors(set, BlockPos.ORIGIN.offset(dir));
         }
+
+        set.remove(BlockPos.ORIGIN);
 
         return set.toArray(new Vec3i[0]);
     }

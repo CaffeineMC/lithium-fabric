@@ -1,18 +1,27 @@
 package me.jellysquid.mods.lithium.common.block.redstone.graph;
 
 import me.jellysquid.mods.lithium.common.block.redstone.RedstoneLogic;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.RedstoneWireBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class UpdateNode {
     private final UpdateGraph graph;
     private final BlockPos pos;
 
     private final UpdateNode[] adjacentNodes = new UpdateNode[6];
+    private final List<UpdateNode> connections = new ArrayList<>(0);
 
     private BlockState state;
     private UpdateNodeBlockType type;
@@ -20,13 +29,13 @@ public class UpdateNode {
     private byte currentWirePower = 0;
     private byte darkeningThreshold = -1;
 
-    private byte traversalFlag;
+    private byte flags;
 
     UpdateNode(UpdateGraph graph, BlockPos pos) {
         this.graph = graph;
         this.pos = pos.toImmutable();
 
-        this.invalidateCache();
+        this.invalidateWorldState();
     }
 
     /**
@@ -35,14 +44,14 @@ public class UpdateNode {
      * graph using a slower method. If the graph doesn't contain the node, it will be initialized and linked to this
      * node in the opposite direction.
      */
-    public UpdateNode fetchAdjacentNode(Direction dir) {
+    public UpdateNode getAdjacent(Direction dir) {
         UpdateNode adj = this.adjacentNodes[dir.ordinal()];
 
         if (adj == null) {
             adj = this.graph.getOrCreateNode(this.pos.offset(dir));
             adj.adjacentNodes[dir.getOpposite().ordinal()] = this; // Link the node back to us
 
-            return this.adjacentNodes[dir.ordinal()] = adj;
+            this.adjacentNodes[dir.ordinal()] = adj;
         }
 
         return adj;
@@ -140,11 +149,11 @@ public class UpdateNode {
         int power = 0;
 
         // We can only check in the upward direction if we are not covered
-        boolean canAscend = !this.fetchAdjacentNode(Direction.UP).isFullBlock();
+        boolean canAscend = !this.getAdjacent(Direction.UP).isFullBlock();
 
         // Find the incoming strong power and direct weak power of our neighbors
         for (Direction dir : RedstoneLogic.BLOCK_NEIGHBOR_ALL) {
-            UpdateNode adj = this.fetchAdjacentNode(dir);
+            UpdateNode adj = this.getAdjacent(dir);
 
             if (adj.isFullBlock()) {
                 // Find the strongly provided power from our neighboring full block
@@ -157,17 +166,17 @@ public class UpdateNode {
 
         // For each horizontal neighbor, check if we can connect to a wire which in an upward or downward direction
         for (Direction dir : RedstoneLogic.WIRE_NEIGHBORS_HORIZONTAL) {
-            UpdateNode adj = this.fetchAdjacentNode(dir);
+            UpdateNode adj = this.getAdjacent(dir);
 
             // If no block is covering this node and the adjacent block is a full-block, we can
             // check in the upwards direction for a wire
             if (canAscend && adj.isFullBlock()) {
-                power = Math.max(power, adj.fetchAdjacentNode(Direction.UP).getOutgoingWirePower());
+                power = Math.max(power, adj.getAdjacent(Direction.UP).getOutgoingWirePower());
             }
 
             // If the adjacent block is non-full, we can check in the downwards direction for a wire
             if (!adj.isFullBlock()) {
-                power = Math.max(power, adj.fetchAdjacentNode(Direction.DOWN).getOutgoingWirePower());
+                power = Math.max(power, adj.getAdjacent(Direction.DOWN).getOutgoingWirePower());
             }
         }
 
@@ -178,7 +187,7 @@ public class UpdateNode {
         int power = 0;
 
         for (Direction dir : RedstoneLogic.BLOCK_NEIGHBOR_ALL) {
-            power = Math.max(power, this.fetchAdjacentNode(dir).getOutgoingStrongPower(dir));
+            power = Math.max(power, this.getAdjacent(dir).getOutgoingStrongPower(dir));
         }
 
         return power;
@@ -188,8 +197,8 @@ public class UpdateNode {
      * Updates the node to match the real-world state of the block at the node's position. This should always be
      * called whenever the properties of this node change in the real world.
      */
-    public void invalidateCache() {
-        this.state = this.getWorld().getBlockState(this.pos);
+    public void invalidateWorldState() {
+        this.state = this.graph.getBlockAccess().getBlockState(this.pos);
 
         if (this.state.getBlock() == Blocks.REDSTONE_WIRE) {
             this.type = UpdateNodeBlockType.WIRE;
@@ -208,7 +217,7 @@ public class UpdateNode {
      * be updated to match the node's current power.
      */
     public void updateWireState() {
-        this.getWorld().setBlockState(this.getPosition(), this.state = this.createUpdatedWireState(), 2);
+        this.graph.getBlockAccess().setBlockState(this.getPosition(), this.state = this.createUpdatedWireState());
     }
 
     public BlockState createUpdatedWireState() {
@@ -217,14 +226,6 @@ public class UpdateNode {
         }
 
         return this.getBlockState().with(RedstoneWireBlock.POWER, this.getCurrentWirePower());
-    }
-
-    public int getTraversalFlag() {
-        return this.traversalFlag;
-    }
-
-    public void setTraversalFlag(int flag) {
-        this.traversalFlag = (byte) flag;
     }
 
     public int getDarkeningThreshold() {
@@ -238,5 +239,135 @@ public class UpdateNode {
     @Override
     public String toString() {
         return String.format("UpdateNode{pos=%s, currentWirePower=%s, darkeningThreshold=%s}", this.pos, this.currentWirePower, this.darkeningThreshold);
+    }
+
+    /**
+     * Returns whether or not the block beneath this node can support a wire block above it.
+     */
+    public boolean isWireAtValidLocation() {
+        return this.getAdjacent(Direction.DOWN).canSupportWireBlock();
+    }
+
+    /**
+     * [VanillaCopy] RedstoneBlockWire#canPlaceAt
+     * Returns true if the node can support a wire block above it, otherwise false.
+     */
+    public boolean canSupportWireBlock() {
+        this.invalidateWorldState();
+
+        WorldView world = this.getWorld();
+        BlockState state = this.getBlockState();
+        BlockPos pos = this.getPosition();
+
+        return state.isSideSolidFullSquare(world, pos, Direction.UP) || state.getBlock() == Blocks.HOPPER;
+    }
+
+    /**
+     * Destroys this wire node under the premise that it has been invalidated by the block beneath it changing. This
+     * will call into the world to remove the wire block, which will in turn cause notification to be propagated to the
+     * redstone engine. The engine then has the responsibility to handle cancellation of any currently propagating
+     * signals.
+     */
+    public void destroyWire() {
+        Block.dropStacks(this.getBlockState(), this.getWorld(), this.getPosition());
+
+        this.getWorld().removeBlock(this.getPosition(), false);
+    }
+
+    /**
+     * Invalidates all the connections this node has to other nodes. This should be called when the node is removed.
+     */
+    public void invalidateConnections() {
+        this.connections.clear();
+    }
+
+    /**
+     * Adds a connection from this node to the other node. This will only modify this node.
+     */
+    public void addConnection(UpdateNode node) {
+        this.connections.add(node);
+    }
+
+    /**
+     * Returns all outgoing connections from this node to other nodes.
+     */
+    public Collection<UpdateNode> getConnections() {
+        return Collections.unmodifiableCollection(this.connections);
+    }
+
+    /**
+     * Checks if the specified flag has been marked for this node and adds it if not.
+     * @param flag The flag to check
+     * @return False if the flag has already been marked on this node, otherwise true
+     */
+    public boolean checkAndMarkFlag(UpdateFlag flag) {
+        int flags = Byte.toUnsignedInt(this.flags);
+        int bit = 1 << flag.ordinal();
+
+        if ((flags & bit) != 0) {
+            return false;
+        }
+
+        this.flags = (byte) (flags | bit);
+
+        return true;
+    }
+
+    /**
+     * Resets all flags for this node to their default value.
+     */
+    public void clearFlags() {
+        this.flags = (byte) 0;
+    }
+
+    /**
+     * Notifies the block in the world belonging to this node that its neighbors have updated. Optionally, observing
+     * blocks can be notified and updated.
+     *
+     * @param origin The neighbor causing this update
+     * @param dir The direction outward from {@param origin} to this node
+     * @param updateObservers If true, observing blocks directly adjacent to the node will have their state updated
+     */
+    public void update(UpdateNode origin, Direction dir, boolean updateObservers) {
+        this.invalidateWorldState();
+
+        BlockState state = updateObservers ? this.getUpdatedBlockState(origin, dir) : this.getBlockState();
+
+        if (state.getBlock() != Blocks.REDSTONE_WIRE) {
+            state.neighborUpdate(this.getWorld(), this.getPosition(), Blocks.REDSTONE_WIRE, origin.getPosition(), false);
+        }
+    }
+
+    /**
+     * Determines the new state of this node from being updated by a specific neighbor if it is an observing block.
+     */
+    private BlockState getUpdatedBlockState(UpdateNode origin, Direction dir) {
+        BlockState state = this.getBlockState();
+
+        if (state.getBlock() != Blocks.REDSTONE_WIRE) {
+            BlockState newState = state.getStateForNeighborUpdate(dir.getOpposite(), state, this.getWorld(), this.getPosition(), origin.getPosition());
+            replaceBlock(state, newState, this.getWorld(), this.getPosition());
+
+            state = newState;
+        }
+
+        return state;
+    }
+
+    private void replaceBlock(BlockState state, BlockState updatedState, IWorld world, BlockPos pos) {
+        if (updatedState == state) {
+            return;
+        }
+
+        if (updatedState.isAir()) {
+            if (world.isClient()) {
+                return;
+            }
+
+            world.breakBlock(pos, true);
+        } else {
+            this.graph.getBlockAccess().setBlockState(pos, updatedState);
+        }
+
     }
 }
