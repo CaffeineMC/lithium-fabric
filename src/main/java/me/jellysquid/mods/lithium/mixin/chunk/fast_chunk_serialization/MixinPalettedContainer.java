@@ -7,6 +7,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.util.IdList;
 import net.minecraft.util.PackedIntegerArray;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.chunk.ArrayPalette;
+import net.minecraft.world.chunk.BiMapPalette;
 import net.minecraft.world.chunk.Palette;
 import net.minecraft.world.chunk.PalettedContainer;
 import org.spongepowered.asm.mixin.Final;
@@ -115,4 +117,45 @@ public abstract class MixinPalettedContainer<T> {
         ci.cancel();
     }
 
+    /**
+     * If we know the palette will contain a fixed number of elements, we can make a significant optimization by counting
+     * blocks with a simple array instead of a integer map. Since palettes make no guarantee that they are bounded,
+     * we have to try and determine for each implementation type how many elements there are.
+     *
+     * @author JellySquid
+     */
+    @Inject(method = "count", at = @At("HEAD"), cancellable = true)
+    public void count(PalettedContainer.CountConsumer<T> consumer, CallbackInfo ci) {
+        int size = getPaletteSize(this.palette);
+
+        // We don't know how many items are in the palette, so this optimization cannot be done
+        if (size < 0) {
+            return;
+        }
+
+        int[] counts = new int[size];
+
+        this.data.forEach(i -> counts[i]++);
+
+        for (int i = 0; i < counts.length; i++) {
+            consumer.accept(this.palette.getByIndex(i), counts[i]);
+        }
+
+        ci.cancel();
+    }
+
+    /**
+     * Try to determine the number of elements in a palette, otherwise return -1 to indicate that it is unknown.
+     */
+    private static int getPaletteSize(Palette<?> palette) {
+        if (palette instanceof BiMapPalette<?>) {
+            return ((BiMapPalette<?>) palette).getIndexBits();
+        } else if (palette instanceof LithiumHashPalette<?>) {
+            return ((LithiumHashPalette<?>) palette).getSize();
+        } else if (palette instanceof ArrayPalette<?>) {
+            return ((ArrayPalette<?>) palette).getSize();
+        }
+
+        return -1;
+    }
 }
