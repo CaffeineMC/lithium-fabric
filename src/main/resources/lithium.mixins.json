@@ -10,12 +10,12 @@
         "client.fast_loading_screen.MixinLevelLoadingScreen",
         "client.replace_timer.MixinMinecraftClient",
         "client.replace_timer.MixinUtil",
-        "client.tracers.MixinDebugRenderer"
+        "client.tracers.MixinDebugRenderer",
+        "ai.nearby_entity_tracking.MixinClientWorld"
     ],
     "mixins": [
         "ai.fast_goal_selection.MixinGoalSelector",
         "ai.fast_goal_selection.MixinGoal",
-        "ai.nearby_entity_tracking.MixinClientWorld",
         "ai.nearby_entity_tracking.MixinLivingEntity",
         "ai.nearby_entity_tracking.MixinLivingEntity",
         "ai.nearby_entity_tracking.MixinServerWorld",
