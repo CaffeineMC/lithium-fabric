@@ -58,9 +58,6 @@ public class LithiumConfig {
         @Option("avoid_locking_data_tracker")
         public boolean avoidLockingDataTracker = true;
 
-        @Option("use_chunk_cache_for_entities")
-        public boolean useChunkCacheForEntities = true;
-
         @Option("use_streamless_entity_retrieval")
         public boolean useStreamlessEntityRetrieval = true;
 

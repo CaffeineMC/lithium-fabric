@@ -43,7 +43,6 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.enableIf("client.replace_timer", config.client.replaceClientTimeFunction);
         this.enableIf("client.tracers", config.debug.allowTracerVisualization);
         this.enableIf("entity.block_cache", config.entity.useBlockAtFeetCaching);
-        this.enableIf("entity.chunk_cache", config.entity.useChunkCacheForEntities);
         this.enableIf("entity.data_tracker.no_locks", config.entity.avoidLockingDataTracker);
         this.enableIf("entity.data_tracker.use_arrays", config.entity.useOptimizedDataTracker);
         this.enableIf("entity.simple_entity_block_collisions", config.physics.useSimpleEntityCollisionTesting);
