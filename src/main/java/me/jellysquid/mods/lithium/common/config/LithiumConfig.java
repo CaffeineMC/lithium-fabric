@@ -73,9 +73,6 @@ public class LithiumConfig {
 
     @Category("chunk")
     public static class ChunkConfig {
-        @Option("disable_debug_world_type")
-        public boolean disableDebugWorldType = true;
-
         @Option("use_optimized_hash_palette")
         public boolean useOptimizedHashPalette = true;
 

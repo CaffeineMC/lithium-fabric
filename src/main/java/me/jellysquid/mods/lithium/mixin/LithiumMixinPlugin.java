@@ -52,7 +52,6 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.enableIf("fast_tick_scheduler", config.general.useOptimizedTickScheduler);
         this.enableIf("fast_type_filterable_list", config.general.useFastListTypeFiltering);
         this.enableIf("math.fast_util", config.general.useFastMathUtilityLogic);
-        this.enableIf("no_debug_world_type", config.chunk.disableDebugWorldType);
         this.enableIf("redstone", config.redstone.useRedstoneDustOptimizations);
         this.enableIf("region.fast_session_lock", config.region.reduceSessionLockChecks);
         this.enableIf("small_tag_arrays", config.other.useSmallTagArrayOptimization);

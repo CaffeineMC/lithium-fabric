@@ -43,7 +43,6 @@
         "math.fast_util.MixinAxisCycleDirection",
         "math.fast_util.MixinBox",
         "math.fast_util.MixinDirection",
-        "no_debug_world_type.MixinWorldChunk",
         "redstone.MixinRedstoneWireBlock",
         "redstone.MixinWorld",
         "region.fast_session_lock.MixinThreadedAnvilChunkStorage",
