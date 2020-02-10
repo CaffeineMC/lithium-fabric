@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Mixin(GoalSelector.class)
@@ -32,8 +31,6 @@ public abstract class MixinGoalSelector {
     private void init(Profiler profiler, CallbackInfo ci) {
         this.disabledControlsArray = new boolean[4];
         this.goalsByControlArray = new WeightedGoal[4];
-
-        this.goals = new HashSet<>();
     }
 
     /**
@@ -72,7 +69,7 @@ public abstract class MixinGoalSelector {
             }
 
             // If the goal shouldn't continue or any of its controls have been disabled, then stop the goal
-            if (this.areControlsDisabled(goal) || !goal.shouldContinue()) {
+            if (!goal.shouldContinue() || this.areControlsDisabled(goal)) {
                 goal.stop();
             }
         }
