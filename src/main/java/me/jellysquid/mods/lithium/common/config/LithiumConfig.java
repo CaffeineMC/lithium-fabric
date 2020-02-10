@@ -28,7 +28,7 @@ public class LithiumConfig {
         @Option("use_swept_collision_search")
         public boolean useSweptCollisionSearch = true;
 
-        @Option("use_fast_shape_comparision")
+        @Option("use_fast_shape_comparison")
         public boolean useFastShapeComparisons = true;
 
         @Option("use_fast_world_border_checks")
