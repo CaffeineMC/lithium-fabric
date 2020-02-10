@@ -43,9 +43,6 @@ public class LithiumConfig {
 
     @Category("client")
     public static class ClientConfig {
-        @Option("replace_client_time_function")
-        public boolean replaceClientTimeFunction = true;
-
         @Option("use_loading_screen_optimizations")
         public boolean useLoadingScreenOptimizations = true;
     }

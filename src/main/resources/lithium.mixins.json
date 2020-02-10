@@ -8,8 +8,6 @@
     },
     "client": [
         "client.fast_loading_screen.MixinLevelLoadingScreen",
-        "client.replace_timer.MixinMinecraftClient",
-        "client.replace_timer.MixinUtil",
         "client.tracers.MixinDebugRenderer",
         "ai.nearby_entity_tracking.MixinClientWorld"
     ],

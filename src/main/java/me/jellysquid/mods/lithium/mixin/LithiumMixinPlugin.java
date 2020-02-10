@@ -40,7 +40,6 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.enableIf("chunk.fast_chunk_serialization", config.chunk.useFastPaletteCompaction);
         this.enableIf("chunk.no_chunk_locking", config.chunk.removeConcurrentModificationChecks);
         this.enableIf("client.fast_loading_screen", config.client.useLoadingScreenOptimizations);
-        this.enableIf("client.replace_timer", config.client.replaceClientTimeFunction);
         this.enableIf("client.tracers", config.debug.allowTracerVisualization);
         this.enableIf("entity.block_cache", config.entity.useBlockAtFeetCaching);
         this.enableIf("entity.data_tracker.no_locks", config.entity.avoidLockingDataTracker);
