@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.voxelshape.precompute_shape_arrays;
 
 import it.unimi.dsi.fastutil.doubles.DoubleList;
-import me.jellysquid.mods.lithium.common.shapes.lists.PrecomputedFractionalDoubleList;
+import me.jellysquid.mods.lithium.common.shapes.lists.FractionalDoubleList;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.SimpleVoxelShape;
 import net.minecraft.util.shape.VoxelSet;
@@ -22,7 +22,7 @@ public class MixinSimpleVoxelShape {
         this.list = new DoubleList[AXIS.length];
 
         for (Direction.Axis axis : AXIS) {
-            this.list[axis.ordinal()] = new PrecomputedFractionalDoubleList(voxels.getSize(axis));
+            this.list[axis.ordinal()] = new FractionalDoubleList(voxels.getSize(axis));
         }
     }
 
