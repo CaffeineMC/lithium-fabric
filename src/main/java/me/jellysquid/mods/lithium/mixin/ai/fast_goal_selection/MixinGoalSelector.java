@@ -11,12 +11,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 @Mixin(GoalSelector.class)
 public abstract class MixinGoalSelector {
     @Shadow
     @Final
-    private Profiler profiler;
+    private Supplier<Profiler> profiler;
 
     @Mutable
     @Shadow
@@ -28,7 +29,7 @@ public abstract class MixinGoalSelector {
     private WeightedGoal[] goalsByControlArray;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(Profiler profiler, CallbackInfo ci) {
+    private void init(Supplier<Profiler> supplier, CallbackInfo ci) {
         this.disabledControlsArray = new boolean[4];
         this.goalsByControlArray = new WeightedGoal[4];
     }
@@ -47,7 +48,7 @@ public abstract class MixinGoalSelector {
     }
 
     private void modifyGoals() {
-        this.profiler.push("goalUpdate");
+        this.profiler.get().push("goalUpdate");
 
         // Stop any goals which are disabled or shouldn't continue executing
         this.stopGoals();
@@ -58,7 +59,7 @@ public abstract class MixinGoalSelector {
         // Try to start new goals where possible
         this.startGoals();
 
-        this.profiler.pop();
+        this.profiler.get().pop();
     }
 
     private void stopGoals() {
@@ -122,7 +123,7 @@ public abstract class MixinGoalSelector {
     }
 
     private void tickGoals() {
-        this.profiler.push("goalTick");
+        this.profiler.get().push("goalTick");
 
         // Tick all currently running goals
         for (WeightedGoal goal : this.goals) {
@@ -131,7 +132,7 @@ public abstract class MixinGoalSelector {
             }
         }
 
-        this.profiler.pop();
+        this.profiler.get().pop();
     }
 
     private boolean areControlsDisabled(WeightedGoal goal) {

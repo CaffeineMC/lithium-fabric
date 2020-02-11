@@ -14,13 +14,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 @Mixin(World.class)
 public class MixinWorld implements WorldWithRedstoneEngine {
     private RedstoneEngine redstoneEngine;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void onInit(LevelProperties levelProperties, DimensionType dimensionType, BiFunction<World, Dimension, ChunkManager> chunkManagerProvider, Profiler profiler, boolean isClient, CallbackInfo ci) {
+    private void onInit(LevelProperties levelProperties, DimensionType dimensionType, BiFunction<World, Dimension, ChunkManager> chunkManagerProvider, Supplier<Profiler> profiler, boolean isClient, CallbackInfo ci) {
         this.redstoneEngine = new RedstoneEngine((World) (Object) this);
     }
 
