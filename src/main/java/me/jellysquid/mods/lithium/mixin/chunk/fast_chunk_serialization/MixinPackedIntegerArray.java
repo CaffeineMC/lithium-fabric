@@ -7,6 +7,9 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+/**
+ * Extends {@link PackedIntegerArray} with a special compaction method defined in {@link CompactingPackedIntegerArray}.
+ */
 @Mixin(PackedIntegerArray.class)
 public class MixinPackedIntegerArray implements CompactingPackedIntegerArray {
     @Shadow

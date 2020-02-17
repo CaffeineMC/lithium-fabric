@@ -13,11 +13,18 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 
+/**
+ * Optimizes the DataTracker to use a simple array-based storage for entries and avoids integer boxing. This reduces
+ * a lot of the overhead associated with retrieving tracked data about an entity.
+ */
 @Mixin(DataTracker.class)
 public abstract class MixinDataTracker {
+    private static final int DEFAULT_ENTRY_COUNT = 10, GROW_FACTOR = 8;
+
     @Shadow
     @Final
     private Map<Integer, DataTracker.Entry<?>> entries;
@@ -26,37 +33,39 @@ public abstract class MixinDataTracker {
     @Final
     private ReadWriteLock lock;
 
-    private DataTracker.Entry<?>[] entriesArray = new DataTracker.Entry<?>[0];
+    /** Mirrors the vanilla backing entries map. Each DataTracker.Entry can be accessed in this array through its ID. **/
+    private DataTracker.Entry<?>[] entriesArray = new DataTracker.Entry<?>[DEFAULT_ENTRY_COUNT];
 
     /**
-     * We redirect the call to add a tracked data to the internal map so we can add it to our own, faster map. The
-     * map field is never mutated in-place so we can avoid expensive locking, but this might hurt for memory allocations...
+     * We redirect the call to add a tracked data to the internal map so we can add it to our new storage structure. This
+     * should only ever occur during entity initialization. Type-erasure is a bit of a pain here since we must redirect
+     * a calls to the generic Map interface.
      */
     @Redirect(method = "addTrackedData", at = @At(value = "INVOKE", target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"))
-    private Object onAddTrackedDataInsertMap(Map<Class<? extends Entity>, Integer> map, Object keyObj, Object valueObj) {
-        int key = (int) keyObj;
+    private Object onAddTrackedDataInsertMap(Map<Class<? extends Entity>, Integer> map, /* Integer */ Object keyRaw, /* DataTracker.Entry<?> */ Object valueRaw) {
+        int k = (int) keyRaw;
+        DataTracker.Entry<?> v = (DataTracker.Entry<?>) valueRaw;
 
-        if (key > Byte.MAX_VALUE) {
-            throw new IllegalArgumentException("Key index too large (>127)");
+        DataTracker.Entry<?>[] storage = this.entriesArray;
+
+        // Check if we need to grow the backing array to accommodate the new key range
+        if (storage.length <= k) {
+            // Grow the array to accommodate 8 entries after this one, but limit it to never be larger
+            // than 256 entries as per the vanilla limit
+            int newSize = Math.min(k + GROW_FACTOR, 256);
+
+            this.entriesArray = storage = Arrays.copyOf(storage, newSize);
         }
 
-        DataTracker.Entry<?>[] entries = this.entriesArray;
+        // Update the storage
+        storage[k] = v;
 
-        if (entries.length <= key) {
-            DataTracker.Entry<?>[] copy = new DataTracker.Entry[key + 1];
-
-            System.arraycopy(entries, 0, copy, 0, entries.length);
-
-            this.entriesArray = entries = copy;
-        }
-
-        entries[(byte) key] = (DataTracker.Entry<?>) valueObj;
-
-        return this.entries.put(key, (DataTracker.Entry<?>) valueObj);
+        // Ensure that the vanilla backing storage is still updated appropriately
+        return this.entries.put(k, v);
     }
 
     /**
-     * @reason Avoid integer boxing/unboxing and locking.
+     * @reason Avoid integer boxing/unboxing and use our array-based storage
      * @author JellySquid
      */
     @Overwrite
@@ -64,14 +73,22 @@ public abstract class MixinDataTracker {
         this.lock.readLock().lock();
 
         try {
+            DataTracker.Entry<?>[] array = this.entriesArray;
+
             int id = data.getId();
 
-            if (id >= this.entriesArray.length) {
+            // The vanilla implementation will simply return null if the tracker doesn't contain the specified entry. However,
+            // accessing an array with an invalid pointer will throw a OOB exception, where-as a HashMap would simply
+            // return null. We check this case (which should be free, even if so insignificant, as the subsequent bounds
+            // check will hopefully be eliminated)
+            if (id < 0 || id >= array.length) {
                 return null;
             }
 
-            //noinspection unchecked
-            return (DataTracker.Entry<T>) this.entriesArray[id];
+            // This cast can fail if trying to access a entry which doesn't belong to this tracker, as the ID could
+            // instead point to an entry of a different type. However, that is also vanilla behaviour.
+            // noinspection unchecked
+            return (DataTracker.Entry<T>) array[id];
         } catch (Throwable cause) {
             // Move to another method so this function can be in-lined better
             throw onGetException(cause, data);

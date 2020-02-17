@@ -20,6 +20,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Function;
 
+/**
+ * Makes a number of patches to {@link PalettedContainer} to improve the performance of chunk serialization. While I/O
+ * operations in Minecraft 1.15+ are handled off-thread, NBT serialization is not and happens on the main server thread.
+ */
 @Mixin(PalettedContainer.class)
 public abstract class MixinPalettedContainer<T> {
     @Shadow

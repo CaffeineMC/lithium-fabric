@@ -13,6 +13,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * Caches the block at the entity's feet, reducing the number of calls to the world in situations with excessive entity
+ * crowding. This likely won't make any improvement in normal situations.
+ */
 @Mixin(value = LivingEntity.class, priority = 999)
 public abstract class MixinLivingEntity extends Entity {
     public MixinLivingEntity(EntityType<?> type, World world) {

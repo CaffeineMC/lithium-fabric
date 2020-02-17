@@ -12,6 +12,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+/**
+ * Replaces collision testing methods against the world border with faster checks.
+ */
 @Mixin(Entity.class)
 public abstract class MixinEntity {
     @Shadow
@@ -25,7 +28,8 @@ public abstract class MixinEntity {
      * against it). We also perform an additional check to see if the player can even collide with the world border in
      * this physics step, allowing us to remove it from collision testing in later code.
      *
-     * @return True if no collision resolution will be performed against the world border.
+     * @return True if no collision resolution will be performed against the world border, which removes it from the
+     * stream of shapes to consider in entity collision code.
      */
     @Redirect(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/shape/VoxelShapes;matchesAnywhere(Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/BooleanBiFunction;)Z"))
     private boolean redirectWorldBorderMatchesAnywhere(VoxelShape borderShape, VoxelShape entityShape, BooleanBiFunction func, Vec3d motion) {

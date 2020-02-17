@@ -7,7 +7,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Maintains a collection of all entities within the range of this listener.
+ * Maintains a collection of all entities within the range of this listener. This allows AI goals to quickly
+ * assess nearby entities which match the provided class.
  */
 public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntityListener {
     private final Class<T> clazz;

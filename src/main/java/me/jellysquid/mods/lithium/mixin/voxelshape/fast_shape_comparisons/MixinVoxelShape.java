@@ -11,6 +11,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
+/**
+ * Implement faster methods for determining penetration during collision resolution.
+ */
 @Mixin(VoxelShape.class)
 public abstract class MixinVoxelShape {
     private static final double POSITIVE_EPSILON = +1.0E-7D;

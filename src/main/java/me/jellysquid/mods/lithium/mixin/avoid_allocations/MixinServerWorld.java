@@ -12,7 +12,7 @@ public abstract class MixinServerWorld {
     private final BlockPos.Mutable randomPosInChunkCachedPos = new BlockPos.Mutable();
 
     /**
-     * @reason Avoid allocating BlockPos every invocation
+     * @reason Avoid allocating BlockPos every invocation through using our allocation-free variant
      */
     @Redirect(method = "tickChunk(Lnet/minecraft/world/chunk/WorldChunk;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;getRandomPosInChunk(IIII)Lnet/minecraft/util/math/BlockPos;"))
     private BlockPos redirectTickGetRandomPosInChunk(ServerWorld serverWorld, int x, int y, int z, int mask) {

@@ -15,6 +15,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
+/**
+ * Replaces a number of functions in the Block class which are used to determine if some redstone components and other
+ * blocks can stand on top of another block.
+ */
 @Mixin(Block.class)
 public class MixinBlock {
     @Shadow

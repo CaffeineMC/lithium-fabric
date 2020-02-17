@@ -17,6 +17,7 @@ public abstract class MixinRedstoneWireBlock {
      */
     @Overwrite
     private BlockState update(World world, BlockPos pos, BlockState state) {
+        // Wire updates are never processed on the client
         if (world.isClient) {
             return state;
         }
@@ -33,7 +34,13 @@ public abstract class MixinRedstoneWireBlock {
      */
     @Overwrite
     public void onBlockRemoved(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (world.isClient || state.getBlock() == newState.getBlock()) {
+        // Wire updates are never processed on the client
+        if (world.isClient) {
+            return;
+        }
+
+        // If the power state was all that changed, don't create a notification
+        if (state.getBlock() == newState.getBlock()) {
             return;
         }
 
@@ -47,7 +54,12 @@ public abstract class MixinRedstoneWireBlock {
      */
     @Overwrite
     public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean moved) {
-        if (world.isClient || state.getBlock() == oldState.getBlock()) {
+        if (world.isClient) {
+            return;
+        }
+
+        // If the power state was all that changed, don't create a notification
+        if (state.getBlock() == oldState.getBlock()) {
             return;
         }
 

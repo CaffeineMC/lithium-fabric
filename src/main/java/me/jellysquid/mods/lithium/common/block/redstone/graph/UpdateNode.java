@@ -152,7 +152,7 @@ public class UpdateNode {
         boolean canAscend = !this.getAdjacent(Direction.UP).isFullBlock();
 
         // Find the incoming strong power and direct weak power of our neighbors
-        for (Direction dir : RedstoneLogic.BLOCK_NEIGHBOR_ALL) {
+        for (Direction dir : RedstoneLogic.INCOMING_POWER_DIRECTIONS) {
             UpdateNode adj = this.getAdjacent(dir);
 
             if (adj.isFullBlock()) {
@@ -186,7 +186,7 @@ public class UpdateNode {
     private int calculateIncomingStrongPower() {
         int power = 0;
 
-        for (Direction dir : RedstoneLogic.BLOCK_NEIGHBOR_ALL) {
+        for (Direction dir : RedstoneLogic.INCOMING_POWER_DIRECTIONS) {
             power = Math.max(power, this.getAdjacent(dir).getOutgoingStrongPower(dir));
         }
 

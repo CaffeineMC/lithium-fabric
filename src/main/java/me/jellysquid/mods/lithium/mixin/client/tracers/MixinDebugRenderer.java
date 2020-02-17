@@ -9,6 +9,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * Installs a hook to the {@link DebugRenderer} which allows for our tracers to be rendered.
+ */
 @Mixin(DebugRenderer.class)
 public class MixinDebugRenderer {
     @Inject(method = "render", at = @At("HEAD"))

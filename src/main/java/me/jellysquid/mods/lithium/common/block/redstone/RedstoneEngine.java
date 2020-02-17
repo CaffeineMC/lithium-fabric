@@ -195,7 +195,6 @@ public class RedstoneEngine {
                 continue;
             }
 
-            // TODO: We still end up iterating over many of the same blocks here. We could probably go faster by
             // Notify each wire neighbor of the change in power state
             for (Direction dir1 : RedstoneLogic.BLOCK_NEIGHBOR_UPDATE_ORDER) {
                 UpdateNode adj1 = node.getAdjacent(dir1);

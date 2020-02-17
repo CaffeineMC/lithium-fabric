@@ -11,6 +11,9 @@ public class MixinWorld implements ExtendedWorld {
     @Shadow
     protected int lcgBlockSeed;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void getRandomPosInChunk(int x, int y, int z, int mask, BlockPos.Mutable out) {
         this.lcgBlockSeed = this.lcgBlockSeed * 3 + 1013904223;

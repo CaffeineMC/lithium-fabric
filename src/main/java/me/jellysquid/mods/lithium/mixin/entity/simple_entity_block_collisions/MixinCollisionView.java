@@ -10,6 +10,9 @@ import org.spongepowered.asm.mixin.Overwrite;
 
 import java.util.stream.Stream;
 
+/**
+ * Replaces collision testing methods with jumps to our own (faster) entity collision testing code.
+ */
 @Mixin(CollisionView.class)
 public interface MixinCollisionView {
     /**

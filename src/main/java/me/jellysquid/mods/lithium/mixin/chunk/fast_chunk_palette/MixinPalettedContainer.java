@@ -16,6 +16,9 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.function.Function;
 
+/**
+ * Patches {@link PalettedContainer} to make use of {@link LithiumHashPalette}.
+ */
 @Mixin(value = PalettedContainer.class, priority = 999)
 public abstract class MixinPalettedContainer<T> implements LithiumPaletteResizeListener<T> {
     @Shadow
@@ -59,6 +62,10 @@ public abstract class MixinPalettedContainer<T> implements LithiumPaletteResizeL
     @Shadow
     public abstract void lock();
 
+    /**
+     * [VanillaCopy] PalettedContainer#onPaletteResized(int, T)
+     * TODO: Use ATs to work around needing to re-implement this
+     */
     @Override
     public int onLithiumPaletteResized(int size, T obj) {
         this.lock();
@@ -88,7 +95,8 @@ public abstract class MixinPalettedContainer<T> implements LithiumPaletteResizeL
     /**
      * TODO: Replace this with something that doesn't overwrite.
      *
-     * @reason Replace the hash palette from vanilla with our own and change the threshold for usage to only 3 bits
+     * @reason Replace the hash palette from vanilla with our own and change the threshold for usage to only 3 bits,
+     * as our implementation performs better at smaller key ranges.
      * @author JellySquid
      */
     @SuppressWarnings({"unchecked", "ConstantConditions"})
