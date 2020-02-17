@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Patches {@link TypeFilterableList} to improve performance when entities are being queried in the world.
+ */
 @Mixin(TypeFilterableList.class)
 public class MixinTypeFilterableList<T>  {
     @Shadow
@@ -27,7 +30,8 @@ public class MixinTypeFilterableList<T>  {
     private List<T> allElements;
 
     /**
-     * @reason Only perform the slow Class#isAssignableFrom(Class) if we have to build a list
+     * @reason Only perform the slow Class#isAssignableFrom(Class) if a list doesn't exist for the type, otherwise
+     * we can assume it's already valid.
      * @author JellySquid
      */
     @SuppressWarnings("unchecked")

@@ -2,7 +2,6 @@ package me.jellysquid.mods.lithium.common.shapes.lists;
 
 import it.unimi.dsi.fastutil.doubles.AbstractDoubleList;
 
-
 public class FractionalDoubleList extends AbstractDoubleList {
     private final int sectionCount;
     private final double scale;

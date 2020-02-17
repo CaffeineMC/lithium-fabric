@@ -29,7 +29,9 @@ public class LithiumEntityCollisions {
      * vector, this will only test voxels which the player's bounding box actually traverses through in a physics step.
      * <p>
      * This can provide a huge improvement in the number of voxels which need to be traversed at high velocities and
-     * avoids the expensive step of needing to test if every voxel after the fact is contained within a box.
+     * avoids the expensive step of needing to test if every voxel after the fact is contained within a box. Even in
+     * standard conditions, this can remove a number of voxels that are tested when an entity is travelling on more
+     * than one axis at a time.
      */
     public static Stream<VoxelShape> getBlockCollisionsSweeping(CollisionView view, Entity entity, Box box, Vec3d motion) {
         return StreamSupport.stream(new Spliterators.AbstractSpliterator<VoxelShape>(Long.MAX_VALUE, Spliterator.NONNULL | Spliterator.IMMUTABLE) {
@@ -79,8 +81,8 @@ public class LithiumEntityCollisions {
     /**
      * [VanillaCopy] CollisionView#getBlockCollisions(Entity, Box)
      * This is a much, much faster implementation which uses simple collision testing against full-cube block shapes.
-     * Chunk retrieval makes use of the entity's nearby chunk cache if available. Checks against the world border are
-     * replaced with our own optimized functions.
+     * Checks against the world border are replaced with our own optimized functions which do not go through the
+     * VoxelShape system.
      */
     public static Stream<VoxelShape> getBlockCollisions(CollisionView world, final Entity entity, Box entityBox) {
         int minX = MathHelper.floor(entityBox.x1 - 1.0E-7D) - 1;
@@ -172,7 +174,9 @@ public class LithiumEntityCollisions {
     }
 
     /**
-     * @return True if the {@param box} is fully within the {@param border}, otherwise false
+     * This provides a faster check for seeing if an entity is within the world border as it avoids going through
+     * the slower shape system.
+     * @return True if the {@param box} is fully within the {@param border}, otherwise false.
      */
     public static boolean isBoxFullyWithinWorldBorder(WorldBorder border, Box box) {
         double wboxMinX = Math.floor(border.getBoundWest());
@@ -187,7 +191,8 @@ public class LithiumEntityCollisions {
 
     /**
      * [VanillaCopy] EntityView#getEntityCollisions
-     * Re-implements the function named above without stream code or unnecessary allocations.
+     * Re-implements the function named above without stream code or unnecessary allocations. This can provide a small
+     * boost in some situations (such as heavy entity crowding) and reduces the allocation rate significantly.
      */
     public static Stream<VoxelShape> getEntityCollisions(EntityView view, Entity entity, Box box, Set<Entity> excluded) {
         if (box.getAverageSideLength() < 1.0E-7D) {

@@ -15,6 +15,10 @@ import org.spongepowered.asm.mixin.*;
 
 import java.util.IdentityHashMap;
 
+/**
+ * Re-implements the loading screen with considerations to reduce draw calls and other sources of overhead. This can
+ * improve world load times on slower processors with very few cores.
+ */
 @Mixin(LevelLoadingScreen.class)
 public class MixinLevelLoadingScreen {
     @Mutable

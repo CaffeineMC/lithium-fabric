@@ -27,7 +27,7 @@ public class MixinChunkTicket<T> {
     private int hashCode;
 
     /**
-     * @reason Initialize the object's hashcode
+     * @reason Initialize the object's hashcode and cache it
      */
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onConstructed(ChunkTicketType<T> type, int level, T argument, CallbackInfo ci) {
@@ -40,7 +40,7 @@ public class MixinChunkTicket<T> {
     }
 
     /**
-     * @reason Uses the stored hashcode.
+     * @reason Uses the cached hashcode
      * @author JellySquid
      */
     @Overwrite

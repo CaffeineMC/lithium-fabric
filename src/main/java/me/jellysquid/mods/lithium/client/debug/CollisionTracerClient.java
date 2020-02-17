@@ -90,7 +90,7 @@ public class CollisionTracerClient extends CollisionTracer {
             float y2 = (float) (ray.end.y + -cameraY);
             float z2 = (float) (ray.end.z + -cameraZ);
 
-            float alpha = ray.getProgress();
+            float alpha = ray.getAlpha();
 
             vertexConsumer.vertex(matrix4f, x1, y1, z1).color(1.0F, 0.0F, 0.0F, alpha).next();
             vertexConsumer.vertex(matrix4f, x2, y2, z2).color(1.0F, 0.0F, 0.0F, alpha).next();
@@ -107,7 +107,7 @@ public class CollisionTracerClient extends CollisionTracer {
             double y = pos.getY() + -cameraY;
             double z = pos.getZ() + -cameraZ;
 
-            WorldRenderer.drawBox(matrices, vertexConsumer, x, y, z, x + 1, y + 1, z + 1, 0.0F, 0.0F, 0.0F, block.getProgress());
+            WorldRenderer.drawBox(matrices, vertexConsumer, x, y, z, x + 1, y + 1, z + 1, 0.0F, 0.0F, 0.0F, block.getAlpha());
         }
     }
 
@@ -131,8 +131,8 @@ public class CollisionTracerClient extends CollisionTracer {
         }
 
         @Override
-        public float getProgress() {
-            return super.getProgress() * 0.5f;
+        public float getAlpha() {
+            return super.getAlpha() * 0.5f;
         }
     }
 
@@ -155,7 +155,7 @@ public class CollisionTracerClient extends CollisionTracer {
             return this.ticks >= this.duration;
         }
 
-        public float getProgress() {
+        public float getAlpha() {
             return 1.0F - (this.ticks / (float) this.duration);
         }
     }

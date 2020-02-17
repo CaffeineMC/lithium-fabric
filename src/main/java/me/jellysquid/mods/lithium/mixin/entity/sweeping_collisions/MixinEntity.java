@@ -14,6 +14,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.stream.Stream;
 
+/**
+ * Replaces collision testing methods with jumps to our own (faster) entity collision testing code.
+ */
 @Mixin(Entity.class)
 public abstract class MixinEntity {
     /**

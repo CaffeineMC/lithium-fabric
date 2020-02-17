@@ -5,6 +5,9 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.shape.*;
 import org.spongepowered.asm.mixin.*;
 
+/**
+ * Re-initializes the basic VoxelShapes with our own optimized types and redirects new shape construction.
+ */
 @Mixin(VoxelShapes.class)
 public abstract class MixinVoxelShapes {
     @Mutable
@@ -43,7 +46,8 @@ public abstract class MixinVoxelShapes {
     }
 
     /**
-     * Responsible for determining whether or not a shape occludes light
+     * Responsible for determining whether or not a shape occludes light. This implementation early-exits in some
+     * common situations to avoid unnecessary computation.
      *
      * @reason Avoid the expensive shape combination
      * @author JellySquid
@@ -71,7 +75,7 @@ public abstract class MixinVoxelShapes {
     }
 
     /**
-     * @reason Use our optimized shape type
+     * @reason Use our optimized shape types
      * @author JellySquid
      */
     @Overwrite

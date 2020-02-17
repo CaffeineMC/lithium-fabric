@@ -11,8 +11,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * Installs event listeners to the world class which will be used to notify the {@link EntityTrackerEngine} of changes.
+ */
 @Mixin(ServerWorld.class)
 public class MixinServerWorld {
+    /**
+     * Notify the entity tracker when an entity moves and enters a new chunk.
+     */
     @Inject(method = "checkChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/WorldChunk;addEntity(Lnet/minecraft/entity/Entity;)V", shift = At.Shift.BEFORE))
     private void onEntityMoveAdd(Entity entity, CallbackInfo ci) {
         if (!(entity instanceof LivingEntity)) {
@@ -28,6 +34,9 @@ public class MixinServerWorld {
 
     }
 
+    /**
+     * Notify the entity tracker when an entity moves and is removed from the previous chunk.
+     */
     @Inject(method = "checkChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/WorldChunk;remove(Lnet/minecraft/entity/Entity;I)V", shift = At.Shift.BEFORE))
     private void onEntityMoveRemove(Entity entity, CallbackInfo ci) {
         if (!(entity instanceof LivingEntity)) {
@@ -38,6 +47,9 @@ public class MixinServerWorld {
         tracker.onEntityRemoved(entity.chunkX, entity.chunkY, entity.chunkZ, (LivingEntity) entity);
     }
 
+    /**
+     * Notify the entity tracker when an entity is added to the world.
+     */
     @Inject(method = "loadEntityUnchecked", at = @At(value = "FIELD", target = "Lnet/minecraft/server/world/ServerWorld;entitiesById:Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;"))
     private void onEntityAdded(Entity entity, CallbackInfo ci) {
         if (!(entity instanceof LivingEntity)) {
@@ -52,6 +64,9 @@ public class MixinServerWorld {
         tracker.onEntityAdded(chunkX, chunkY, chunkZ, (LivingEntity) entity);
     }
 
+    /**
+     * Notify the entity tracker when an entity is removed from the world.
+     */
     @Inject(method = "unloadEntity", at = @At(value = "HEAD"))
     private void onEntityRemoved(Entity entity, CallbackInfo ci) {
         if (!(entity instanceof LivingEntity)) {

@@ -16,10 +16,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
+/**
+ * Extends the base world class to provide a {@link EntityTrackerEngine}.
+ */
 @Mixin(World.class)
 public class MixinWorld implements WorldWithEntityTrackerEngine {
     private EntityTrackerEngine tracker;
 
+    /**
+     * Initialize the {@link EntityTrackerEngine} which all entities of the world will interact with.
+     */
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(LevelProperties levelProperties, DimensionType dimensionType, BiFunction<World, Dimension, ChunkManager> chunkManagerProvider, Supplier<Profiler> profiler, boolean isClient, CallbackInfo ci) {
         this.tracker = new EntityTrackerEngine();
