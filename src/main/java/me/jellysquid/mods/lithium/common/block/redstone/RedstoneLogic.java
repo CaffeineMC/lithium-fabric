@@ -4,12 +4,12 @@ import net.minecraft.util.math.Direction;
 
 public class RedstoneLogic {
     /**
-     * The maximum power state of a Redstone wire.
+     * The minimum power state of a Redstone wire.
      **/
     public static final int WIRE_MIN_POWER = 0;
 
     /**
-     * The minimum power state of a Redstone wire.
+     * The maximum power state of a Redstone wire.
      **/
     public static final int WIRE_MAX_POWER = 15;
 

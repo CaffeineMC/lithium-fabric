@@ -8,7 +8,7 @@ import net.minecraft.entity.LivingEntity;
  */
 public interface NearbyEntityListener {
     /**
-     * Returns the range (in blocks) of this listener. This must never change during the lifetime of the listener.
+     * Returns the range (in chunks) of this listener. This must never change during the lifetime of the listener.
      * TODO: Allow entity listeners to change the radius they receive updates within
      */
     int getChunkRange();
