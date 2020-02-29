@@ -31,22 +31,24 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
         return this.rangeC;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onEntityEnteredRange(LivingEntity entity) {
         if (!this.clazz.isInstance(entity)) {
             return;
         }
 
-        this.nearby.add(this.clazz.cast(entity));
+        this.nearby.add((T) entity);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onEntityLeftRange(LivingEntity entity) {
-        if (!this.clazz.isInstance(entity)) {
+        if (this.nearby.isEmpty() || !this.clazz.isInstance(entity)) {
             return;
         }
 
-        this.nearby.remove(this.clazz.cast(entity));
+        this.nearby.remove((T) entity);
     }
 
     public T getClosestEntity() {
