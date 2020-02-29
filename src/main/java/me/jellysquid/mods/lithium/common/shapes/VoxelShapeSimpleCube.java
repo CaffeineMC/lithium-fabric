@@ -1,4 +1,4 @@
-package net.minecraft.util.shape;
+package me.jellysquid.mods.lithium.common.shapes;
 
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
@@ -6,18 +6,20 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 import net.minecraft.util.math.AxisCycleDirection;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelSet;
+import net.minecraft.util.shape.VoxelShape;
 
 import java.util.List;
 
 /**
  * An efficient implementation of {@link VoxelShape} for a shape with one simple cuboid.
  */
-public class Lithium_VoxelShapeSimpleCube extends VoxelShape {
+public class VoxelShapeSimpleCube extends VoxelShape {
     private static final double EPSILON = 1.0E-7D;
 
     private final double x1, y1, z1, x2, y2, z2;
 
-    public Lithium_VoxelShapeSimpleCube(VoxelSet voxels, double x1, double y1, double z1, double x2, double y2, double z2) {
+    public VoxelShapeSimpleCube(VoxelSet voxels, double x1, double y1, double z1, double x2, double y2, double z2) {
         super(voxels);
 
         this.x1 = x1;
@@ -30,7 +32,7 @@ public class Lithium_VoxelShapeSimpleCube extends VoxelShape {
 
     @Override
     public VoxelShape offset(double x, double y, double z) {
-        return new Lithium_VoxelShapeSimpleCube(this.voxels, this.x1 + x, this.y1 + y, this.z1 + z, this.x2 + x, this.y2 + y, this.z2 + z);
+        return new VoxelShapeSimpleCube(this.voxels, this.x1 + x, this.y1 + y, this.z1 + z, this.x2 + x, this.y2 + y, this.z2 + z);
     }
 
     @Override
