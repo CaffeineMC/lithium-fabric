@@ -1,8 +1,13 @@
 package me.jellysquid.mods.lithium.mixin.voxelshape.fast_shape_comparisons;
 
+import me.jellysquid.mods.lithium.common.shapes.VoxelShapeEmpty;
+import me.jellysquid.mods.lithium.common.shapes.VoxelShapeSimpleCube;
 import net.minecraft.util.BooleanBiFunction;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.shape.*;
+import net.minecraft.util.shape.BitSetVoxelSet;
+import net.minecraft.util.shape.VoxelSet;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
 import org.spongepowered.asm.mixin.*;
 
 /**
@@ -31,18 +36,11 @@ public abstract class MixinVoxelShapes {
         FULL_CUBE_VOXELS = new BitSetVoxelSet(1, 1, 1);
         FULL_CUBE_VOXELS.set(0, 0, 0, true, true);
 
-        UNBOUNDED = new Lithium_VoxelShapeSimpleCube(FULL_CUBE_VOXELS, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+        UNBOUNDED = new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
 
-        FULL_CUBE = createFullShape();
-        EMPTY = createEmptyShape();
-    }
-
-    private static VoxelShape createFullShape() {
-        return new Lithium_VoxelShapeSimpleCube(FULL_CUBE_VOXELS, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
-    }
-
-    private static VoxelShape createEmptyShape() {
-        return new Lithium_VoxelShapeEmpty(new BitSetVoxelSet(0, 0, 0));
+        FULL_CUBE = new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
+        EMPTY = new VoxelShapeEmpty(new BitSetVoxelSet(0, 0, 0));
     }
 
     /**
@@ -62,16 +60,17 @@ public abstract class MixinVoxelShapes {
         boolean ae = a == VoxelShapes.empty() || a.isEmpty();
         boolean be = b == VoxelShapes.empty() || b.isEmpty();
 
+        // If both shapes are empty, they can never overlap
         if (ae && be) {
             return false;
-        } else {
-            // Test each shape individually if they're non-empty and fail fast
-            if (!ae && VoxelShapes.matchesAnywhere(VoxelShapes.fullCube(), a, BooleanBiFunction.ONLY_FIRST)) {
-                return false;
-            }
-
-            return be || !VoxelShapes.matchesAnywhere(VoxelShapes.fullCube(), b, BooleanBiFunction.ONLY_FIRST);
         }
+
+        // Test each shape individually if they're non-empty and fail fast
+        if (!ae && VoxelShapes.matchesAnywhere(VoxelShapes.fullCube(), a, BooleanBiFunction.ONLY_FIRST)) {
+            return false;
+        }
+
+        return be || !VoxelShapes.matchesAnywhere(VoxelShapes.fullCube(), b, BooleanBiFunction.ONLY_FIRST);
     }
 
     /**
@@ -80,6 +79,6 @@ public abstract class MixinVoxelShapes {
      */
     @Overwrite
     public static VoxelShape cuboid(Box box) {
-        return new Lithium_VoxelShapeSimpleCube(FULL_CUBE_VOXELS, box.x1, box.y1, box.z1, box.x2, box.y2, box.z2);
+        return new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, box.x1, box.y1, box.z1, box.x2, box.y2, box.z2);
     }
 }

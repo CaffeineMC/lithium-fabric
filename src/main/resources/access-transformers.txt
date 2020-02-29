@@ -1,0 +1,1 @@
+net/minecraft/util/shape/VoxelShape <init>(Lnet/minecraft/util/shape/VoxelSet;)V

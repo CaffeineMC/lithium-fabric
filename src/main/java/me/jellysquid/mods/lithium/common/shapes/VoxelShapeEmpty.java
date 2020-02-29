@@ -1,16 +1,18 @@
-package net.minecraft.util.shape;
+package me.jellysquid.mods.lithium.common.shapes;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelSet;
+import net.minecraft.util.shape.VoxelShape;
 
 /**
  * An efficient implementation of {@link VoxelShape} for a shape with no vertices.
  */
-public class Lithium_VoxelShapeEmpty extends VoxelShape {
+public class VoxelShapeEmpty extends VoxelShape {
     private static final DoubleList EMPTY_LIST = DoubleArrayList.wrap(new double[] { 0.0D });
 
-    public Lithium_VoxelShapeEmpty(VoxelSet voxels) {
+    public VoxelShapeEmpty(VoxelSet voxels) {
         super(voxels);
     }
 

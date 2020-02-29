@@ -1,7 +1,30 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            name = "Fabric"
+            url = "https://maven.fabricmc.net/"
+        }
+        maven {
+            name = "Forge"
+            url = "https://files.minecraftforge.net/maven/"
+        }
+        maven {
+            name = "Jitpack"
+            url 'https://jitpack.io/'
+        }
+    }
+    dependencies {
+        classpath 'com.github.Chocohead:fabric-loom:e5d69cb'
+    }
+}
+
 plugins {
-	id 'fabric-loom' version '0.2.6-SNAPSHOT'
     id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
+
+apply plugin: "fabric-loom"
+import net.fabricmc.loom.task.RemappingJar;
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -10,7 +33,14 @@ archivesBaseName = "${project.archives_base_name}-mc${project.minecraft_version}
 version = project.mod_version
 group = project.maven_group
 
+repositories {
+    // Fabric-ASM
+    maven { url 'https://jitpack.io' }
+}
+
 minecraft {
+    refmapName = "mixins.lithium.refmap.json"
+    AT = file("src/main/resources/access-transformers.txt")
 }
 
 configurations {
@@ -25,6 +55,8 @@ dependencies {
 	modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
 
     modShade "com.moandjiezana.toml:toml4j:0.7.2"
+
+    include "com.github.Chocohead:Fabric-ASM:${project.fabric_asm_version}"
 }
 
 processResources {
@@ -60,16 +92,9 @@ jar {
 	from "LICENSE.txt"
 }
 
-shadowJar {
-    dependencies {
-        exclude(dependency('com.google.code.gson:gson'))
-    }
-    relocate('net.minecraft.util.shape', 'net.minecraft') {
-        include 'net.minecraft.util.shape.Lithium*'
-    }
-    relocate('com.moandjiezana.toml', 'me.jellysquid.mods.lithium.shaded.toml')
-    configurations = [project.configurations.modShade]
-    classifier = 'dev'
+task exampleJar(type: RemappingJar, dependsOn: classes) {
+    classifier = "mod"
+    from sourceSets.main.output
 }
 
-remapJar.dependsOn shadowJar
+jar.dependsOn exampleJar
