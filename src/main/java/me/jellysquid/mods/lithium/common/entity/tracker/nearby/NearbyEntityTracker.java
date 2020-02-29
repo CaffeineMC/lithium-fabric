@@ -14,6 +14,7 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
     private final Class<T> clazz;
     private final LivingEntity self;
 
+    private final int rangeC;
     private final float rangeSq;
 
     private final Set<T> nearby = new HashSet<>();
@@ -22,11 +23,12 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
         this.clazz = clazz;
         this.self = self;
         this.rangeSq = range * range;
+        this.rangeC = MathHelper.roundUp(MathHelper.ceil(range), 16) >> 4;
     }
 
     @Override
     public int getChunkRange() {
-        return MathHelper.roundUp(MathHelper.ceil(this.rangeSq), 16) >> 4;
+        return this.rangeC;
     }
 
     @Override
