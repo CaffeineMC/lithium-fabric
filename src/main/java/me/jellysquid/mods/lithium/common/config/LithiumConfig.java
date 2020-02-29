@@ -25,9 +25,6 @@ public class LithiumConfig {
 
     @Category("physics")
     public static class PhysicsConfig {
-        @Option("use_swept_collision_search")
-        public boolean useSweptCollisionSearch = true;
-
         @Option("use_fast_shape_comparison")
         public boolean useFastShapeComparisons = true;
 

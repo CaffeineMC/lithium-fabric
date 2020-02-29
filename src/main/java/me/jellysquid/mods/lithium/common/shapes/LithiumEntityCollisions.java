@@ -9,7 +9,6 @@ import net.minecraft.util.CuboidBlockIterator;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -23,61 +22,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class LithiumEntityCollisions {
-    /**
-     * Implements a sweeping box algorithm for properly determining which cubes an entity will collide with in any
-     * given tick. Compared to the vanilla function, which will check all voxels in a bounding box grown by the player's
-     * vector, this will only test voxels which the player's bounding box actually traverses through in a physics step.
-     * <p>
-     * This can provide a huge improvement in the number of voxels which need to be traversed at high velocities and
-     * avoids the expensive step of needing to test if every voxel after the fact is contained within a box. Even in
-     * standard conditions, this can remove a number of voxels that are tested when an entity is travelling on more
-     * than one axis at a time.
-     */
-    public static Stream<VoxelShape> getBlockCollisionsSweeping(CollisionView view, Entity entity, Box box, Vec3d motion) {
-        return StreamSupport.stream(new Spliterators.AbstractSpliterator<VoxelShape>(Long.MAX_VALUE, Spliterator.NONNULL | Spliterator.IMMUTABLE) {
-            final CollisionView world = view;
-
-            final EntityContext context = entity == null ? EntityContext.absent() : EntityContext.of(entity);
-
-            final BlockPos.Mutable posCache = new BlockPos.Mutable();
-
-            final ArrayDeque<VoxelShape> queue = new ArrayDeque<>();
-
-            final BoxSweeper sweeper = new BoxSweeper(box, motion, 1.5D, (x, y, z) -> {
-                this.posCache.set(x, y, z);
-
-                BlockView chunk = this.world.getExistingChunk(x >> 4, z >> 4);
-
-                if (chunk == null) {
-                    return;
-                }
-
-                BlockState state = chunk.getBlockState(this.posCache);
-
-                VoxelShape blockShape = state.getCollisionShape(this.world, this.posCache, this.context);
-
-                if (blockShape == VoxelShapes.empty()) {
-                    return;
-                }
-
-                this.queue.add(blockShape.offset(x, y, z));
-            });
-
-            @Override
-            public boolean tryAdvance(Consumer<? super VoxelShape> action) {
-                while (this.queue.isEmpty()) {
-                    if (!this.sweeper.next() && this.queue.isEmpty()) {
-                        return false;
-                    }
-                }
-
-                action.accept(this.queue.pop());
-
-                return true;
-            }
-        }, false);
-    }
-
     /**
      * [VanillaCopy] CollisionView#getBlockCollisions(Entity, Box)
      * This is a much, much faster implementation which uses simple collision testing against full-cube block shapes.

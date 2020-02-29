@@ -36,7 +36,6 @@
         "entity.simple_entity_block_collisions.MixinCollisionView",
         "entity.simple_world_border_collisions.MixinEntity",
         "entity.streamless_entity_retrieval.MixinEntityView",
-        "entity.sweeping_collisions.MixinEntity",
         "fast_tick_scheduler.MixinServerWorld",
         "math.fast_util.MixinAxisCycleDirection",
         "math.fast_util.MixinBox",
