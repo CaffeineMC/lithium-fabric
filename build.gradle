@@ -19,10 +19,6 @@ buildscript {
     }
 }
 
-plugins {
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
-}
-
 apply plugin: "fabric-loom"
 import net.fabricmc.loom.task.RemappingJar;
 
@@ -43,10 +39,6 @@ minecraft {
     AT = file("src/main/resources/access-transformers.txt")
 }
 
-configurations {
-    modShade
-    modCompile.extendsFrom modShade
-}
 
 dependencies {
 	//to change the versions see the gradle.properties file
@@ -54,9 +46,11 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modShade "com.moandjiezana.toml:toml4j:0.7.2"
+    include "com.moandjiezana.toml:toml4j:0.7.2"
+    compile "com.moandjiezana.toml:toml4j:0.7.2"
 
     include "com.github.Chocohead:Fabric-ASM:${project.fabric_asm_version}"
+    compile "com.github.Chocohead:Fabric-ASM:${project.fabric_asm_version}:dev"
 }
 
 processResources {
@@ -92,9 +86,9 @@ jar {
 	from "LICENSE.txt"
 }
 
-task exampleJar(type: RemappingJar, dependsOn: classes) {
+task modJar(type: RemappingJar, dependsOn: classes) {
     classifier = "mod"
     from sourceSets.main.output
 }
 
-jar.dependsOn exampleJar
+build.dependsOn modJar

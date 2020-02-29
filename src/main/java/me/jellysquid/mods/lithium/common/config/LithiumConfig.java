@@ -96,6 +96,9 @@ public class LithiumConfig {
 
         @Option("use_fast_math_utility_logic")
         public boolean useFastMathUtilityLogic = true;
+
+        @Option("use_block_pos_optimizations")
+        public boolean useBlockPosOptimizations = true;
     }
 
     @Category("redstone")
