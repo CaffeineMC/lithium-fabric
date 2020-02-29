@@ -47,7 +47,6 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.enableIf("entity.simple_entity_block_collisions", config.physics.useSimpleEntityCollisionTesting);
         this.enableIf("entity.simple_world_border_collisions", config.physics.useFastWorldBorderChecks);
         this.enableIf("entity.streamless_entity_retrieval", config.entity.useStreamlessEntityRetrieval);
-        this.enableIf("entity.sweeping_collisions", config.physics.useSweptCollisionSearch);
         this.enableIf("fast_tick_scheduler", config.general.useOptimizedTickScheduler);
         this.enableIf("fast_type_filterable_list", config.general.useFastListTypeFiltering);
         this.enableIf("math.fast_util", config.general.useFastMathUtilityLogic);
