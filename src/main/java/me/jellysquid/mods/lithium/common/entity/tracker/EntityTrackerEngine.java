@@ -8,8 +8,7 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Tracks the entities within a world and provides notifications to listeners when a tracked entity enters or leaves a
@@ -18,6 +17,7 @@ import java.util.List;
  */
 public class EntityTrackerEngine {
     private final Long2ObjectOpenHashMap<TrackedEntityList> sections = new Long2ObjectOpenHashMap<>();
+    private final HashMap<NearbyEntityListener, List<TrackedEntityList>> sectionsByEntity = new HashMap<>();
 
     /**
      * Called when an entity is added to the world.
@@ -36,7 +36,7 @@ public class EntityTrackerEngine {
     public void onEntityRemoved(int x, int y, int z, LivingEntity entity) {
         if (this.removeEntity(x, y, z, entity)) {
             if (entity instanceof EntityWithNearbyListener) {
-                this.removeListener(x, y, z, ((EntityWithNearbyListener) entity).getListener());
+                this.removeListener(((EntityWithNearbyListener) entity).getListener());
             }
         }
     }
@@ -74,35 +74,37 @@ public class EntityTrackerEngine {
             return;
         }
 
+        List<TrackedEntityList> all = new ArrayList<>(r * r * r);
+
         for (int x2 = x - r; x2 <= x + r; x2++) {
             for (int y2 = y - r; y2 <= y + r; y2++) {
                 for (int z2 = z - r; z2 <= z + r; z2++) {
                     TrackedEntityList list = this.getOrCreateList(x2, y2, z2);
                     list.addListener(listener);
+
+                    all.add(list);
                 }
             }
         }
+
+        this.sectionsByEntity.put(listener, all);
     }
 
-    private void removeListener(int x, int y, int z, NearbyEntityListener listener) {
+    private void removeListener(NearbyEntityListener listener) {
         int r = listener.getChunkRange();
 
         if (r == 0) {
             return;
         }
 
-        for (int x2 = x - r; x2 <= x + r; x2++) {
-            for (int y2 = y - r; y2 <= y + r; y2++) {
-                for (int z2 = z - r; z2 <= z + r; z2++) {
-                    TrackedEntityList list = this.getList(x2, y2, z2);
+        List<TrackedEntityList> all = this.sectionsByEntity.remove(listener);
 
-                    if (list == null) {
-                        throw new IllegalStateException("There is no list of listeners despite being within the range of another listener");
-                    }
-
-                    list.removeListener(listener);
-                }
+        if (all != null) {
+            for (TrackedEntityList list : all) {
+                list.removeListener(listener);
             }
+        } else {
+            throw new IllegalArgumentException("Entity listener not tracked");
         }
     }
 
@@ -167,27 +169,13 @@ public class EntityTrackerEngine {
     }
 
     private class TrackedEntityList {
-        private final List<LivingEntity> entities = new ArrayList<>();
-        private final List<NearbyEntityListener> listeners = new ArrayList<>();
+        private final Set<LivingEntity> entities = new HashSet<>();
+        private final Set<NearbyEntityListener> listeners = new HashSet<>();
 
         private final long key;
 
-        private boolean removed = false;
-
         private TrackedEntityList(long key) {
             this.key = key;
-        }
-
-        public boolean isEmpty() {
-            return this.entities.isEmpty() && this.listeners.isEmpty();
-        }
-
-        public boolean isRemoved() {
-            return this.removed;
-        }
-
-        public void markRemoved() {
-            this.removed = true;
         }
 
         public void addListener(NearbyEntityListener listener) {
@@ -231,10 +219,8 @@ public class EntityTrackerEngine {
         }
 
         private void checkEmpty() {
-            if (!this.isRemoved() && this.isEmpty()) {
+            if (this.entities.isEmpty() && this.listeners.isEmpty()) {
                 EntityTrackerEngine.this.sections.remove(this.key);
-
-                this.markRemoved();
             }
         }
     }
