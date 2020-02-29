@@ -20,6 +20,9 @@
     ],
     "client": [
       "me.jellysquid.mods.lithium.client.LithiumClientMod"
+    ],
+    "mm:early_risers": [
+      "me.jellysquid.mods.lithium.common.LithiumPatcher"
     ]
   },
   "mixins": [
