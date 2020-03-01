@@ -48,7 +48,17 @@ public class MixinSerializingRegionBasedStorage<R> implements IExtendedRegionBas
     }
 
     private void onEntryAdded(long key, Optional<R> value) {
-        long pos = ChunkPos.toLong(ChunkSectionPos.getX(key), ChunkSectionPos.getZ(key));
+        int y = ChunkSectionPos.getY(key);
+
+        // We only care about items belonging to a valid sub-chunk
+        if (y < 0 || y >= 16) {
+            return;
+        }
+
+        int x = ChunkSectionPos.getX(key);
+        int z = ChunkSectionPos.getZ(key);
+
+        long pos = ChunkPos.toLong(x, z);
 
         BitSet flags = this.columns.get(pos);
 
@@ -56,7 +66,7 @@ public class MixinSerializingRegionBasedStorage<R> implements IExtendedRegionBas
             this.columns.put(pos, flags = new BitSet(16));
         }
 
-        flags.set(ChunkSectionPos.getY(key), value.isPresent());
+        flags.set(y, value.isPresent());
     }
 
     @Override
