@@ -21,6 +21,12 @@ public class LithiumConfig {
 
         @Option("use_nearby_entity_tracking")
         public boolean useNearbyEntityTracking = true;
+
+        @Option("use_fast_brain")
+        public boolean useFastBrain = true;
+
+        @Option("use_fast_poi_retrieval")
+        public boolean useFastPoiRetrieval = true;
     }
 
     @Category("physics")

@@ -20,6 +20,8 @@
         "ai.nearby_entity_tracking.MixinWorld",
         "ai.nearby_entity_tracking.goals.MixinFleeEntityGoal",
         "ai.nearby_entity_tracking.goals.MixinLookAtGoal",
+        "ai.fast_brain.MixinBrain",
+        "ai.fast_brain.MixinTask",
         "avoid_allocations.MixinLivingEntity",
         "avoid_allocations.MixinServerChunkManager",
         "avoid_allocations.MixinServerWorld",
@@ -46,6 +48,8 @@
         "small_tag_arrays.MixinTag",
         "voxelshape.fast_shape_comparisons.MixinBlock",
         "voxelshape.fast_shape_comparisons.MixinVoxelShape",
-        "voxelshape.fast_shape_comparisons.MixinVoxelShapes"
+        "voxelshape.fast_shape_comparisons.MixinVoxelShapes",
+        "poi.MixinPointOfInterestStorage",
+        "poi.MixinSerializingRegionBasedStorage"
     ]
 }
