@@ -24,9 +24,6 @@ public class LithiumConfig {
 
         @Option("use_fast_brain")
         public boolean useFastBrain = true;
-
-        @Option("use_fast_poi_retrieval")
-        public boolean useFastPoiRetrieval = true;
     }
 
     @Category("physics")
@@ -104,6 +101,15 @@ public class LithiumConfig {
         public boolean useBlockPosOptimizations = true;
     }
 
+    @Category("world")
+    public static class WorldConfig {
+        @Option("use_fast_explosions")
+        public boolean useFastExplosions = true;
+
+        @Option("use_fast_poi_retrieval")
+        public boolean useFastPoiRetrieval = true;
+    }
+
     @Category("redstone")
     public static class RedstoneConfig {
         @Option("use_redstone_dust_optimizations")
@@ -134,6 +140,7 @@ public class LithiumConfig {
     public OtherConfig other = new OtherConfig();
     public RegionConfig region = new RegionConfig();
     public RedstoneConfig redstone = new RedstoneConfig();
+    public WorldConfig world = new WorldConfig();
     public DebugConfig debug = new DebugConfig();
 
     /**
