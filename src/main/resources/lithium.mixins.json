@@ -22,6 +22,8 @@
         "ai.nearby_entity_tracking.goals.MixinLookAtGoal",
         "ai.fast_brain.MixinBrain",
         "ai.fast_brain.MixinTask",
+        "ai.fast_brain.MixinCompositeTask",
+        "ai.fast_brain.MixinWeightedList",
         "avoid_allocations.MixinLivingEntity",
         "avoid_allocations.MixinServerChunkManager",
         "avoid_allocations.MixinServerWorld",
