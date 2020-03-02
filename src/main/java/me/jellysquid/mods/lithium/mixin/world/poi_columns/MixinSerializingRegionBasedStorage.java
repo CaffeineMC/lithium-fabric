@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.poi;
+package me.jellysquid.mods.lithium.mixin.world.poi_columns;
 
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.Dynamic;
