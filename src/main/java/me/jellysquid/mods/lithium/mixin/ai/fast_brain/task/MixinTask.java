@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.ai.fast_brain;
+package me.jellysquid.mods.lithium.mixin.ai.fast_brain.task;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
@@ -50,5 +50,4 @@ public class MixinTask<E extends LivingEntity> {
 
         return true;
     }
-
 }
