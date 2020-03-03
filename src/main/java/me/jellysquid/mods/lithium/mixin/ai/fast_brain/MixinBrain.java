@@ -45,8 +45,7 @@ public abstract class MixinBrain<E extends LivingEntity> {
     @Shadow
     public abstract <U> void forget(MemoryModuleType<U> memoryModuleType_1);
 
-    private final List<Task<? super E>> startableTasks = new ArrayList<>();
-    private final List<Task<? super E>> allTasks = new ArrayList<>();
+    private final List<Pair<Activity, List<Task<? super E>>>> allTasks = new ArrayList<>();
 
     @Inject(method = "setTaskList(Lnet/minecraft/entity/ai/brain/Activity;Lcom/google/common/collect/ImmutableList;Ljava/util/Set;Ljava/util/Set;)V", at = @At("RETURN"))
     private void onTaskListUpdated(Activity activity, ImmutableList<? extends Pair<Integer, ? extends Task<? super E>>> immutableList_1, Set<Pair<MemoryModuleType<?>, MemoryModuleState>> set_1, Set<MemoryModuleType<?>> set_2, CallbackInfo ci) {
@@ -56,23 +55,7 @@ public abstract class MixinBrain<E extends LivingEntity> {
         // This will only happen a few times during during entity initialization
         for (Map<Activity, Set<Task<? super E>>> map : this.tasks.values()) {
             for (Map.Entry<Activity, Set<Task<? super E>>> entry : map.entrySet()) {
-                this.allTasks.addAll(entry.getValue());
-            }
-        }
-    }
-
-    @Inject(method = "resetPossibleActivities(Lnet/minecraft/entity/ai/brain/Activity;)V", at = @At(value = "INVOKE", target = "Ljava/util/Set;add(Ljava/lang/Object;)Z", shift = At.Shift.AFTER))
-    private void onActiveTaskChanged(Activity activity, CallbackInfo ci) {
-        this.startableTasks.clear();
-
-        // Re-build the list of tasks that can be started
-        // This happens from time to time when activities are changed, but will still happen far less frequently
-        // than once every tick, resulting in a net speedup
-        for (Map<Activity, Set<Task<? super E>>> map : this.tasks.values()) {
-            for (Map.Entry<Activity, Set<Task<? super E>>> entry : map.entrySet()) {
-                if (this.possibleActivities.contains(entry.getKey())) {
-                    this.startableTasks.addAll(entry.getValue());
-                }
+                this.allTasks.add(Pair.of(entry.getKey(), new ArrayList<>(entry.getValue())));
             }
         }
     }
@@ -111,9 +94,15 @@ public abstract class MixinBrain<E extends LivingEntity> {
     private void startTasks(ServerWorld world, E entity) {
         long time = world.getTime();
 
-        for (Task<? super E> task : this.startableTasks) {
-            if (task.getStatus() == Task.Status.STOPPED) {
-                task.tryStarting(world, entity, time);
+        for (Pair<Activity, List<Task<? super E>>> pair : this.allTasks) {
+            if (!this.possibleActivities.contains(pair.getFirst())) {
+                continue;
+            }
+
+            for (Task<? super E> task : pair.getSecond()) {
+                if (task.getStatus() == Task.Status.STOPPED) {
+                    task.tryStarting(world, entity, time);
+                }
             }
         }
     }
@@ -126,9 +115,11 @@ public abstract class MixinBrain<E extends LivingEntity> {
     private void updateTasks(ServerWorld world, E entity) {
         long time = world.getTime();
 
-        for (Task<? super E> task : this.allTasks) {
-            if (task.getStatus() == Task.Status.RUNNING) {
-                task.tick(world, entity, time);
+        for (Pair<Activity, List<Task<? super E>>> pair : this.allTasks) {
+            for (Task<? super E> task : pair.getSecond()) {
+                if (task.getStatus() == Task.Status.RUNNING) {
+                    task.tick(world, entity, time);
+                }
             }
         }
     }
