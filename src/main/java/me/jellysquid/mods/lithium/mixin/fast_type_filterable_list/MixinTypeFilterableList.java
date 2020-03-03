@@ -6,17 +6,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
  * Patches {@link TypeFilterableList} to improve performance when entities are being queried in the world.
  */
 @Mixin(TypeFilterableList.class)
-public class MixinTypeFilterableList<T>  {
+public class MixinTypeFilterableList<T> {
     @Shadow
     @Final
     private Class<T> elementType;
@@ -31,20 +27,36 @@ public class MixinTypeFilterableList<T>  {
 
     /**
      * @reason Only perform the slow Class#isAssignableFrom(Class) if a list doesn't exist for the type, otherwise
-     * we can assume it's already valid.
+     * we can assume it's already valid. The slow-path code is moved to a separate method to help the JVM inline this.
      * @author JellySquid
      */
     @SuppressWarnings("unchecked")
     @Overwrite
     public <S> Collection<S> getAllOfType(Class<S> type) {
-        List<T> list = this.elementsByType.computeIfAbsent(type, (t) -> {
-            if (!this.elementType.isAssignableFrom(t)) {
-                throw new IllegalArgumentException("Don't know how to search for " + t);
+        Collection<T> collection = this.elementsByType.get(type);
+
+        if (collection == null) {
+            collection = this.createAllOfType(type);
+        }
+
+        return (Collection<S>) Collections.unmodifiableCollection(collection);
+    }
+
+    private <S> Collection<T> createAllOfType(Class<S> type) {
+        if (!this.elementType.isAssignableFrom(type)) {
+            throw new IllegalArgumentException("Don't know how to search for " + type);
+        }
+
+        List<T> list = new ArrayList<>();
+
+        for (T allElement : this.allElements) {
+            if (type.isInstance(allElement)) {
+                list.add(allElement);
             }
+        }
 
-            return this.allElements.stream().filter(t::isInstance).collect(Collectors.toList());
-        });
+        this.elementsByType.put(type, list);
 
-        return (Collection<S>) Collections.unmodifiableCollection(list);
+        return list;
     }
 }
