@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.mixin.world.fast_explosions;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.ProtectionEnchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -65,19 +66,14 @@ public abstract class MixinExplosion {
     @Final
     private Map<PlayerEntity, Vec3d> affectedPlayers;
 
-    // The cached mutable block position used during block traversal. The state of this position *after* traversal
-    // is guaranteed to be that of the block traversed, allowing it to be used again to determine if we're unnecessarily
-    // stepping through the same block multiple times.
-    private final BlockPos.Mutable prevPos = new BlockPos.Mutable();
+    // The cached mutable block position used during block traversal.
+    private final BlockPos.Mutable cachedPos = new BlockPos.Mutable();
 
     // The chunk coordinate of the most recently stepped through block.
-    private long prevChunkPos;
+    private int prevChunkX, prevChunkZ;
 
     // The chunk belonging to prevChunkPos.
     private Chunk prevChunk;
-
-    // The resistance offered by the previous block at the position of prevPos
-    private float prevBlockResistance;
 
     /**
      * @reason Optimizations for explosions
@@ -89,47 +85,27 @@ public abstract class MixinExplosion {
         // allocate a block position for every step we make along each ray, eliminating essentially all the memory
         // allocations of this function. The overhead of packing block positions into integer format is negligible
         // compared to a memory allocation and associated overhead of hashing real objects in a set.
-        final LongOpenHashSet touched = new LongOpenHashSet();
+        final LongOpenHashSet touched = new LongOpenHashSet(6 * 6 * 6);
+
         final Random random = this.world.random;
 
         // Explosions work by casting many rays through the world from the origin of the explosion
         for (int rayX = 0; rayX < 16; ++rayX) {
+            boolean xPlane = rayX == 0 || rayX == 15;
+
             for (int rayY = 0; rayY < 16; ++rayY) {
+                boolean yPlane = rayY == 0 || rayY == 15;
+
                 for (int rayZ = 0; rayZ < 16; ++rayZ) {
-                    if (rayX != 0 && rayX != 15 && rayY != 0 && rayY != 15 && rayZ != 0 && rayZ != 15) {
-                        continue;
-                    }
+                    boolean zPlane = rayZ == 0 || rayZ == 15;
 
-                    double x = (float) rayX / 15.0F * 2.0F - 1.0F;
-                    double y = (float) rayY / 15.0F * 2.0F - 1.0F;
-                    double z = (float) rayZ / 15.0F * 2.0F - 1.0F;
+                    // We only fire rays from the surface of our origin volume
+                    if (xPlane || yPlane || zPlane) {
+                        double vecX = (((float) rayX / 15.0F) * 2.0F) - 1.0F;
+                        double vecY = (((float) rayY / 15.0F) * 2.0F) - 1.0F;
+                        double vecZ = (((float) rayZ / 15.0F) * 2.0F) - 1.0F;
 
-                    double dist = Math.sqrt(x * x + y * y + z * z);
-
-                    x = x / dist;
-                    y = y / dist;
-                    z = z / dist;
-
-                    float strength = this.power * (0.7F + random.nextFloat() * 0.6F);
-
-                    double stepX = this.x;
-                    double stepY = this.y;
-                    double stepZ = this.z;
-
-                    // Step through the ray until it is finally stopped
-                    while (strength > 0.0F) {
-                        int blockX = MathHelper.floor(stepX);
-                        int blockY = MathHelper.floor(stepY);
-                        int blockZ = MathHelper.floor(stepZ);
-
-                        strength -= this.traverseBlock(touched, strength, blockX, blockY, blockZ);
-
-                        stepX += x * 0.3D;
-                        stepY += y * 0.3D;
-                        stepZ += z * 0.3D;
-
-                        // Apply a constant falloff to the ray's strength
-                        strength -= 0.22500001F;
+                        this.performRayCast(random, vecX, vecY, vecZ, touched);
                     }
                 }
             }
@@ -138,68 +114,114 @@ public abstract class MixinExplosion {
         // We can now iterate back over the set of positions we modified and re-build BlockPos objects from them
         // This will only allocate as many objects as there are in the set, where otherwise we would allocate them
         // each step of a every ray.
+        List<BlockPos> affectedBlocks = this.affectedBlocks;
+
         LongIterator it = touched.iterator();
 
         while (it.hasNext()) {
-            this.affectedBlocks.add(BlockPos.fromLong(it.nextLong()));
+            affectedBlocks.add(BlockPos.fromLong(it.nextLong()));
         }
 
         this.damageEntities();
     }
 
+    private void performRayCast(Random random, double vecX, double vecY, double vecZ, LongOpenHashSet touched) {
+        double dist = Math.sqrt((vecX * vecX) + (vecY * vecY) + (vecZ * vecZ));
+
+        double normX = vecX / dist;
+        double normY = vecY / dist;
+        double normZ = vecZ / dist;
+
+        float strength = this.power * (0.7F + (random.nextFloat() * 0.6F));
+
+        double stepX = this.x;
+        double stepY = this.y;
+        double stepZ = this.z;
+
+        int prevX = Integer.MIN_VALUE;
+        int prevY = Integer.MIN_VALUE;
+        int prevZ = Integer.MIN_VALUE;
+
+        float prevResistance = 0.0f;
+
+        // Step through the ray until it is finally stopped
+        while (strength > 0.0F) {
+            int blockX = MathHelper.floor(stepX);
+            int blockY = MathHelper.floor(stepY);
+            int blockZ = MathHelper.floor(stepZ);
+
+            float resistance;
+
+            // Check whether or not we have actually moved into a new block this step. Due to how rays are stepped through,
+            // over-sampling of the same block positions will occur. Changing this behaviour would introduce differences in
+            // aliasing and sampling, which is unacceptable for our purposes. As a band-aid, we can simply re-use the
+            // previous result and get a decent boost.
+            if (prevX != blockX || prevY != blockY || prevZ != blockZ) {
+                resistance = this.traverseBlock(strength, blockX, blockY, blockZ, touched);
+
+                prevX = blockX;
+                prevY = blockY;
+                prevZ = blockZ;
+
+                prevResistance = resistance;
+            } else {
+                resistance = prevResistance;
+            }
+
+            // Apply a constant fall-off
+            strength -= resistance + 0.225F;
+
+            stepX += normX * 0.3D;
+            stepY += normY * 0.3D;
+            stepZ += normZ * 0.3D;
+        }
+    }
+
     /**
      * Called for every step made by a ray being cast by an explosion.
-     * @param touched The set of block positions which will be modified by this traversal
      * @param strength The strength of the ray during this step
      * @param blockX The x-coordinate of the block the ray is inside of
      * @param blockY The y-coordinate of the block the ray is inside of
      * @param blockZ The z-coordinate of the block the ray is inside of
      * @return The resistance of the current block space to the ray
      */
-    private float traverseBlock(LongOpenHashSet touched, float strength, int blockX, int blockY, int blockZ) {
+    private float traverseBlock(float strength, int blockX, int blockY, int blockZ, LongOpenHashSet touched) {
         // Early-exit if the y-coordinate is out of bounds.
-        if (blockY < 0 || blockY >= 256) {
+        if (World.isHeightInvalid(blockY)) {
             return 0.0f;
         }
 
-        // Check whether or not we have actually moved into a new block this step. Due to how rays are stepped through,
-        // over-sampling of the same block positions will occur. Changing this behaviour would introduce differences in
-        // aliasing and sampling, which is unacceptable for our purposes. As a band-aid, we can simply re-use the
-        // previous result and get a decent boost.
-        if (this.prevPos.getX() == blockX && this.prevPos.getY() == blockY && this.prevPos.getZ() == blockZ) {
-            return this.prevBlockResistance;
-        }
-
-        BlockPos pos = this.prevPos.set(blockX, blockY, blockZ);
+        BlockPos pos = this.cachedPos.set(blockX, blockY, blockZ);
 
         int chunkX = blockX >> 4;
         int chunkZ = blockZ >> 4;
 
-        long chunkPos = ChunkPos.toLong(chunkX, chunkZ);
-
         // Avoid calling into the chunk manager as much as possible through managing chunks locally
-        if (this.prevChunkPos != chunkPos) {
-            this.prevChunk = this.world.getChunk(ChunkPos.getPackedX(chunkPos), ChunkPos.getPackedZ(chunkPos));
-            this.prevChunkPos = chunkPos;
+        if (this.prevChunkX != chunkX || this.prevChunkZ != chunkZ) {
+            this.prevChunk = this.world.getChunk(chunkX, chunkZ);
+
+            this.prevChunkX = chunkX;
+            this.prevChunkZ = chunkZ;
         }
 
         final Chunk chunk = this.prevChunk;
-        final Explosion explosion = (Explosion) (Object) this;
 
-        float blockResistance = 0.0f;
+        BlockState blockState = Blocks.AIR.getDefaultState();
+        float totalResistance = 0.0f;
 
-        // If the chunk is missing or out of bounds, there will b
+        // If the chunk is missing or out of bounds, assume that it is air
         if (chunk != null) {
             // We operate directly on chunk sections to avoid interacting with BlockPos and to squeeze out as much
             // performance as possible here
             ChunkSection section = chunk.getSectionArray()[blockY >> 4];
 
-            if (section != null) {
+            // If the section doesn't exist or it's empty, assume that the block is air
+            if (section != null && !section.isEmpty()) {
                 // Retrieve the block state from the chunk section directly to avoid associated overhead
-                BlockState blockState = section.getBlockState(blockX & 15, blockY & 15, blockZ & 15);
+                blockState = section.getBlockState(blockX & 15, blockY & 15, blockZ & 15);
 
-                // If the block state is air, it cannot have fluid, so the code below will do nothing
-                if (!blockState.isAir()) {
+                // If the block state is air, it cannot have fluid or any kind of resistance, so just leave
+                if (blockState.getBlock() != Blocks.AIR) {
                     // Rather than query the fluid state from the container as we just did with the block state, we can
                     // simply ask the block state we retrieved what fluid it has. This is exactly what the call would
                     // do anyways, except that it would have to retrieve the block state a second time, adding overhead.
@@ -210,27 +232,24 @@ public abstract class MixinExplosion {
 
                     // If this explosion was caused by an entity, allow for it to modify the resistance of this position
                     if (this.entity != null) {
-                        resistance = this.entity.getEffectiveExplosionResistance(explosion, this.world, pos, blockState, fluidState, resistance);
+                        resistance = this.entity.getEffectiveExplosionResistance((Explosion) (Object) this, this.world, pos, blockState, fluidState, resistance);
                     }
 
                     // Calculate how much this block space will resist an explosion's ray
-                    blockResistance = (resistance + 0.3F) * 0.3F;
-                }
-
-                // Check if this ray is still strong enough to break blocks, and if so, add this position to the set
-                // of positions to destroy
-                if (strength - blockResistance > 0.0F) {
-                    if (this.entity == null || this.entity.canExplosionDestroyBlock(explosion, this.world, pos, blockState, strength)) {
-                        touched.add(pos.asLong());
-                    }
+                    totalResistance = (resistance + 0.3F) * 0.3F;
                 }
             }
         }
 
-        // Cache the value for re-use later
-        this.prevBlockResistance = blockResistance;
+        // Check if this ray is still strong enough to break blocks, and if so, add this position to the set
+        // of positions to destroy
+        if ((strength - totalResistance) > 0.0F) {
+            if ((this.entity == null) || this.entity.canExplosionDestroyBlock((Explosion) (Object) this, this.world, pos, blockState, strength)) {
+                touched.add(pos.asLong());
+            }
+        }
 
-        return blockResistance;
+        return totalResistance;
     }
 
     // [VanillaCopy] Explosion#collectBlocksAndDamageEntities()
@@ -263,7 +282,7 @@ public abstract class MixinExplosion {
             double distYSq = entity.getEyeY() - this.y;
             double distZSq = entity.getZ() - this.z;
 
-            double dist = MathHelper.sqrt(distXSq * distXSq + distYSq * distYSq + distZSq * distZSq);
+            double dist = MathHelper.sqrt((distXSq * distXSq) + (distYSq * distYSq) + (distZSq * distZSq));
 
             if (dist == 0.0D) {
                 continue;
@@ -276,7 +295,7 @@ public abstract class MixinExplosion {
             double exposure = getExposure(selfPos, entity);
             double damage = (1.0D - damageScale) * exposure;
 
-            entity.damage(this.getDamageSource(), (float) (int) (((damage * damage + damage) / 2.0D) * 7.0D * (double) range + 1.0D));
+            entity.damage(this.getDamageSource(), (int) (((((damage * damage) + damage) / 2.0D) * 7.0D * (double) range) + 1.0D));
 
             double knockback = damage;
 
