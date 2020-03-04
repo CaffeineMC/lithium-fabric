@@ -19,6 +19,9 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -79,8 +82,14 @@ public abstract class MixinExplosion {
      * @reason Optimizations for explosions
      * @author JellySquid
      */
-    @Overwrite
-    public void collectBlocksAndDamageEntities() {
+    @Inject(method = "collectBlocksAndDamageEntities", at = @At("HEAD"))
+    public void collectBlocksAndDamageEntities(CallbackInfo ci) {
+        // We don't want to use an Overwrite here as it can conflict with other mods modifying this code path and will
+        // crash the game. This *will* cause issues with other mods which transform this method, but it shouldn't break
+        // anything critical.
+        // TODO: Implement patch hints
+        ci.cancel();
+
         // Using integer encoding for the block positions provides a massive speedup and prevents us from needing to
         // allocate a block position for every step we make along each ray, eliminating essentially all the memory
         // allocations of this function. The overhead of packing block positions into integer format is negligible
