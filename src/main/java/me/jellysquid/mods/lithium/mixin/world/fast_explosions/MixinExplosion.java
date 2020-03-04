@@ -82,7 +82,7 @@ public abstract class MixinExplosion {
      * @reason Optimizations for explosions
      * @author JellySquid
      */
-    @Inject(method = "collectBlocksAndDamageEntities", at = @At("HEAD"))
+    @Inject(method = "collectBlocksAndDamageEntities", at = @At("HEAD"), cancellable = true)
     public void collectBlocksAndDamageEntities(CallbackInfo ci) {
         // We don't want to use an Overwrite here as it can conflict with other mods modifying this code path and will
         // crash the game. This *will* cause issues with other mods which transform this method, but it shouldn't break
