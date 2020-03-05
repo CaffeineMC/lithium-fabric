@@ -122,15 +122,6 @@ public class LithiumConfig {
         public boolean useSmallTagArrayOptimization = true;
     }
 
-    @Category("debug")
-    public static class DebugConfig {
-        @Option("allow_tracer_visualization")
-        public boolean allowTracerVisualization = false;
-
-        @Option("trace_swept_collisions")
-        public boolean traceSweptCollisions = false;
-    }
-
     public AiConfig ai = new AiConfig();
     public GeneralConfig general = new GeneralConfig();
     public PhysicsConfig physics = new PhysicsConfig();
@@ -141,7 +132,6 @@ public class LithiumConfig {
     public RegionConfig region = new RegionConfig();
     public RedstoneConfig redstone = new RedstoneConfig();
     public WorldConfig world = new WorldConfig();
-    public DebugConfig debug = new DebugConfig();
 
     /**
      * Loads the configuration file from the specified location. If it does not exist, a new configuration file will be

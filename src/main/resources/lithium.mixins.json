@@ -8,7 +8,6 @@
     },
     "client": [
         "client.fast_loading_screen.MixinLevelLoadingScreen",
-        "client.tracers.MixinDebugRenderer",
         "ai.nearby_entity_tracking.MixinClientWorld"
     ],
     "mixins": [
