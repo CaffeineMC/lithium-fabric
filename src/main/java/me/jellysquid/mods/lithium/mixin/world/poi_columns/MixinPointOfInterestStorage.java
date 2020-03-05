@@ -31,7 +31,7 @@ public class MixinPointOfInterestStorage extends SerializingRegionBasedStorage<P
      */
     @SuppressWarnings("unchecked")
     @Overwrite
-    public Stream<PointOfInterest> get(Predicate<PointOfInterestType> predicate, ChunkPos pos, PointOfInterestStorage.OccupationStatus status) {
+    public Stream<PointOfInterest> getInChunk(Predicate<PointOfInterestType> predicate, ChunkPos pos, PointOfInterestStorage.OccupationStatus status) {
         return ((IExtendedRegionBasedStorage<PointOfInterestSet>) this)
                 .getWithinChunkColumn(pos.x, pos.z)
                 .flatMap((set) -> set.get(predicate, status));

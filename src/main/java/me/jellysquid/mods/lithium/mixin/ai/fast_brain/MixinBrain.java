@@ -61,29 +61,17 @@ public abstract class MixinBrain<E extends LivingEntity> {
     }
 
     /**
-     * @reason Replace stream-based code with traditional iteration
+     * @reason Replace stream-based code with traditional iteration, use flattened collection type
      * @author JellySquid
      */
     @Overwrite
-    private void expireOutdatedMemories(ServerWorld world) {
-        for (Map.Entry<MemoryModuleType<?>, Optional<? extends Memory<?>>> entry : this.memories.entrySet()) {
-            Optional<? extends Memory<?>> memory = entry.getValue();
+    public void tick(ServerWorld world, E entity) {
+        this.expireOutdatedMemories();
 
-            if (memory.isPresent() && memory.get().isExpired(world.getTime())) {
-                this.forget(entry.getKey());
-            }
-        }
-    }
+        this.updateSensors(world, entity);
 
-    /**
-     * @reason Replace stream-based code with traditional iteration
-     * @author JellySquid
-     */
-    @Overwrite
-    private void updateSensors(ServerWorld world, E entity) {
-        for (Sensor<? super E> sensor : this.sensors.values()) {
-            sensor.canSense(world, entity);
-        }
+        this.startTasks(world, entity);
+        this.updateTasks(world, entity);
     }
 
     /**
@@ -121,6 +109,27 @@ public abstract class MixinBrain<E extends LivingEntity> {
                     task.tick(world, entity, time);
                 }
             }
+        }
+    }
+
+
+    private void expireOutdatedMemories() {
+        for (Map.Entry<MemoryModuleType<?>, Optional<? extends Memory<?>>> entry : this.memories.entrySet()) {
+            Memory<?> memory = entry.getValue().orElse(null);
+
+            if (memory != null) {
+                memory.method_24913();
+
+                if (memory.isExpired()) {
+                    this.forget(entry.getKey());
+                }
+            }
+        }
+    }
+
+    private void updateSensors(ServerWorld world, E entity) {
+        for (Sensor<? super E> sensor : this.sensors.values()) {
+            sensor.canSense(world, entity);
         }
     }
 }
