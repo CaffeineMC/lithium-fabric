@@ -19,6 +19,9 @@ public class LithiumConfig {
         @Option("use_fast_goal_selection")
         public boolean useFastGoalSelection = true;
 
+        @Option("use_fast_raid_logic")
+        public boolean useFastRaidLogic = true;
+
         @Option("use_nearby_entity_tracking")
         public boolean useNearbyEntityTracking = true;
 
