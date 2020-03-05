@@ -34,6 +34,7 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
     private void setupMixins(LithiumConfig config) {
         this.enableIf("ai.fast_brain", config.ai.useFastBrain);
         this.enableIf("ai.fast_goal_selection", config.ai.useFastGoalSelection);
+        this.enableIf("ai.fast_raids", config.ai.useFastRaidLogic);
         this.enableIf("ai.nearby_entity_tracking", config.ai.useNearbyEntityTracking);
         this.enableIf("avoid_allocations", config.general.reduceObjectAllocations);
         this.enableIf("cached_hashcode", config.general.cacheHashcodeCalculations);
@@ -55,7 +56,7 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.enableIf("small_tag_arrays", config.other.useSmallTagArrayOptimization);
         this.enableIf("voxelshape.fast_shape_comparisons", config.physics.useFastShapeComparisons);
         this.enableIf("voxelshape.precompute_shape_arrays", config.physics.alwaysUnpackBlockShapes);
-        this.enableIf("world.poi_columns", config.world.useFastPoiRetrieval);
+        this.enableIf("world.fast_poi_retrieval", config.world.useFastPoiRetrieval);
         this.enableIf("world.fast_explosions", config.world.useFastExplosions);
     }
 

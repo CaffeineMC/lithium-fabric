@@ -1,10 +1,11 @@
-package me.jellysquid.mods.lithium.mixin.world.poi_columns;
+package me.jellysquid.mods.lithium.mixin.world.fast_poi_retrieval;
 
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.Dynamic;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import me.jellysquid.mods.lithium.common.poi.IExtendedRegionBasedStorage;
+import me.jellysquid.mods.lithium.common.util.Collector;
 import me.jellysquid.mods.lithium.common.util.ListeningLong2ObjectOpenHashMap;
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.util.math.ChunkPos;
@@ -83,5 +84,25 @@ public class MixinSerializingRegionBasedStorage<R> implements IExtendedRegionBas
                     return this.loadedElements.get(ChunkSectionPos.asLong(chunkX, chunkY, chunkZ)).orElse(null);
                 })
                 .filter(Objects::nonNull);
+    }
+
+    @Override
+    public boolean collectWithinChunkColumn(int chunkX, int chunkZ, Collector<R> consumer) {
+        BitSet flags = this.columns.get(ChunkPos.toLong(chunkX, chunkZ));
+
+        // No items are present in this column
+        if (flags == null || flags.isEmpty()) {
+            return true;
+        }
+
+        for (int chunkY = flags.nextSetBit(0); chunkY >= 0; chunkY = flags.nextSetBit(chunkY + 1)) {
+            R obj = this.loadedElements.get(ChunkSectionPos.asLong(chunkX, chunkY, chunkZ)).orElse(null);
+
+            if (obj != null && !consumer.collect(obj)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
