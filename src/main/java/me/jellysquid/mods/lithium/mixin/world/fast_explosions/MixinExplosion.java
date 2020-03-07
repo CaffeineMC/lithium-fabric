@@ -73,7 +73,8 @@ public abstract class MixinExplosion {
     private final BlockPos.Mutable cachedPos = new BlockPos.Mutable();
 
     // The chunk coordinate of the most recently stepped through block.
-    private int prevChunkX, prevChunkZ;
+    private int prevChunkX = Integer.MIN_VALUE;
+    private int prevChunkZ = Integer.MIN_VALUE;
 
     // The chunk belonging to prevChunkPos.
     private Chunk prevChunk;
