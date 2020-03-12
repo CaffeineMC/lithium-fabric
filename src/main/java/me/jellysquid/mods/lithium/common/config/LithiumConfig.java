@@ -42,6 +42,9 @@ public class LithiumConfig {
 
         @Option("always_unpack_block_shapes")
         public boolean alwaysUnpackBlockShapes = true;
+
+        @Option("extend_block_shape_cache")
+        public boolean extendBlockShapeCache = true;
     }
 
     @Category("client")
