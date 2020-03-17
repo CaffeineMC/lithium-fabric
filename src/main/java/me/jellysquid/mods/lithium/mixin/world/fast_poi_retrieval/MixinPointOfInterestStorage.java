@@ -45,8 +45,8 @@ public abstract class MixinPointOfInterestStorage extends SerializingRegionBased
      * @author JellySquid
      */
     @Overwrite
-    public Optional<BlockPos> getPosition(Predicate<PointOfInterestType> predicate, Predicate<BlockPos> posPredicate, PointOfInterestStorage.OccupationStatus status, BlockPos pos, int radius, Random rand) {
-        List<PointOfInterest> list = this.getAllWithinCircle(predicate, pos, radius, status);
+    public Optional<BlockPos> getPosition(Predicate<PointOfInterestType> typePredicate, Predicate<BlockPos> posPredicate, PointOfInterestStorage.OccupationStatus status, BlockPos pos, int radius, Random rand) {
+        List<PointOfInterest> list = this.getAllWithinCircle(typePredicate, pos, radius, status);
 
         Collections.shuffle(list, rand);
 
@@ -73,7 +73,7 @@ public abstract class MixinPointOfInterestStorage extends SerializingRegionBased
         for (PointOfInterest point : points) {
             double distance = point.getPos().getSquaredDistance(pos);
 
-            if (nearest == null || distance < nearestDistance) {
+            if (distance < nearestDistance) {
                 if (posPredicate.test(point.getPos())) {
                     nearest = point.getPos();
                     nearestDistance = distance;

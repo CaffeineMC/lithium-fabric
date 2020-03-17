@@ -8,6 +8,7 @@ import me.jellysquid.mods.lithium.common.poi.IExtendedRegionBasedStorage;
 import me.jellysquid.mods.lithium.common.util.Collector;
 import me.jellysquid.mods.lithium.common.util.ListeningLong2ObjectOpenHashMap;
 import net.minecraft.datafixer.DataFixTypes;
+import net.minecraft.util.DynamicSerializable;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.storage.SerializingRegionBasedStorage;
@@ -29,11 +30,17 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType") // We don't get a choice, this is Minecraft's doing!
 @Mixin(SerializingRegionBasedStorage.class)
-public class MixinSerializingRegionBasedStorage<R> implements IExtendedRegionBasedStorage<R> {
+public abstract class MixinSerializingRegionBasedStorage<R extends DynamicSerializable> implements IExtendedRegionBasedStorage<R> {
     @Mutable
     @Shadow
     @Final
     private Long2ObjectMap<Optional<R>> loadedElements;
+
+    @Shadow
+    protected abstract R getOrCreate(long pos);
+
+    @Shadow
+    protected abstract Optional<R> get(long pos);
 
     private Long2ObjectOpenHashMap<BitSet> columns;
 
@@ -72,10 +79,10 @@ public class MixinSerializingRegionBasedStorage<R> implements IExtendedRegionBas
 
     @Override
     public Stream<R> getWithinChunkColumn(int chunkX, int chunkZ) {
-        BitSet flags = this.columns.get(ChunkPos.toLong(chunkX, chunkZ));
+        BitSet flags = this.getCachedColumnInfo(chunkX, chunkZ);
 
         // No items are present in this column
-        if (flags == null || flags.isEmpty()) {
+        if (flags.isEmpty()) {
             return Stream.empty();
         }
 
@@ -88,10 +95,10 @@ public class MixinSerializingRegionBasedStorage<R> implements IExtendedRegionBas
 
     @Override
     public boolean collectWithinChunkColumn(int chunkX, int chunkZ, Collector<R> consumer) {
-        BitSet flags = this.columns.get(ChunkPos.toLong(chunkX, chunkZ));
+        BitSet flags = this.getCachedColumnInfo(chunkX, chunkZ);
 
         // No items are present in this column
-        if (flags == null || flags.isEmpty()) {
+        if (flags.isEmpty()) {
             return true;
         }
 
@@ -104,5 +111,29 @@ public class MixinSerializingRegionBasedStorage<R> implements IExtendedRegionBas
         }
 
         return true;
+    }
+
+    private BitSet getCachedColumnInfo(int chunkX, int chunkZ) {
+        long pos = ChunkPos.toLong(chunkX, chunkZ);
+
+        BitSet flags = this.getColumnInfo(pos, false);
+
+        if (flags != null) {
+            return flags;
+        }
+
+        this.getOrCreate(pos);
+
+        return this.getColumnInfo(pos, true);
+    }
+
+    private BitSet getColumnInfo(long pos, boolean required) {
+        BitSet set = this.columns.get(pos);
+
+        if (set == null && required) {
+            throw new NullPointerException("No data is present for column: " + new ChunkPos(pos));
+        }
+
+        return set;
     }
 }
