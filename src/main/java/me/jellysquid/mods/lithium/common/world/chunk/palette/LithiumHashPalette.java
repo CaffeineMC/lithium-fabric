@@ -21,8 +21,6 @@ public class LithiumHashPalette<T> implements Palette<T> {
     private final Function<CompoundTag, T> elementDeserializer;
     private final Function<T, CompoundTag> elementSerializer;
     private final int indexBits;
-    private T prevObj;
-    private int prevKey;
 
     public LithiumHashPalette(IdList<T> ids, int bits, LithiumPaletteResizeListener<T> resizeHandler, Function<CompoundTag, T> deserializer, Function<T, CompoundTag> serializer) {
         this.idList = ids;
@@ -35,10 +33,6 @@ public class LithiumHashPalette<T> implements Palette<T> {
 
     @Override
     public int getIndex(T obj) {
-        if (this.prevObj == obj) {
-            return this.prevKey;
-        }
-
         int id = this.map.getId(obj);
 
         if (id == -1) {
@@ -52,9 +46,6 @@ public class LithiumHashPalette<T> implements Palette<T> {
                 }
             }
         }
-
-        this.prevObj = obj;
-        this.prevKey = id;
 
         return id;
     }
