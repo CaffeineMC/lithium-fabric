@@ -4,8 +4,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.util.IdList;
-import net.minecraft.util.PacketByteBuf;
+import net.minecraft.util.collection.IdList;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.world.chunk.Palette;
 
 import java.util.function.Function;

@@ -4,7 +4,7 @@ import me.jellysquid.mods.lithium.common.util.IIterableWeightedList;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.task.Task;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.WeightedList;
+import net.minecraft.util.collection.WeightedList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 

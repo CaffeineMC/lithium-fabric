@@ -4,8 +4,8 @@ import me.jellysquid.mods.lithium.common.world.chunk.CompactingPackedIntegerArra
 import me.jellysquid.mods.lithium.common.world.chunk.palette.LithiumHashPalette;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.util.IdList;
-import net.minecraft.util.PackedIntegerArray;
+import net.minecraft.util.collection.IdList;
+import net.minecraft.util.collection.PackedIntegerArray;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.chunk.ArrayPalette;
 import net.minecraft.world.chunk.BiMapPalette;

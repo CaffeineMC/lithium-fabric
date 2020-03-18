@@ -2,7 +2,7 @@ package me.jellysquid.mods.lithium.mixin.entity.simple_world_border_collisions;
 
 import me.jellysquid.mods.lithium.common.shapes.LithiumEntityCollisions;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.BooleanBiFunction;
+import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
@@ -31,7 +31,7 @@ public abstract class MixinEntity {
      * @return True if no collision resolution will be performed against the world border, which removes it from the
      * stream of shapes to consider in entity collision code.
      */
-    @Redirect(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/shape/VoxelShapes;matchesAnywhere(Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/BooleanBiFunction;)Z"))
+    @Redirect(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/shape/VoxelShapes;matchesAnywhere(Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/function/BooleanBiFunction;)Z"))
     private boolean redirectWorldBorderMatchesAnywhere(VoxelShape borderShape, VoxelShape entityShape, BooleanBiFunction func, Vec3d motion) {
         boolean isWithinWorldBorder = LithiumEntityCollisions.isBoxFullyWithinWorldBorder(this.world.getWorldBorder(), this.getBoundingBox().contract(1.0E-7D));
 

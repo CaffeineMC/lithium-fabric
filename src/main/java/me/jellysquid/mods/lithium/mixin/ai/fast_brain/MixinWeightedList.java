@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.ai.fast_brain;
 
 import me.jellysquid.mods.lithium.common.util.IIterableWeightedList;
-import net.minecraft.util.WeightedList;
+import net.minecraft.util.collection.WeightedList;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

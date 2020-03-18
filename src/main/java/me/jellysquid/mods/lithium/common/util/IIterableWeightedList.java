@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.util;
 
-import net.minecraft.util.WeightedList;
+import net.minecraft.util.collection.WeightedList;
 
 import java.util.Iterator;
 

@@ -8,7 +8,7 @@ import me.jellysquid.mods.lithium.common.poi.IExtendedRegionBasedStorage;
 import me.jellysquid.mods.lithium.common.util.Collector;
 import me.jellysquid.mods.lithium.common.util.ListeningLong2ObjectOpenHashMap;
 import net.minecraft.datafixer.DataFixTypes;
-import net.minecraft.util.DynamicSerializable;
+import net.minecraft.util.dynamic.DynamicSerializable;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.storage.SerializingRegionBasedStorage;

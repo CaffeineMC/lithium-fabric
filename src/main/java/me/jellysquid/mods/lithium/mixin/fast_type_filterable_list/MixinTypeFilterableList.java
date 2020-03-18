@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.fast_type_filterable_list;
 
-import net.minecraft.util.TypeFilterableList;
+import net.minecraft.util.collection.TypeFilterableList;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;

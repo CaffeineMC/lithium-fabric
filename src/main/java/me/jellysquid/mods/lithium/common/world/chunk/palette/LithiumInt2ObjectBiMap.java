@@ -4,7 +4,7 @@ import com.google.common.collect.Iterators;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import me.jellysquid.mods.lithium.common.util.math.LithiumMath;
-import net.minecraft.util.IndexedIterable;
+import net.minecraft.util.collection.IndexedIterable;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -13,7 +13,7 @@ import java.util.Objects;
 import static it.unimi.dsi.fastutil.Hash.FAST_LOAD_FACTOR;
 
 /**
- * A faster implementation of {@link net.minecraft.util.Int2ObjectBiMap} which makes use of a backing map from fastutil.
+ * A faster implementation of {@link net.minecraft.util.collection.Int2ObjectBiMap} which makes use of a backing map from fastutil.
  */
 @SuppressWarnings("unchecked")
 public class LithiumInt2ObjectBiMap<K> implements IndexedIterable<K> {
