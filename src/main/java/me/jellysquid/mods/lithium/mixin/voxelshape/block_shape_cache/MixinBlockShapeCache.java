@@ -28,7 +28,7 @@ public class MixinBlockShapeCache implements ExtendedBlockShapeCache {
         VoxelShape shape = state.getCollisionShape(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
 
         for (Direction dir : DIRECTIONS) {
-            if (!state.matches(BlockTags.LEAVES)) {
+            if (!state.isIn(BlockTags.LEAVES)) {
                 VoxelShape face = shape.getFace(dir);
 
                 this.sideCoversSmallSquare |= BitUtil.bit(dir.ordinal(), calculateSideCoversSquare(face, SOLID_SMALL_SQUARE_SHAPE));

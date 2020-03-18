@@ -29,7 +29,7 @@ public abstract class MixinServerWorld {
     /**
      * @reason Ensure an immutable block position is passed on block tick
      */
-    @Redirect(method = "tickChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;randomTick(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V"))
+    @Redirect(method = "tickChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;scheduledTick(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V"))
     private void redirectBlockStateTick(BlockState blockState, ServerWorld world, BlockPos pos, Random rand) {
         blockState.randomTick(world, pos.toImmutable(), rand);
     }

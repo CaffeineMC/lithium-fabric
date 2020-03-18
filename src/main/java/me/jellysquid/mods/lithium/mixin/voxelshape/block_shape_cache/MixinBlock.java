@@ -64,7 +64,7 @@ public class MixinBlock {
     }
 
     private static boolean sideCoversSquare(BlockState state, VoxelShape shape, VoxelShape square) {
-        if (!state.matches(BlockTags.LEAVES)) {
+        if (!state.isIn(BlockTags.LEAVES)) {
             // Avoid the expensive call to VoxelShapes#matchesAnywhere if the block in question is a full cube
             if (shape == VoxelShapes.fullCube()) {
                 return true;
