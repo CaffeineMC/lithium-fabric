@@ -37,10 +37,10 @@ public abstract class MixinSerializingRegionBasedStorage<R extends DynamicSerial
     private Long2ObjectMap<Optional<R>> loadedElements;
 
     @Shadow
-    protected abstract R getOrCreate(long pos);
+    protected abstract Optional<R> get(long pos);
 
     @Shadow
-    protected abstract Optional<R> get(long pos);
+    protected abstract void loadDataAt(ChunkPos pos);
 
     private Long2ObjectOpenHashMap<BitSet> columns;
 
@@ -122,7 +122,7 @@ public abstract class MixinSerializingRegionBasedStorage<R extends DynamicSerial
             return flags;
         }
 
-        this.getOrCreate(pos);
+        this.loadDataAt(new ChunkPos(pos));
 
         return this.getColumnInfo(pos, true);
     }
