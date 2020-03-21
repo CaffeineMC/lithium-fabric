@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.shapes;
+package me.jellysquid.mods.lithium.common.entity;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;

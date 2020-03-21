@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.voxelshape.block_shape_cache;
 
 import me.jellysquid.mods.lithium.common.block.BlockStateWithShapeCache;
+import me.jellysquid.mods.lithium.common.block.ExtendedBlockShapeCache;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,7 +13,7 @@ public class MixinAbstractBlockState implements BlockStateWithShapeCache {
     protected BlockState.ShapeCache shapeCache;
 
     @Override
-    public BlockState.ShapeCache bridge$getShapeCache() {
-        return this.shapeCache;
+    public ExtendedBlockShapeCache getExtendedShapeCache() {
+        return (ExtendedBlockShapeCache) this.shapeCache;
     }
 }

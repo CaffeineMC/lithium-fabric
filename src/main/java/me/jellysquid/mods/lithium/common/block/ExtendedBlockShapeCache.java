@@ -16,9 +16,4 @@ public interface ExtendedBlockShapeCache {
      * Cached and directional version of {@link net.minecraft.block.Block#topCoversMediumSquare(BlockView, BlockPos)}
      */
     boolean sideCoversMediumSquare(Direction facing);
-
-    /**
-     * Cached version of {@link net.minecraft.block.Block#isFaceFullSquare(VoxelShape, Direction)}
-     */
-    boolean isFaceFullSquare(Direction facing);
 }

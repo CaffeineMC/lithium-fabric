@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.entity.streamless_entity_retrieval;
 
-import me.jellysquid.mods.lithium.common.shapes.LithiumEntityCollisions;
+import me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.shape.VoxelShape;
