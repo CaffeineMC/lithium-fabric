@@ -2,6 +2,8 @@ package me.jellysquid.mods.lithium.common.world.scheduler;
 
 import net.minecraft.world.ScheduledTick;
 
+import java.util.Set;
+
 /**
  * A wrapper type for {@link ScheduledTick} which adds fields to mark the state of the tick in the scheduler's pipeline.
  */
@@ -27,8 +29,16 @@ public class TickEntry<T> extends ScheduledTick<T> {
      */
     public boolean consumed = false;
 
-    public TickEntry(ScheduledTick<T> tick) {
+    /**
+     * A pointer to the chunk index belonging to this scheduled tick.
+     */
+    public final Set<TickEntry<T>> chunkIdx;
+
+    public TickEntry(ScheduledTick<T> tick, Set<TickEntry<T>> chunkIdx) {
         super(tick.pos, tick.getObject(), tick.time, tick.priority);
+
+        this.chunkIdx = chunkIdx;
+        this.chunkIdx.add(this);
     }
 }
 
