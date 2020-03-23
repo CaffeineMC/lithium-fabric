@@ -59,6 +59,7 @@
         "world.fast_poi_retrieval.MixinPointOfInterestStorage",
         "world.fast_poi_retrieval.MixinSerializingRegionBasedStorage",
         "world.fast_explosions.MixinExplosion",
+        "world.fast_chunk_task_system.MixinChunkTaskPrioritySystem",
         "voxelshape.block_shape_cache.MixinAbstractBlockState",
         "voxelshape.block_shape_cache.MixinBlockShapeCache",
         "voxelshape.block_shape_cache.MixinBlock",

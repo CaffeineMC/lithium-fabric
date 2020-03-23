@@ -111,6 +111,9 @@ public class LithiumConfig {
 
         @Option("use_fast_poi_retrieval")
         public boolean useFastPoiRetrieval = true;
+
+        @Option("use_fast_chunk_task_system")
+        public boolean useFastChunkTaskSystem = true;
     }
 
     @Category("redstone")

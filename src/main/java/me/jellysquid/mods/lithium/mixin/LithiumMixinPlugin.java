@@ -59,6 +59,7 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.enableIf("voxelshape.precompute_shape_arrays", config.physics.alwaysUnpackBlockShapes);
         this.enableIf("world.fast_poi_retrieval", config.world.useFastPoiRetrieval);
         this.enableIf("world.fast_explosions", config.world.useFastExplosions);
+        this.enableIf("world.fast_chunk_task_system", config.world.useFastChunkTaskSystem);
     }
 
     private void enableIf(String packageName, boolean condition) {
