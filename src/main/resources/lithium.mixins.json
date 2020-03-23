@@ -32,6 +32,8 @@
         "avoid_allocations.MixinServerChunkManager",
         "avoid_allocations.MixinServerWorld",
         "avoid_allocations.MixinWorld",
+        "avoid_allocations.MixinPistonBlock",
+        "avoid_allocations.MixinPistonHandler",
         "cached_hashcode.MixinBlockNeighborGroup",
         "cached_hashcode.MixinChunkTicket",
         "chunk.fast_chunk_palette.MixinPalettedContainer",
