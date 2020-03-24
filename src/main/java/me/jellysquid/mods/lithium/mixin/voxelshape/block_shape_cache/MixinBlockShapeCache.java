@@ -26,11 +26,14 @@ public class MixinBlockShapeCache implements ExtendedBlockShapeCache {
     private void init(BlockState state, CallbackInfo ci) {
         VoxelShape shape = state.getCollisionShape(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
 
+        // If the shape is a full cube, it can always support another component
+        boolean fullCube = !VoxelShapes.matchesAnywhere(shape, VoxelShapes.fullCube(), BooleanBiFunction.NOT_SAME);
+
         for (Direction dir : DIRECTIONS) {
             VoxelShape face = shape.getFace(dir);
 
-            this.sideCoversSmallSquare |= BitUtil.bit(dir.ordinal(), BlockShapeHelper.sideCoversSquare(face, BlockShapeHelper.SOLID_SMALL_SQUARE_SHAPE));
-            this.sideCoversMediumSquare |= BitUtil.bit(dir.ordinal(), BlockShapeHelper.sideCoversSquare(face, BlockShapeHelper.SOLID_MEDIUM_SQUARE_SHAPE));
+            this.sideCoversSmallSquare |= BitUtil.bit(dir.ordinal(), fullCube || BlockShapeHelper.sideCoversSquare(face, BlockShapeHelper.SOLID_SMALL_SQUARE_SHAPE));
+            this.sideCoversMediumSquare |= BitUtil.bit(dir.ordinal(), fullCube || BlockShapeHelper.sideCoversSquare(face, BlockShapeHelper.SOLID_MEDIUM_SQUARE_SHAPE));
         }
     }
 
