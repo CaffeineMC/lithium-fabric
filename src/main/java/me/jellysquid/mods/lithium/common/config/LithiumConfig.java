@@ -43,6 +43,9 @@ public class LithiumConfig {
         @Option("use_fast_shape_comparison")
         public boolean useFastShapeComparisons = true;
 
+        @Option("use_fast_vertex_merging")
+        public boolean useFastVertexMerging = true;
+
         @Option("use_fast_world_border_checks")
         public boolean useFastWorldBorderChecks = true;
 

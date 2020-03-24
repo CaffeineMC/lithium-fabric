@@ -1,3 +1,4 @@
 net/minecraft/util/shape/VoxelShape <init>(Lnet/minecraft/util/shape/VoxelSet;)V
 net/minecraft/entity/ai/brain/task/Task shouldKeepRunning(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/LivingEntity;J)Z
 net/minecraft/block/AbstractBlock$AbstractBlockState$ShapeCache
+net/minecraft/util/shape/PairList

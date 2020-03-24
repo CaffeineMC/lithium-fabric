@@ -66,6 +66,7 @@
         "voxelshape.block_shape_cache.MixinBlockShapeCache",
         "voxelshape.block_shape_cache.MixinBlock",
         "voxelshape.fast_shape_comparisons.MixinVoxelShape",
-        "voxelshape.fast_shape_comparisons.MixinVoxelShapes"
+        "voxelshape.fast_shape_comparisons.MixinVoxelShapes",
+        "voxelshape.fast_vertex_merging.MixinVoxelShapes"
     ]
 }

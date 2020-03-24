@@ -55,6 +55,7 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.enableIf("voxelshape.block_shape_cache", config.physics.extendBlockShapeCache);
         this.enableIf("voxelshape.fast_shape_comparisons", config.physics.useFastShapeComparisons);
         this.enableIf("voxelshape.precompute_shape_arrays", config.physics.alwaysUnpackBlockShapes);
+        this.enableIf("voxelshape.fast_vertex_merging", config.physics.useFastVertexMerging);
         this.enableIf("world.fast_tick_scheduler", config.world.useOptimizedTickScheduler);
         this.enableIf("world.fast_type_filterable_list", config.world.useFastListTypeFiltering);
         this.enableIf("world.fast_explosions", config.world.useFastExplosions);
