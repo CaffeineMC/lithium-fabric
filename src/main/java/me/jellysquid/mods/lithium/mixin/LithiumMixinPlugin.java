@@ -48,8 +48,6 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.enableIf("entity.simple_entity_block_collisions", config.physics.useSimpleEntityCollisionTesting);
         this.enableIf("entity.simple_world_border_collisions", config.physics.useFastWorldBorderChecks);
         this.enableIf("entity.streamless_entity_retrieval", config.entity.useStreamlessEntityRetrieval);
-        this.enableIf("fast_tick_scheduler", config.general.useOptimizedTickScheduler);
-        this.enableIf("fast_type_filterable_list", config.general.useFastListTypeFiltering);
         this.enableIf("math.fast_util", config.general.useFastMathUtilityLogic);
         this.enableIf("redstone", config.redstone.useRedstoneDustOptimizations);
         this.enableIf("region.fast_session_lock", config.region.reduceSessionLockChecks);
@@ -57,6 +55,8 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.enableIf("voxelshape.block_shape_cache", config.physics.extendBlockShapeCache);
         this.enableIf("voxelshape.fast_shape_comparisons", config.physics.useFastShapeComparisons);
         this.enableIf("voxelshape.precompute_shape_arrays", config.physics.alwaysUnpackBlockShapes);
+        this.enableIf("world.fast_tick_scheduler", config.world.useOptimizedTickScheduler);
+        this.enableIf("world.fast_type_filterable_list", config.world.useFastListTypeFiltering);
         this.enableIf("world.fast_explosions", config.world.useFastExplosions);
         this.enableIf("world.fast_chunk_task_system", config.world.useFastChunkTaskSystem);
         this.enableIf("poi.fast_retrieval", config.poi.useFastRetrieval);

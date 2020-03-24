@@ -97,12 +97,6 @@ public class LithiumConfig {
 
     @Category("general")
     public static class GeneralConfig {
-        @Option("use_fast_list_type_filtering")
-        public boolean useFastListTypeFiltering = true;
-
-        @Option("use_optimized_tick_scheduler")
-        public boolean useOptimizedTickScheduler = true;
-
         @Option("reduce_object_allocations")
         public boolean reduceObjectAllocations = true;
 
@@ -115,14 +109,17 @@ public class LithiumConfig {
 
     @Category("world")
     public static class WorldConfig {
-        @Option("use_fast_explosions")
-        public boolean useFastExplosions = true;
-
-        @Option("use_fast_poi_retrieval")
-        public boolean useFastPoiRetrieval = true;
-
         @Option("use_fast_chunk_task_system")
         public boolean useFastChunkTaskSystem = true;
+
+        @Option("use_fast_list_type_filtering")
+        public boolean useFastListTypeFiltering = true;
+
+        @Option("use_optimized_tick_scheduler")
+        public boolean useOptimizedTickScheduler = true;
+
+        @Option("use_fast_explosions")
+        public boolean useFastExplosions = true;
     }
 
     @Category("redstone")

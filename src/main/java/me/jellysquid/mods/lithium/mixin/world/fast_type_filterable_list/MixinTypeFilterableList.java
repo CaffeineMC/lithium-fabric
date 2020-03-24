@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.fast_type_filterable_list;
+package me.jellysquid.mods.lithium.mixin.world.fast_type_filterable_list;
 
 import net.minecraft.util.collection.TypeFilterableList;
 import org.spongepowered.asm.mixin.Final;

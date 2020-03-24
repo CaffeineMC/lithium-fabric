@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.fast_tick_scheduler;
+package me.jellysquid.mods.lithium.mixin.world.fast_tick_scheduler;
 
 import me.jellysquid.mods.lithium.common.world.scheduler.LithiumServerTickScheduler;
 import net.minecraft.server.world.ServerTickScheduler;
