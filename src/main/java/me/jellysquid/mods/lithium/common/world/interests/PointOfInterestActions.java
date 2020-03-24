@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.poi;
+package me.jellysquid.mods.lithium.common.world.interests;
 
 import me.jellysquid.mods.lithium.common.util.Collector;
 import net.minecraft.util.math.BlockPos;
@@ -23,6 +23,6 @@ public class PointOfInterestActions {
     }
 
     public static Collector<PointOfInterestSet> collectAllMatching(Predicate<PointOfInterestType> predicate, PointOfInterestStorage.OccupationStatus status, Collector<PointOfInterest> out) {
-        return (set) -> ((IExtendedPointOfInterestSet) set).get(predicate, status, out);
+        return (set) -> ((ExtendedPointOfInterestSet) set).get(predicate, status, out);
     }
 }

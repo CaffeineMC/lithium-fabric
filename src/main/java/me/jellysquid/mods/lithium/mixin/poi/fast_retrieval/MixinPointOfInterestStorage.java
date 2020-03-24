@@ -1,10 +1,10 @@
-package me.jellysquid.mods.lithium.mixin.world.fast_poi_retrieval;
+package me.jellysquid.mods.lithium.mixin.poi.fast_retrieval;
 
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.Dynamic;
-import me.jellysquid.mods.lithium.common.poi.IExtendedRegionBasedStorage;
+import me.jellysquid.mods.lithium.common.world.interests.ExtendedRegionBasedStorage;
+import me.jellysquid.mods.lithium.common.world.interests.PointOfInterestActions;
 import me.jellysquid.mods.lithium.common.util.Collector;
-import me.jellysquid.mods.lithium.common.poi.PointOfInterestActions;
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -36,7 +36,7 @@ public abstract class MixinPointOfInterestStorage extends SerializingRegionBased
     @SuppressWarnings("unchecked")
     @Overwrite
     public Stream<PointOfInterest> getInChunk(Predicate<PointOfInterestType> predicate, ChunkPos pos, PointOfInterestStorage.OccupationStatus status) {
-        return ((IExtendedRegionBasedStorage<PointOfInterestSet>) this)
+        return ((ExtendedRegionBasedStorage<PointOfInterestSet>) this)
                 .getWithinChunkColumn(pos.x, pos.z)
                 .flatMap((set) -> set.get(predicate, status));
     }
@@ -110,7 +110,7 @@ public abstract class MixinPointOfInterestStorage extends SerializingRegionBased
         int maxChunkZ = (pos.getZ() + radius + 1) >> 4;
 
         // noinspection unchecked
-        IExtendedRegionBasedStorage<PointOfInterestSet> storage = ((IExtendedRegionBasedStorage<PointOfInterestSet>) this);
+        ExtendedRegionBasedStorage<PointOfInterestSet> storage = ((ExtendedRegionBasedStorage<PointOfInterestSet>) this);
 
         for (int x = minChunkX; x <= maxChunkX; x++) {
             for (int z = minChunkZ; z <= maxChunkZ; z++) {

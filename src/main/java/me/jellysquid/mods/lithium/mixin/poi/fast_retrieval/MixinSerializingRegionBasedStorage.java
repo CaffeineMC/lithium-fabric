@@ -1,10 +1,10 @@
-package me.jellysquid.mods.lithium.mixin.world.fast_poi_retrieval;
+package me.jellysquid.mods.lithium.mixin.poi.fast_retrieval;
 
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.Dynamic;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import me.jellysquid.mods.lithium.common.poi.IExtendedRegionBasedStorage;
+import me.jellysquid.mods.lithium.common.world.interests.ExtendedRegionBasedStorage;
 import me.jellysquid.mods.lithium.common.util.Collector;
 import me.jellysquid.mods.lithium.common.util.ListeningLong2ObjectOpenHashMap;
 import net.minecraft.datafixer.DataFixTypes;
@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType") // We don't get a choice, this is Minecraft's doing!
 @Mixin(SerializingRegionBasedStorage.class)
-public abstract class MixinSerializingRegionBasedStorage<R extends DynamicSerializable> implements IExtendedRegionBasedStorage<R> {
+public abstract class MixinSerializingRegionBasedStorage<R extends DynamicSerializable> implements ExtendedRegionBasedStorage<R> {
     @Mutable
     @Shadow
     @Final

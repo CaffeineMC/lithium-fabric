@@ -1,10 +1,10 @@
-package me.jellysquid.mods.lithium.common.poi;
+package me.jellysquid.mods.lithium.common.world.interests;
 
 import me.jellysquid.mods.lithium.common.util.Collector;
 
 import java.util.stream.Stream;
 
-public interface IExtendedRegionBasedStorage<R> {
+public interface ExtendedRegionBasedStorage<R> {
     /**
      * Fast-path for retrieving all items in a chunk column. This avoids needing to retrieve items for each sub-chunk
      * individually.

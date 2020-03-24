@@ -29,6 +29,15 @@ public class LithiumConfig {
         public boolean useFastBrain = true;
     }
 
+    @Category("poi")
+    public static class PoiConfig {
+        @Option("use_fast_init")
+        public boolean useFastInit = true;
+
+        @Option("use_fast_retrieval")
+        public boolean useFastRetrieval = true;
+    }
+
     @Category("physics")
     public static class PhysicsConfig {
         @Option("use_fast_shape_comparison")
@@ -129,6 +138,7 @@ public class LithiumConfig {
     }
 
     public AiConfig ai = new AiConfig();
+    public PoiConfig poi = new PoiConfig();
     public GeneralConfig general = new GeneralConfig();
     public PhysicsConfig physics = new PhysicsConfig();
     public EntityConfig entity = new EntityConfig();
