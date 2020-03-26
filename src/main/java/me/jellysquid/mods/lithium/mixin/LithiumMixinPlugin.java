@@ -60,6 +60,7 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.enableIf("world.fast_type_filterable_list", config.world.useFastListTypeFiltering);
         this.enableIf("world.fast_explosions", config.world.useFastExplosions);
         this.enableIf("world.fast_chunk_task_system", config.world.useFastChunkTaskSystem);
+        this.enableIf("world.fast_gen", config.world.useFastGen);
         this.enableIf("poi.fast_retrieval", config.poi.useFastRetrieval);
         this.enableIf("poi.fast_init", config.poi.useFastInit);
     }

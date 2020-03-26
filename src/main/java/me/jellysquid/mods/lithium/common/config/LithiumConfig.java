@@ -123,6 +123,9 @@ public class LithiumConfig {
 
         @Option("use_fast_explosions")
         public boolean useFastExplosions = true;
+
+        @Option("use_fast_gen")
+        public boolean useFastGen = true;
     }
 
     @Category("redstone")
