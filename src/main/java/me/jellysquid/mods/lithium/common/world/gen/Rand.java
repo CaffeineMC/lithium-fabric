@@ -2,11 +2,13 @@ package me.jellysquid.mods.lithium.common.world.gen;
 
 import me.jellysquid.mods.lithium.common.util.math.LCG;
 
-import java.util.Objects;
 import java.util.Random;
 
 public class Rand {
 
+    /**
+     * Constants for the Java LCG.
+     * */
     public static final LCG JAVA_LCG = new LCG(0x5DEECE66DL, 0xBL, 1L << 48);
 
     protected long seed;

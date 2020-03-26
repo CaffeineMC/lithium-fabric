@@ -18,7 +18,11 @@ public class LCG {
         this.canMask = (this.modulo & -this.modulo) == this.modulo;
     }
 
+    /**
+     * Computes the next seed in the sequence given a {@param seed}.
+     * */
     public long nextSeed(long seed) {
+        //If the modulo is a power of 2 then it can be applied as a mask.
         if(this.canMask) {
             return (seed * this.multiplier + this.addend) & (this.modulo - 1);
         }
@@ -26,6 +30,16 @@ public class LCG {
         return (seed * this.multiplier + this.addend) % this.modulo;
     }
 
+    /**
+     * Computes the LCG equivalent to the current one that skips {@param steps} per call in logarithmic time.
+     *
+     * Since an LCG is defined as:
+     *      nextSeed = seed * multiplier + addend
+     *
+     * it becomes apparent that calling the LCG twice creates another LCG:
+     *      nextNextSeed = (seed * multiplier + addend) * multiplier + addend
+     *      nextNextSeed = seed * multiplier^2 + addend * (multiplier + 1)
+     * */
     public LCG combine(long steps) {
         long multiplier = 1;
         long addend = 0;
