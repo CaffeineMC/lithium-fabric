@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.common.world.gen;
 
 import me.jellysquid.mods.lithium.common.util.math.LCG;
 
+import java.util.Objects;
 import java.util.Random;
 
 public class Rand {
@@ -89,6 +90,11 @@ public class Rand {
         if(!(obj instanceof Rand))return false;
         Rand rand = (Rand)obj;
         return rand.getSeed() == this.getSeed();
+    }
+
+    @Override
+    public int hashCode() {
+        return (int)this.getSeed();
     }
 
     @Override
