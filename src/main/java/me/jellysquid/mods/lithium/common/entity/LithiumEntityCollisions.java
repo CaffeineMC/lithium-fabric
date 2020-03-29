@@ -2,8 +2,8 @@ package me.jellysquid.mods.lithium.common.entity;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityContext;
 import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.CuboidBlockIterator;
 import net.minecraft.util.math.BlockPos;
@@ -36,7 +36,7 @@ public class LithiumEntityCollisions {
         int minZ = MathHelper.floor(entityBox.z1 - 1.0E-7D) - 1;
         int maxZ = MathHelper.floor(entityBox.z2 + 1.0E-7D) + 1;
 
-        final EntityContext context = entity == null ? EntityContext.absent() : EntityContext.of(entity);
+        final ShapeContext context = entity == null ? ShapeContext.absent() : ShapeContext.of(entity);
         final CuboidBlockIterator cuboidIt = new CuboidBlockIterator(minX, minY, minZ, maxX, maxY, maxZ);
         final BlockPos.Mutable pos = new BlockPos.Mutable();
         final VoxelShape entityShape = VoxelShapes.cuboid(entityBox);

@@ -55,8 +55,8 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     private final ServerWorld world;
     private final Consumer<ScheduledTick<T>> tickConsumer;
 
-    public LithiumServerTickScheduler(ServerWorld world, Predicate<T> invalidPredicate, Function<T, Identifier> idToName, Function<Identifier, T> nameToId, Consumer<ScheduledTick<T>> consumer) {
-        super(world, invalidPredicate, idToName, nameToId, consumer);
+    public LithiumServerTickScheduler(ServerWorld world, Predicate<T> invalidPredicate, Function<T, Identifier> idToName, Consumer<ScheduledTick<T>> consumer) {
+        super(world, invalidPredicate, idToName, consumer);
 
         this.invalidObjPredicate = invalidPredicate;
         this.world = world;
@@ -98,10 +98,10 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
         return entry.scheduled;
     }
 
-    @Override
-    public void scheduleAll(Stream<ScheduledTick<T>> stream) {
-        stream.forEach(this::addScheduledTick);
-    }
+    //@Override
+    //public void scheduleAll(Stream<ScheduledTick<T>> stream) {
+     //   stream.forEach(this::addScheduledTick);
+    //}
 
     @Override
     public List<ScheduledTick<T>> getScheduledTicksInChunk(ChunkPos chunkPos, boolean mutates, boolean getStaleTicks) {
@@ -135,7 +135,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
      * Returns the number of currently scheduled ticks.
      */
     @Override
-    public int method_20825() {
+    public int getTicks() {
         int count = 0;
 
         for (TickEntry<T> entry : this.scheduledTicks.values()) {
