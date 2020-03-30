@@ -203,7 +203,7 @@ public class UpdateNode {
         if (this.state.getBlock() == Blocks.REDSTONE_WIRE) {
             this.type = UpdateNodeBlockType.WIRE;
             this.currentWirePower = this.state.get(RedstoneWireBlock.POWER).byteValue();
-        } else if (this.state.method_26212(this.getWorld(), this.getPosition())) {
+        } else if (this.state.isSolidBlock(this.getWorld(), this.getPosition())) {
             this.type = UpdateNodeBlockType.FULL_BLOCK;
             this.currentWirePower = 0;
         } else {

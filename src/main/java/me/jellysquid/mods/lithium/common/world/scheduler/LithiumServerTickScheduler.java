@@ -21,7 +21,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 /**
  * Provides greatly improved performance when compared to the vanilla tick scheduler. Key highlights:
@@ -55,12 +54,12 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     private final ServerWorld world;
     private final Consumer<ScheduledTick<T>> tickConsumer;
 
-    public LithiumServerTickScheduler(ServerWorld world, Predicate<T> invalidPredicate, Function<T, Identifier> idToName, Function<Identifier, T> nameToId, Consumer<ScheduledTick<T>> consumer) {
-        super(world, invalidPredicate, idToName, nameToId, consumer);
+    public LithiumServerTickScheduler(ServerWorld world, Predicate<T> invalidPredicate, Function<T, Identifier> idToName, Consumer<ScheduledTick<T>> tickConsumer) {
+        super(world, invalidPredicate, idToName, tickConsumer);
 
         this.invalidObjPredicate = invalidPredicate;
         this.world = world;
-        this.tickConsumer = consumer;
+        this.tickConsumer = tickConsumer;
     }
 
     @Override
@@ -99,11 +98,6 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     }
 
     @Override
-    public void scheduleAll(Stream<ScheduledTick<T>> stream) {
-        stream.forEach(this::addScheduledTick);
-    }
-
-    @Override
     public List<ScheduledTick<T>> getScheduledTicksInChunk(ChunkPos chunkPos, boolean mutates, boolean getStaleTicks) {
         BlockBox box = new BlockBox(chunkPos.getStartX() - 2, chunkPos.getStartZ() - 2, chunkPos.getEndX() + 2, chunkPos.getEndZ() + 2);
 
@@ -135,7 +129,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
      * Returns the number of currently scheduled ticks.
      */
     @Override
-    public int method_20825() {
+    public int getTicks() {
         int count = 0;
 
         for (TickEntry<T> entry : this.scheduledTicks.values()) {

@@ -42,6 +42,7 @@ public abstract class MixinPointOfInterestStorage extends SerializingRegionBased
     }
 
     /**
+     * @reason Retrieve all points of interest in one operation
      * @author JellySquid
      */
     @Overwrite
