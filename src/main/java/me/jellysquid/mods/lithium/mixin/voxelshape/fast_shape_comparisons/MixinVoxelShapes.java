@@ -44,36 +44,6 @@ public abstract class MixinVoxelShapes {
     }
 
     /**
-     * Responsible for determining whether or not a shape occludes light. This implementation early-exits in some
-     * common situations to avoid unnecessary computation.
-     *
-     * @reason Avoid the expensive shape combination
-     * @author JellySquid
-     */
-    @Overwrite
-    public static boolean unionCoversFullCube(VoxelShape a, VoxelShape b) {
-        // At least one shape is a full cube and will match
-        if (a == VoxelShapes.fullCube() || b == VoxelShapes.fullCube()) {
-            return true;
-        }
-
-        boolean ae = a == VoxelShapes.empty() || a.isEmpty();
-        boolean be = b == VoxelShapes.empty() || b.isEmpty();
-
-        // If both shapes are empty, they can never overlap
-        if (ae && be) {
-            return false;
-        }
-
-        // Test each shape individually if they're non-empty and fail fast
-        if (!ae && VoxelShapes.matchesAnywhere(VoxelShapes.fullCube(), a, BooleanBiFunction.ONLY_FIRST)) {
-            return false;
-        }
-
-        return be || !VoxelShapes.matchesAnywhere(VoxelShapes.fullCube(), b, BooleanBiFunction.ONLY_FIRST);
-    }
-
-    /**
      * @reason Use our optimized shape types
      * @author JellySquid
      */
