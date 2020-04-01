@@ -19,15 +19,26 @@ buildscript {
     }
 }
 
+plugins {
+    id "com.matthewprenger.cursegradle" version "1.4.0"
+}
+
 apply plugin: "fabric-loom"
 import net.fabricmc.loom.task.RemappingJar;
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-archivesBaseName = "${project.archives_base_name}-mc${project.minecraft_version}-fabric"
-version = project.mod_version
+archivesBaseName = "${project.archives_base_name}-mc${project.minecraft_version}"
 group = project.maven_group
+
+def build_id = System.getenv("GITHUB_RUN_NUMBER");
+
+if (build_id == null) {
+    version = "${project.mod_version}-SNAPSHOT"
+} else {
+    version = "${project.mod_version}+build.${build_id}"
+}
 
 repositories {
     // Fabric-ASM
@@ -78,17 +89,39 @@ tasks.withType(JavaCompile) {
 // if it is present.
 // If you remove this task, sources will not be generated.
 task sourcesJar(type: Jar, dependsOn: classes) {
-	classifier = "sources"
-	from sourceSets.main.allSource
-}
-
-jar {
-	from "LICENSE.txt"
+    classifier = "sources"
+    from sourceSets.main.allSource
+    from "LICENSE"
 }
 
 task modJar(type: RemappingJar, dependsOn: classes) {
-    classifier = "mod"
     from sourceSets.main.output
+    from "LICENSE"
 }
 
 build.dependsOn modJar
+
+def cf_api_token = System.getenv("CF_API_TOKEN")
+
+curseforge {
+    // If the environment variable does not exist,
+    apiKey cf_api_token == null ? "" : cf_api_token
+
+    project {
+        id = project.cf_project_id
+        releaseType = 'beta'
+
+        addGameVersion project.cf_game_version
+
+        def displayNameBase = "${project.cf_project_name} mc${project.minecraft_version}-${project.version}"
+
+        mainArtifact(modJar) {
+            displayName = displayNameBase
+        }
+    }
+
+    options {
+        javaIntegration = false
+        forgeGradleIntegration = false
+    }
+}
