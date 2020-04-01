@@ -1,10 +1,10 @@
 
-![Project icon](https://github.com/jellysquid3/Lithium/raw/master/doc/logo.png)
+![Project icon](https://github.com/jellysquid3/lithium-fabric/raw/1.16.x/dev/doc/logo.png)
 
 # Lithium
-![GitHub license](https://img.shields.io/github/license/jellysquid3/Lithium.svg)
-![GitHub issues](https://img.shields.io/github/issues/jellysquid3/Lithium.svg)
-![GitHub tag](https://img.shields.io/github/tag/jellysquid3/Lithium.svg)
+![GitHub license](https://img.shields.io/github/license/jellysquid3/lithium-fabric.svg)
+![GitHub issues](https://img.shields.io/github/issues/jellysquid3/lithium-fabric.svg)
+![GitHub tag](https://img.shields.io/github/tag/jellysquid3/lithium-fabric.svg)
 [![CurseForge downloads](http://cf.way2muchnoise.eu/full_360438_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/lithium)
 
 Lithium is a free and open-source Minecraft mod (under GNU LGPLv3) which works to optimize many areas of the game
@@ -17,7 +17,7 @@ to edit your configuration file to narrow down issues. If you do run into an iss
 
 You can help buy me food and support development while getting early access builds of my mods by [making a monthly pledge to my Patreon!](https://patreon.com/jellysquid) You'll also gain some special perks, such as prioritized support on [my Discord server](https://discord.gg/kcb57Cm).
 
-<a href="https://www.patreon.com/bePatron?u=824442"><img src="https://github.com/jellysquid3/Phosphor/raw/master/doc/patreon.png" width="200"></a>
+<a href="https://www.patreon.com/bePatron?u=824442"><img src="https://github.com/jellysquid3/Phosphor/raw/1.16.x/dev/doc/patreon.png" width="200"></a>
 
 ### Join the Discord
 

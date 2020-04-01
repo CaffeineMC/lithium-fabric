@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 /**
- * Documentation of these options: https://github.com/jellysquid3/Lithium/wiki/Configuration-File
+ * Documentation of these options: https://github.com/jellysquid3/lithium-fabric/wiki/Configuration-File
  */
 @SuppressWarnings("CanBeFinal")
 public class LithiumConfig {
@@ -182,7 +182,7 @@ public class LithiumConfig {
             writer.write("# This is the configuration file for Lithium.\n");
             writer.write("#\n");
             writer.write("# You can find information on editing this file and all the available options here:\n");
-            writer.write("# https://github.com/jellysquid3/Lithium/wiki/Configuration-File\n");
+            writer.write("# https://github.com/jellysquid3/lithium-fabric/wiki/Configuration-File\n");
             writer.write("#\n");
             writer.write("# By default, this file will be empty except for this notice.\n");
         } catch (IOException e) {
