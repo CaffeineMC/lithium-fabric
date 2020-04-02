@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -21,7 +22,7 @@ public interface MixinEntityView {
      * @author JellySquid
      */
     @Overwrite
-    default Stream<VoxelShape> getEntityCollisions(Entity entity, Box box, Set<Entity> excluded) {
-        return LithiumEntityCollisions.getEntityCollisions((EntityView) this, entity, box, excluded);
+    default Stream<VoxelShape> getEntityCollisions(Entity entity, Box box, Predicate<Entity> predicate) {
+        return LithiumEntityCollisions.getEntityCollisions((EntityView) this, entity, box, predicate);
     }
 }

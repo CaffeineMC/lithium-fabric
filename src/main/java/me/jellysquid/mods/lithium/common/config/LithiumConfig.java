@@ -80,12 +80,6 @@ public class LithiumConfig {
         public boolean useBlockAtFeetCaching = true;
     }
 
-    @Category("region")
-    public static class RegionConfig {
-        @Option("reduce_session_lock_checks")
-        public boolean reduceSessionLockChecks = true;
-    }
-
     @Category("chunk")
     public static class ChunkConfig {
         @Option("use_optimized_hash_palette")
@@ -131,11 +125,6 @@ public class LithiumConfig {
         public boolean useRedstoneDustOptimizations = false;
     }
 
-    @Category("other")
-    public static class OtherConfig {
-        @Option("use_small_tag_array_optimization")
-        public boolean useSmallTagArrayOptimization = true;
-    }
 
     public AiConfig ai = new AiConfig();
     public PoiConfig poi = new PoiConfig();
@@ -144,8 +133,6 @@ public class LithiumConfig {
     public EntityConfig entity = new EntityConfig();
     public ChunkConfig chunk = new ChunkConfig();
     public ClientConfig client = new ClientConfig();
-    public OtherConfig other = new OtherConfig();
-    public RegionConfig region = new RegionConfig();
     public RedstoneConfig redstone = new RedstoneConfig();
     public WorldConfig world = new WorldConfig();
 

@@ -18,6 +18,7 @@ import net.minecraft.world.border.WorldBorder;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -138,7 +139,7 @@ public class LithiumEntityCollisions {
      * Re-implements the function named above without stream code or unnecessary allocations. This can provide a small
      * boost in some situations (such as heavy entity crowding) and reduces the allocation rate significantly.
      */
-    public static Stream<VoxelShape> getEntityCollisions(EntityView view, Entity entity, Box box, Set<Entity> excluded) {
+    public static Stream<VoxelShape> getEntityCollisions(EntityView view, Entity entity, Box box, Predicate<Entity> predicate) {
         if (box.getAverageSideLength() < 1.0E-7D) {
             return Stream.empty();
         }
@@ -149,7 +150,7 @@ public class LithiumEntityCollisions {
         List<VoxelShape> shapes = new ArrayList<>();
 
         for (Entity otherEntity : entities) {
-            if (!excluded.isEmpty() && excluded.contains(otherEntity)) {
+            if (!predicate.test(otherEntity)) {
                 continue;
             }
 

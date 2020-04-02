@@ -52,8 +52,6 @@
         "math.fast_util.MixinDirection",
         "redstone.MixinRedstoneWireBlock",
         "redstone.MixinWorld",
-        "region.fast_session_lock.MixinThreadedAnvilChunkStorage",
-        "small_tag_arrays.MixinTag",
         "poi.fast_retrieval.MixinPointOfInterestSet",
         "poi.fast_retrieval.MixinPointOfInterestStorage",
         "poi.fast_retrieval.MixinSerializingRegionBasedStorage",

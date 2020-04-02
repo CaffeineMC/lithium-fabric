@@ -50,8 +50,6 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.enableIf("entity.streamless_entity_retrieval", config.entity.useStreamlessEntityRetrieval);
         this.enableIf("math.fast_util", config.general.useFastMathUtilityLogic);
         this.enableIf("redstone", config.redstone.useRedstoneDustOptimizations);
-        this.enableIf("region.fast_session_lock", config.region.reduceSessionLockChecks);
-        this.enableIf("small_tag_arrays", config.other.useSmallTagArrayOptimization);
         this.enableIf("voxelshape.block_shape_cache", config.physics.extendBlockShapeCache);
         this.enableIf("voxelshape.fast_shape_comparisons", config.physics.useFastShapeComparisons);
         this.enableIf("voxelshape.precompute_shape_arrays", config.physics.alwaysUnpackBlockShapes);
