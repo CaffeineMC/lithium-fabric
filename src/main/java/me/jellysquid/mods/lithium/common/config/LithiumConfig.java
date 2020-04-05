@@ -117,6 +117,9 @@ public class LithiumConfig {
 
         @Option("use_fast_explosions")
         public boolean useFastExplosions = true;
+
+        @Option("use_fast_nearby_player_checks")
+        public boolean useFastNearbyPlayerChecks = true;
     }
 
     @Category("redstone")

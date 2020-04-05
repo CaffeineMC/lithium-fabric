@@ -61,6 +61,8 @@
         "world.fast_type_filterable_list.MixinTypeFilterableList",
         "world.fast_explosions.MixinExplosion",
         "world.fast_chunk_task_system.MixinChunkTaskPrioritySystem",
+        "world.fast_nearby_player_checks.MixinPlayerChunkWatchingManager",
+        "world.fast_nearby_player_checks.MixinThreadedAnvilChunkStorage",
         "voxelshape.block_shape_cache.MixinAbstractBlockState",
         "voxelshape.block_shape_cache.MixinBlockShapeCache",
         "voxelshape.block_shape_cache.MixinBlock",
