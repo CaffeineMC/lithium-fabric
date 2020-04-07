@@ -35,6 +35,7 @@
         "avoid_allocations.MixinPistonBlock",
         "avoid_allocations.MixinPistonHandler",
         "avoid_allocations.MixinSortedArraySet",
+        "block.fast_piston_shapes.MixinPistonHeadBlock",
         "cached_hashcode.MixinBlockNeighborGroup",
         "cached_hashcode.MixinChunkTicket",
         "chunk.fast_chunk_palette.MixinPalettedContainer",

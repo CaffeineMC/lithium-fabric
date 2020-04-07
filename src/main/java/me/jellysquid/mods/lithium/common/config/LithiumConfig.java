@@ -29,6 +29,12 @@ public class LithiumConfig {
         public boolean useFastBrain = true;
     }
 
+    @Category("block")
+    public static class BlockConfig {
+        @Option("use_fast_piston_shapes")
+        public boolean useFastPistonShapes = true;
+    }
+
     @Category("poi")
     public static class PoiConfig {
         @Option("use_fast_init")
@@ -130,6 +136,7 @@ public class LithiumConfig {
 
 
     public AiConfig ai = new AiConfig();
+    public BlockConfig block = new BlockConfig();
     public PoiConfig poi = new PoiConfig();
     public GeneralConfig general = new GeneralConfig();
     public PhysicsConfig physics = new PhysicsConfig();

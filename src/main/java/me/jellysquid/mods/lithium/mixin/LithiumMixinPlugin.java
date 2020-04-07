@@ -37,6 +37,7 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         this.enableIf("ai.fast_raids", config.ai.useFastRaidLogic);
         this.enableIf("ai.nearby_entity_tracking", config.ai.useNearbyEntityTracking);
         this.enableIf("avoid_allocations", config.general.reduceObjectAllocations);
+        this.enableIf("block.fast_piston_shapes", config.block.useFastPistonShapes);
         this.enableIf("cached_hashcode", config.general.cacheHashcodeCalculations);
         this.enableIf("chunk.fast_chunk_palette", config.chunk.useOptimizedHashPalette);
         this.enableIf("chunk.fast_chunk_serialization", config.chunk.useFastPaletteCompaction);
