@@ -15,6 +15,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * Extends the ShapeCache to contain some additional properties as to avoid expensive computation from some Redstone
+ * components which look to see if a block's shape can support it. This prompted an issue to be opened on the Mojang
+ * issue tracker, which contains some additional information: https://bugs.mojang.com/browse/MC-174568
+ */
 @Mixin(BlockState.ShapeCache.class)
 public class MixinBlockShapeCache implements ExtendedBlockShapeCache {
     private static final Direction[] DIRECTIONS = Direction.values();

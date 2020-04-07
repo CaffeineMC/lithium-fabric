@@ -12,6 +12,9 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.Map;
 
+/**
+ * Replaces the backing map type with a faster collection type which uses reference equality.
+ */
 @Mixin(PointOfInterestType.class)
 public class MixinPointOfInterestType {
     @Mutable

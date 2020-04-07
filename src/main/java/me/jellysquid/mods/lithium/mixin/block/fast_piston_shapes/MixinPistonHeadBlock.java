@@ -15,6 +15,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
+/**
+ * The piston block computes a new VoxelShape every time the shape is requested, causing significant overhead when
+ * anything queries it. Additionally, it renders caches with reference equality semantics in the game useless as every
+ * shape returned will be a different instance.
+ *
+ * There are only 12 unique shapes for a piston head, being a short and long variant for each orientation. As such, it
+ * is fairly inconsequential to cache these all in a lookup array.
+ */
 @Mixin(PistonHeadBlock.class)
 public class MixinPistonHeadBlock {
     @Shadow
@@ -98,16 +106,16 @@ public class MixinPistonHeadBlock {
 
     static {
         outlineShapes = new VoxelShape[6][];
-        outlineShapes[Direction.DOWN.ordinal()] = init(DOWN_HEAD_SHAPE, SHORT_DOWN_ARM_SHAPE, DOWN_ARM_SHAPE);
-        outlineShapes[Direction.UP.ordinal()] = init(UP_HEAD_SHAPE, SHORT_UP_ARM_SHAPE, UP_ARM_SHAPE);
-        outlineShapes[Direction.NORTH.ordinal()] = init(NORTH_HEAD_SHAPE, SHORT_NORTH_ARM_SHAPE, NORTH_ARM_SHAPE);
-        outlineShapes[Direction.SOUTH.ordinal()] = init(SOUTH_HEAD_SHAPE, SHORT_SOUTH_ARM_SHAPE, SOUTH_ARM_SHAPE);
-        outlineShapes[Direction.WEST.ordinal()] = init(WEST_HEAD_SHAPE, SHORT_WEST_ARM_SHAPE, WEST_ARM_SHAPE);
-        outlineShapes[Direction.EAST.ordinal()] = init(EAST_HEAD_SHAPE, SHORT_EAST_ARM_SHAPE, EAST_ARM_SHAPE);
+        outlineShapes[Direction.DOWN.ordinal()] = createShape(DOWN_HEAD_SHAPE, SHORT_DOWN_ARM_SHAPE, DOWN_ARM_SHAPE);
+        outlineShapes[Direction.UP.ordinal()] = createShape(UP_HEAD_SHAPE, SHORT_UP_ARM_SHAPE, UP_ARM_SHAPE);
+        outlineShapes[Direction.NORTH.ordinal()] = createShape(NORTH_HEAD_SHAPE, SHORT_NORTH_ARM_SHAPE, NORTH_ARM_SHAPE);
+        outlineShapes[Direction.SOUTH.ordinal()] = createShape(SOUTH_HEAD_SHAPE, SHORT_SOUTH_ARM_SHAPE, SOUTH_ARM_SHAPE);
+        outlineShapes[Direction.WEST.ordinal()] = createShape(WEST_HEAD_SHAPE, SHORT_WEST_ARM_SHAPE, WEST_ARM_SHAPE);
+        outlineShapes[Direction.EAST.ordinal()] = createShape(EAST_HEAD_SHAPE, SHORT_EAST_ARM_SHAPE, EAST_ARM_SHAPE);
 
     }
 
-    private static VoxelShape[] init(VoxelShape head, VoxelShape shortArm, VoxelShape arm) {
+    private static VoxelShape[] createShape(VoxelShape head, VoxelShape shortArm, VoxelShape arm) {
         VoxelShape[] shapes = new VoxelShape[2];
         shapes[SHORT_IDX] = VoxelShapes.union(head, shortArm);
         shapes[LONG_IDX] = VoxelShapes.union(head, arm);
@@ -115,6 +123,7 @@ public class MixinPistonHeadBlock {
         return shapes;
     }
     /**
+     * @reason Use cached shape
      * @author JellySquid
      */
     @Overwrite

@@ -8,6 +8,7 @@ import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkPos;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ThreadedAnvilChunkStorage.class)
@@ -25,6 +26,11 @@ public abstract class MixinThreadedAnvilChunkStorage {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * @reason Use optimized implementation
+     * @author JellySquid
+     */
+    @Overwrite
     @SuppressWarnings("ConstantConditions")
     boolean isTooFarFromPlayersToSpawnMobs(ChunkPos pos) {
         long key = pos.toLong();

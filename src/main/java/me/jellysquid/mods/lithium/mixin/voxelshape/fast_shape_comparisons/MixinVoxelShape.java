@@ -119,7 +119,7 @@ public abstract class MixinVoxelShape {
     }
 
     /**
-     * In-lines the lambda passed to MathHelper#binarySearch. Simplifies the implementation very slightly for additional
+     * Inlines the lambda passed to MathHelper#binarySearch. Simplifies the implementation very slightly for additional
      * speed.
      *
      * @reason Use faster implementation

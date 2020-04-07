@@ -54,6 +54,7 @@ public abstract class MixinRedstoneWireBlock {
      */
     @Overwrite
     public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean moved) {
+        // Wire updates are never processed on the client
         if (world.isClient) {
             return;
         }
