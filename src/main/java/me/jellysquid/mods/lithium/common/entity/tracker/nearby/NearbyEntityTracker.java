@@ -1,6 +1,8 @@
 package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.TargetPredicate;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.HashSet;
@@ -51,7 +53,15 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
         this.nearby.remove((T) entity);
     }
 
-    public T getClosestEntity() {
+    /**
+     * Gets the closest T (extends LivingEntity) to the center of this tracker that also intersects with the given box and meets the
+     * requirements of the targetPredicate.
+     * The result may be different from vanilla if there are multiple closest entities.
+     * @param box the box the entities have to intersect
+     * @param targetPredicate predicate the entity has to meet
+     * @return the closest Entity that meets all requirements (distance, box intersection, predicate, type T)
+     */
+    public T getClosestEntity(Box box, TargetPredicate targetPredicate) {
         double x = this.self.getX();
         double y = this.self.getY();
         double z = this.self.getZ();
@@ -62,7 +72,7 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
         for (T entity : this.nearby) {
             double distance = entity.squaredDistanceTo(x, y, z);
 
-            if (distance < nearestDistance) {
+            if (distance < nearestDistance && (box == null || box.intersects(entity.getBoundingBox())) && targetPredicate.test(this.self, entity)) {
                 nearest = entity;
                 nearestDistance = distance;
             }
