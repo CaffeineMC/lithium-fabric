@@ -23,7 +23,7 @@ public class MixinBlock {
      * @author JellySquid
      */
     @Overwrite
-    public static boolean topCoversMediumSquare(BlockView world, BlockPos pos) {
+    public static boolean hasTopRim(BlockView world, BlockPos pos) {
         BlockState state = world.getBlockState(pos);
         ExtendedBlockShapeCache shapeCache = ((BlockStateWithShapeCache) state).getExtendedShapeCache();
 

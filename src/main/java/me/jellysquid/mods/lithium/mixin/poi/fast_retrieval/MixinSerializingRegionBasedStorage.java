@@ -7,12 +7,12 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import me.jellysquid.mods.lithium.common.world.interests.ExtendedRegionBasedStorage;
 import me.jellysquid.mods.lithium.common.util.Collector;
 import me.jellysquid.mods.lithium.common.util.ListeningLong2ObjectOpenHashMap;
-import net.minecraft.class_5128;
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.util.dynamic.DynamicSerializable;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.storage.SerializingRegionBasedStorage;
+import net.minecraft.world.storage.StorageSerializer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -46,7 +46,7 @@ public abstract class MixinSerializingRegionBasedStorage<R extends DynamicSerial
     private Long2ObjectOpenHashMap<BitSet> columns;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(File file, class_5128<R> class_5128_1, BiFunction<Runnable, Dynamic<?>, R> serializer, Function<Runnable, R> deserializer, DataFixer fixer, DataFixTypes type, boolean sync, CallbackInfo ci) {
+    private void init(File file, StorageSerializer<R> class_5128_1, BiFunction<Runnable, Dynamic<?>, R> serializer, Function<Runnable, R> deserializer, DataFixer fixer, DataFixTypes type, boolean sync, CallbackInfo ci) {
         this.columns = new Long2ObjectOpenHashMap<>();
         this.loadedElements = new ListeningLong2ObjectOpenHashMap<>(this::onEntryAdded, this::onEntryRemoved);
     }
