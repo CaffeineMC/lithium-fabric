@@ -32,7 +32,7 @@ public abstract class MixinThreadedAnvilChunkStorage {
      */
     @Overwrite
     @SuppressWarnings("ConstantConditions")
-    boolean isTooFarFromPlayersToSpawnMobs(ChunkPos pos) {
+    public boolean isTooFarFromPlayersToSpawnMobs(ChunkPos pos) {
         long key = pos.toLong();
 
         if (!this.ticketManager.method_20800(key)) {
