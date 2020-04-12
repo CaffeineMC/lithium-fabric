@@ -1,30 +1,7 @@
-buildscript {
-    repositories {
-        jcenter()
-        maven {
-            name = "Fabric"
-            url = "https://maven.fabricmc.net/"
-        }
-        maven {
-            name = "Forge"
-            url = "https://files.minecraftforge.net/maven/"
-        }
-        maven {
-            name = "Jitpack"
-            url 'https://jitpack.io/'
-        }
-    }
-    dependencies {
-        classpath 'com.github.Chocohead:fabric-loom:e5d69cb'
-    }
-}
-
 plugins {
+    id 'fabric-loom' version '0.2.7-SNAPSHOT'
     id "com.matthewprenger.cursegradle" version "1.4.0"
 }
-
-apply plugin: "fabric-loom"
-import net.fabricmc.loom.task.RemappingJar;
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -44,16 +21,10 @@ if (build_id != null) {
     version += "+build.${build_id}"
 }
 
-repositories {
-    // Fabric-ASM
-    maven { url 'https://jitpack.io' }
-}
-
 minecraft {
+    accessWidener = file("src/main/resources/lithium.accesswidener")
     refmapName = "mixins.lithium.refmap.json"
-    AT = file("src/main/resources/access-transformers.txt")
 }
-
 
 dependencies {
 	//to change the versions see the gradle.properties file
@@ -63,9 +34,6 @@ dependencies {
 
     include "com.moandjiezana.toml:toml4j:0.7.2"
     compile "com.moandjiezana.toml:toml4j:0.7.2"
-
-    include "com.github.Chocohead:Fabric-ASM:${project.fabric_asm_version}"
-    compile "com.github.Chocohead:Fabric-ASM:${project.fabric_asm_version}:dev"
 }
 
 processResources {
@@ -98,17 +66,14 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from "LICENSE"
 }
 
-task modJar(type: RemappingJar, dependsOn: classes) {
-    from sourceSets.main.output
+jar {
     from "LICENSE"
 }
-
-build.dependsOn modJar
 
 def cf_api_token = System.getenv("CF_API_TOKEN")
 
 curseforge {
-    // If the environment variable does not exist,
+    // If the environment variable does not exist, simply pass an empty string to prevent an error during init
     apiKey cf_api_token == null ? "" : cf_api_token
 
     project {
@@ -119,7 +84,7 @@ curseforge {
 
         def displayNameBase = "${project.cf_project_name} mc${project.minecraft_version}-${project.version}"
 
-        mainArtifact(modJar) {
+        mainArtifact(jar) {
             displayName = displayNameBase
         }
     }

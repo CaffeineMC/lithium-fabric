@@ -20,16 +20,14 @@
     ],
     "client": [
       "me.jellysquid.mods.lithium.client.LithiumClientMod"
-    ],
-    "mm:early_risers": [
-      "me.jellysquid.mods.lithium.common.LithiumPatcher"
     ]
   },
   "mixins": [
     "lithium.mixins.json"
   ],
+  "accessWidener": "lithium.accesswidener",
   "depends": {
-    "fabricloader": ">=0.4.0",
+    "fabricloader": ">=0.8.0",
     "minecraft": "1.16-alpha.20.15.a"
   }
 }

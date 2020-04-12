@@ -1,0 +1,10 @@
+accessWidener v1 named
+
+accessible method net/minecraft/util/shape/VoxelShape <init> (Lnet/minecraft/util/shape/VoxelSet;)V
+accessible method net/minecraft/entity/ai/brain/task/Task shouldKeepRunning (Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/LivingEntity;J)Z
+
+accessible class net/minecraft/block/AbstractBlock$AbstractBlockState$ShapeCache
+accessible class net/minecraft/util/shape/PairList
+
+accessible class net/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager
+accessible method net/minecraft/server/world/ChunkTicketManager method_20800 (J)Z

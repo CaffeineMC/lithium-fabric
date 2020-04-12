@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.mixin;
 
 import me.jellysquid.mods.lithium.common.LithiumMod;
 import me.jellysquid.mods.lithium.common.config.LithiumConfig;
+import me.jellysquid.mods.lithium.common.config.Option;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.tree.ClassNode;
@@ -9,7 +10,6 @@ import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -18,56 +18,18 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
     private static final String MIXIN_PACKAGE_ROOT = "me.jellysquid.mods.lithium.mixin.";
 
     private final Logger logger = LogManager.getLogger("Lithium");
-    private final HashSet<String> enabledPackages = new HashSet<>();
+
+    private LithiumConfig config;
 
     @Override
     public void onLoad(String mixinPackage) {
-        LithiumConfig config = LithiumConfig.load(new File("./config/lithium.toml"));
+        this.config = LithiumConfig.load(new File("./config/lithium.toml"));
 
-        this.setupMixins(config);
-
-        this.logger.info("Lithium's configuration file was loaded successfully");
+        this.logger.info("Loaded configuration file for Lithium ({} rules available, {} user overrides)",
+                this.config.getRuleCount(), this.config.getRuleOverrideCount());
+        this.logger.info("Lithium has been successfully discovered and initialized -- your game is now faster!");
 
         LithiumMod.CONFIG = config;
-    }
-
-    private void setupMixins(LithiumConfig config) {
-        this.enableIf("ai.fast_brain", config.ai.useFastBrain);
-        this.enableIf("ai.fast_goal_selection", config.ai.useFastGoalSelection);
-        this.enableIf("ai.fast_raids", config.ai.useFastRaidLogic);
-        this.enableIf("ai.nearby_entity_tracking", config.ai.useNearbyEntityTracking);
-        this.enableIf("avoid_allocations", config.general.reduceObjectAllocations);
-        this.enableIf("block.fast_piston_shapes", config.block.useFastPistonShapes);
-        this.enableIf("cached_hashcode", config.general.cacheHashcodeCalculations);
-        this.enableIf("chunk.fast_chunk_palette", config.chunk.useOptimizedHashPalette);
-        this.enableIf("chunk.fast_chunk_serialization", config.chunk.useFastPaletteCompaction);
-        this.enableIf("chunk.no_chunk_locking", config.chunk.removeConcurrentModificationChecks);
-        this.enableIf("client.fast_loading_screen", config.client.useLoadingScreenOptimizations);
-        this.enableIf("entity.block_cache", config.entity.useBlockAtFeetCaching);
-        this.enableIf("entity.data_tracker.no_locks", config.entity.avoidLockingDataTracker);
-        this.enableIf("entity.data_tracker.use_arrays", config.entity.useOptimizedDataTracker);
-        this.enableIf("entity.simple_entity_block_collisions", config.physics.useSimpleEntityCollisionTesting);
-        this.enableIf("entity.simple_world_border_collisions", config.physics.useFastWorldBorderChecks);
-        this.enableIf("entity.streamless_entity_retrieval", config.entity.useStreamlessEntityRetrieval);
-        this.enableIf("math.fast_util", config.general.useFastMathUtilityLogic);
-        this.enableIf("redstone", config.redstone.useRedstoneDustOptimizations);
-        this.enableIf("voxelshape.block_shape_cache", config.physics.extendBlockShapeCache);
-        this.enableIf("voxelshape.fast_shape_comparisons", config.physics.useFastShapeComparisons);
-        this.enableIf("voxelshape.precompute_shape_arrays", config.physics.alwaysUnpackBlockShapes);
-        this.enableIf("voxelshape.fast_vertex_merging", config.physics.useFastVertexMerging);
-        this.enableIf("world.fast_tick_scheduler", config.world.useOptimizedTickScheduler);
-        this.enableIf("world.fast_type_filterable_list", config.world.useFastListTypeFiltering);
-        this.enableIf("world.fast_explosions", config.world.useFastExplosions);
-        this.enableIf("world.fast_chunk_task_system", config.world.useFastChunkTaskSystem);
-        this.enableIf("world.fast_nearby_player_checks", config.world.useFastNearbyPlayerChecks);
-        this.enableIf("poi.fast_retrieval", config.poi.useFastRetrieval);
-        this.enableIf("poi.fast_init", config.poi.useFastInit);
-    }
-
-    private void enableIf(String packageName, boolean condition) {
-        if (condition) {
-            this.enabledPackages.add(packageName);
-        }
     }
 
     @Override
@@ -81,23 +43,18 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
             return true;
         }
 
-        int start = MIXIN_PACKAGE_ROOT.length();
-        int lastSplit = start;
-        int nextSplit;
+        String mixin = mixinClassName.substring(MIXIN_PACKAGE_ROOT.length());
+        Option rule = this.config.getEffectiveMixinRule(mixin);
 
-        while ((nextSplit = mixinClassName.indexOf('.', lastSplit + 1)) != -1) {
-            String part = mixinClassName.substring(start, nextSplit);
-
-            if (this.enabledPackages.contains(part)) {
-                return true;
+        if (rule.isUserDefined()) {
+            if (rule.isEnabled()) {
+                this.logger.warn("Applying mixin '{}' as user configuration forcefully enables it", mixin);
+            } else {
+                this.logger.warn("Not applying mixin '{}' as user configuration forcefully disables it", mixin);
             }
-
-            lastSplit = nextSplit;
         }
 
-        this.logger.info("Not applying mixin '" + mixinClassName + "' as no configuration enables it");
-
-        return false;
+        return rule.isEnabled();
     }
 
     @Override
