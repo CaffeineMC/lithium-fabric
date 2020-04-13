@@ -1,9 +1,15 @@
 package me.jellysquid.mods.lithium.common.entity;
 
+import me.jellysquid.mods.lithium.common.LithiumMod;
+import me.jellysquid.mods.lithium.common.world.ExtendedWorld2;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.passive.StriderEntity;
+import net.minecraft.entity.vehicle.BoatEntity;
+import net.minecraft.entity.vehicle.MinecartEntity;
+import net.minecraft.util.CuboidBlockIterator;
 import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.CuboidBlockIterator;
 import net.minecraft.util.math.BlockPos;
@@ -14,6 +20,7 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.CollisionView;
 import net.minecraft.world.EntityView;
+import net.minecraft.world.World;
 import net.minecraft.world.border.WorldBorder;
 
 import java.util.*;
@@ -251,4 +258,29 @@ public class LithiumEntityCollisions {
 
         return shapes;
     }
+
+
+    private static final Predicate<CollisionBoxOverridingEntity> EXCEPT_SPECTATOR = collisionBoxOverridingEntity -> !((Entity) collisionBoxOverridingEntity).isSpectator();
+
+    /**
+     * Partial [VanillaCopy] Classes overriding Entity.getHardCollisionBox(Entity other) or Entity.getCollisionBox()
+     * @param entityView the world
+     * @param selection the box the entities have to collide with
+     * @param entity the entity that is searching for the colliding entities
+     * @return list of entities with collision boxes
+     */
+    public static List<Entity> getEntitiesWithCollisionBoxForEntity(EntityView entityView, Box selection, Entity entity) {
+        if (entity instanceof BoatEntity || entity instanceof StriderEntity || entity instanceof MinecartEntity || !(entityView instanceof World)) {
+            //use vanilla code when getHardCollisionBox(Entity other) is overwritten
+            return entityView.getEntities(entity, selection);
+        } else {
+            //only get entities that overwrite getCollisionBox
+            return ((ExtendedWorld2) entityView).getEntitiesCustomType(entity, CollisionBoxOverridingEntity.class, selection, EXCEPT_SPECTATOR);
+        }
+    }
+
+    /**
+     * Interface to group entity types that don't always return null on getCollisionBox.
+     */
+    public interface CollisionBoxOverridingEntity {}
 }

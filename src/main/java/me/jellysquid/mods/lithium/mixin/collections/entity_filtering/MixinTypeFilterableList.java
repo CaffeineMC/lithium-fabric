@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.collections.entity_filtering;
 
+import me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions;
 import net.minecraft.util.collection.TypeFilterableList;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -43,7 +44,7 @@ public class MixinTypeFilterableList<T> {
     }
 
     private <S> Collection<T> createAllOfType(Class<S> type) {
-        if (!this.elementType.isAssignableFrom(type)) {
+        if (type != LithiumEntityCollisions.CollisionBoxOverridingEntity.class && !this.elementType.isAssignableFrom(type)) {
             throw new IllegalArgumentException("Don't know how to search for " + type);
         }
 
