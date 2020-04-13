@@ -11,12 +11,11 @@
         "ai.nearby_entity_tracking.MixinClientWorld"
     ],
     "mixins": [
-        "ai.brain.MixinBrain",
-        "ai.brain.MixinWeightedList",
-        "ai.brain.task.MixinCompositeTask",
-        "ai.brain.task.MixinFindInteractionTargetTask",
-        "ai.brain.task.MixinRunMode",
-        "ai.brain.task.MixinTask",
+        "ai.task.MixinWeightedList",
+        "ai.task.MixinCompositeTask",
+        "ai.task.MixinFindInteractionTargetTask",
+        "ai.task.MixinRunMode",
+        "ai.task.MixinTask",
         "ai.goal.MixinGoal",
         "ai.goal.MixinGoalSelector",
         "ai.nearby_entity_tracking.goals.MixinFleeEntityGoal",

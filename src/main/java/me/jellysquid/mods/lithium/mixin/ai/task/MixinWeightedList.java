@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.ai.brain;
+package me.jellysquid.mods.lithium.mixin.ai.task;
 
 import me.jellysquid.mods.lithium.common.util.IIterableWeightedList;
 import net.minecraft.util.collection.WeightedList;
