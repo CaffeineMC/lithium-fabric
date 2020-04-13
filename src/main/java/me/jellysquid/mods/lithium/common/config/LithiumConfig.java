@@ -1,17 +1,10 @@
 package me.jellysquid.mods.lithium.common.config;
 
-import com.moandjiezana.toml.Toml;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 /**
  * Documentation of these options: https://github.com/jellysquid3/lithium-fabric/wiki/Configuration-File
@@ -20,89 +13,84 @@ import java.util.Map;
 public class LithiumConfig {
     private static final Logger LOGGER = LogManager.getLogger("LithiumConfig");
 
-    private Map<String, Option> mixinRules = new HashMap<>();
+    private final Map<String, Option> options = new HashMap<>();
 
     private LithiumConfig() {
-        this.addDefaultRule("ai.brain", true);
-        this.addDefaultRule("ai.goal", true);
-        this.addDefaultRule("ai.nearby_entity_tracking", true);
-        this.addDefaultRule("ai.raid", true);
-        this.addDefaultRule("avoid_allocations.enum_values", true);
-        this.addDefaultRule("block.piston_shapes", true);
-        this.addDefaultRule("cached_hashcode", true);
-        this.addDefaultRule("chunk.no_locking", false);
-        this.addDefaultRule("chunk.palette", true);
-        this.addDefaultRule("chunk.serialization", true);
-        this.addDefaultRule("client.fast_loading_screen", true);
-        this.addDefaultRule("collections.entity_filtering", true);
-        this.addDefaultRule("collections.sorted_array_set", true);
-        this.addDefaultRule("entity.block_cache", true);
-        this.addDefaultRule("entity.data_tracker", true);
-        this.addDefaultRule("entity.simple_entity_block_collisions", true);
-        this.addDefaultRule("entity.simple_world_border_collisions", true);
-        this.addDefaultRule("entity.streamless_entity_retrieval", true);
-        this.addDefaultRule("math.fast_util", true);
-        this.addDefaultRule("poi.fast_init", true);
-        this.addDefaultRule("poi.fast_retrieval", true);
-        this.addDefaultRule("redstone", false);
-        this.addDefaultRule("shapes.blockstate_cache", true);
-        this.addDefaultRule("shapes.precompute_shape_arrays", true);
-        this.addDefaultRule("shapes.shape_merging", true);
-        this.addDefaultRule("shapes.specialized_shapes", true);
-        this.addDefaultRule("world.chunk_task_system", true);
-        this.addDefaultRule("world.chunk_tickets", true);
-        this.addDefaultRule("world.chunk_ticking", true);
-        this.addDefaultRule("world.explosions", true);
-        this.addDefaultRule("world.tick_scheduler", true);
+        this.addDefaultMixinOption("ai.brain", true);
+        this.addDefaultMixinOption("ai.goal", true);
+        this.addDefaultMixinOption("ai.nearby_entity_tracking", true);
+        this.addDefaultMixinOption("ai.raid", true);
+        this.addDefaultMixinOption("avoid_allocations.enum_values", true);
+        this.addDefaultMixinOption("block.piston_shapes", true);
+        this.addDefaultMixinOption("cached_hashcode", true);
+        this.addDefaultMixinOption("chunk.no_locking", false);
+        this.addDefaultMixinOption("chunk.palette", true);
+        this.addDefaultMixinOption("chunk.serialization", true);
+        this.addDefaultMixinOption("client.fast_loading_screen", true);
+        this.addDefaultMixinOption("collections.entity_filtering", true);
+        this.addDefaultMixinOption("collections.sorted_array_set", true);
+        this.addDefaultMixinOption("entity.block_cache", true);
+        this.addDefaultMixinOption("entity.data_tracker", true);
+        this.addDefaultMixinOption("entity.simple_entity_block_collisions", true);
+        this.addDefaultMixinOption("entity.simple_world_border_collisions", true);
+        this.addDefaultMixinOption("entity.streamless_entity_retrieval", true);
+        this.addDefaultMixinOption("math.fast_util", true);
+        this.addDefaultMixinOption("poi.fast_init", true);
+        this.addDefaultMixinOption("poi.fast_retrieval", true);
+        this.addDefaultMixinOption("redstone", false);
+        this.addDefaultMixinOption("shapes.blockstate_cache", true);
+        this.addDefaultMixinOption("shapes.precompute_shape_arrays", true);
+        this.addDefaultMixinOption("shapes.shape_merging", true);
+        this.addDefaultMixinOption("shapes.specialized_shapes", true);
+        this.addDefaultMixinOption("world.chunk_task_system", true);
+        this.addDefaultMixinOption("world.chunk_tickets", true);
+        this.addDefaultMixinOption("world.chunk_ticking", true);
+        this.addDefaultMixinOption("world.explosions", true);
+        this.addDefaultMixinOption("world.tick_scheduler", true);
+    }
 
-        this.mixinRules = Collections.unmodifiableMap(this.mixinRules);
+    private void addDefaultMixinOption(String mixin, boolean enabled) {
+        this.addDefaultOption(getMixinRuleName(mixin), enabled);
     }
 
     /**
      * Adds a default rule entry which can later be modified by the user.
      */
-    private void addDefaultRule(String mixin, boolean enabled) {
-        this.mixinRules.put(mixin, new Option(enabled, false));
+    private void addDefaultOption(String name, boolean enabled) {
+        this.options.put(name, new Option(enabled, false));
     }
 
-    private void read(Toml toml) {
-        Toml mixinConfig = toml.getTable("mixins");
+    private void read(Properties props) {
+        for (Map.Entry<Object, Object> entry : props.entrySet()) {
+            String key = (String) entry.getKey();
+            String value = (String) entry.getValue();
 
-        if (mixinConfig != null) {
-            this.readRules(mixinConfig.getList("force_enabled"), true);
-            this.readRules(mixinConfig.getList("force_disabled"), false);
-        }
-    }
+            Option option = this.options.get(key);
 
-    private void readRules(List<Object> rules, boolean enabled) {
-        if (rules == null || rules.isEmpty()) {
-            return;
-        }
-
-        for (Object obj : rules) {
-            if (obj instanceof String) {
-                this.addUserRule((String) obj, enabled);
+            if (option == null) {
+                LOGGER.warn("No configuration key exists with name '{}', ignoring", key);
+                continue;
             }
-        }
-    }
 
-    /**
-     * Updates an existing rule with a user-defined value.
-     */
-    private void addUserRule(String mixin, boolean enabled) {
-        Option option = this.mixinRules.get(mixin);
+            boolean enabled;
 
-        if (option != null) {
+            if (value.equalsIgnoreCase("true")) {
+                enabled = true;
+            } else if (value.equalsIgnoreCase("false")) {
+                enabled = false;
+            } else {
+                LOGGER.warn("Invalid value '{}' encountered for configuration key '{}', ignoring", value, key);
+                continue;
+            }
+
             option.setEnabled(enabled, true);
-        } else {
-            LOGGER.warn("No mixin rule exists with name '{}', skipping", mixin);
         }
     }
 
     /**
      * Returns the most specific Mixin rule for the specified class name.
      */
-    public Option getEffectiveMixinRule(String mixinClassName) {
+    public Option getOptionForMixin(String mixinClassName) {
         int start = 0;
         int lastSplit = start;
         int nextSplit;
@@ -110,9 +98,9 @@ public class LithiumConfig {
         Option rule = new Option(true, false);
 
         while ((nextSplit = mixinClassName.indexOf('.', lastSplit + 1)) != -1) {
-            String part = mixinClassName.substring(start, nextSplit);
+            String key = getMixinRuleName(mixinClassName.substring(start, nextSplit));
 
-            Option candidate = this.mixinRules.get(part);
+            Option candidate = this.options.get(key);
 
             if (candidate != null) {
                 rule = candidate;
@@ -130,29 +118,38 @@ public class LithiumConfig {
      */
     public static LithiumConfig load(File file) {
         if (!file.exists()) {
-            writeDefaultConfig(file);
+            try {
+                writeDefaultConfig(file);
+            } catch (IOException e) {
+                LOGGER.warn("Could not write default configuration file", e);
+            }
 
             return new LithiumConfig();
         }
 
-        Toml toml = new Toml();
-        toml.read(file);
+        Properties props = new Properties();
+
+        try (FileInputStream fin = new FileInputStream(file)){
+            props.load(fin);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not load config file", e);
+        }
 
         LithiumConfig config = new LithiumConfig();
-        config.read(toml);
+        config.read(props);
 
         return config;
     }
 
-    private static void writeDefaultConfig(File file) {
+    private static void writeDefaultConfig(File file) throws IOException {
         File dir = file.getParentFile();
 
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
-                throw new RuntimeException("Could not create parent directories");
+                throw new IOException("Could not create parent directories");
             }
         } else if (!dir.isDirectory()) {
-            throw new RuntimeException("The parent file is not a directory");
+            throw new IOException("The parent file is not a directory");
         }
 
         try (Writer writer = new FileWriter(file)) {
@@ -162,17 +159,19 @@ public class LithiumConfig {
             writer.write("# https://github.com/jellysquid3/lithium-fabric/wiki/Configuration-File\n");
             writer.write("#\n");
             writer.write("# By default, this file will be empty except for this notice.\n");
-        } catch (IOException e) {
-            throw new RuntimeException("Could not write default config", e);
         }
     }
 
-    public int getRuleCount() {
-        return this.mixinRules.size();
+    private static String getMixinRuleName(String name) {
+        return "mixin." + name;
     }
 
-    public int getRuleOverrideCount() {
-        return (int) this.mixinRules.values()
+    public int getOptionCount() {
+        return this.options.size();
+    }
+
+    public int getOptionOverrideCount() {
+        return (int) this.options.values()
                 .stream()
                 .filter(Option::isUserDefined)
                 .count();

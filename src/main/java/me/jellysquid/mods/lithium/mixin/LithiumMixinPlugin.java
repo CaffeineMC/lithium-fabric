@@ -23,10 +23,14 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void onLoad(String mixinPackage) {
-        this.config = LithiumConfig.load(new File("./config/lithium.toml"));
+        try {
+            this.config = LithiumConfig.load(new File("./config/lithium.properties"));
+        } catch (Exception e) {
+            throw new RuntimeException("Could not load configuration file for Lithium", e);
+        }
 
-        this.logger.info("Loaded configuration file for Lithium ({} rules available, {} user overrides)",
-                this.config.getRuleCount(), this.config.getRuleOverrideCount());
+        this.logger.info("Loaded configuration file for Lithium ({} options available, {} user overrides)",
+                this.config.getOptionCount(), this.config.getOptionOverrideCount());
         this.logger.info("Lithium has been successfully discovered and initialized -- your game is now faster!");
 
         LithiumMod.CONFIG = config;
@@ -44,17 +48,17 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         }
 
         String mixin = mixinClassName.substring(MIXIN_PACKAGE_ROOT.length());
-        Option rule = this.config.getEffectiveMixinRule(mixin);
+        Option option = this.config.getOptionForMixin(mixin);
 
-        if (rule.isUserDefined()) {
-            if (rule.isEnabled()) {
+        if (option.isUserDefined()) {
+            if (option.isEnabled()) {
                 this.logger.warn("Applying mixin '{}' as user configuration forcefully enables it", mixin);
             } else {
                 this.logger.warn("Not applying mixin '{}' as user configuration forcefully disables it", mixin);
             }
         }
 
-        return rule.isEnabled();
+        return option.isEnabled();
     }
 
     @Override
