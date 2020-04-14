@@ -47,6 +47,7 @@ public class LithiumConfig {
         this.addDefaultMixinOption("world.chunk_ticking", true);
         this.addDefaultMixinOption("world.explosions", true);
         this.addDefaultMixinOption("world.tick_scheduler", true);
+        this.addDefaultMixinOption("entity.fluid_checks", true);
     }
 
     private void addDefaultMixinOption(String mixin, boolean enabled) {

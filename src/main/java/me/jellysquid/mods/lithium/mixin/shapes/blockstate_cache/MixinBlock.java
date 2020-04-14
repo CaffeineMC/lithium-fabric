@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.shapes.blockstate_cache;
 
 import me.jellysquid.mods.lithium.common.block.BlockShapeHelper;
-import me.jellysquid.mods.lithium.common.block.BlockStateWithShapeCache;
+import me.jellysquid.mods.lithium.common.block.ExtendedBlockShapeCacheProvider;
 import me.jellysquid.mods.lithium.common.block.ExtendedBlockShapeCache;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -25,7 +25,7 @@ public class MixinBlock {
     @Overwrite
     public static boolean hasTopRim(BlockView world, BlockPos pos) {
         BlockState state = world.getBlockState(pos);
-        ExtendedBlockShapeCache shapeCache = ((BlockStateWithShapeCache) state).getExtendedShapeCache();
+        ExtendedBlockShapeCache shapeCache = ((ExtendedBlockShapeCacheProvider) state).getExtendedShapeCache();
 
         if (shapeCache != null) {
             return shapeCache.sideCoversMediumSquare(Direction.UP);
@@ -41,7 +41,7 @@ public class MixinBlock {
     @Overwrite
     public static boolean sideCoversSmallSquare(WorldView world, BlockPos pos, Direction side) {
         BlockState state = world.getBlockState(pos);
-        ExtendedBlockShapeCache shapeCache = ((BlockStateWithShapeCache) state).getExtendedShapeCache();
+        ExtendedBlockShapeCache shapeCache = ((ExtendedBlockShapeCacheProvider) state).getExtendedShapeCache();
 
         if (shapeCache != null) {
             return shapeCache.sideCoversSmallSquare(side);
