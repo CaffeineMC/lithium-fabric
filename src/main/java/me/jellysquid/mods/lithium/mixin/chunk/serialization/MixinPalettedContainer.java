@@ -27,6 +27,7 @@ import java.util.function.Function;
 @Mixin(PalettedContainer.class)
 public abstract class MixinPalettedContainer<T> {
     private static final ThreadLocal<short[]> cachedCompactionArrays = ThreadLocal.withInitial(() -> new short[4096]);
+    private static final long[] EMPTY_PALETTE_DATA = new long[(4 * 4096) / 64];
 
     @Shadow
     public abstract void lock();
@@ -64,6 +65,7 @@ public abstract class MixinPalettedContainer<T> {
 
     /**
      * This patch incorporates a number of changes to significantly reduce the time needed to serialize.
+     * - If a palette only contains one entry, do not attempt to repack it
      * - The packed integer array is iterated over using a specialized consumer instead of a naive for-loop.
      * - A temporary fixed array is used to cache palette lookups and remaps while compacting a data array.
      * - If the palette didn't change after compaction, avoid the step of re-packing the integer array and instead do
@@ -76,40 +78,43 @@ public abstract class MixinPalettedContainer<T> {
     public void write(CompoundTag rootTag, String paletteKey, String dataKey) {
         this.lock();
 
-        LithiumHashPalette<T> compactedPalette = new LithiumHashPalette<>(this.idList, this.paletteSize, null, this.elementDeserializer, this.elementSerializer);
-        compactedPalette.getIndex(this.field_12935);
-
-        short[] array = cachedCompactionArrays.get();
-        ((CompactingPackedIntegerArray) this.data).compact(this.palette, compactedPalette, array);
-
         // The palette that will be serialized
-        LithiumHashPalette<T> palette = compactedPalette;
+        LithiumHashPalette<T> palette = null;
+        long[] dataArray = null;
 
-        // If the palette size didn't change, assume our data is optimally packed already
         if (this.palette instanceof LithiumHashPalette) {
-            LithiumHashPalette<T> oldPalette = ((LithiumHashPalette<T>) this.palette);
+            palette = ((LithiumHashPalette<T>) this.palette);
 
-            if (oldPalette.getSize() == compactedPalette.getSize()) {
-                palette = oldPalette;
+            // The palette only contains the default block, so don't re-pack
+            if (palette.getSize() == 1 && palette.getByIndex(0) == this.field_12935) {
+                dataArray = EMPTY_PALETTE_DATA;
             }
         }
 
-        long[] dataArray;
+        // If we aren't going to use an empty data array, start a compaction
+        if (dataArray == null) {
+            LithiumHashPalette<T> compactedPalette = new LithiumHashPalette<>(this.idList, this.paletteSize, null, this.elementDeserializer, this.elementSerializer);
+            compactedPalette.getIndex(this.field_12935);
 
-        // If the palette didn't change during compaction, do a simple copy of the data array
-        if (palette == this.palette) {
-            dataArray = this.data.getStorage().clone();
-        } else {
-            // Re-pack the integer array as the palette has changed size
-            int size = Math.max(4, MathHelper.log2DeBruijn(compactedPalette.getSize()));
-            PackedIntegerArray copy = new PackedIntegerArray(size, 4096);
+            short[] array = cachedCompactionArrays.get();
+            ((CompactingPackedIntegerArray) this.data).compact(this.palette, compactedPalette, array);
 
-            for (int i = 0; i < array.length; ++i) {
-                copy.set(i, array[i]);
+            // If the palette didn't change during compaction, do a simple copy of the data array
+            if (palette != null && palette.getSize() == compactedPalette.getSize()) {
+                dataArray = this.data.getStorage().clone();
+            } else {
+                // Re-pack the integer array as the palette has changed size
+                int size = Math.max(4, MathHelper.log2DeBruijn(compactedPalette.getSize()));
+                PackedIntegerArray copy = new PackedIntegerArray(size, 4096);
+
+                for (int i = 0; i < array.length; ++i) {
+                    copy.set(i, array[i]);
+                }
+
+                // We don't need to clone the data array as we are the sole owner of it
+                dataArray = copy.getStorage();
+                palette = compactedPalette;
             }
-
-            // We don't need to clone the data array as we are the sole owner of it
-            dataArray = copy.getStorage();
         }
 
         ListTag paletteTag = new ListTag();

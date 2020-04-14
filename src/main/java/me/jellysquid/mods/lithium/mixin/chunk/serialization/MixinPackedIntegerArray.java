@@ -55,8 +55,6 @@ public class MixinPackedIntegerArray implements CompactingPackedIntegerArray {
         int bits = 0;
         int idx = 0;
 
-        Arrays.fill(out, (short) 0);
-
         while (idx < size) {
             int wordIdx = bits >> 6;
             int nextWordIdx = ((bits + elementBits) - 1) >> 6;
