@@ -72,6 +72,12 @@
         "world.chunk_ticking.MixinThreadedAnvilChunkStorage",
         "world.explosions.MixinExplosion",
         "world.fire_checks.MixinWorld",
+        "world.region_sync.MixinRegionBasedStorage",
+        "world.region_sync.MixinRegionFile",
+        "world.region_sync.MixinServerWorld",
+        "world.region_sync.MixinStorageIoWorker",
+        "world.region_sync.MixinThreadedAnvilChunkStorage",
+        "world.region_sync.MixinVersionedChunkStorage",
         "world.tick_scheduler.MixinServerWorld"
     ]
 }

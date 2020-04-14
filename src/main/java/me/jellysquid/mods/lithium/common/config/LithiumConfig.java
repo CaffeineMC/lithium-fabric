@@ -4,7 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Documentation of these options: https://github.com/jellysquid3/lithium-fabric/wiki/Configuration-File
@@ -48,6 +50,7 @@ public class LithiumConfig {
         this.addDefaultMixinOption("world.explosions", true);
         this.addDefaultMixinOption("world.tick_scheduler", true);
         this.addDefaultMixinOption("entity.fluid_checks", true);
+        this.addDefaultMixinOption("world.region_sync", false);
     }
 
     private void addDefaultMixinOption(String mixin, boolean enabled) {
