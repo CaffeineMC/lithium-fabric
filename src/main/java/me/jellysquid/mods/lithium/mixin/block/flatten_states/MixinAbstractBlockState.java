@@ -1,11 +1,9 @@
-package me.jellysquid.mods.lithium.mixin.block.block_state_cache;
+package me.jellysquid.mods.lithium.mixin.block.flatten_states;
 
-import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.state.property.Property;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,10 +23,15 @@ public abstract class MixinAbstractBlockState {
     /**
      * We can avoid excessive overhead in looking up the fluid state of a block by caching those values in the
      * BlockState itself. This notably improves performance when scanning for fluid blocks by eliminating the pointer
-     * dereferences, dynamic dispatch, and bounds check of calling into BaseFluid to retrieve a fluid. The fluid state
-     * is constant for any given block state, therefore making it safe to cache it.
+     * dereferences, dynamic dispatch, and bounds check of calling into BaseFluid to retrieve a fluid.
+     * <p>
+     * The fluid state is constant for any given block state, therefore making it safe to cache it. However, the block
+     * implementation may not be initialized fully before this block state is constructed.
+     * <p>
+     * If this value is null, it is assumed that the value has not been cached and that we should fall back to calling
+     * Block#getFluidState(BlockState).
      */
-    private FluidState fluidState;
+    private FluidState fluidState = null;
 
     /**
      * We can't use the ctor as a BlockState will be constructed *before* a Block has fully initialized.

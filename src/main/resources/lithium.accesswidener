@@ -8,3 +8,5 @@ accessible class net/minecraft/util/shape/PairList
 
 accessible class net/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager
 accessible method net/minecraft/server/world/ChunkTicketManager method_20800 (J)Z
+
+accessible method net/minecraft/fluid/Fluid isEmpty ()Z
