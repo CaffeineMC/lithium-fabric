@@ -18,6 +18,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.chunk.ChunkStatus;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -138,7 +139,7 @@ public abstract class MixinEntity {
         for (int x = minX; x <= maxX; ++x) {
             for (int z = minZ; z <= maxZ; ++z) {
                 // Hoist retrieving the chunk from the y-iteration loop
-                Chunk chunk = this.world.getChunk(x >> 4, z >> 4);
+                Chunk chunk = this.world.getChunk(x >> 4, z >> 4, ChunkStatus.FULL, false);
 
                 if (chunk == null) {
                     continue;

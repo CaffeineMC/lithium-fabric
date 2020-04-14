@@ -8,6 +8,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -16,7 +17,7 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(World.class)
 public abstract class MixinWorld {
     @Shadow
-    public abstract WorldChunk getChunk(int i, int j);
+    public abstract Chunk getChunk(int chunkX, int chunkZ, ChunkStatus leastStatus, boolean create);
 
     /**
      * This implementation avoids repeatedly fetching chunks from the world by hoisting it from the y-iteration step.
@@ -37,7 +38,7 @@ public abstract class MixinWorld {
 
         for (int x = minX; x <= maxX; ++x) {
             for (int z = minZ; z <= maxZ; ++z) {
-                Chunk chunk = this.getChunk(x >> 4, z >> 4);
+                Chunk chunk = this.getChunk(x >> 4, z >> 4, ChunkStatus.FULL, false);
 
                 if (chunk == null) {
                     continue;
