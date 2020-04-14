@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.entity.simple_world_border_collisions;
+package me.jellysquid.mods.lithium.mixin.entity.collisions;
 
 import me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions;
 import net.minecraft.entity.Entity;

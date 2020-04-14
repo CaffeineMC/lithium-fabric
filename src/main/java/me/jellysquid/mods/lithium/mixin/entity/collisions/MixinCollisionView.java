@@ -1,13 +1,15 @@
-package me.jellysquid.mods.lithium.mixin.entity.simple_entity_block_collisions;
+package me.jellysquid.mods.lithium.mixin.entity.collisions;
 
 import me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.CollisionView;
+import net.minecraft.world.EntityView;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -22,5 +24,21 @@ public interface MixinCollisionView {
     @Overwrite
     default Stream<VoxelShape> getBlockCollisions(final Entity entity, Box box) {
         return LithiumEntityCollisions.getBlockCollisions((CollisionView) this, entity, box);
+    }
+
+    /**
+     * @reason Avoid usage of streams
+     * @author JellySquid
+     */
+    @Overwrite
+    default boolean doesNotCollide(Entity entity, Box box, Predicate<Entity> predicate) {
+        boolean ret = !LithiumEntityCollisions.doesEntityCollideWithBlocks((CollisionView) this, entity, box);
+
+        // If no blocks were collided with, try to check for entity collisions if we can read entities
+        if (ret && this instanceof EntityView) {
+            ret = LithiumEntityCollisions.getEntityCollisions((EntityView) this, entity, box, predicate).isEmpty();
+        }
+
+        return ret;
     }
 }
