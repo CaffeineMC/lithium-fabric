@@ -7,6 +7,8 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+import java.util.Arrays;
+
 /**
  * Extends {@link PackedIntegerArray} with a special compaction method defined in {@link CompactingPackedIntegerArray}.
  */
@@ -29,66 +31,70 @@ public class MixinPackedIntegerArray implements CompactingPackedIntegerArray {
     private long maxValue;
 
     @Override
-    public <T> short[] compact(Palette<T> srcPalette, Palette<T> destPalette, T def) {
+    public <T> void compact(Palette<T> srcPalette, Palette<T> dstPalette, short[] out) {
         if (this.size >= Short.MAX_VALUE) {
             throw new IllegalStateException("Array too large");
         }
 
-        short[] flattened = new short[this.size];
-        short[] unique = new short[this.size];
-
-        int len = this.storage.length;
-
-        if (len == 0) {
-            return flattened;
+        if (this.size != out.length) {
+            throw new IllegalStateException("Array size mismatch");
         }
 
-        int prevWord = 0;
+        short[] mappings = new short[(int) (this.maxValue + 1)];
 
-        long word = this.storage[0];
-        long nextWord = (len > 1) ? this.storage[1] : 0L;
+        long[] storage = this.storage;
+        int size = this.size;
+        int elementBits = this.elementBits;
+
+        int arrayLen = storage.length;
+        int prevWordIdx = 0;
+
+        long word = storage[0];
+        long nextWord = (arrayLen > 1) ? storage[1] : 0L;
 
         int bits = 0;
-        int i = 0;
+        int idx = 0;
 
-        while (i < this.size) {
+        Arrays.fill(out, (short) 0);
+
+        while (idx < size) {
             int wordIdx = bits >> 6;
-            int nextWordIdx = ((bits + this.elementBits) - 1) >> 6;
+            int nextWordIdx = ((bits + elementBits) - 1) >> 6;
+
             int bitIdx = bits ^ (wordIdx << 6);
 
-            if (wordIdx != prevWord) {
+            if (wordIdx != prevWordIdx) {
                 word = nextWord;
-                nextWord = ((wordIdx + 1) < len) ? this.storage[wordIdx + 1] : 0L;
-                prevWord = wordIdx;
-            }
 
-            int j;
-
-            if (wordIdx == nextWordIdx) {
-                j = (int) ((word >>> bitIdx) & this.maxValue);
-            } else {
-                j = (int) (((word >>> bitIdx) | (nextWord << (64 - bitIdx))) & this.maxValue);
-            }
-
-            if (j != 0) {
-                int remappedPalettedId = unique[j];
-
-                if (remappedPalettedId == 0) {
-                    T obj = srcPalette.getByIndex(j);
-                    int id = destPalette.getIndex(obj);
-
-                    remappedPalettedId = id + 1;
-
-                    unique[j] = (short) remappedPalettedId;
+                if ((wordIdx + 1) < arrayLen) {
+                    nextWord = storage[wordIdx + 1];
+                } else {
+                    nextWord = 0L;
                 }
 
-                flattened[i] = (short) (remappedPalettedId - 1);
+                prevWordIdx = wordIdx;
             }
 
-            bits += this.elementBits;
-            ++i;
-        }
+            int value;
 
-        return flattened;
+            if (wordIdx == nextWordIdx) {
+                value = (int) ((word >>> bitIdx) & this.maxValue);
+            } else {
+                value = (int) (((word >>> bitIdx) | (nextWord << (64 - bitIdx))) & this.maxValue);
+            }
+
+            int remappedId = mappings[value];
+
+            if (remappedId == 0) {
+                remappedId = dstPalette.getIndex(srcPalette.getByIndex(value)) + 1;
+
+                mappings[value] = (short) remappedId;
+            }
+
+            out[idx] = (short) (remappedId - 1);
+
+            bits += elementBits;
+            idx++;
+        }
     }
 }

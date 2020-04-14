@@ -2,17 +2,17 @@ package me.jellysquid.mods.lithium.mixin.chunk.serialization;
 
 import me.jellysquid.mods.lithium.common.world.chunk.CompactingPackedIntegerArray;
 import me.jellysquid.mods.lithium.common.world.chunk.palette.LithiumHashPalette;
+import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.util.collection.IdList;
 import net.minecraft.util.collection.PackedIntegerArray;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.chunk.ArrayPalette;
-import net.minecraft.world.chunk.BiMapPalette;
 import net.minecraft.world.chunk.Palette;
 import net.minecraft.world.chunk.PalettedContainer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,11 +21,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.Function;
 
 /**
- * Makes a number of patches to {@link PalettedContainer} to improve the performance of chunk serialization. While I/O
- * operations in Minecraft 1.15+ are handled off-thread, NBT serialization is not and happens on the main server thread.
+ * Makes a number of patches to {@link PalettedContainer} to speed up integer array compaction. While I/O operations
+ * in Minecraft 1.15+ are handled off-thread, NBT serialization is not and happens on the main server thread.
  */
 @Mixin(PalettedContainer.class)
 public abstract class MixinPalettedContainer<T> {
+    private static final ThreadLocal<short[]> cachedCompactionArrays = ThreadLocal.withInitial(() -> new short[4096]);
+
     @Shadow
     public abstract void lock();
 
@@ -62,63 +64,61 @@ public abstract class MixinPalettedContainer<T> {
 
     /**
      * This patch incorporates a number of changes to significantly reduce the time needed to serialize.
-     * - Iterate over the packed integer array using a specialized consumer instead of a naive for-loop.
-     * - Maintain a temporary list of int->int mappings between the working data array and compacted data array. If a
-     * mapping doesn't exist yet, create it in the compacted palette. This allows us to avoid the many lookups through
-     * the palette and saves considerable time.
-     * - If the palette didn't change size after compaction, avoid the step of copying all the data into a new packed
-     * integer array and simply use a memcpy to clone the working array (storing it alongside the current working palette.)
+     * - The packed integer array is iterated over using a specialized consumer instead of a naive for-loop.
+     * - A temporary fixed array is used to cache palette lookups and remaps while compacting a data array.
+     * - If the palette didn't change after compaction, avoid the step of re-packing the integer array and instead do
+     * a simple memory copy.
      *
      * @reason Optimize serialization
      * @author JellySquid
      */
-    @Inject(method = "write", at = @At("HEAD"), cancellable = true)
-    public void write(CompoundTag tag, String paletteKey, String dataKey, CallbackInfo ci) {
-        // We're using a fallback map and it doesn't need compaction!
-        if (this.paletteSize > 8) {
-            return;
-        }
-
+    @Overwrite
+    public void write(CompoundTag rootTag, String paletteKey, String dataKey) {
         this.lock();
 
         LithiumHashPalette<T> compactedPalette = new LithiumHashPalette<>(this.idList, this.paletteSize, null, this.elementDeserializer, this.elementSerializer);
         compactedPalette.getIndex(this.field_12935);
 
-        short[] remapped = ((CompactingPackedIntegerArray) this.data)
-                .compact(this.palette, compactedPalette, this.field_12935);
+        short[] array = cachedCompactionArrays.get();
+        ((CompactingPackedIntegerArray) this.data).compact(this.palette, compactedPalette, array);
 
-        int originalIntSize = this.data.getElementBits();
-        int copyIntSize = Math.max(4, MathHelper.log2DeBruijn(compactedPalette.getSize()));
+        // The palette that will be serialized
+        LithiumHashPalette<T> palette = compactedPalette;
 
-        // If the palette didn't change sizes, there's no reason to copy anything
-        if (this.palette instanceof LithiumHashPalette && originalIntSize == copyIntSize) {
-            long[] array = this.data.getStorage();
-            long[] copy = new long[array.length];
+        // If the palette size didn't change, assume our data is optimally packed already
+        if (this.palette instanceof LithiumHashPalette) {
+            LithiumHashPalette<T> oldPalette = ((LithiumHashPalette<T>) this.palette);
 
-            System.arraycopy(array, 0, copy, 0, array.length);
-
-            ListTag paletteTag = new ListTag();
-            ((LithiumHashPalette<T>) this.palette).toTag(paletteTag);
-
-            tag.put(paletteKey, paletteTag);
-            tag.putLongArray(dataKey, copy);
-        } else {
-            PackedIntegerArray copy = new PackedIntegerArray(copyIntSize, 4096);
-
-            for (int i = 0; i < remapped.length; ++i) {
-                copy.set(i, remapped[i]);
+            if (oldPalette.getSize() == compactedPalette.getSize()) {
+                palette = oldPalette;
             }
-
-            ListTag paletteTag = new ListTag();
-            compactedPalette.toTag(paletteTag);
-
-            tag.put(paletteKey, paletteTag);
-            tag.putLongArray(dataKey, copy.getStorage());
         }
 
-        this.unlock();
+        long[] dataArray;
 
-        ci.cancel();
+        // If the palette didn't change during compaction, do a simple copy of the data array
+        if (palette == this.palette) {
+            dataArray = this.data.getStorage().clone();
+        } else {
+            // Re-pack the integer array as the palette has changed size
+            int size = Math.max(4, MathHelper.log2DeBruijn(compactedPalette.getSize()));
+            PackedIntegerArray copy = new PackedIntegerArray(size, 4096);
+
+            for (int i = 0; i < array.length; ++i) {
+                copy.set(i, array[i]);
+            }
+
+            // We don't need to clone the data array as we are the sole owner of it
+            dataArray = copy.getStorage();
+        }
+
+        ListTag paletteTag = new ListTag();
+        palette.toTag(paletteTag);
+
+        rootTag.put(paletteKey, paletteTag);
+        rootTag.putLongArray(dataKey, dataArray);
+
+        this.unlock();
     }
 
     /**
@@ -130,36 +130,25 @@ public abstract class MixinPalettedContainer<T> {
      */
     @Inject(method = "count", at = @At("HEAD"), cancellable = true)
     public void count(PalettedContainer.CountConsumer<T> consumer, CallbackInfo ci) {
-        int size = getPaletteSize(this.palette);
+        int len = (1 << this.data.getElementBits());
 
-        // We don't know how many items are in the palette, so this optimization cannot be done
-        if (size < 0) {
+        // Do not allocate huge arrays if we're using a large palette
+        if (len > 4096) {
             return;
         }
 
-        int[] counts = new int[size];
+        short[] counts = new short[len];
 
         this.data.forEach(i -> counts[i]++);
 
         for (int i = 0; i < counts.length; i++) {
-            consumer.accept(this.palette.getByIndex(i), counts[i]);
+            T obj = this.palette.getByIndex(i);
+
+            if (obj != null) {
+                consumer.accept(obj, counts[i]);
+            }
         }
 
         ci.cancel();
-    }
-
-    /**
-     * Try to determine the number of elements in a palette, otherwise return -1 to indicate that it is unknown.
-     */
-    private static int getPaletteSize(Palette<?> palette) {
-        if (palette instanceof BiMapPalette<?>) {
-            return ((BiMapPalette<?>) palette).getIndexBits();
-        } else if (palette instanceof LithiumHashPalette<?>) {
-            return ((LithiumHashPalette<?>) palette).getSize();
-        } else if (palette instanceof ArrayPalette<?>) {
-            return ((ArrayPalette<?>) palette).getSize();
-        }
-
-        return -1;
     }
 }

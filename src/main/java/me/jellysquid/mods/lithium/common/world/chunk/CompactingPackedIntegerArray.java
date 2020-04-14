@@ -7,5 +7,5 @@ public interface CompactingPackedIntegerArray {
      * Copies the data out of this array into a new non-packed array. The returned array contains a copy of this array
      * re-mapped using {@param destPalette}.
      */
-    <T> short[] compact(Palette<T> srcPalette, Palette<T> destPalette, T def);
+    <T> void compact(Palette<T> srcPalette, Palette<T> dstPalette, short[] out);
 }
