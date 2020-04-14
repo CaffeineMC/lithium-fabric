@@ -85,12 +85,12 @@ public abstract class MixinVoronoiBiomeAccessType {
     }
 
     /**
-     * @reason Replace expensive modulo with simple bit shift
-     * @author JellySquid
+     * @reason Replace expensive modulo with simple `bitwise and` and reduced flops
+     * @author Kroppeb
      */
     @Overwrite
     private static double distribute(long seed) {
-        return ((((seed >> 24) & 1023L) / 1024.0D) - 0.5D) * 0.9D;
+        return (((seed >> 24) & 1023L) - 512) * 0.00087890625; // * 0.9 / 1024.0d
     }
 
     @Shadow
