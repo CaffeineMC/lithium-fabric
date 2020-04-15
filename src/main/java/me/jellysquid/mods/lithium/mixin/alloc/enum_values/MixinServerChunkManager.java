@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.avoid_allocations.enum_values;
+package me.jellysquid.mods.lithium.mixin.alloc.enum_values;
 
 import net.minecraft.entity.EntityCategory;
 import net.minecraft.server.world.ServerChunkManager;

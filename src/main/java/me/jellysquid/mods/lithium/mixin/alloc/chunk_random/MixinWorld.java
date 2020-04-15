@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.avoid_allocations;
+package me.jellysquid.mods.lithium.mixin.alloc.chunk_random;
 
 import me.jellysquid.mods.lithium.common.world.ChunkRandomSource;
 import net.minecraft.util.math.BlockPos;
