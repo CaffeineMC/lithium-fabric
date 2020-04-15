@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.entity.use_classed_collision_box_retrieval;
+package me.jellysquid.mods.lithium.mixin.entity.collision_only_boat_shulker;
 
 import me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions;
 import net.minecraft.entity.mob.ShulkerEntity;

@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.entity.type_specific_entity_retrieval;
+package me.jellysquid.mods.lithium.mixin.entity.replace_entitytype_predicates;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.goal.FormCaravanGoal;

@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.entity.shortcut_entity_entity_collisions;
+package me.jellysquid.mods.lithium.mixin.entity.stream_entity_collisions_lazily;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
