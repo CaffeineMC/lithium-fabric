@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.common.shapes;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelSet;
 import net.minecraft.util.shape.VoxelShape;
@@ -9,8 +10,8 @@ import net.minecraft.util.shape.VoxelShape;
 /**
  * An efficient implementation of {@link VoxelShape} for a shape with no vertices.
  */
-public class VoxelShapeEmpty extends VoxelShape {
-    private static final DoubleList EMPTY_LIST = DoubleArrayList.wrap(new double[] { 0.0D });
+public class VoxelShapeEmpty extends VoxelShape implements VoxelShapeExtended {
+    private static final DoubleList EMPTY_LIST = DoubleArrayList.wrap(new double[]{0.0D});
 
     public VoxelShapeEmpty(VoxelSet voxels) {
         super(voxels);
@@ -39,5 +40,10 @@ public class VoxelShapeEmpty extends VoxelShape {
     @Override
     public boolean isEmpty() {
         return true;
+    }
+
+    @Override
+    public boolean intersects(Box box, double x, double y, double z) {
+        return false;
     }
 }

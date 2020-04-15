@@ -1,11 +1,12 @@
 package me.jellysquid.mods.lithium.common.entity;
 
+import me.jellysquid.mods.lithium.common.shapes.VoxelShapeExtended;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.CuboidBlockIterator;
+import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
@@ -30,15 +31,8 @@ public class LithiumEntityCollisions {
      * VoxelShape system.
      */
     public static Stream<VoxelShape> getBlockCollisions(CollisionView world, final Entity entity, Box entityBox) {
-        int minX = MathHelper.floor(entityBox.x1 - 1.0E-7D) - 1;
-        int maxX = MathHelper.floor(entityBox.x2 + 1.0E-7D) + 1;
-        int minY = MathHelper.floor(entityBox.y1 - 1.0E-7D) - 1;
-        int maxY = MathHelper.floor(entityBox.y2 + 1.0E-7D) + 1;
-        int minZ = MathHelper.floor(entityBox.z1 - 1.0E-7D) - 1;
-        int maxZ = MathHelper.floor(entityBox.z2 + 1.0E-7D) + 1;
-
         final ShapeContext context = entity == null ? ShapeContext.absent() : ShapeContext.of(entity);
-        final CuboidBlockIterator cuboidIt = new CuboidBlockIterator(minX, minY, minZ, maxX, maxY, maxZ);
+        final CuboidBlockIterator cuboidIt = createVolumeIteratorForCollision(entityBox);
         final BlockPos.Mutable pos = new BlockPos.Mutable();
         final VoxelShape entityShape = VoxelShapes.cuboid(entityBox);
 
@@ -110,21 +104,15 @@ public class LithiumEntityCollisions {
      * @return True if the entity collided with any blocks
      */
     public static boolean doesEntityCollideWithBlocks(CollisionView world, final Entity entity, Box entityBox) {
-        int minX = MathHelper.floor(entityBox.x1 - 1.0E-7D) - 1;
-        int maxX = MathHelper.floor(entityBox.x2 + 1.0E-7D) + 1;
-        int minY = MathHelper.floor(entityBox.y1 - 1.0E-7D) - 1;
-        int maxY = MathHelper.floor(entityBox.y2 + 1.0E-7D) + 1;
-        int minZ = MathHelper.floor(entityBox.z1 - 1.0E-7D) - 1;
-        int maxZ = MathHelper.floor(entityBox.z2 + 1.0E-7D) + 1;
-
         final ShapeContext context = entity == null ? ShapeContext.absent() : ShapeContext.of(entity);
-        final CuboidBlockIterator cuboidIt = new CuboidBlockIterator(minX, minY, minZ, maxX, maxY, maxZ);
-        final BlockPos.Mutable pos = new BlockPos.Mutable();
-        final VoxelShape entityShape = VoxelShapes.cuboid(entityBox);
 
         if (entity != null && canEntityCollideWithWorldBorder(world, entity)) {
             return true;
         }
+
+        final CuboidBlockIterator cuboidIt = createVolumeIteratorForCollision(entityBox);
+        final BlockPos.Mutable pos = new BlockPos.Mutable();
+        final VoxelShape entityShape = VoxelShapes.cuboid(entityBox);
 
         while (cuboidIt.step()) {
             int x = cuboidIt.getX();
@@ -162,41 +150,60 @@ public class LithiumEntityCollisions {
         return false;
     }
 
-    private static boolean canInteractWithBlock(BlockState state, int edgesHit) {
-        if (edgesHit == 1 && !state.exceedsCube()) {
-            return false;
-        }
+    /**
+     * Returns an iterator which will include every block position that can contain a collision shape which can interact
+     * with the {@param box}.
+     */
+    private static CuboidBlockIterator createVolumeIteratorForCollision(Box box) {
+        int minX = MathHelper.floor(box.x1 - 1.0E-7D) - 1;
+        int maxX = MathHelper.floor(box.x2 + 1.0E-7D) + 1;
+        int minY = MathHelper.floor(box.y1 - 1.0E-7D) - 1;
+        int maxY = MathHelper.floor(box.y2 + 1.0E-7D) + 1;
+        int minZ = MathHelper.floor(box.z1 - 1.0E-7D) - 1;
+        int maxZ = MathHelper.floor(box.z2 + 1.0E-7D) + 1;
 
-        if (edgesHit == 2 && state.getBlock() != Blocks.MOVING_PISTON) {
-            return false;
-        }
-
-        return true;
+        return new CuboidBlockIterator(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
-    private static VoxelShape getCollidedShape(Box box, VoxelShape entityShape, VoxelShape shape, int x, int y, int z) {
-        if (shape == VoxelShapes.empty()) {
-            return null;
-        } else if (shape == VoxelShapes.fullCube()) {
-            if (!box.intersects(x, y, z, x + 1.0D, y + 1.0D, z + 1.0D)) {
-                return null;
-            }
+    /**
+     * This is an artifact from vanilla which is used to avoid testing shapes in the extended portion of a volume
+     * unless they are a shape which exceeds their voxel. Pistons must be special-cased here.
+     *
+     * @return True if the shape can be interacted with at the given edge boundary
+     */
+    private static boolean canInteractWithBlock(BlockState state, int edgesHit) {
+        return (edgesHit != 1 || state.exceedsCube()) && (edgesHit != 2 || state.getBlock() == Blocks.MOVING_PISTON);
+    }
 
-            shape = shape.offset(x, y, z);
-        } else {
-            shape = shape.offset(x, y, z);
-
-            if (!VoxelShapes.matchesAnywhere(shape, entityShape, BooleanBiFunction.AND)) {
+    /**
+     * Checks if the {@param entityShape} or {@param entityBox} intersects the given {@param shape} which is translated
+     * to the given position. This is a very specialized implementation which tries to avoid going through VoxelShape
+     * for full-cube shapes.
+     *
+     * @return A {@link VoxelShape} which contains the shape representing that which was collided with, otherwise null
+     */
+    private static VoxelShape getCollidedShape(Box entityBox, VoxelShape entityShape, VoxelShape shape, int x, int y, int z) {
+        if (shape instanceof VoxelShapeExtended) {
+            if (((VoxelShapeExtended) shape).intersects(entityBox, x, y, z)) {
+                return shape.offset(x, y, z);
+            } else {
                 return null;
             }
         }
 
-        return shape;
+        shape = shape.offset(x, y, z);
+
+        if (VoxelShapes.matchesAnywhere(shape, entityShape, BooleanBiFunction.AND)) {
+            return shape;
+        }
+
+        return null;
     }
 
     /**
      * This provides a faster check for seeing if an entity is within the world border as it avoids going through
      * the slower shape system.
+     *
      * @return True if the {@param box} is fully within the {@param border}, otherwise false.
      */
     public static boolean isBoxFullyWithinWorldBorder(WorldBorder border, Box box) {
@@ -220,9 +227,9 @@ public class LithiumEntityCollisions {
             return Collections.emptyList();
         }
 
-        Box selection = box.expand(1.0E-7D);
+        Box selectionBox = box.expand(1.0E-7D);
 
-        List<Entity> entities = view.getEntities(entity, selection);
+        List<Entity> entities = view.getEntities(entity, selectionBox);
         List<VoxelShape> shapes = new ArrayList<>();
 
         for (Entity otherEntity : entities) {
@@ -236,14 +243,14 @@ public class LithiumEntityCollisions {
 
             Box otherEntityBox = otherEntity.getCollisionBox();
 
-            if (otherEntityBox != null && selection.intersects(otherEntityBox)) {
+            if (otherEntityBox != null && selectionBox.intersects(otherEntityBox)) {
                 shapes.add(VoxelShapes.cuboid(otherEntityBox));
             }
 
             if (entity != null) {
                 Box otherEntityHardBox = entity.getHardCollisionBox(otherEntity);
 
-                if (otherEntityHardBox != null && selection.intersects(otherEntityHardBox)) {
+                if (otherEntityHardBox != null && selectionBox.intersects(otherEntityHardBox)) {
                     shapes.add(VoxelShapes.cuboid(otherEntityHardBox));
                 }
             }

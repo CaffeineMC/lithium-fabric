@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * An efficient implementation of {@link VoxelShape} for a shape with one simple cuboid.
  */
-public class VoxelShapeSimpleCube extends VoxelShape {
+public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeExtended {
     private static final double EPSILON = 1.0E-7D;
 
     private final double x1, y1, z1, x2, y2, z2;
@@ -43,7 +43,7 @@ public class VoxelShapeSimpleCube extends VoxelShape {
 
         double penetration = this.calculatePenetration(cycleDirection, box, maxDist);
 
-        if (penetration != maxDist && this.intersects(cycleDirection, box)) {
+        if ((penetration != maxDist) && this.intersects(cycleDirection, box)) {
             return penetration;
         }
 
@@ -82,7 +82,7 @@ public class VoxelShapeSimpleCube extends VoxelShape {
         if (maxDist > 0.0D) {
             penetration = a1 - b2;
 
-            if (penetration < -EPSILON || maxDist < penetration) {
+            if ((penetration < -EPSILON) || (maxDist < penetration)) {
                 return maxDist;
             }
 
@@ -92,7 +92,7 @@ public class VoxelShapeSimpleCube extends VoxelShape {
         } else {
             penetration = a2 - b1;
 
-            if (penetration > EPSILON || maxDist > penetration) {
+            if ((penetration > EPSILON) || (maxDist > penetration)) {
                 return maxDist;
             }
 
@@ -126,17 +126,17 @@ public class VoxelShapeSimpleCube extends VoxelShape {
 
     @Override
     protected double getPointPosition(Direction.Axis axis, int index) {
-        if (index < 0 || index > 1) {
+        if ((index < 0) || (index > 1)) {
             throw new ArrayIndexOutOfBoundsException();
         }
 
         switch (axis) {
             case X:
-                return index == 0 ? this.x1 : this.x2;
+                return (index == 0) ? this.x1 : this.x2;
             case Y:
-                return index == 0 ? this.y1 : this.y2;
+                return (index == 0) ? this.y1 : this.y2;
             case Z:
-                return index == 0 ? this.z1 : this.z2;
+                return (index == 0) ? this.z1 : this.z2;
         }
 
         throw new IllegalArgumentException();
@@ -158,12 +158,12 @@ public class VoxelShapeSimpleCube extends VoxelShape {
 
     @Override
     protected boolean contains(double x, double y, double z) {
-        return x >= this.x1 && x < this.x2 && y >= this.y1 && y < this.y2 && z >= this.z1 && z < this.z2;
+        return (x >= this.x1) && (x < this.x2) && (y >= this.y1) && (y < this.y2) && (z >= this.z1) && (z < this.z2);
     }
 
     @Override
     public boolean isEmpty() {
-        return this.x1 + EPSILON > this.x2 || this.y1 + EPSILON > this.y2 || this.z1 + EPSILON > this.z2;
+        return ((this.x1 + EPSILON) > this.x2) || ((this.y1 + EPSILON) > this.y2) || ((this.z1 + EPSILON) > this.z2);
     }
 
     @Override
@@ -180,6 +180,13 @@ public class VoxelShapeSimpleCube extends VoxelShape {
     }
 
     private static boolean lessThan(double a, double b) {
-        return a + EPSILON < b;
+        return (a + EPSILON) < b;
+    }
+
+    @Override
+    public boolean intersects(Box box, double x, double y, double z) {
+        return (box.x1 < (this.x2 + x)) && (box.x2 > (this.z1 + x)) &&
+                (box.y1 < (this.y2 + y)) && (box.y2 > (this.y1 + y)) &&
+                (box.z1 < (this.z2 + z)) && (box.z2 > (this.z1 + z));
     }
 }
