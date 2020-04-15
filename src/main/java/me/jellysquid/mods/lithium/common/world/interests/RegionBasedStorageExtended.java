@@ -4,10 +4,11 @@ import me.jellysquid.mods.lithium.common.util.Collector;
 
 import java.util.stream.Stream;
 
-public interface ExtendedRegionBasedStorage<R> {
+public interface RegionBasedStorageExtended<R> {
     /**
      * Fast-path for retrieving all items in a chunk column. This avoids needing to retrieve items for each sub-chunk
      * individually.
+     *
      * @param chunkX The x-coordinate of the chunk column
      * @param chunkZ The z-coordinate of the chunk column
      */

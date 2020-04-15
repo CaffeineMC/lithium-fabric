@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.shapes.blockstate_cache;
 
+import me.jellysquid.mods.lithium.common.block.BlockShapeCacheExtended;
 import me.jellysquid.mods.lithium.common.block.BlockShapeHelper;
-import me.jellysquid.mods.lithium.common.block.ExtendedBlockShapeCache;
 import me.jellysquid.mods.lithium.common.util.BitUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.function.BooleanBiFunction;
@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * issue tracker, which contains some additional information: https://bugs.mojang.com/browse/MC-174568
  */
 @Mixin(BlockState.ShapeCache.class)
-public class MixinBlockShapeCache implements ExtendedBlockShapeCache {
+public class MixinBlockShapeCache implements BlockShapeCacheExtended {
     private static final Direction[] DIRECTIONS = Direction.values();
 
     private byte sideCoversSmallSquare;

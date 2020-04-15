@@ -1,20 +1,20 @@
 package me.jellysquid.mods.lithium.mixin.shapes.blockstate_cache;
 
-import me.jellysquid.mods.lithium.common.block.ExtendedBlockShapeCacheProvider;
-import me.jellysquid.mods.lithium.common.block.ExtendedBlockShapeCache;
+import me.jellysquid.mods.lithium.common.block.BlockShapeCacheExtended;
+import me.jellysquid.mods.lithium.common.block.BlockShapeCacheExtendedProvider;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(AbstractBlock.AbstractBlockState.class)
-public class MixinAbstractBlockState implements ExtendedBlockShapeCacheProvider {
+public class MixinAbstractBlockState implements BlockShapeCacheExtendedProvider {
     @Shadow
     protected BlockState.ShapeCache shapeCache;
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    public ExtendedBlockShapeCache getExtendedShapeCache() {
-        return (ExtendedBlockShapeCache) (Object) this.shapeCache;
+    public BlockShapeCacheExtended getExtendedShapeCache() {
+        return (BlockShapeCacheExtended) (Object) this.shapeCache;
     }
 }

@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngine;
-import me.jellysquid.mods.lithium.common.entity.tracker.WorldWithEntityTrackerEngine;
+import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngineProvider;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -29,7 +29,7 @@ public class MixinServerWorld {
         int y = MathHelper.floor(entity.getY()) >> 4;
         int z = MathHelper.floor(entity.getZ()) >> 4;
 
-        EntityTrackerEngine tracker = WorldWithEntityTrackerEngine.getEntityTracker(this);
+        EntityTrackerEngine tracker = EntityTrackerEngineProvider.getEntityTracker(this);
         tracker.onEntityAdded(x, y, z, (LivingEntity) entity);
 
     }
@@ -43,7 +43,7 @@ public class MixinServerWorld {
             return;
         }
 
-        EntityTrackerEngine tracker = WorldWithEntityTrackerEngine.getEntityTracker(this);
+        EntityTrackerEngine tracker = EntityTrackerEngineProvider.getEntityTracker(this);
         tracker.onEntityRemoved(entity.chunkX, entity.chunkY, entity.chunkZ, (LivingEntity) entity);
     }
 
@@ -60,7 +60,7 @@ public class MixinServerWorld {
         int chunkY = MathHelper.floor(entity.getY()) >> 4;
         int chunkZ = MathHelper.floor(entity.getZ()) >> 4;
 
-        EntityTrackerEngine tracker = WorldWithEntityTrackerEngine.getEntityTracker(this);
+        EntityTrackerEngine tracker = EntityTrackerEngineProvider.getEntityTracker(this);
         tracker.onEntityAdded(chunkX, chunkY, chunkZ, (LivingEntity) entity);
     }
 
@@ -77,7 +77,7 @@ public class MixinServerWorld {
         int chunkY = MathHelper.floor(entity.getY()) >> 4;
         int chunkZ = MathHelper.floor(entity.getZ()) >> 4;
 
-        EntityTrackerEngine tracker = WorldWithEntityTrackerEngine.getEntityTracker(this);
+        EntityTrackerEngine tracker = EntityTrackerEngineProvider.getEntityTracker(this);
         tracker.onEntityRemoved(chunkX, chunkY, chunkZ, (LivingEntity) entity);
     }
 }

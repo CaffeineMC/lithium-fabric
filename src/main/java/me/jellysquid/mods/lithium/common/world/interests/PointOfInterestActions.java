@@ -23,6 +23,6 @@ public class PointOfInterestActions {
     }
 
     public static Collector<PointOfInterestSet> collectAllMatching(Predicate<PointOfInterestType> predicate, PointOfInterestStorage.OccupationStatus status, Collector<PointOfInterest> out) {
-        return (set) -> ((ExtendedPointOfInterestSet) set).get(predicate, status, out);
+        return (set) -> ((PointOfInterestSetExtended) set).get(predicate, status, out);
     }
 }

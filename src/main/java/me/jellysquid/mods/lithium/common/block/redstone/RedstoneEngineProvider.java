@@ -1,5 +1,5 @@
 package me.jellysquid.mods.lithium.common.block.redstone;
 
-public interface WorldWithRedstoneEngine {
+public interface RedstoneEngineProvider {
     RedstoneEngine getRedstoneEngine();
 }

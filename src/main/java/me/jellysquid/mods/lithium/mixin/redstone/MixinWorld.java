@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.redstone;
 
 import me.jellysquid.mods.lithium.common.block.redstone.RedstoneEngine;
-import me.jellysquid.mods.lithium.common.block.redstone.WorldWithRedstoneEngine;
+import me.jellysquid.mods.lithium.common.block.redstone.RedstoneEngineProvider;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkManager;
@@ -20,7 +20,7 @@ import java.util.function.Supplier;
  * Installs the {@link RedstoneEngine} for a world.
  */
 @Mixin(World.class)
-public class MixinWorld implements WorldWithRedstoneEngine {
+public class MixinWorld implements RedstoneEngineProvider {
     private RedstoneEngine redstoneEngine;
 
     /**

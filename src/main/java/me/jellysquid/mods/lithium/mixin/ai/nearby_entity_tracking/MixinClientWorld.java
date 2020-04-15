@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngine;
-import me.jellysquid.mods.lithium.common.entity.tracker.WorldWithEntityTrackerEngine;
+import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngineProvider;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -29,7 +29,7 @@ public class MixinClientWorld {
         int y = MathHelper.floor(entity.getY()) >> 4;
         int z = MathHelper.floor(entity.getZ()) >> 4;
 
-        EntityTrackerEngine tracker = WorldWithEntityTrackerEngine.getEntityTracker(this);
+        EntityTrackerEngine tracker = EntityTrackerEngineProvider.getEntityTracker(this);
         tracker.onEntityAdded(x, y, z, (LivingEntity) entity);
 
     }
@@ -44,7 +44,7 @@ public class MixinClientWorld {
         }
 
         // The chunkX/Y/Z fields on the entity represent the entity's chunk coordinates in the *previous* tick
-        EntityTrackerEngine tracker = WorldWithEntityTrackerEngine.getEntityTracker(this);
+        EntityTrackerEngine tracker = EntityTrackerEngineProvider.getEntityTracker(this);
         tracker.onEntityRemoved(entity.chunkX, entity.chunkY, entity.chunkZ, (LivingEntity) entity);
     }
 
@@ -61,7 +61,7 @@ public class MixinClientWorld {
         int chunkY = MathHelper.floor(entity.getY()) >> 4;
         int chunkZ = MathHelper.floor(entity.getZ()) >> 4;
 
-        EntityTrackerEngine tracker = WorldWithEntityTrackerEngine.getEntityTracker(this);
+        EntityTrackerEngine tracker = EntityTrackerEngineProvider.getEntityTracker(this);
         tracker.onEntityAdded(chunkX, chunkY, chunkZ, (LivingEntity) entity);
     }
 
@@ -78,7 +78,7 @@ public class MixinClientWorld {
         int chunkY = MathHelper.floor(entity.getY()) >> 4;
         int chunkZ = MathHelper.floor(entity.getZ()) >> 4;
 
-        EntityTrackerEngine tracker = WorldWithEntityTrackerEngine.getEntityTracker(this);
+        EntityTrackerEngine tracker = EntityTrackerEngineProvider.getEntityTracker(this);
         tracker.onEntityRemoved(chunkX, chunkY, chunkZ, (LivingEntity) entity);
     }
 }

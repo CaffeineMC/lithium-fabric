@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.world.chunk_ticking;
 
-import me.jellysquid.mods.lithium.common.util.PlayerChunkWatchingManagerExtended;
+import me.jellysquid.mods.lithium.common.world.PlayerChunkWatchingManagerExtended;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.PlayerChunkWatchingManager;

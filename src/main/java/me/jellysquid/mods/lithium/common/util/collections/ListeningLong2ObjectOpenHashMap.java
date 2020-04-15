@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.util;
+package me.jellysquid.mods.lithium.common.util.collections;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 

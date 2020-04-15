@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.ai.goal;
 
-import me.jellysquid.mods.lithium.common.ai.ExtendedGoal;
+import me.jellysquid.mods.lithium.common.ai.GoalExtended;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.GoalSelector;
 import net.minecraft.entity.ai.goal.WeightedGoal;
@@ -228,6 +228,6 @@ public abstract class MixinGoalSelector {
      * Helper method which accesses the flat required controls array from a goal.
      */
     private static Goal.Control[] getControls(WeightedGoal goal) {
-        return ((ExtendedGoal) goal.getGoal()).getRequiredControls();
+        return ((GoalExtended) goal.getGoal()).getRequiredControls();
     }
 }

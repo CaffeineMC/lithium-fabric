@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.ai.task;
 
-import me.jellysquid.mods.lithium.common.util.IIterableWeightedList;
+import me.jellysquid.mods.lithium.common.ai.WeightedListIterable;
 import net.minecraft.util.collection.WeightedList;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -10,13 +10,13 @@ import java.util.Iterator;
 import java.util.List;
 
 @Mixin(WeightedList.class)
-public class MixinWeightedList<U> implements IIterableWeightedList<U> {
+public class MixinWeightedList<U> implements WeightedListIterable<U> {
     @Shadow
     @Final
     protected List<WeightedList<U>.Entry<? extends U>> entries;
 
     @Override
     public Iterator<U> iterator() {
-        return new IIterableWeightedList.ListIterator<>(this.entries.iterator());
+        return new WeightedListIterable.ListIterator<>(this.entries.iterator());
     }
 }

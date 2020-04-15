@@ -2,11 +2,10 @@ package me.jellysquid.mods.lithium.common.block;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldView;
 
-public interface ExtendedBlockShapeCache {
+public interface BlockShapeCacheExtended {
     /**
      * Cached version of {@link net.minecraft.block.Block#sideCoversSmallSquare(WorldView, BlockPos, Direction)}
      */

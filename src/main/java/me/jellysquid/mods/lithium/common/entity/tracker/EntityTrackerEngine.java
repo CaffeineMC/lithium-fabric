@@ -1,8 +1,8 @@
 package me.jellysquid.mods.lithium.common.entity.tracker;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.EntityWithNearbyListener;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListener;
+import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerProvider;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
@@ -24,8 +24,8 @@ public class EntityTrackerEngine {
      */
     public void onEntityAdded(int x, int y, int z, LivingEntity entity) {
         if (this.addEntity(x, y, z, entity)) {
-            if (entity instanceof EntityWithNearbyListener) {
-                this.addListener(x, y, z, ((EntityWithNearbyListener) entity).getListener());
+            if (entity instanceof NearbyEntityListenerProvider) {
+                this.addListener(x, y, z, ((NearbyEntityListenerProvider) entity).getListener());
             }
         }
     }
@@ -35,8 +35,8 @@ public class EntityTrackerEngine {
      */
     public void onEntityRemoved(int x, int y, int z, LivingEntity entity) {
         if (this.removeEntity(x, y, z, entity)) {
-            if (entity instanceof EntityWithNearbyListener) {
-                this.removeListener(((EntityWithNearbyListener) entity).getListener());
+            if (entity instanceof NearbyEntityListenerProvider) {
+                this.removeListener(((NearbyEntityListenerProvider) entity).getListener());
             }
         }
     }
@@ -47,8 +47,8 @@ public class EntityTrackerEngine {
      */
     public void onEntityMoved(int aX, int aY, int aZ, int bX, int bY, int bZ, LivingEntity entity) {
         if (this.removeEntity(aX, aY, aZ, entity) && this.addEntity(bX, bY, bZ, entity)) {
-            if (entity instanceof EntityWithNearbyListener) {
-                this.moveListener(aX, aY, aZ, bX, bY, bZ, ((EntityWithNearbyListener) entity).getListener());
+            if (entity instanceof NearbyEntityListenerProvider) {
+                this.moveListener(aX, aY, aZ, bX, bY, bZ, ((NearbyEntityListenerProvider) entity).getListener());
             }
         }
     }

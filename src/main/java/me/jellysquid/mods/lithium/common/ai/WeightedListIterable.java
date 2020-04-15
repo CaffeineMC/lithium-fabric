@@ -1,15 +1,15 @@
-package me.jellysquid.mods.lithium.common.util;
+package me.jellysquid.mods.lithium.common.ai;
 
 import net.minecraft.util.collection.WeightedList;
 
 import java.util.Iterator;
 
-public interface IIterableWeightedList<U> extends Iterable<U> {
+public interface WeightedListIterable<U> extends Iterable<U> {
     Iterator<U> iterator();
 
     @SuppressWarnings("unchecked")
     static <T> Iterable<? extends T> cast(WeightedList<T> list) {
-        return ((IIterableWeightedList<T>) list);
+        return ((WeightedListIterable<T>) list);
     }
 
     class ListIterator<U> implements Iterator<U> {

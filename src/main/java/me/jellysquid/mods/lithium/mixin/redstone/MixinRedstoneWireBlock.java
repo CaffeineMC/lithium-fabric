@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.redstone;
 
 import me.jellysquid.mods.lithium.common.block.redstone.RedstoneEngine;
-import me.jellysquid.mods.lithium.common.block.redstone.WorldWithRedstoneEngine;
+import me.jellysquid.mods.lithium.common.block.redstone.RedstoneEngineProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.RedstoneWireBlock;
 import net.minecraft.util.math.BlockPos;
@@ -22,7 +22,7 @@ public abstract class MixinRedstoneWireBlock {
             return state;
         }
 
-        RedstoneEngine engine = ((WorldWithRedstoneEngine) world).getRedstoneEngine();
+        RedstoneEngine engine = ((RedstoneEngineProvider) world).getRedstoneEngine();
         engine.notifyWireNeighborChanged(pos, state.get(RedstoneWireBlock.POWER));
 
         return state;
@@ -44,7 +44,7 @@ public abstract class MixinRedstoneWireBlock {
             return;
         }
 
-        RedstoneEngine engine = ((WorldWithRedstoneEngine) world).getRedstoneEngine();
+        RedstoneEngine engine = ((RedstoneEngineProvider) world).getRedstoneEngine();
         engine.notifyWireRemoved(pos, state.get(RedstoneWireBlock.POWER));
     }
 
@@ -64,7 +64,7 @@ public abstract class MixinRedstoneWireBlock {
             return;
         }
 
-        RedstoneEngine engine = ((WorldWithRedstoneEngine) world).getRedstoneEngine();
+        RedstoneEngine engine = ((RedstoneEngineProvider) world).getRedstoneEngine();
         engine.notifyWireAdded(pos);
     }
 

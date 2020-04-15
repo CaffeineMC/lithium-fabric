@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.avoid_allocations;
 
-import me.jellysquid.mods.lithium.common.world.ExtendedWorld;
+import me.jellysquid.mods.lithium.common.world.ChunkRandomSource;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.server.world.ServerWorld;
@@ -21,7 +21,7 @@ public abstract class MixinServerWorld {
      */
     @Redirect(method = "tickChunk(Lnet/minecraft/world/chunk/WorldChunk;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;getRandomPosInChunk(IIII)Lnet/minecraft/util/math/BlockPos;"))
     private BlockPos redirectTickGetRandomPosInChunk(ServerWorld serverWorld, int x, int y, int z, int mask) {
-        ((ExtendedWorld) serverWorld).getRandomPosInChunk(x, y, z, mask, this.randomPosInChunkCachedPos);
+        ((ChunkRandomSource) serverWorld).getRandomPosInChunk(x, y, z, mask, this.randomPosInChunkCachedPos);
 
         return this.randomPosInChunkCachedPos;
     }

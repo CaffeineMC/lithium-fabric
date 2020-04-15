@@ -3,7 +3,7 @@ package me.jellysquid.mods.lithium.mixin.entity.fluid_checks;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
-import me.jellysquid.mods.lithium.common.world.FluidPushInfo;
+import me.jellysquid.mods.lithium.common.entity.movement.FluidPushInfo;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;

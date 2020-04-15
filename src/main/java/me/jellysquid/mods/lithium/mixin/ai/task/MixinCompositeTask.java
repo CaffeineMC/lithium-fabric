@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.ai.task;
 
-import me.jellysquid.mods.lithium.common.util.IIterableWeightedList;
+import me.jellysquid.mods.lithium.common.ai.WeightedListIterable;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
@@ -31,7 +31,7 @@ public class MixinCompositeTask<E extends LivingEntity> {
      */
     @Overwrite
     public boolean shouldKeepRunning(ServerWorld world, E entity, long time) {
-        for (Task<? super E> task : IIterableWeightedList.cast(this.tasks)) {
+        for (Task<? super E> task : WeightedListIterable.cast(this.tasks)) {
             if (task.getStatus() == Task.Status.RUNNING) {
                 if (task.shouldKeepRunning(world, entity, time)) {
                     return true;
@@ -48,7 +48,7 @@ public class MixinCompositeTask<E extends LivingEntity> {
      */
     @Overwrite
     public void keepRunning(ServerWorld world, E entity, long time) {
-        for (Task<? super E> task : IIterableWeightedList.cast(this.tasks)) {
+        for (Task<? super E> task : WeightedListIterable.cast(this.tasks)) {
             if (task.getStatus() == Task.Status.RUNNING) {
                 task.tick(world, entity, time);
             }
@@ -61,7 +61,7 @@ public class MixinCompositeTask<E extends LivingEntity> {
      */
     @Overwrite
     public void finishRunning(ServerWorld world, E entity, long time) {
-        for (Task<? super E> task : IIterableWeightedList.cast(this.tasks)) {
+        for (Task<? super E> task : WeightedListIterable.cast(this.tasks)) {
             if (task.getStatus() == Task.Status.RUNNING) {
                 task.stop(world, entity, time);
             }

@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.util;
+package me.jellysquid.mods.lithium.common.world;
 
 
 import net.minecraft.server.network.ServerPlayerEntity;

@@ -1,5 +1,5 @@
 package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
-public interface EntityWithNearbyListener {
+public interface NearbyEntityListenerProvider {
     NearbyEntityListenerMulti getListener();
 }

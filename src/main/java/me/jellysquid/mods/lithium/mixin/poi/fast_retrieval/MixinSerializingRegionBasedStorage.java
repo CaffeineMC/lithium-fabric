@@ -4,9 +4,9 @@ import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.Dynamic;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import me.jellysquid.mods.lithium.common.world.interests.ExtendedRegionBasedStorage;
 import me.jellysquid.mods.lithium.common.util.Collector;
-import me.jellysquid.mods.lithium.common.util.ListeningLong2ObjectOpenHashMap;
+import me.jellysquid.mods.lithium.common.util.collections.ListeningLong2ObjectOpenHashMap;
+import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageExtended;
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.util.dynamic.DynamicSerializable;
 import net.minecraft.util.math.ChunkPos;
@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType") // We don't get a choice, this is Minecraft's doing!
 @Mixin(SerializingRegionBasedStorage.class)
-public abstract class MixinSerializingRegionBasedStorage<R extends DynamicSerializable> implements ExtendedRegionBasedStorage<R> {
+public abstract class MixinSerializingRegionBasedStorage<R extends DynamicSerializable> implements RegionBasedStorageExtended<R> {
     @Mutable
     @Shadow
     @Final

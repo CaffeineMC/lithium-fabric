@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.poi.fast_retrieval;
 
-import me.jellysquid.mods.lithium.common.world.interests.ExtendedPointOfInterestSet;
 import me.jellysquid.mods.lithium.common.util.Collector;
+import me.jellysquid.mods.lithium.common.world.interests.PointOfInterestSetExtended;
 import net.minecraft.world.poi.PointOfInterest;
 import net.minecraft.world.poi.PointOfInterestSet;
 import net.minecraft.world.poi.PointOfInterestStorage;
@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 @Mixin(PointOfInterestSet.class)
-public class MixinPointOfInterestSet implements ExtendedPointOfInterestSet {
+public class MixinPointOfInterestSet implements PointOfInterestSetExtended {
     @Shadow
     @Final
     private Map<PointOfInterestType, Set<PointOfInterest>> pointsOfInterestByType;

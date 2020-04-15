@@ -7,6 +7,6 @@ import net.minecraft.world.poi.PointOfInterestType;
 
 import java.util.function.Predicate;
 
-public interface ExtendedPointOfInterestSet {
+public interface PointOfInterestSetExtended {
     boolean get(Predicate<PointOfInterestType> type, PointOfInterestStorage.OccupationStatus status, Collector<PointOfInterest> consumer);
 }

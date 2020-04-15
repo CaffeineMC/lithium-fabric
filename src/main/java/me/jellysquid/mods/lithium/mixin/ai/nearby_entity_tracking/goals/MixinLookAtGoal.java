@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking.goals;
 
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.EntityWithNearbyListener;
+import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerProvider;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityTracker;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.TargetPredicate;
@@ -23,7 +23,7 @@ public class MixinLookAtGoal {
     private void init(MobEntity mob, Class<? extends LivingEntity> targetType, float range, float chance, CallbackInfo ci) {
         this.tracker = new NearbyEntityTracker<>(targetType, mob, range);
 
-        ((EntityWithNearbyListener) mob).getListener().addListener(this.tracker);
+        ((NearbyEntityListenerProvider) mob).getListener().addListener(this.tracker);
     }
 
     @Redirect(method = "canStart", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getClosestEntityIncludingUngeneratedChunks(Ljava/lang/Class;Lnet/minecraft/entity/ai/TargetPredicate;Lnet/minecraft/entity/LivingEntity;DDDLnet/minecraft/util/math/Box;)Lnet/minecraft/entity/LivingEntity;"))

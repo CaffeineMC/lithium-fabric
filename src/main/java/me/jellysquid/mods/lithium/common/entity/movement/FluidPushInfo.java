@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.world;
+package me.jellysquid.mods.lithium.common.entity.movement;
 
 import me.jellysquid.mods.lithium.common.util.math.MutVec3d;
 
