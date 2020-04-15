@@ -24,7 +24,6 @@ public class LithiumConfig {
     private LithiumConfig() {
         this.addDefaultMixinOption("chunk.no_locking", false);
         this.addDefaultMixinOption("redstone", false);
-        this.addDefaultMixinOption("world.region_sync", false);
     }
 
     private void addDefaultMixinOption(String mixin, boolean enabled) {
