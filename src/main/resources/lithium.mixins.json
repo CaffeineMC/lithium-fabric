@@ -47,6 +47,7 @@
         "entity.collisions.MixinEntityView",
         "entity.data_tracker.no_locks.MixinDataTracker",
         "entity.data_tracker.use_arrays.MixinDataTracker",
+        "entity.shortcut_entity_entity_collisions.MixinEntity",
         "entity.fluid_checks.MixinEntity",
         "entity.use_classed_collision_box_retrieval.MixinBoatEntity",
         "entity.use_classed_collision_box_retrieval.MixinLithiumEntityCollisions",
