@@ -1,5 +1,9 @@
 package me.jellysquid.mods.lithium.common.config;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,38 +22,8 @@ public class LithiumConfig {
     private final Map<String, Option> options = new HashMap<>();
 
     private LithiumConfig() {
-        this.addDefaultMixinOption("ai.brain", true);
-        this.addDefaultMixinOption("ai.goal", true);
-        this.addDefaultMixinOption("ai.nearby_entity_tracking", true);
-        this.addDefaultMixinOption("ai.raid", true);
-        this.addDefaultMixinOption("avoid_allocations.enum_values", true);
-        this.addDefaultMixinOption("block.piston_shapes", true);
-        this.addDefaultMixinOption("cached_hashcode", true);
         this.addDefaultMixinOption("chunk.no_locking", false);
-        this.addDefaultMixinOption("chunk.palette", true);
-        this.addDefaultMixinOption("chunk.serialization", true);
-        this.addDefaultMixinOption("client.fast_loading_screen", true);
-        this.addDefaultMixinOption("collections.entity_filtering", true);
-        this.addDefaultMixinOption("collections.sorted_array_set", true);
-        this.addDefaultMixinOption("entity.block_cache", true);
-        this.addDefaultMixinOption("entity.data_tracker", true);
-        this.addDefaultMixinOption("entity.simple_entity_block_collisions", true);
-        this.addDefaultMixinOption("entity.simple_world_border_collisions", true);
-        this.addDefaultMixinOption("entity.streamless_entity_retrieval", true);
-        this.addDefaultMixinOption("math.fast_util", true);
-        this.addDefaultMixinOption("poi.fast_init", true);
-        this.addDefaultMixinOption("poi.fast_retrieval", true);
         this.addDefaultMixinOption("redstone", false);
-        this.addDefaultMixinOption("shapes.blockstate_cache", true);
-        this.addDefaultMixinOption("shapes.precompute_shape_arrays", true);
-        this.addDefaultMixinOption("shapes.shape_merging", true);
-        this.addDefaultMixinOption("shapes.specialized_shapes", true);
-        this.addDefaultMixinOption("world.chunk_task_system", true);
-        this.addDefaultMixinOption("world.chunk_tickets", true);
-        this.addDefaultMixinOption("world.chunk_ticking", true);
-        this.addDefaultMixinOption("world.explosions", true);
-        this.addDefaultMixinOption("world.tick_scheduler", true);
-        this.addDefaultMixinOption("entity.fluid_checks", true);
         this.addDefaultMixinOption("world.region_sync", false);
     }
 
@@ -62,6 +36,31 @@ public class LithiumConfig {
      */
     private void addDefaultOption(String name, boolean enabled) {
         this.options.put(name, new Option(enabled, false));
+    }
+
+    private void discoverMixins(String path) {
+        try (InputStream in = LithiumConfig.class.getResourceAsStream(path)) {
+            if (in == null) {
+                throw new IOException("Could not find mixin config at path: " + path);
+            }
+
+            JsonObject mixinConfig = new Gson().fromJson(new InputStreamReader(in), JsonObject.class);
+
+            this.addKnownMixins(mixinConfig.getAsJsonArray("mixins"));
+            this.addKnownMixins(mixinConfig.getAsJsonArray("client"));
+        } catch (IOException e) {
+            throw new RuntimeException("Could not examine mixin config", e);
+        }
+    }
+
+    private void addKnownMixins(JsonArray array) {
+        for (JsonElement e : array) {
+            this.addKnownMixinName(e.getAsString());
+        }
+    }
+
+    private void addKnownMixinName(String name) {
+        this.options.computeIfAbsent(getMixinRuleName(name), (key) -> new Option(true, false));
     }
 
     private void read(Properties props) {
@@ -120,7 +119,7 @@ public class LithiumConfig {
      * Loads the configuration file from the specified location. If it does not exist, a new configuration file will be
      * created. The file on disk will then be updated to include any new options.
      */
-    public static LithiumConfig load(File file) {
+    public static LithiumConfig load(File file, String mixinPath) {
         if (!file.exists()) {
             try {
                 writeDefaultConfig(file);
@@ -140,6 +139,7 @@ public class LithiumConfig {
         }
 
         LithiumConfig config = new LithiumConfig();
+        config.discoverMixins(mixinPath);
         config.read(props);
 
         return config;

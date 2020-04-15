@@ -24,7 +24,7 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
     @Override
     public void onLoad(String mixinPackage) {
         try {
-            this.config = LithiumConfig.load(new File("./config/lithium.properties"));
+            this.config = LithiumConfig.load(new File("./config/lithium.properties"), "/lithium.mixins.json");
         } catch (Exception e) {
             throw new RuntimeException("Could not load configuration file for Lithium", e);
         }
