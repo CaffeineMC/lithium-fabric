@@ -171,7 +171,11 @@ public class LithiumEntityCollisions {
             return false;
         }
 
-        return edgesHit != 2 || state.getBlock() == Blocks.MOVING_PISTON;
+        if (edgesHit == 2 && state.getBlock() != Blocks.MOVING_PISTON) {
+            return false;
+        }
+
+        return true;
     }
 
     private static VoxelShape getCollidedShape(Box box, VoxelShape entityShape, VoxelShape shape, int x, int y, int z) {

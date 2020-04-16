@@ -22,6 +22,7 @@ public class MixinEntity {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getEntityCollisions(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/stream/Stream;"))
     private Stream<VoxelShape> getLazyCreatedEntityCollisionStream(World world, Entity entity_1, Box box_1, Predicate<Entity> predicate_1) {
         Stream<Supplier<Stream<VoxelShape>>> getCollisionsLazilyStream = Stream.of(() -> world.getEntityCollisions(entity_1, box_1, predicate_1));
+        //flatmap will only evaluate the supplier when the stream is reaching it
         return getCollisionsLazilyStream.flatMap(Supplier::get);
     }
 

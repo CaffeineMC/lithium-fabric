@@ -3,7 +3,6 @@ package me.jellysquid.mods.lithium.mixin.entity.replace_entitytype_predicates;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.goal.FormCaravanGoal;
-import net.minecraft.entity.decoration.AbstractDecorationEntity;
 import net.minecraft.entity.passive.LlamaEntity;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;

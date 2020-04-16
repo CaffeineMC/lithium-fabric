@@ -10,11 +10,12 @@ import java.util.function.Function;
 
 /**
  * Class for grouping Entity classes that meet some requirement for use in TypeFilterableList
+ * Designed to allow create groups of entity classes that are updated when mods add new entities that fit into the group.
  * @author 2No2Name
  */
 public class EntityClassGroup {
-    //Keep a set of classes we know, so we only evaluate them once.
-    private static final ConcurrentHashMap<Class<?>, /*Unused Value*/Object> knownEntityClasses = new ConcurrentHashMap<>();
+    //Keep a set of classes that were already added to matching class groups, so we only analyse them once.
+    private static final ConcurrentHashMap<Class<?>, Object> knownEntityClasses = new ConcurrentHashMap<>(); //value unused, no set variant available
     //Keep track of available class groups for updating them in case an entity class is instantiated for the first time
     private static final List<EntityClassGroup> entityClassGroups = new ArrayList<>();
 
@@ -56,7 +57,7 @@ public class EntityClassGroup {
 
 
 
-    private final ConcurrentHashMap<Class<?>, /*Unused Value*/Object> classGroup;
+    private final ConcurrentHashMap<Class<?>, Object> classGroup; //value unused, no set variant available
     private final Function<Class<?>, Boolean> classFitEvaluator;
 
     public EntityClassGroup() {
@@ -95,11 +96,16 @@ public class EntityClassGroup {
         if (this.classGroup.containsKey(discoveredEntityClass)) {
             return;
         }
-        if (classFitEvaluator != null && classFitEvaluator.apply(discoveredEntityClass)) {
+        if (this.classFitEvaluator != null && this.classFitEvaluator.apply(discoveredEntityClass)) {
             this.classGroup.put(discoveredEntityClass, discoveredEntityClass);
         }
     }
 
+    /**
+     * Adds the Class to all class groups that it meets the requirements of.
+     * Results are cached so each class is only analysed once.
+     * @param entityClass entity subclass to analyse
+     */
     public static void analyseEntityClass(Class<?> entityClass) {
         if (EntityClassGroup.knownEntityClasses.containsKey(entityClass)) {
             return;

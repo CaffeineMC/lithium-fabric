@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 public abstract class MixinAbstractDecorationEntity extends Entity{
     @Shadow
     @Final
-    protected static Predicate<Entity> PREDICATE;
+    protected static Predicate<Entity> PREDICATE; //entity instanceof AbstractDecorationEntity
 
     public MixinAbstractDecorationEntity(EntityType<?> type, World world) {
         super(type, world);
