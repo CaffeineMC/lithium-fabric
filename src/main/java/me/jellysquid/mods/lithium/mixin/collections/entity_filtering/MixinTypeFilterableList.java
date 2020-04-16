@@ -1,30 +1,87 @@
 package me.jellysquid.mods.lithium.mixin.collections.entity_filtering;
 
-import me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
+import me.jellysquid.mods.lithium.common.entity.EntityClassGroup;
+import me.jellysquid.mods.lithium.common.world.WorldHelper;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.collection.TypeFilterableList;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.*;
 
 /**
  * Patches {@link TypeFilterableList} to improve performance when entities are being queried in the world.
+ * Patches it also to allow grouping entity types.
  */
 @Mixin(TypeFilterableList.class)
-public class MixinTypeFilterableList<T> {
+public abstract class MixinTypeFilterableList<T> implements WorldHelper.ClassGroupFilterableList<T> {
     @Shadow
     @Final
     private Class<T> elementType;
 
-    @Shadow
-    @Final
-    private Map<Class<?>, List<T>> elementsByType;
+    private Reference2ReferenceOpenHashMap<Object, ReferenceLinkedOpenHashSet<T>> entitiesByGroup;
+    //the above ReferenceLinkedOpenHashSet each wrapped in UnmodifiableCollection
+    private Map<Object, Collection<T>> entitiesByGroupUnmodifiables;
+    private ReferenceLinkedOpenHashSet<T> allEntities;
 
-    @Shadow
-    @Final
-    private List<T> allElements;
+
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void init(Class<T> elementType, CallbackInfo ci) {
+        this.entitiesByGroup = new Reference2ReferenceOpenHashMap<>();
+        this.entitiesByGroupUnmodifiables = new Reference2ReferenceOpenHashMap<>();
+        this.allEntities = new ReferenceLinkedOpenHashSet<>();
+        this.entitiesByGroup.put(this.elementType, this.allEntities);
+        this.entitiesByGroupUnmodifiables.put(this.elementType, Collections.unmodifiableCollection(this.allEntities));
+
+    }
+
+    /**
+     * @reason use our collections, no simple redirect to our iterator, as we have no lists
+     * @author 2No2Name
+     */
+    @Overwrite
+    public boolean add(T entity) {
+        boolean bl = false;
+        for (Map.Entry<Object, ReferenceLinkedOpenHashSet<T>> entityGroupAndMap : this.entitiesByGroup.entrySet()) {
+            Object entityGroup = entityGroupAndMap.getKey();
+            if (entityGroup instanceof Class) {
+                if (((Class)entityGroup).isInstance(entity)) {
+                    entityGroupAndMap.getValue().add(entity);
+                    bl = true;
+                }
+            } else {
+                if (((EntityClassGroup)entityGroup).contains(((Entity)entity).getClass())) {
+                    entityGroupAndMap.getValue().add((entity));
+                    bl = true;
+                }
+            }
+        }
+        return bl;
+    }
+
+    /**
+     * @reason use our collections, no simple redirect to our iterator, as we have no lists
+     * @author 2No2Name
+     */
+    @Overwrite
+    public boolean remove(Object o) {
+        boolean bl = false;
+
+        for (Map.Entry<Object, ReferenceLinkedOpenHashSet<T>> objectReferenceLinkedOpenHashSetEntry : this.entitiesByGroup.entrySet()) {
+            bl |= objectReferenceLinkedOpenHashSetEntry.getValue().remove(o);
+        }
+
+        return bl;
+    }
+
 
     /**
      * @reason Only perform the slow Class#isAssignableFrom(Class) if a list doesn't exist for the type, otherwise
@@ -34,30 +91,73 @@ public class MixinTypeFilterableList<T> {
     @SuppressWarnings("unchecked")
     @Overwrite
     public <S> Collection<S> getAllOfType(Class<S> type) {
-        Collection<T> collection = this.elementsByType.get(type);
+        Collection<T> collection = this.entitiesByGroupUnmodifiables.get(type);
 
         if (collection == null) {
-            collection = this.createAllOfType(type);
+            collection =  this.createAllOfType(type);
         }
 
-        return (Collection<S>) Collections.unmodifiableCollection(collection);
+        return (Collection<S>) collection;
+    }
+
+    public Collection<T> getAllOfGroupType(EntityClassGroup type) {
+        Collection<T> collection = this.entitiesByGroupUnmodifiables.get(type);
+
+        if (collection == null) {
+            collection =  this.createAllOfGroupType(type);
+        }
+
+        return collection;
+    }
+
+    //use redirects instead of overwrites if possible, for example for getting the iterator or the size
+    @Redirect(method = "iterator", at = @At(value = "INVOKE", target = "Ljava/util/List;isEmpty()Z"))
+    private boolean isEmpty(List list) {
+        return this.allEntities.isEmpty();
+    }
+    @Redirect(method = "iterator", at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
+    private Iterator<T> iterator(List list) {
+        return this.allEntities.iterator();
+    }
+    @Redirect(method = "size", at = @At(value = "INVOKE", target = "Ljava/util/List;size()I"))
+    private int size(List list) {
+        return this.allEntities.size();
     }
 
     private <S> Collection<T> createAllOfType(Class<S> type) {
-        if (type != LithiumEntityCollisions.CollisionBoxOverridingEntity.class && !this.elementType.isAssignableFrom(type)) {
+        if (!this.elementType.isAssignableFrom(type)) {
             throw new IllegalArgumentException("Don't know how to search for " + type);
         }
 
-        List<T> list = new ArrayList<>();
+        ReferenceLinkedOpenHashSet<T> allOfType = new ReferenceLinkedOpenHashSet<>();
+        Collection<T> allOfTypeUnmodifiable = Collections.unmodifiableCollection(allOfType);
 
-        for (T allElement : this.allElements) {
-            if (type.isInstance(allElement)) {
-                list.add(allElement);
+        for (T entity : this.allEntities) {
+            if (type.isInstance(entity)) {
+                allOfType.add(entity);
             }
         }
 
-        this.elementsByType.put(type, list);
+        this.entitiesByGroup.put(type, allOfType);
+        this.entitiesByGroupUnmodifiables.put(type, allOfTypeUnmodifiable);
 
-        return list;
+
+        return allOfTypeUnmodifiable;
+    }
+
+    private <S> Collection<T> createAllOfGroupType(EntityClassGroup type) {
+        ReferenceLinkedOpenHashSet<T> allOfType = new ReferenceLinkedOpenHashSet<>();
+        Collection<T> allOfTypeUnmodifiable = Collections.unmodifiableCollection(allOfType);
+
+        for (T entity : this.allEntities) {
+            if (type.contains(entity.getClass())) {
+                allOfType.add(entity);
+            }
+        }
+
+        this.entitiesByGroup.put(type, allOfType);
+        this.entitiesByGroupUnmodifiables.put(type, allOfTypeUnmodifiable);
+
+        return allOfTypeUnmodifiable;
     }
 }

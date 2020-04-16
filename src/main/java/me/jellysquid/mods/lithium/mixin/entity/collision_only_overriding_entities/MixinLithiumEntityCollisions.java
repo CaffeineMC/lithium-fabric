@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.entity.collision_only_boat_shulker;
+package me.jellysquid.mods.lithium.mixin.entity.collision_only_overriding_entities;
 
 import me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions;
 import net.minecraft.entity.Entity;
