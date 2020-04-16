@@ -18,8 +18,7 @@ public class WorldHelper {
 
 
     /**
-     * Method that allows getting entities of a class that does not extend Entity. This makes it possible to
-     * group entity classes using interfaces.
+     * Method that allows getting entities of a class group.
      * [VanillaCopy] but custom combination of: get class filtered entities together with excluding one entity
      */
     public static List<Entity> getEntitiesOfClassGroup(World world, Entity excluded, EntityClassGroup type, Box box_1, Predicate<Entity> predicate_1) {
@@ -42,9 +41,12 @@ public class WorldHelper {
 
         return list_1;
     }
-    //mostly [VanillaCopy] but custom combination of: get class filtered entities together with excluding one entity
-    public static void getEntitiesOfClassGroup(WorldChunk chunk, Entity excluded, EntityClassGroup type, Box box_1, List<Entity> list_1, Predicate<Entity> predicate_1) {
-        TypeFilterableList<Entity>[] entitySections = chunk.getEntitySectionArray();
+    /**
+     * Method that allows getting entities of a class group.
+     * [VanillaCopy] but custom combination of: get class filtered entities together with excluding one entity
+     */
+    public static void getEntitiesOfClassGroup(WorldChunk worldChunk, Entity excluded, EntityClassGroup type, Box box_1, List<Entity> list_1, Predicate<Entity> predicate_1) {
+        TypeFilterableList<Entity>[] entitySections = worldChunk.getEntitySectionArray();
         int int_1 = MathHelper.floor((box_1.y1 - 2.0D) / 16.0D);
         int int_2 = MathHelper.floor((box_1.y2 + 2.0D) / 16.0D);
         int_1 = MathHelper.clamp(int_1, 0, entitySections.length - 1);
@@ -61,5 +63,49 @@ public class WorldHelper {
 
     public interface ClassGroupFilterableList<T> {
         Collection<T> getAllOfGroupType(EntityClassGroup type);
+    }
+
+
+    /**
+     *  [VanillaCopy] Method for getting entities by class but also exclude one entity
+     */
+    public static List<Entity> getEntitiesOfClass(World world, Entity except, Class<? extends Entity> entityClass, Box box) {
+        world.getProfiler().visit("getEntities");
+        int i = MathHelper.floor((box.x1 - 2.0D) / 16.0D);
+        int j = MathHelper.ceil((box.x2 + 2.0D) / 16.0D);
+        int k = MathHelper.floor((box.z1 - 2.0D) / 16.0D);
+        int l = MathHelper.ceil((box.z2 + 2.0D) / 16.0D);
+        List<Entity> list = Lists.newArrayList();
+        ChunkManager chunkManager = world.getChunkManager();
+
+        for(int m = i; m < j; ++m) {
+            for(int n = k; n < l; ++n) {
+                WorldChunk worldChunk = chunkManager.getWorldChunk(m, n, false);
+                if (worldChunk != null) {
+                    WorldHelper.getEntitiesOfClass(worldChunk, except, entityClass, box, list);
+                }
+            }
+        }
+
+        return list;
+    }
+
+    /**
+     *  [VanillaCopy] Method for getting entities by class but also exclude one entity
+     */
+    private static void getEntitiesOfClass(WorldChunk worldChunk, Entity excluded, Class<? extends Entity> entityClass, Box box, List<Entity> result) {
+        TypeFilterableList<Entity>[] entitySections = worldChunk.getEntitySectionArray();
+        int i = MathHelper.floor((box.y1 - 2.0D) / 16.0D);
+        int j = MathHelper.floor((box.y2 + 2.0D) / 16.0D);
+        i = MathHelper.clamp(i, 0, entitySections.length - 1);
+        j = MathHelper.clamp(j, 0, entitySections.length - 1);
+
+        for(int k = i; k <= j; ++k) {
+            for (Entity entity : entitySections[k].getAllOfType(entityClass)) {
+                if (entity != excluded && entity.getBoundingBox().intersects(box)) {
+                    result.add(entity);
+                }
+            }
+        }
     }
 }

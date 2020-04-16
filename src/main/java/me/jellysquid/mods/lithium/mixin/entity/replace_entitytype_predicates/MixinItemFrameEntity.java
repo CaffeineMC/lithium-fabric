@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.entity.replace_entitytype_predicates;
 
+import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.AbstractDecorationEntity;
@@ -22,7 +23,8 @@ public abstract class MixinItemFrameEntity extends AbstractDecorationEntity {
     @Redirect(method = "canStayAttached", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getEntities(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"))
     private List<Entity> getAbstractDecorationEntities(World world, Entity entity_1, Box box_1, Predicate<? super Entity> predicate_1) {
         if (predicate_1 == PREDICATE) {
-            return world.getEntities(AbstractDecorationEntity.class, box_1, (Entity e) -> e != entity_1);
+            return WorldHelper.getEntitiesOfClass(world, entity_1, AbstractDecorationEntity.class, box_1);
+
         }
         return world.getEntities(entity_1, box_1, predicate_1);
     }

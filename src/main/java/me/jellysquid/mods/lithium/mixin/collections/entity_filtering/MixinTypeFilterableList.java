@@ -6,10 +6,7 @@ import me.jellysquid.mods.lithium.common.entity.EntityClassGroup;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.collection.TypeFilterableList;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -26,9 +23,16 @@ public abstract class MixinTypeFilterableList<T> implements WorldHelper.ClassGro
     @Shadow
     @Final
     private Class<T> elementType;
+    @Shadow
+    @Final @Mutable
+    private List<T> allElements;
+    @Shadow
+    @Final @Mutable
+    private Map<Class<?>, List<T>> elementsByType;
 
+    //replace the ArrayList li
     private Reference2ReferenceOpenHashMap<Object, ReferenceLinkedOpenHashSet<T>> entitiesByGroup;
-    //the above ReferenceLinkedOpenHashSet each wrapped in UnmodifiableCollection
+    //cached unmodifiables of the above entityByGroup sets
     private Map<Object, Collection<T>> entitiesByGroupUnmodifiables;
     private ReferenceLinkedOpenHashSet<T> allEntities;
 
@@ -41,6 +45,8 @@ public abstract class MixinTypeFilterableList<T> implements WorldHelper.ClassGro
         this.entitiesByGroup.put(this.elementType, this.allEntities);
         this.entitiesByGroupUnmodifiables.put(this.elementType, Collections.unmodifiableCollection(this.allEntities));
 
+        this.allElements = null;
+        this.elementsByType = null;
     }
 
     /**
