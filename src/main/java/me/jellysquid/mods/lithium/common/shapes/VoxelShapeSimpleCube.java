@@ -185,7 +185,7 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeExtend
 
     @Override
     public boolean intersects(Box box, double x, double y, double z) {
-        return (box.x1 < (this.x2 + x)) && (box.x2 > (this.z1 + x)) &&
+        return (box.x1 < (this.x2 + x)) && (box.x2 > (this.x1 + x)) &&
                 (box.y1 < (this.y2 + y)) && (box.y2 > (this.y1 + y)) &&
                 (box.z1 < (this.z2 + z)) && (box.z2 > (this.z1 + z));
     }
