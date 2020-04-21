@@ -54,7 +54,10 @@ public class LithiumConfig {
 
     private void addKnownMixins(JsonArray array) {
         for (JsonElement e : array) {
-            this.addKnownMixinName(e.getAsString());
+            String name = e.getAsString();
+            String packageName = name.substring(0, name.lastIndexOf('.'));
+
+            this.addKnownMixinName(packageName);
         }
     }
 
