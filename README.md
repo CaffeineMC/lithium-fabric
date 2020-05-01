@@ -23,7 +23,7 @@ You can help buy me food and support development while getting early access buil
 
 You can join the official Discord for my mods by [clicking here](https://discord.gg/UEa6r3d).
 
-<a href="https://discord.gg/ApPrpT"><img src="https://i.vgy.me/YrTrsE.png"></a>
+<a href="https://discord.gg/UEa6r3d"><img src="https://i.vgy.me/YrTrsE.png"></a>
 
 ### Compiling the mod
 
