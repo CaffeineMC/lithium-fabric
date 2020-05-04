@@ -45,8 +45,8 @@ public class MixinChunkCache {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(World world, BlockPos minPos, BlockPos maxPos, CallbackInfo ci) {
-        this.xLen = (maxPos.getX() - minPos.getX()) >> 4;
-        this.zLen = (maxPos.getZ() - minPos.getZ()) >> 4;
+        this.xLen = 1 + (maxPos.getX() >> 4) - (minPos.getX() >> 4);
+        this.zLen = 1 + (maxPos.getZ() >> 4) - (minPos.getZ() >> 4);
 
         this.chunksFlat = new Chunk[this.xLen * this.zLen];
 
