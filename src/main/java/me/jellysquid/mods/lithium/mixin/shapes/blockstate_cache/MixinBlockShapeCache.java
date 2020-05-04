@@ -4,6 +4,7 @@ import me.jellysquid.mods.lithium.common.block.BlockShapeCacheExtended;
 import me.jellysquid.mods.lithium.common.block.BlockShapeHelper;
 import me.jellysquid.mods.lithium.common.util.BitUtil;
 import net.minecraft.block.BlockState;
+import net.minecraft.tag.BlockTags;
 import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -29,6 +30,12 @@ public class MixinBlockShapeCache implements BlockShapeCacheExtended {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(BlockState state, CallbackInfo ci) {
+        // [VanillaCopy] Leaf blocks are a special case which can never support other blocks
+        // This is exactly how vanilla itself implements the check.
+        if (state.isIn(BlockTags.LEAVES)) {
+            return;
+        }
+
         VoxelShape shape = state.getCollisionShape(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
 
         // If the shape is a full cube, it can always support another component
