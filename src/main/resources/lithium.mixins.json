@@ -7,8 +7,7 @@
         "defaultRequire": 1
     },
     "client": [
-        "ai.nearby_entity_tracking.MixinClientWorld",
-        "client.fast_loading_screen.MixinLevelLoadingScreen"
+        "ai.nearby_entity_tracking.MixinClientWorld"
     ],
     "mixins": [
         "ai.goal.MixinGoal",
@@ -73,7 +72,6 @@
         "shapes.specialized_shapes.MixinVoxelShapes",
         "tag.MixinTagImpl",
         "world.chunk_task_system.MixinChunkTaskPrioritySystem",
-        "world.chunk_tickets.MixinChunkTicket",
         "world.chunk_tickets.MixinSortedArraySet",
         "world.chunk_ticking.MixinPlayerChunkWatchingManager",
         "world.chunk_ticking.MixinThreadedAnvilChunkStorage",

@@ -17,9 +17,6 @@
   "entrypoints": {
     "main": [
       "me.jellysquid.mods.lithium.common.LithiumMod"
-    ],
-    "client": [
-      "me.jellysquid.mods.lithium.client.LithiumClientMod"
     ]
   },
   "mixins": [
