@@ -79,7 +79,7 @@ public abstract class MixinFindInteractionTargetTask extends Task<LivingEntity> 
 
             if (this.test(entity)) {
                 brain.remember(MemoryModuleType.INTERACTION_TARGET, entity);
-                brain.remember(MemoryModuleType.LOOK_TARGET, new EntityLookTarget(entity));
+                brain.remember(MemoryModuleType.LOOK_TARGET, new EntityLookTarget(entity, true));
 
                 break;
             }

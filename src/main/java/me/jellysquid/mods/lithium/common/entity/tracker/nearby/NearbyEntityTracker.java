@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
+import me.jellysquid.mods.lithium.common.util.LithiumMath;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.util.math.Box;
@@ -25,7 +26,7 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
         this.clazz = clazz;
         this.self = self;
         this.rangeSq = range * range;
-        this.rangeC = MathHelper.roundUp(MathHelper.ceil(range), 16) >> 4;
+        this.rangeC = LithiumMath.roundUp(MathHelper.ceil(range), 16) >> 4;
     }
 
     @Override

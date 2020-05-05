@@ -32,7 +32,6 @@
         "alloc.enum_values.MixinLivingEntity",
         "alloc.enum_values.MixinPistonBlock",
         "alloc.enum_values.MixinPistonHandler",
-        "alloc.enum_values.MixinServerChunkManager",
         "biome.MixinVoronoiBiomeAccessType",
         "block.flatten_states.MixinAbstractBlockState",
         "block.flatten_states.MixinFluidStateImpl",

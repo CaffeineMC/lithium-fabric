@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.entity.fluid_checks;
 
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
@@ -50,7 +51,7 @@ public abstract class MixinEntity {
     public abstract void setVelocity(Vec3d velocity);
 
     @Shadow
-    protected double waterHeight;
+    protected Object2DoubleMap<Tag<Fluid>> fluidHeight;
 
     private static final ObjectArrayList<Tag<Fluid>> DEFAULT_FLUID_TAGS = new ObjectArrayList<>();
 
@@ -107,7 +108,7 @@ public abstract class MixinEntity {
             // [VanillaCopy]
             // The value of the waterHeight field is *always* that of the last movement check through fluid. This is a
             // bug from vanilla and must be maintained.
-            this.waterHeight = info.height;
+            this.fluidHeight.put(tag, info.height);
 
             // Regardless of the entity actually being pushed by the fluid, we must indicate that it did collide with it
             cir.setReturnValue(true);

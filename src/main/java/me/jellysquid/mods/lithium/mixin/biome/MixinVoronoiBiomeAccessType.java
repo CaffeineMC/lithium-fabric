@@ -35,7 +35,7 @@ public abstract class MixinVoronoiBiomeAccessType {
 
         // This code would normally allocate an array to store each iteration's results, then scan back over it
         // to determine the closest one. We can avoid the unnecessary step and simply keep track of the nearest one.
-        double min = Double.POSITIVE_INFINITY;
+        double minDist = Double.POSITIVE_INFINITY;
 
         for (int i = 0; i < 8; i++) {
             // Block sample positions
@@ -72,10 +72,10 @@ public abstract class MixinVoronoiBiomeAccessType {
                 sZ = z3 - 1.0D;
             }
 
-            double result = calcChance(seed, bX, bY, bZ, sX, sY, sZ);
+            double dist = calcSquaredDistance(seed, bX, bY, bZ, sX, sY, sZ);
 
-            if (min > result) {
-                min = result;
+            if (minDist > dist) {
+                minDist = dist;
 
                 retX = bX;
                 retY = bY;
@@ -96,7 +96,7 @@ public abstract class MixinVoronoiBiomeAccessType {
     }
 
     @Shadow
-    private static double calcChance(long seed, int x, int y, int z, double xFraction, double yFraction, double zFraction) {
+    private static double calcSquaredDistance(long seed, int x, int y, int z, double xFraction, double yFraction, double zFraction) {
         throw new UnsupportedOperationException();
     }
 }
