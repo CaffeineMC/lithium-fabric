@@ -23,7 +23,6 @@ public class LithiumConfig {
 
     private LithiumConfig() {
         this.addDefaultMixinOption("chunk.no_locking", false);
-        this.addDefaultMixinOption("redstone", false);
     }
 
     private void addDefaultMixinOption(String mixin, boolean enabled) {
