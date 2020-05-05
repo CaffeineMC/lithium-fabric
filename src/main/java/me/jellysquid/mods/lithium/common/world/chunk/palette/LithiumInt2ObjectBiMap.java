@@ -1,9 +1,9 @@
 package me.jellysquid.mods.lithium.common.world.chunk.palette;
 
 import com.google.common.collect.Iterators;
+import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import me.jellysquid.mods.lithium.common.util.math.LithiumMath;
 import net.minecraft.util.collection.IndexedIterable;
 
 import java.util.Arrays;
@@ -62,7 +62,7 @@ public class LithiumInt2ObjectBiMap<K> implements IndexedIterable<K> {
 
     private void resize(int neededCapacity) {
         K[] prev = this.lookupById;
-        this.lookupById = (K[]) new Object[LithiumMath.nextPowerOfTwo(neededCapacity + 1)];
+        this.lookupById = (K[]) new Object[HashCommon.nextPowerOfTwo(neededCapacity + 1)];
 
         System.arraycopy(prev, 0, this.lookupById, 0, prev.length);
     }

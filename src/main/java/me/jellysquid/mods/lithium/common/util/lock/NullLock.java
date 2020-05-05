@@ -5,7 +5,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
 /**
- * A lock which doesn't do anything.
+ * A Lock which doesn't do anything.
  */
 public class NullLock implements Lock {
     @Override

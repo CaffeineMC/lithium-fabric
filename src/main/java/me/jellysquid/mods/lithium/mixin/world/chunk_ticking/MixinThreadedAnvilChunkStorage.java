@@ -27,6 +27,11 @@ public abstract class MixinThreadedAnvilChunkStorage {
     }
 
     /**
+     * The usage of stream code here can be rather costly, as this method will be called for every loaded chunk each
+     * tick in order to determine if a player is close enough to allow for mob spawning. This implementation avoids
+     * object allocations and uses a traditional iterator based approach, providing a significant boost to how quickly
+     * the game can tick chunks.
+     *
      * @reason Use optimized implementation
      * @author JellySquid
      */
@@ -40,11 +45,13 @@ public abstract class MixinThreadedAnvilChunkStorage {
         }
 
         for (ServerPlayerEntity player : ((PlayerChunkWatchingManagerExtended) (Object) this.playerChunkWatchingManager).getPlayers()) {
+            // [VanillaCopy] Only non-spectator players within 128 blocks of the chunk can enable mob spawning
             if (!player.isSpectator() && getSquaredDistance(pos, player) < 16384.0D) {
                 return false;
             }
         }
 
+        // No matching players were nearby, so mobs cannot currently be spawned here
         return true;
     }
 }

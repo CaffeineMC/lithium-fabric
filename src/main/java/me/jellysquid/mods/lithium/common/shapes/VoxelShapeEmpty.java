@@ -8,7 +8,10 @@ import net.minecraft.util.shape.VoxelSet;
 import net.minecraft.util.shape.VoxelShape;
 
 /**
- * An efficient implementation of {@link VoxelShape} for a shape with no vertices.
+ * An efficient implementation of {@link VoxelShape} for a shape with no vertices. Vanilla normally represents this
+ * case with an empty {@link net.minecraft.util.shape.SimpleVoxelShape}, but since there is no data the return values
+ * here will always be constant. This allows a lot of unnecessary code to be eliminated that would otherwise try to
+ * iterate over sets of empty voxels/vertices.
  */
 public class VoxelShapeEmpty extends VoxelShape implements VoxelShapeExtended {
     private static final DoubleList EMPTY_LIST = DoubleArrayList.wrap(new double[]{0.0D});

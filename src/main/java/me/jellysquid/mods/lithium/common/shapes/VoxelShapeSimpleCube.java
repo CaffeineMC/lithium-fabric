@@ -12,7 +12,13 @@ import net.minecraft.util.shape.VoxelShape;
 import java.util.List;
 
 /**
- * An efficient implementation of {@link VoxelShape} for a shape with one simple cuboid.
+ * An efficient implementation of {@link VoxelShape} for a shape with one simple cuboid. Since there are only ever two
+ * vertices in a single cuboid (the start and end points), we can eliminate needing to iterate over voxels and to find
+ * vertices through using simple comparison logic to pick between either the start or end point.
+ * <p>
+ * Additionally, the function responsible for determining shape penetration has been simplified and optimized by taking
+ * advantage of the fact that there is only ever one voxel in a simple cuboid shape, greatly speeding up collision
+ * handling in most cases as block shapes are often nothing more than a single cuboid.
  */
 public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeExtended {
     private static final double EPSILON = 1.0E-7D;

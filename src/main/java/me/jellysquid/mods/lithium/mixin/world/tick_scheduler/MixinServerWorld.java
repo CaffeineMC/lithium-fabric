@@ -16,7 +16,7 @@ import java.util.function.Predicate;
 @Mixin(ServerWorld.class)
 public abstract class MixinServerWorld {
     /**
-     * Redirects the creation of the vanilla server tick scheduler with our own.
+     * Redirects the creation of the vanilla server tick scheduler with our own. This only happens once per world load.
      */
     @Redirect(method = "<init>", at = @At(value = "NEW", target = "net/minecraft/server/world/ServerTickScheduler"))
     private <T> ServerTickScheduler<T> redirectServerTickSchedulerCtor(ServerWorld world, Predicate<T> invalidPredicate, Function<T, Identifier> idToName, Consumer<ScheduledTick<T>> tickConsumer) {

@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.world.scheduler;
 
-import me.jellysquid.mods.lithium.common.util.math.LithiumMath;
+import it.unimi.dsi.fastutil.HashCommon;
 
 /**
  * Minimal implementation of a array de-queue which supports skipping over elements during iteration by pushing them to
@@ -27,7 +27,7 @@ public class TickEntryQueue<T> {
 
     public void push(TickEntry<T> tick) {
         if (this.size >= this.arr.length) {
-            this.arr = copyArray(this.arr, LithiumMath.nextPowerOfTwo(this.arr.length + 1));
+            this.arr = copyArray(this.arr, HashCommon.nextPowerOfTwo(this.arr.length + 1));
         }
 
         this.arr[this.size++] = tick;

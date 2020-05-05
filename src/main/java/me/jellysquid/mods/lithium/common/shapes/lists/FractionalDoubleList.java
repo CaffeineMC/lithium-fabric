@@ -2,6 +2,9 @@ package me.jellysquid.mods.lithium.common.shapes.lists;
 
 import it.unimi.dsi.fastutil.doubles.AbstractDoubleList;
 
+/**
+ * Implements a {@link AbstractDoubleList} which returns numbers at a constant interval.
+ */
 public class FractionalDoubleList extends AbstractDoubleList {
     private final int sectionCount;
     private final double scale;

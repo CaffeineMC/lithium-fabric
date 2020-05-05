@@ -13,6 +13,8 @@ public abstract class MixinVoronoiBiomeAccessType {
      * @reason Avoid memory allocations, use faster loop
      * @author JellySquid
      */
+    // Disable constant condition warnings due to IDEA not being able to see that a method will be replaced at runtime
+    @SuppressWarnings("ConstantConditions")
     @Overwrite
     public Biome getBiome(long seed, int x, int y, int z, BiomeAccess.Storage storage) {
         int x1 = x - 2;

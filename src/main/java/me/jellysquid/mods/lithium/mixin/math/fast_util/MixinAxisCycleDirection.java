@@ -5,6 +5,10 @@ import net.minecraft.util.math.Direction;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
+/**
+ * The JVM has difficulty optimizing these functions due to the use of dynamic dispatch. They can trivially be
+ * implemented as a simple switch lookup table.
+ */
 @Mixin(AxisCycleDirection.class)
 public class MixinAxisCycleDirection {
     @Mixin(targets = "net/minecraft/util/math/AxisCycleDirection$2")

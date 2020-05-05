@@ -26,8 +26,13 @@ public class MixinChunkTaskPrioritySystem {
     @Final
     private TaskExecutor<TaskQueue.PrioritizedTask> sorter;
 
+    /**
+     * Re-initialize the task executor with our optimized task queue type. This is a safe operation that happens only
+     * once at world load. No tasks will be enqueued until after the constructor is ran, so we do not need to worry
+     * about copying them.
+     */
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(List<MessageListener<?>> listeners, Executor executor, int int_1, CallbackInfo ci) {
+    private void init(List<MessageListener<?>> listeners, Executor executor, int maxQueues, CallbackInfo ci) {
         this.sorter = new TaskExecutor<>(new ArrayPrioritizedTaskQueue(4), executor, "sorter");
     }
 }

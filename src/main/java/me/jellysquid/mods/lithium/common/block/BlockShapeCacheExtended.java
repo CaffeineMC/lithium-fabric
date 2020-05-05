@@ -12,7 +12,7 @@ public interface BlockShapeCacheExtended {
     boolean sideCoversSmallSquare(Direction facing);
 
     /**
-     * Cached and directional version of {@link net.minecraft.block.Block#topCoversMediumSquare(BlockView, BlockPos)}
+     * Cached and directional version of {@link net.minecraft.block.Block#hasTopRim(BlockView, BlockPos)}
      */
     boolean sideCoversMediumSquare(Direction facing);
 }
