@@ -60,6 +60,7 @@
         "poi.fast_retrieval.MixinPointOfInterestSet",
         "poi.fast_retrieval.MixinPointOfInterestStorage",
         "poi.fast_retrieval.MixinSerializingRegionBasedStorage",
+        "shapes.blockstate_cache.MixinAbstractBlockState",
         "shapes.blockstate_cache.MixinBlock",
         "shapes.blockstate_cache.MixinBlockShapeCache",
         "shapes.precompute_shape_arrays.MixinSimpleVoxelShape",
