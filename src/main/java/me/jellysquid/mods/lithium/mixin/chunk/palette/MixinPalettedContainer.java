@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.chunk.palette;
 
-import me.jellysquid.mods.lithium.common.world.chunk.palette.LithiumHashPalette;
+import me.jellysquid.mods.lithium.common.world.chunk.LithiumHashPalette;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.collection.IdList;
 import net.minecraft.util.collection.PackedIntegerArray;

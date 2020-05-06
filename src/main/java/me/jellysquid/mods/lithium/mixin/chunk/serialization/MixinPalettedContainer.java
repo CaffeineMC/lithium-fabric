@@ -1,8 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.chunk.serialization;
 
 import me.jellysquid.mods.lithium.common.world.chunk.CompactingPackedIntegerArray;
-import me.jellysquid.mods.lithium.common.world.chunk.palette.LithiumHashPalette;
-import net.minecraft.block.BlockState;
+import me.jellysquid.mods.lithium.common.world.chunk.LithiumHashPalette;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.util.collection.IdList;
