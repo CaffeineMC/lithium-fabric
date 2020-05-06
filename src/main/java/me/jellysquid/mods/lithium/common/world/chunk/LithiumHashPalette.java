@@ -1,8 +1,8 @@
 package me.jellysquid.mods.lithium.common.world.chunk;
 
 import it.unimi.dsi.fastutil.HashCommon;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2IntMap;
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
@@ -22,14 +22,16 @@ import static it.unimi.dsi.fastutil.Hash.FAST_LOAD_FACTOR;
  * {@link LithiumHashPalette#getIndex(Object)} through using a faster backing map and reducing pointer chasing.
  */
 public class LithiumHashPalette<T> implements Palette<T> {
+    private static final int ABSENT_VALUE = -1;
+
     private final IdList<T> idList;
     private final PaletteResizeListener<T> resizeHandler;
     private final Function<CompoundTag, T> elementDeserializer;
     private final Function<T, CompoundTag> elementSerializer;
     private final int indexBits;
 
+    private final Reference2IntMap<T> table;
     private T[] entries;
-    private final Object2IntMap<T> table;
     private int size = 0;
 
     @SuppressWarnings("unchecked")
@@ -43,23 +45,29 @@ public class LithiumHashPalette<T> implements Palette<T> {
         int capacity = 1 << bits;
 
         this.entries = (T[]) new Object[capacity];
-        this.table = new Object2IntOpenHashMap<>(capacity, FAST_LOAD_FACTOR);
-        this.table.defaultReturnValue(-1);
+        this.table = new Reference2IntOpenHashMap<>(capacity, FAST_LOAD_FACTOR);
+        this.table.defaultReturnValue(ABSENT_VALUE);
     }
 
     @Override
     public int getIndex(T obj) {
         int id = this.table.getInt(obj);
 
-        if (id == -1) {
-            id = this.addEntry(obj);
+        if (id == ABSENT_VALUE) {
+            id = this.computeEntry(obj);
+        }
 
-            if (id >= 1 << this.indexBits) {
-                if (this.resizeHandler == null) {
-                    throw new IllegalStateException("Cannot grow");
-                } else {
-                    id = this.resizeHandler.onResize(this.indexBits + 1, obj);
-                }
+        return id;
+    }
+
+    private int computeEntry(T obj) {
+        int id = this.addEntry(obj);
+
+        if (id >= 1 << this.indexBits) {
+            if (this.resizeHandler == null) {
+                throw new IllegalStateException("Cannot grow");
+            } else {
+                id = this.resizeHandler.onResize(this.indexBits + 1, obj);
             }
         }
 
@@ -67,26 +75,22 @@ public class LithiumHashPalette<T> implements Palette<T> {
     }
 
     private int addEntry(T obj) {
-        int id = this.size;
+        int nextId = this.size;
 
-        if (id >= this.entries.length) {
+        if (nextId >= this.entries.length) {
             this.resize(this.size);
         }
 
-        this.table.put(obj, id);
-        this.entries[id] = obj;
+        this.table.put(obj, nextId);
+        this.entries[nextId] = obj;
 
-        this.size += 1;
+        this.size++;
 
-        return id;
+        return nextId;
     }
 
-    @SuppressWarnings("unchecked")
     private void resize(int neededCapacity) {
-        T[] prev = this.entries;
-        this.entries = (T[]) new Object[HashCommon.nextPowerOfTwo(neededCapacity + 1)];
-
-        System.arraycopy(prev, 0, this.entries, 0, prev.length);
+        this.entries = Arrays.copyOf(this.entries, HashCommon.nextPowerOfTwo(neededCapacity + 1));
     }
 
     @Override
@@ -96,8 +100,10 @@ public class LithiumHashPalette<T> implements Palette<T> {
 
     @Override
     public T getByIndex(int id) {
-        if (id >= 0 && id < this.entries.length) {
-            return this.entries[id];
+        T[] entries = this.entries;
+
+        if (id >= 0 && id < entries.length) {
+            return entries[id];
         }
 
         return null;
@@ -117,19 +123,19 @@ public class LithiumHashPalette<T> implements Palette<T> {
 
     @Override
     public void toPacket(PacketByteBuf buf) {
-        int paletteBits = this.getSize();
-        buf.writeVarInt(paletteBits);
+        int size = this.size;
+        buf.writeVarInt(size);
 
-        for (int i = 0; i < paletteBits; ++i) {
+        for (int i = 0; i < size; ++i) {
             buf.writeVarInt(this.idList.getId(this.getByIndex(i)));
         }
     }
 
     @Override
     public int getPacketSize() {
-        int size = PacketByteBuf.getVarIntSizeBytes(this.getSize());
+        int size = PacketByteBuf.getVarIntSizeBytes(this.size);
 
-        for (int i = 0; i < this.getSize(); ++i) {
+        for (int i = 0; i < this.size; ++i) {
             size += PacketByteBuf.getVarIntSizeBytes(this.idList.getId(this.getByIndex(i)));
         }
 
@@ -146,7 +152,7 @@ public class LithiumHashPalette<T> implements Palette<T> {
     }
 
     public void toTag(ListTag list) {
-        for (int i = 0; i < this.getSize(); ++i) {
+        for (int i = 0; i < this.size; ++i) {
             list.add(this.elementSerializer.apply(this.getByIndex(i)));
         }
     }
