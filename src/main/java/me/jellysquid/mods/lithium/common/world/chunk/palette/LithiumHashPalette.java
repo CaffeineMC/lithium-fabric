@@ -4,9 +4,10 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.util.collection.IdList;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.collection.IdList;
 import net.minecraft.world.chunk.Palette;
+import net.minecraft.world.chunk.PaletteResizeListener;
 
 import java.util.function.Function;
 
@@ -17,12 +18,12 @@ import java.util.function.Function;
 public class LithiumHashPalette<T> implements Palette<T> {
     private final IdList<T> idList;
     private final LithiumInt2ObjectBiMap<T> map;
-    private final LithiumPaletteResizeListener<T> resizeHandler;
+    private final PaletteResizeListener<T> resizeHandler;
     private final Function<CompoundTag, T> elementDeserializer;
     private final Function<T, CompoundTag> elementSerializer;
     private final int indexBits;
 
-    public LithiumHashPalette(IdList<T> ids, int bits, LithiumPaletteResizeListener<T> resizeHandler, Function<CompoundTag, T> deserializer, Function<T, CompoundTag> serializer) {
+    public LithiumHashPalette(IdList<T> ids, int bits, PaletteResizeListener<T> resizeHandler, Function<CompoundTag, T> deserializer, Function<T, CompoundTag> serializer) {
         this.idList = ids;
         this.indexBits = bits;
         this.resizeHandler = resizeHandler;
@@ -42,7 +43,7 @@ public class LithiumHashPalette<T> implements Palette<T> {
                 if (this.resizeHandler == null) {
                     throw new IllegalStateException("Cannot grow");
                 } else {
-                    id = this.resizeHandler.onLithiumPaletteResized(this.indexBits + 1, obj);
+                    id = this.resizeHandler.onResize(this.indexBits + 1, obj);
                 }
             }
         }
