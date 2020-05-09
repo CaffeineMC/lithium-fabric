@@ -12,3 +12,5 @@ accessible method net/minecraft/server/world/ChunkTicketManager method_20800 (J)
 accessible method net/minecraft/fluid/Fluid isEmpty ()Z
 
 accessible class net/minecraft/world/chunk/PaletteResizeListener
+accessible class net/minecraft/server/world/ServerChunkManager$MainThreadExecutor
+accessible method net/minecraft/server/world/ChunkHolder updateFuture (Ljava/util/concurrent/CompletableFuture;)V
