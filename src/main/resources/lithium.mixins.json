@@ -67,6 +67,7 @@
         "shapes.specialized_shapes.MixinVoxelShape",
         "shapes.specialized_shapes.MixinVoxelShapes",
         "tag.MixinTagImpl",
+        "world.chunk_inline_block_access.MixinWorldChunk",
         "world.chunk_task_system.MixinChunkTaskPrioritySystem",
         "world.chunk_tickets.MixinSortedArraySet",
         "world.chunk_ticking.MixinPlayerChunkWatchingManager",
