@@ -77,6 +77,7 @@
         "world.chunk_ticking.MixinThreadedAnvilChunkStorage",
         "world.explosions.MixinExplosion",
         "world.fire_checks.MixinWorld",
+        "world.mob_spawning.MixinBiome",
         "world.tick_scheduler.MixinServerWorld"
     ]
 }
