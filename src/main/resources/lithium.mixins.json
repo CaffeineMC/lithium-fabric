@@ -51,6 +51,7 @@
         "chunk.serialization.PalettedContainerMixin",
         "collections.entity_filtering.TypeFilterableListMixin",
         "entity.block_cache.LivingEntityMixin",
+        "entity.collision_only_overriding_entities.MixinLithiumEntityCollisions",
         "entity.collisions.CollisionViewMixin",
         "entity.collisions.EntityMixin",
         "entity.collisions.EntityViewMixin",
