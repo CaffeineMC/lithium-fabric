@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.common.entity.tracker;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListener;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerProvider;
 import net.minecraft.entity.LivingEntity;
@@ -8,7 +9,10 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Tracks the entities within a world and provides notifications to listeners when a tracked entity enters or leaves a
@@ -169,8 +173,8 @@ public class EntityTrackerEngine {
     }
 
     private class TrackedEntityList {
-        private final Set<LivingEntity> entities = new HashSet<>();
-        private final Set<NearbyEntityListener> listeners = new HashSet<>();
+        private final Set<LivingEntity> entities = new ReferenceOpenHashSet<>();
+        private final Set<NearbyEntityListener> listeners = new ReferenceOpenHashSet<>();
 
         private final long key;
 

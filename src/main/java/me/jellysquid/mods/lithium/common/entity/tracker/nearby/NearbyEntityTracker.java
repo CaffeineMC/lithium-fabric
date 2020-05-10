@@ -1,12 +1,12 @@
 package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.util.LithiumMath;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -20,7 +20,7 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
     private final int rangeC;
     private final float rangeSq;
 
-    private final Set<T> nearby = new HashSet<>();
+    private final Set<T> nearby = new ReferenceOpenHashSet<>();
 
     public NearbyEntityTracker(Class<T> clazz, LivingEntity self, float range) {
         this.clazz = clazz;
