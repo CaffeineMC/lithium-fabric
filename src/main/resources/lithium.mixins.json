@@ -17,6 +17,7 @@
         "ai.nearby_entity_tracking.goals.MixinFleeEntityGoal",
         "ai.nearby_entity_tracking.goals.MixinLookAtGoal",
         "ai.pathing.MixinChunkCache",
+        "ai.pathing.MixinLandPathNodeMaker",
         "ai.raid.MixinPickupBannerAsLeaderGoal",
         "ai.raid.MixinRaid",
         "ai.task.MixinCompositeTask",
