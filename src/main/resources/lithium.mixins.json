@@ -10,7 +10,6 @@
         "ai.nearby_entity_tracking.MixinClientWorld"
     ],
     "mixins": [
-        "ai.goal.MixinGoal",
         "ai.goal.MixinGoalSelector",
         "ai.nearby_entity_tracking.MixinLivingEntity",
         "ai.nearby_entity_tracking.MixinServerWorld",
