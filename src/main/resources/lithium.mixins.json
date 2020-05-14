@@ -48,6 +48,7 @@
         "entity.collisions.MixinEntityView",
         "entity.data_tracker.no_locks.MixinDataTracker",
         "entity.data_tracker.use_arrays.MixinDataTracker",
+        "entity.stream_entity_collisions_lazily.MixinEntity",
         "gen.chunk_region.MixinChunkRegion",
         "math.fast_util.MixinAxisCycleDirection",
         "math.fast_util.MixinAxisCycleDirection$MixinBackward",
