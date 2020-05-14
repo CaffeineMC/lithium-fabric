@@ -11,6 +11,14 @@ import org.spongepowered.asm.mixin.Overwrite;
  */
 @Mixin(AxisCycleDirection.class)
 public class MixinAxisCycleDirection {
+
+    static {
+        assert Direction.Axis.X.ordinal() == 0;
+        assert Direction.Axis.Y.ordinal() == 1;
+        assert Direction.Axis.Z.ordinal() == 2;
+        assert Direction.Axis.values().length == 3;
+    }
+
     @Mixin(targets = "net/minecraft/util/math/AxisCycleDirection$2")
     public static class MixinForward {
         /**
@@ -19,12 +27,12 @@ public class MixinAxisCycleDirection {
          */
         @Overwrite
         public Direction.Axis cycle(Direction.Axis axis) {
-            switch (axis) {
-                case X:
+            switch (axis.ordinal()) {
+                case 0: //X
                     return Direction.Axis.Y;
-                case Y:
+                case 1: //Y
                     return Direction.Axis.Z;
-                case Z:
+                case 2: //Z
                     return Direction.Axis.X;
             }
 
@@ -40,12 +48,12 @@ public class MixinAxisCycleDirection {
          */
         @Overwrite
         public Direction.Axis cycle(Direction.Axis axis) {
-            switch (axis) {
-                case X:
+            switch (axis.ordinal()) {
+                case 0: //X
                     return Direction.Axis.Z;
-                case Y:
+                case 1: //Y
                     return Direction.Axis.X;
-                case Z:
+                case 2: //Z
                     return Direction.Axis.Y;
             }
 

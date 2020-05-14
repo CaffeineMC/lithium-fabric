@@ -9,6 +9,14 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(Box.class)
 public class MixinBox {
+
+    static {
+        assert Direction.Axis.X.ordinal() == 0;
+        assert Direction.Axis.Y.ordinal() == 1;
+        assert Direction.Axis.Z.ordinal() == 2;
+        assert Direction.Axis.values().length == 3;
+    }
+
     @Shadow
     @Final
     public double x1;
@@ -39,12 +47,12 @@ public class MixinBox {
      */
     @Overwrite
     public double getMin(Direction.Axis axis) {
-        switch (axis) {
-            case X:
+        switch (axis.ordinal()) {
+            case 0: //X
                 return this.x1;
-            case Y:
+            case 1: //Y
                 return this.y1;
-            case Z:
+            case 2: //Z
                 return this.z1;
         }
 
@@ -57,12 +65,12 @@ public class MixinBox {
      */
     @Overwrite
     public double getMax(Direction.Axis axis) {
-        switch (axis) {
-            case X:
+        switch (axis.ordinal()) {
+            case 0: //X
                 return this.x2;
-            case Y:
+            case 1: //Y
                 return this.y2;
-            case Z:
+            case 2: //Z
                 return this.z2;
         }
 
