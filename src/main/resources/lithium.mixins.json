@@ -52,6 +52,7 @@
         "entity.replace_entitytype_predicates.MixinArmorStandEntity",
         "entity.replace_entitytype_predicates.MixinFormCaravanGoal",
         "entity.replace_entitytype_predicates.MixinItemFrameEntity",
+        "entity.stream_entity_collisions_lazily.MixinEntity",
         "gen.chunk_region.MixinChunkRegion",
         "math.fast_util.MixinAxisCycleDirection",
         "math.fast_util.MixinAxisCycleDirection$MixinBackward",

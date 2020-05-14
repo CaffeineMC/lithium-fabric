@@ -32,11 +32,11 @@ public interface MixinCollisionView {
      */
     @Overwrite
     default boolean doesNotCollide(Entity entity, Box box, Predicate<Entity> predicate) {
-        boolean ret = !LithiumEntityCollisions.doesEntityCollideWithBlocks((CollisionView) this, entity, box);
+        boolean ret = !LithiumEntityCollisions.doesBoxCollideWithBlocks((CollisionView) this, entity, box);
 
         // If no blocks were collided with, try to check for entity collisions if we can read entities
         if (ret && this instanceof EntityView) {
-            ret = LithiumEntityCollisions.getEntityCollisions((EntityView) this, entity, box, predicate).isEmpty();
+            ret = !LithiumEntityCollisions.doesBoxCollideWithEntities((EntityView) this, entity, box, predicate);
         }
 
         return ret;
