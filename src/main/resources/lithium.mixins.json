@@ -46,6 +46,7 @@
         "entity.collisions.MixinCollisionView",
         "entity.collisions.MixinEntity",
         "entity.collisions.MixinEntityView",
+        "entity.data_tracker.iteration.MixinDataTracker",
         "entity.data_tracker.no_locks.MixinDataTracker",
         "entity.data_tracker.use_arrays.MixinDataTracker",
         "gen.chunk_region.MixinChunkRegion",
