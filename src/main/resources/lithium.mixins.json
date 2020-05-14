@@ -44,6 +44,7 @@
         "block.piston_shapes.PistonHeadBlockMixin",
         "cached_hashcode.BlockNeighborGroupMixin",
         "chunk.no_locking.PalettedContainerMixin",
+        "chunk.oversized_blocks.MixinChunkSection",
         "chunk.palette.PalettedContainerMixin",
         "chunk.serialization.PackedIntegerArrayMixin",
         "chunk.serialization.PalettedContainerMixin",
