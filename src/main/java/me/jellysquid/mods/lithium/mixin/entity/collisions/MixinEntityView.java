@@ -8,8 +8,6 @@ import net.minecraft.world.EntityView;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
-import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -24,12 +22,6 @@ public interface MixinEntityView {
      */
     @Overwrite
     default Stream<VoxelShape> getEntityCollisions(Entity entity, Box box, Predicate<Entity> predicate) {
-        List<VoxelShape> shapes = LithiumEntityCollisions.getEntityCollisions((EntityView) this, entity, box, predicate);
-
-        if (shapes.isEmpty()) {
-            return Stream.empty();
-        } else {
-            return shapes.stream();
-        }
+        return LithiumEntityCollisions.getEntityCollisions((EntityView) this, entity, box, predicate);
     }
 }

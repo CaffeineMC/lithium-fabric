@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.common.entity;
 
 import me.jellysquid.mods.lithium.common.entity.movement.BlockCollisionSweeper;
+import me.jellysquid.mods.lithium.common.util.Producer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.shape.VoxelShape;
@@ -9,7 +10,9 @@ import net.minecraft.world.CollisionView;
 import net.minecraft.world.EntityView;
 import net.minecraft.world.border.WorldBorder;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -25,6 +28,10 @@ public class LithiumEntityCollisions {
      * VoxelShape system.
      */
     public static Stream<VoxelShape> getBlockCollisions(CollisionView world, Entity entity, Box box) {
+        if (isBoxEmpty(box)) {
+            return Stream.empty();
+        }
+
         final BlockCollisionSweeper sweeper = new BlockCollisionSweeper(world, entity, box);
 
         return StreamSupport.stream(new Spliterators.AbstractSpliterator<VoxelShape>(Long.MAX_VALUE, Spliterator.NONNULL | Spliterator.IMMUTABLE) {
@@ -60,9 +67,13 @@ public class LithiumEntityCollisions {
     /**
      * See {@link LithiumEntityCollisions#getBlockCollisions(CollisionView, Entity, Box)}
      *
-     * @return True if the entity collided with any blocks
+     * @return True if the box (possibly that of an entity's) collided with any blocks
      */
-    public static boolean doesEntityCollideWithBlocks(CollisionView world, Entity entity, Box box) {
+    public static boolean doesBoxCollideWithBlocks(CollisionView world, Entity entity, Box box) {
+        if (isBoxEmpty(box)) {
+            return false;
+        }
+
         final BlockCollisionSweeper sweeper = new BlockCollisionSweeper(world, entity, box);
 
         while (sweeper.step()) {
@@ -75,47 +86,90 @@ public class LithiumEntityCollisions {
     }
 
     /**
+     * See {@link LithiumEntityCollisions#getEntityCollisions(EntityView, Entity, Box, Predicate)}
+     *
+     * @return True if the box (possibly that of an entity's) collided with any other entities
+     */
+    public static boolean doesBoxCollideWithEntities(EntityView view, Entity entity, Box box, Predicate<Entity> predicate) {
+        if (isBoxEmpty(box)) {
+            return false;
+        }
+
+        return getEntityCollisionProducer(view, entity, box, predicate).computeNext(null);
+    }
+
+    /**
+     * Returns a stream of entity collision boxes.
+     */
+    public static Stream<VoxelShape> getEntityCollisions(EntityView view, Entity entity, Box box, Predicate<Entity> predicate) {
+        if (isBoxEmpty(box)) {
+            return Stream.empty();
+        }
+
+        return Producer.asStream(getEntityCollisionProducer(view, entity, box.expand(EPSILON), predicate));
+    }
+
+    /**
      * [VanillaCopy] EntityView#getEntityCollisions
      * Re-implements the function named above without stream code or unnecessary allocations. This can provide a small
      * boost in some situations (such as heavy entity crowding) and reduces the allocation rate significantly.
      */
-    public static List<VoxelShape> getEntityCollisions(EntityView view, Entity entity, Box box, Predicate<Entity> predicate) {
-        if (box.getAverageSideLength() < EPSILON) {
-            return Collections.emptyList();
-        }
+    public static Producer<VoxelShape> getEntityCollisionProducer(EntityView view, Entity entity, Box box, Predicate<Entity> predicate) {
+        return new Producer<VoxelShape>() {
+            private Iterator<Entity> it;
 
-        Box selectionBox = box.expand(EPSILON);
-
-        List<Entity> entities = view.getEntities(entity, selectionBox);
-        List<VoxelShape> shapes = new ArrayList<>();
-
-        for (Entity otherEntity : entities) {
-            if (!predicate.test(otherEntity)) {
-                continue;
-            }
-
-            if (entity != null && entity.isConnectedThroughVehicle(otherEntity)) {
-                continue;
-            }
-
-            Box otherEntityBox = otherEntity.getCollisionBox();
-
-            if (otherEntityBox != null && selectionBox.intersects(otherEntityBox)) {
-                shapes.add(VoxelShapes.cuboid(otherEntityBox));
-            }
-
-            if (entity != null) {
-                Box otherEntityHardBox = entity.getHardCollisionBox(otherEntity);
-
-                if (otherEntityHardBox != null && selectionBox.intersects(otherEntityHardBox)) {
-                    shapes.add(VoxelShapes.cuboid(otherEntityHardBox));
+            @Override
+            public boolean computeNext(Consumer<? super VoxelShape> consumer) {
+                if (this.it == null) {
+                    this.it = view.getEntities(entity, box).iterator();
                 }
+
+                while (this.it.hasNext()) {
+                    Entity otherEntity = this.it.next();
+
+                    if (!predicate.test(otherEntity)) {
+                        continue;
+                    }
+
+                    if (entity != null && entity.isConnectedThroughVehicle(otherEntity)) {
+                        continue;
+                    }
+
+                    Box otherEntityBox = otherEntity.getCollisionBox();
+
+                    boolean produced = false;
+
+                    if (otherEntityBox != null && box.intersects(otherEntityBox)) {
+                        if (consumer == null) {
+                            return true;
+                        } else {
+                            produced = true;
+                            consumer.accept(VoxelShapes.cuboid(otherEntityBox));
+                        }
+                    }
+
+                    if (entity != null) {
+                        Box otherEntityHardBox = entity.getHardCollisionBox(otherEntity);
+
+                        if (otherEntityHardBox != null && box.intersects(otherEntityHardBox)) {
+                            if (consumer == null) {
+                                return true;
+                            } else {
+                                produced = true;
+                                consumer.accept(VoxelShapes.cuboid(otherEntityHardBox));
+                            }
+                        }
+                    }
+
+                    if (produced) {
+                        return true;
+                    }
+                }
+
+                return false;
             }
-        }
-
-        return shapes;
+        };
     }
-
 
     /**
      * This provides a faster check for seeing if an entity is within the world border as it avoids going through
@@ -141,5 +195,9 @@ public class LithiumEntityCollisions {
         boolean isCrossingBorder = isBoxFullyWithinWorldBorder(border, entity.getBoundingBox().expand(EPSILON));
 
         return !isInsideBorder && isCrossingBorder;
+    }
+
+    private static boolean isBoxEmpty(Box box) {
+        return box.getAverageSideLength() <= EPSILON;
     }
 }
