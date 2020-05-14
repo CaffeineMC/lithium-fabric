@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.mixin.collections.entity_filtering;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.EntityClassGroup;
+import me.jellysquid.mods.lithium.common.entity.EntityClassGroupHelper;
 import me.jellysquid.mods.lithium.common.world.chunk.ClassGroupFilterableList;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.collection.TypeFilterableList;
@@ -19,7 +20,7 @@ import java.util.*;
  * Patches it also to allow grouping entity types.
  */
 @Mixin(TypeFilterableList.class)
-public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterableList<T> {
+public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterableList<T>, EntityClassGroupHelper.MixinLoadTest {
     @Shadow
     @Final
     private Class<T> elementType;

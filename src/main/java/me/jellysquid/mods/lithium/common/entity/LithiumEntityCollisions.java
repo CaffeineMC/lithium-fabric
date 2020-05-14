@@ -9,18 +9,11 @@ import net.minecraft.block.ShapeContext;
 import me.jellysquid.mods.lithium.common.entity.movement.ChunkAwareBlockCollisionSweeper;
 import me.jellysquid.mods.lithium.common.util.Producer;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.CuboidBlockIterator;
-import net.minecraft.util.function.BooleanBiFunction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.entity.passive.StriderEntity;
-import net.minecraft.entity.vehicle.BoatEntity;
-import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.CollisionView;
 import net.minecraft.world.EntityView;
-import net.minecraft.world.World;
 import net.minecraft.world.border.WorldBorder;
 
 import java.util.Iterator;
@@ -30,8 +23,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import static net.minecraft.predicate.entity.EntityPredicates.EXCEPT_SPECTATOR;
 
 public class LithiumEntityCollisions {
     public static final double EPSILON = 1.0E-7D;
@@ -120,7 +111,7 @@ public class LithiumEntityCollisions {
             @Override
             public boolean computeNext(Consumer<? super VoxelShape> consumer) {
                 if (this.it == null) {
-                    this.it = view.getOtherEntities(entity, box).iterator();
+                    this.it = EntityClassGroupHelper.getEntitiesWithCollisionBoxForEntity(view, box, entity).iterator();
                 }
 
                 while (this.it.hasNext()) {
@@ -133,7 +124,7 @@ public class LithiumEntityCollisions {
                     /**
                      * {@link Entity#method_30948} returns false by default, designed to be overridden by
                      * entities whose collisions should be "hard" (boats and shulkers, for now).
-                     * 
+                     *
                      * {@link Entity#method_30949} only allows hard collisions if the calling entity is not riding
                      * otherEntity as a vehicle.
                      */
@@ -181,31 +172,6 @@ public class LithiumEntityCollisions {
 
         return !isInsideBorder && isCrossingBorder;
     }
-
-    /**
-     * Partial [VanillaCopy] Classes overriding Entity.getHardCollisionBox(Entity other) or Entity.getCollisionBox()
-     * The returned entity list is only used to call getCollisionBox and getHardCollisionBox. As most entities return null
-     * for both of these methods, getting those is not necessary. This is why we only get entities when they overwrite
-     * getCollisionBox
-     * @param entityView the world
-     * @param selection the box the entities have to collide with
-     * @param entity the entity that is searching for the colliding entities
-     * @return list of entities with collision boxes
-     */
-    public static List<Entity> getEntitiesWithCollisionBoxForEntity(EntityView entityView, Box selection, Entity entity) {
-        if (entity != null && EntityClassGroup.HARD_COLLISION_BOX_OVERRIDE.contains(entity.getClass()) || !(entityView instanceof World)) {
-            //use vanilla code when getHardCollisionBox(Entity other) is overwritten, as every entity could be relevant as argument of getHardCollisionBox
-            return entityView.getEntities(entity, selection);
-        } else {
-            //only get entities that overwrite getCollisionBox
-            return WorldHelper.getEntitiesOfClassGroup((World)entityView, entity, EntityClassGroup.COLLISION_BOX_OVERRIDE, selection, EXCEPT_SPECTATOR);
-        }
-    }
-
-    /**
-     * Interface to group entity types that don't always return null on getCollisionBox.
-     */
-    public interface CollisionBoxOverridingEntity {}
 
     private static boolean isBoxEmpty(Box box) {
         return box.getAverageSideLength() <= EPSILON;
