@@ -18,39 +18,39 @@ public class WorldHelper {
      */
     public static List<Entity> getEntitiesOfClass(World world, Entity except, Class<? extends Entity> entityClass, Box box) {
         world.getProfiler().visit("getEntities");
-        int i = MathHelper.floor((box.x1 - 2.0D) / 16.0D);
-        int j = MathHelper.ceil((box.x2 + 2.0D) / 16.0D);
-        int k = MathHelper.floor((box.z1 - 2.0D) / 16.0D);
-        int l = MathHelper.ceil((box.z2 + 2.0D) / 16.0D);
-        List<Entity> list = Lists.newArrayList();
+        int chunkX1 = MathHelper.floor((box.x1 - 2.0D) / 16.0D);
+        int chunkX2 = MathHelper.ceil((box.x2 + 2.0D) / 16.0D);
+        int chunkZ1 = MathHelper.floor((box.z1 - 2.0D) / 16.0D);
+        int chunkZ2 = MathHelper.ceil((box.z2 + 2.0D) / 16.0D);
+        List<Entity> entityList = Lists.newArrayList();
         ChunkManager chunkManager = world.getChunkManager();
 
-        for(int m = i; m < j; ++m) {
-            for(int n = k; n < l; ++n) {
-                WorldChunk worldChunk = chunkManager.getWorldChunk(m, n, false);
+        for(int chunkX = chunkX1; chunkX < chunkX2; ++chunkX) {
+            for(int chunkZ = chunkZ1; chunkZ < chunkZ2; ++chunkZ) {
+                WorldChunk worldChunk = chunkManager.getWorldChunk(chunkX, chunkZ, false);
                 if (worldChunk != null) {
-                    WorldHelper.getEntitiesOfClass(worldChunk, except, entityClass, box, list);
+                    WorldHelper.getEntitiesOfClass(worldChunk, except, entityClass, box, entityList);
                 }
             }
         }
 
-        return list;
+        return entityList;
     }
 
     /**
      *  [VanillaCopy] Method for getting entities by class but also exclude one entity
      */
-    private static void getEntitiesOfClass(WorldChunk worldChunk, Entity excluded, Class<? extends Entity> entityClass, Box box, List<Entity> result) {
+    private static void getEntitiesOfClass(WorldChunk worldChunk, Entity excluded, Class<? extends Entity> entityClass, Box box, List<Entity> entityList) {
         TypeFilterableList<Entity>[] entitySections = worldChunk.getEntitySectionArray();
-        int i = MathHelper.floor((box.y1 - 2.0D) / 16.0D);
-        int j = MathHelper.floor((box.y2 + 2.0D) / 16.0D);
-        i = MathHelper.clamp(i, 0, entitySections.length - 1);
-        j = MathHelper.clamp(j, 0, entitySections.length - 1);
+        int chunkY1 = MathHelper.floor((box.y1 - 2.0D) / 16.0D);
+        int chunkY2 = MathHelper.floor((box.y2 + 2.0D) / 16.0D);
+        chunkY1 = MathHelper.clamp(chunkY1, 0, entitySections.length - 1);
+        chunkY2 = MathHelper.clamp(chunkY2, 0, entitySections.length - 1);
 
-        for(int k = i; k <= j; ++k) {
-            for (Entity entity : entitySections[k].getAllOfType(entityClass)) {
+        for(int chunkY = chunkY1; chunkY <= chunkY2; ++chunkY) {
+            for (Entity entity : entitySections[chunkY].getAllOfType(entityClass)) {
                 if (entity != excluded && entity.getBoundingBox().intersects(box)) {
-                    result.add(entity);
+                    entityList.add(entity);
                 }
             }
         }

@@ -16,7 +16,7 @@ import java.util.function.Predicate;
 @Mixin(FormCaravanGoal.class)
 public class MixinFormCaravanGoal {
     @Redirect(method = "canStart", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getEntities(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"))
-    private List<Entity> getLlamasForCaravan(World world, Entity entity_1, Box box_1, Predicate<? super Entity> predicate_1) {
-        return WorldHelper.getEntitiesOfClass(world, entity_1, LlamaEntity.class, box_1);
+    private List<Entity> getLlamasForCaravan(World world, Entity excluded, Box box, Predicate<? super Entity> predicate) {
+        return WorldHelper.getEntitiesOfClass(world, excluded, LlamaEntity.class, box);
     }
 }
