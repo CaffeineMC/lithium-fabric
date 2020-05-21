@@ -14,8 +14,6 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.CollisionView;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 
 import static me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions.EPSILON;
 
@@ -74,8 +72,6 @@ public class BlockCollisionSweeper {
         final BlockView chunk = this.view.getExistingChunk(x >> 4, z >> 4);
 
         if (chunk == null) {
-            return true;
-        } else if (World.isHeightInvalid(y) || edgesHit >= 1 && chunk instanceof Chunk && !((HasOversizedBlocks)(((Chunk) chunk).getSectionArray()[y >> 4])).hasOversizedBlocks()) {
             return true;
         }
 
@@ -151,9 +147,5 @@ public class BlockCollisionSweeper {
         }
 
         return null;
-    }
-
-    public interface HasOversizedBlocks {
-        boolean hasOversizedBlocks();
     }
 }
