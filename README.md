@@ -1,5 +1,5 @@
 
-![Project icon](https://github.com/jellysquid3/lithium-fabric/raw/1.16.x/dev/doc/logo.png)
+![Project icon](/doc/logo.png)
 
 # Lithium
 ![GitHub license](https://img.shields.io/github/license/jellysquid3/lithium-fabric.svg)
@@ -17,7 +17,7 @@ to edit your configuration file to narrow down issues. If you do run into an iss
 
 You can help buy me food and support development while getting early access builds of my mods by [making a monthly pledge to my Patreon!](https://patreon.com/jellysquid) You'll also gain some special perks, such as prioritized support on [my Discord server](https://jellysquid.me/discord).
 
-<a href="https://www.patreon.com/bePatron?u=824442"><img src="https://github.com/jellysquid3/Phosphor/raw/1.16.x/dev/doc/patreon.png" width="200"></a>
+<a href="https://www.patreon.com/bePatron?u=824442"><img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" width="200"></a>
 
 ### Join the Discord
 
@@ -40,4 +40,4 @@ The resulting build artifacts will be present in `build/libs`.
 
 ### License
 
-Lithium is licensed under GNU LGPLv3, a free and open-source license. For more information, please see the [license file](https://github.com/jellysquid3/lithium/blob/master/LICENSE.txt).
+Lithium is licensed under GNU LGPLv3, a free and open-source license. For more information, please see the [license file](LICENSE.txt).
