@@ -14,8 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(BiomeLayerSampler.class)
 public abstract class MixinBiomeLayerSampler {
     private ThreadLocal<CachingLayerSampler> tlSampler;
-    private Thread lastThread;
-    private CachingLayerSampler lastSampler;
 
     @Shadow
     protected abstract Biome getBiome(int id);
@@ -31,15 +29,7 @@ public abstract class MixinBiomeLayerSampler {
      */
     @Overwrite
     public Biome sample(int x, int y) {
-        Thread thread = Thread.currentThread();
-        if (thread == this.lastThread) {
-            return this.getBiome(this.lastSampler.sample(x, y));
-        }
-
         CachingLayerSampler tlSampler = this.tlSampler.get();
-        this.lastThread = thread;
-        this.lastSampler = tlSampler;
-
         return this.getBiome(tlSampler.sample(x, y));
     }
 }
