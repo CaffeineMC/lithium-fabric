@@ -24,7 +24,7 @@ public class MixinCachingLayerContext {
      */
     @Overwrite
     public CachingLayerSampler createSampler(LayerOperator operator, CachingLayerSampler sampler) {
-        return new FastCachingLayerSampler(128, operator);
+        return new FastCachingLayerSampler(512, operator);
     }
 
     /**
@@ -33,6 +33,6 @@ public class MixinCachingLayerContext {
      */
     @Overwrite
     public CachingLayerSampler createSampler(LayerOperator operator, CachingLayerSampler left, CachingLayerSampler right) {
-        return new FastCachingLayerSampler(128, operator);
+        return new FastCachingLayerSampler(512, operator);
     }
 }

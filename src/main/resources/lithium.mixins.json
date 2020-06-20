@@ -80,6 +80,7 @@
         "world.fire_checks.MixinWorld",
         "world.layer_caching.MixinBiomeLayerSampler",
         "world.layer_caching.MixinCachingLayerContext",
+        "world.layer_caching.MixinParentedLayer",
         "world.mob_spawning.MixinBiome",
         "world.player_chunk_tick.MixinThreadedAnvilChunkStorage",
         "world.tick_scheduler.MixinServerWorld"
