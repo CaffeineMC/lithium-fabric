@@ -184,8 +184,8 @@ public class LithiumEntityCollisions {
         double wboxMaxX = Math.ceil(border.getBoundEast());
         double wboxMaxZ = Math.ceil(border.getBoundSouth());
 
-        return box.x1 >= wboxMinX && box.x1 < wboxMaxX && box.z1 >= wboxMinZ && box.z1 < wboxMaxZ &&
-                box.x2 >= wboxMinX && box.x2 < wboxMaxX && box.z2 >= wboxMinZ && box.z2 < wboxMaxZ;
+        return box.minX >= wboxMinX && box.minX < wboxMaxX && box.minZ >= wboxMinZ && box.minZ < wboxMaxZ &&
+                box.maxX >= wboxMinX && box.maxX < wboxMaxX && box.maxZ >= wboxMinZ && box.maxZ < wboxMaxZ;
     }
 
     private static boolean canEntityCollideWithWorldBorder(CollisionView world, Entity entity) {

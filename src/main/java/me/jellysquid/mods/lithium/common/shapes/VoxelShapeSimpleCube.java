@@ -23,22 +23,22 @@ import java.util.List;
 public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeExtended {
     private static final double EPSILON = 1.0E-7D;
 
-    private final double x1, y1, z1, x2, y2, z2;
+    private final double minX, minY, minZ, maxX, maxY, maxZ;
 
-    public VoxelShapeSimpleCube(VoxelSet voxels, double x1, double y1, double z1, double x2, double y2, double z2) {
+    public VoxelShapeSimpleCube(VoxelSet voxels, double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         super(voxels);
 
-        this.x1 = x1;
-        this.y1 = y1;
-        this.z1 = z1;
-        this.x2 = x2;
-        this.y2 = y2;
-        this.z2 = z2;
+        this.minX = minX;
+        this.minY = minY;
+        this.minZ = minZ;
+        this.maxX = maxX;
+        this.maxY = maxY;
+        this.maxZ = maxZ;
     }
 
     @Override
     public VoxelShape offset(double x, double y, double z) {
-        return new VoxelShapeSimpleCube(this.voxels, this.x1 + x, this.y1 + y, this.z1 + z, this.x2 + x, this.y2 + y, this.z2 + z);
+        return new VoxelShapeSimpleCube(this.voxels, this.minX + x, this.minY + y, this.minZ + z, this.maxX + x, this.maxY + y, this.maxZ + z);
     }
 
     @Override
@@ -59,11 +59,11 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeExtend
     private double calculatePenetration(AxisCycleDirection dir, Box box, double maxDist) {
         switch (dir) {
             case NONE:
-                return this.calculatePenetration(this.x1, this.x2, box.x1, box.x2, maxDist);
+                return this.calculatePenetration(this.minX, this.maxX, box.minX, box.maxX, maxDist);
             case FORWARD:
-                return this.calculatePenetration(this.z1, this.z2, box.z1, box.z2, maxDist);
+                return this.calculatePenetration(this.minZ, this.maxZ, box.minZ, box.maxZ, maxDist);
             case BACKWARD:
-                return this.calculatePenetration(this.y1, this.y2, box.y1, box.y2, maxDist);
+                return this.calculatePenetration(this.minY, this.maxY, box.minY, box.maxY, maxDist);
             default:
                 throw new IllegalArgumentException();
         }
@@ -72,11 +72,11 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeExtend
     private boolean intersects(AxisCycleDirection dir, Box box) {
         switch (dir) {
             case NONE:
-                return lessThan(this.y1, box.y2) && lessThan(box.y1, this.y2) && lessThan(this.z1, box.z2) && lessThan(box.z1, this.z2);
+                return lessThan(this.minY, box.maxY) && lessThan(box.minY, this.maxY) && lessThan(this.minZ, box.maxZ) && lessThan(box.minZ, this.maxZ);
             case FORWARD:
-                return lessThan(this.x1, box.x2) && lessThan(box.x1, this.x2) && lessThan(this.y1, box.y2) && lessThan(box.y1, this.y2);
+                return lessThan(this.minX, box.maxX) && lessThan(box.minX, this.maxX) && lessThan(this.minY, box.maxY) && lessThan(box.minY, this.maxY);
             case BACKWARD:
-                return lessThan(this.z1, box.z2) && lessThan(box.z1, this.z2) && lessThan(this.x1, box.x2) && lessThan(box.x1, this.x2);
+                return lessThan(this.minZ, box.maxZ) && lessThan(box.minZ, this.maxZ) && lessThan(this.minX, box.maxX) && lessThan(box.minX, this.maxX);
             default:
                 throw new IllegalArgumentException();
         }
@@ -117,17 +117,17 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeExtend
 
     @Override
     public Box getBoundingBox() {
-        return new Box(this.x1, this.y1, this.z1, this.x2, this.y2, this.z2);
+        return new Box(this.minX, this.minY, this.minZ, this.maxX, this.maxY, this.maxZ);
     }
 
     @Override
-    public double getMinimum(Direction.Axis axis) {
-        return axis.choose(this.x1, this.y1, this.z1);
+    public double getMin(Direction.Axis axis) {
+        return axis.choose(this.minX, this.minY, this.minZ);
     }
 
     @Override
-    public double getMaximum(Direction.Axis axis) {
-        return axis.choose(this.x2, this.y2, this.z2);
+    public double getMax(Direction.Axis axis) {
+        return axis.choose(this.maxX, this.maxY, this.maxZ);
     }
 
     @Override
@@ -138,11 +138,11 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeExtend
 
         switch (axis) {
             case X:
-                return (index == 0) ? this.x1 : this.x2;
+                return (index == 0) ? this.minX : this.maxX;
             case Y:
-                return (index == 0) ? this.y1 : this.y2;
+                return (index == 0) ? this.minY : this.maxY;
             case Z:
-                return (index == 0) ? this.z1 : this.z2;
+                return (index == 0) ? this.minZ : this.maxZ;
         }
 
         throw new IllegalArgumentException();
@@ -152,11 +152,11 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeExtend
     protected DoubleList getPointPositions(Direction.Axis axis) {
         switch (axis) {
             case X:
-                return DoubleArrayList.wrap(new double[]{this.x1, this.x2});
+                return DoubleArrayList.wrap(new double[]{this.minX, this.maxX});
             case Y:
-                return DoubleArrayList.wrap(new double[]{this.y1, this.y2});
+                return DoubleArrayList.wrap(new double[]{this.minY, this.maxY});
             case Z:
-                return DoubleArrayList.wrap(new double[]{this.z1, this.z2});
+                return DoubleArrayList.wrap(new double[]{this.minZ, this.maxZ});
         }
 
         throw new IllegalArgumentException();
@@ -164,21 +164,21 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeExtend
 
     @Override
     protected boolean contains(double x, double y, double z) {
-        return (x >= this.x1) && (x < this.x2) && (y >= this.y1) && (y < this.y2) && (z >= this.z1) && (z < this.z2);
+        return (x >= this.minX) && (x < this.maxX) && (y >= this.minY) && (y < this.maxY) && (z >= this.minZ) && (z < this.maxZ);
     }
 
     @Override
     public boolean isEmpty() {
-        return ((this.x1 + EPSILON) > this.x2) || ((this.y1 + EPSILON) > this.y2) || ((this.z1 + EPSILON) > this.z2);
+        return ((this.minX + EPSILON) > this.maxX) || ((this.minY + EPSILON) > this.maxY) || ((this.minZ + EPSILON) > this.maxZ);
     }
 
     @Override
     protected int getCoordIndex(Direction.Axis axis, double coord) {
-        if (coord < this.getMinimum(axis)) {
+        if (coord < this.getMin(axis)) {
             return -1;
         }
 
-        if (coord >= this.getMaximum(axis)) {
+        if (coord >= this.getMax(axis)) {
             return 1;
         }
 
@@ -191,8 +191,8 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeExtend
 
     @Override
     public boolean intersects(Box box, double x, double y, double z) {
-        return (box.x1 < (this.x2 + x)) && (box.x2 > (this.x1 + x)) &&
-                (box.y1 < (this.y2 + y)) && (box.y2 > (this.y1 + y)) &&
-                (box.z1 < (this.z2 + z)) && (box.z2 > (this.z1 + z));
+        return (box.minX < (this.maxX + x)) && (box.maxX > (this.minX + x)) &&
+                (box.minY < (this.maxY + y)) && (box.maxY > (this.minY + y)) &&
+                (box.minZ < (this.maxZ + z)) && (box.maxZ > (this.minZ + z));
     }
 }

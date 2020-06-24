@@ -1,18 +1,16 @@
 package me.jellysquid.mods.lithium.mixin.poi.fast_retrieval;
 
 import com.mojang.datafixers.DataFixer;
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import me.jellysquid.mods.lithium.common.util.Collector;
 import me.jellysquid.mods.lithium.common.util.collections.ListeningLong2ObjectOpenHashMap;
 import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageExtended;
 import net.minecraft.datafixer.DataFixTypes;
-import net.minecraft.util.dynamic.DynamicSerializable;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.storage.SerializingRegionBasedStorage;
-import net.minecraft.world.storage.StorageSerializer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -25,13 +23,12 @@ import java.io.File;
 import java.util.BitSet;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType") // We don't get a choice, this is Minecraft's doing!
 @Mixin(SerializingRegionBasedStorage.class)
-public abstract class MixinSerializingRegionBasedStorage<R extends DynamicSerializable> implements RegionBasedStorageExtended<R> {
+public abstract class MixinSerializingRegionBasedStorage<R> implements RegionBasedStorageExtended<R> {
     @Mutable
     @Shadow
     @Final
@@ -46,7 +43,7 @@ public abstract class MixinSerializingRegionBasedStorage<R extends DynamicSerial
     private Long2ObjectOpenHashMap<BitSet> columns;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(File file, StorageSerializer<R> class_5128_1, BiFunction<Runnable, Dynamic<?>, R> serializer, Function<Runnable, R> deserializer, DataFixer fixer, DataFixTypes type, boolean sync, CallbackInfo ci) {
+    private void init(File directory, Function<Runnable, Codec<R>> function, Function<Runnable, R> function2, DataFixer dataFixer, DataFixTypes dataFixTypes, boolean sync, CallbackInfo ci) {
         this.columns = new Long2ObjectOpenHashMap<>();
         this.loadedElements = new ListeningLong2ObjectOpenHashMap<>(this::onEntryAdded, this::onEntryRemoved);
     }

@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.poi.fast_init;
 
 import com.mojang.datafixers.DataFixer;
+import com.mojang.serialization.Codec;
 import me.jellysquid.mods.lithium.common.world.interests.PointOfInterestTypeHelper;
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.util.math.BlockPos;
@@ -17,11 +18,12 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.io.File;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 @Mixin(PointOfInterestStorage.class)
 public abstract class MixinPointOfInterestStorage extends SerializingRegionBasedStorage<PointOfInterestSet> {
-    public MixinPointOfInterestStorage(File file, DataFixer fixer, boolean flag) {
-        super(file, PointOfInterestSet::serialize, PointOfInterestSet::new, PointOfInterestSet::new, fixer, DataFixTypes.POI_CHUNK, flag);
+    public MixinPointOfInterestStorage(File directory, Function<Runnable, Codec<PointOfInterestSet>> function, Function<Runnable, PointOfInterestSet> function2, DataFixer dataFixer, DataFixTypes dataFixTypes, boolean bl) {
+        super(directory, function, function2, dataFixer, dataFixTypes, bl);
     }
 
     @Shadow

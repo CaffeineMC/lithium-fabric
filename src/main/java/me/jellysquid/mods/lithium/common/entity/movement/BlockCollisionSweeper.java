@@ -104,12 +104,12 @@ public class BlockCollisionSweeper {
      * with the {@param box}.
      */
     private static CuboidBlockIterator createVolumeIteratorForCollision(Box box) {
-        int minX = MathHelper.floor(box.x1 - EPSILON) - 1;
-        int maxX = MathHelper.floor(box.x2 + EPSILON) + 1;
-        int minY = MathHelper.floor(box.y1 - EPSILON) - 1;
-        int maxY = MathHelper.floor(box.y2 + EPSILON) + 1;
-        int minZ = MathHelper.floor(box.z1 - EPSILON) - 1;
-        int maxZ = MathHelper.floor(box.z2 + EPSILON) + 1;
+        int minX = MathHelper.floor(box.minX - EPSILON) - 1;
+        int maxX = MathHelper.floor(box.maxX + EPSILON) + 1;
+        int minY = MathHelper.floor(box.minY - EPSILON) - 1;
+        int maxY = MathHelper.floor(box.maxY + EPSILON) + 1;
+        int minZ = MathHelper.floor(box.minZ - EPSILON) - 1;
+        int maxZ = MathHelper.floor(box.maxZ + EPSILON) + 1;
 
         return new CuboidBlockIterator(minX, minY, minZ, maxX, maxY, maxZ);
     }

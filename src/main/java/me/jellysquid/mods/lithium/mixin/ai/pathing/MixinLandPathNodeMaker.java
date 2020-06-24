@@ -21,11 +21,8 @@ import org.spongepowered.asm.mixin.Shadow;
  * cache which stores the result of this complicated code path. This provides a significant speed-up in path-finding
  * code and should be relatively safe.
  */
-@SuppressWarnings("ConstantConditions")
 @Mixin(LandPathNodeMaker.class)
 public abstract class MixinLandPathNodeMaker {
-    private static final PathNodeType[] NODE_TYPES = PathNodeType.values();
-
     // This is not thread-safe!
     private static final Reference2ReferenceMap<BlockState, PathNodeType> commonTypes = new Reference2ReferenceOpenHashMap<>();
     private static final Reference2ReferenceMap<BlockState, PathNodeType> neighborTypes = new Reference2ReferenceOpenHashMap<>();
@@ -131,9 +128,9 @@ public abstract class MixinLandPathNodeMaker {
         // Retrieve the fluid state from the block state to avoid a second lookup
         FluidState fluid = blockState.getFluidState();
 
-        if (fluid.matches(FluidTags.WATER)) {
+        if (fluid.isIn(FluidTags.WATER)) {
             return PathNodeType.WATER;
-        } else if (fluid.matches(FluidTags.LAVA)) {
+        } else if (fluid.isIn(FluidTags.LAVA)) {
             return PathNodeType.LAVA;
         }
 

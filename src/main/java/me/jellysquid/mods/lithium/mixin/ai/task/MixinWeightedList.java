@@ -13,7 +13,7 @@ import java.util.List;
 public class MixinWeightedList<U> implements WeightedListIterable<U> {
     @Shadow
     @Final
-    protected List<WeightedList<U>.Entry<? extends U>> entries;
+    protected List<WeightedList.Entry<? extends U>> entries;
 
     @Override
     public Iterator<U> iterator() {

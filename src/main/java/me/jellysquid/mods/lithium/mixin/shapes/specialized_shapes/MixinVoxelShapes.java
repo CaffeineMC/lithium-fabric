@@ -71,6 +71,6 @@ public abstract class MixinVoxelShapes {
      */
     @Overwrite
     public static VoxelShape cuboid(Box box) {
-        return new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, box.x1, box.y1, box.z1, box.x2, box.y2, box.z2);
+        return new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
     }
 }

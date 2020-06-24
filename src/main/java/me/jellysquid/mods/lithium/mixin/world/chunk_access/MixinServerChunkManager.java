@@ -59,6 +59,9 @@ public abstract class MixinServerChunkManager {
     @Shadow
     protected abstract boolean isMissingForLevel(ChunkHolder holder, int maxLevel);
 
+    @Shadow
+    @Final
+    private Thread serverThread;
     private long time;
 
     @Inject(method = "tick()Z", at = @At("HEAD"))
@@ -72,6 +75,10 @@ public abstract class MixinServerChunkManager {
      */
     @Overwrite
     public Chunk getChunk(int x, int z, ChunkStatus status, boolean create) {
+        if (Thread.currentThread() != this.serverThread) {
+            return this.getChunkOffThread(x, z, status, create);
+        }
+
         // Store a local reference to the cached keys array in order to prevent bounds checks later
         long[] cacheKeys = this.cacheKeys;
 
@@ -101,6 +108,12 @@ public abstract class MixinServerChunkManager {
         }
 
         return chunk;
+    }
+
+    private Chunk getChunkOffThread(int x, int z, ChunkStatus status, boolean create) {
+        return CompletableFuture.supplyAsync(() -> {
+            return this.getChunk(x, z, status, create);
+        }, this.mainThreadExecutor).join();
     }
 
     /**
@@ -202,7 +215,7 @@ public abstract class MixinServerChunkManager {
     private void createChunkLoadTicket(int x, int z, int level) {
         ChunkPos chunkPos = new ChunkPos(x, z);
 
-        this.ticketManager.addTicketWithLevel(ChunkTicketType.UNKNOWN, chunkPos, level, chunkPos);
+        this.ticketManager.addTicketWithLevel(ChunkTicketType.field_14032, chunkPos, level, chunkPos);
     }
 
     /**

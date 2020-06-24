@@ -31,12 +31,12 @@ public class VoxelShapeEmpty extends VoxelShape implements VoxelShapeExtended {
     }
 
     @Override
-    public double getMinimum(Direction.Axis axis) {
+    public double getMin(Direction.Axis axis) {
         return Double.POSITIVE_INFINITY;
     }
 
     @Override
-    public double getMaximum(Direction.Axis axis) {
+    public double getMax(Direction.Axis axis) {
         return Double.NEGATIVE_INFINITY;
     }
 
