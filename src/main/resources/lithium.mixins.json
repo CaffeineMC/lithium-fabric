@@ -76,6 +76,7 @@
         "world.chunk_ticking.MixinPlayerChunkWatchingManager",
         "world.chunk_ticking.MixinThreadedAnvilChunkStorage",
         "world.explosions.MixinExplosion",
+        "world.fast_noise.MixinSurfaceChunkGenerator",
         "world.layer_caching.MixinBiomeLayerSampler",
         "world.layer_caching.MixinCachingLayerContext",
         "world.layer_caching.MixinParentedLayer",
