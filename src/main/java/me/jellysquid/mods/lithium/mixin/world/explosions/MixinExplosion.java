@@ -60,9 +60,7 @@ public abstract class MixinExplosion {
     public abstract DamageSource getDamageSource();
 
     @Shadow
-    public static float getExposure(Vec3d self, Entity entity) {
-        throw new UnsupportedOperationException();
-    }
+    public static native float getExposure(Vec3d self, Entity entity);
 
     @Shadow
     @Final

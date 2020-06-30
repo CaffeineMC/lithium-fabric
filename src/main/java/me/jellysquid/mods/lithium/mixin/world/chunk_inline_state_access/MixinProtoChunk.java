@@ -39,7 +39,7 @@ public class MixinProtoChunk {
             ChunkSection section = this.sections[y >> 4];
 
             if (section != null) {
-                return section.getBlockState(x & 15, y & 15, z & 15);
+                return section.getContainer().get(x & 15, y & 15, z & 15);
             }
         }
 
@@ -60,7 +60,7 @@ public class MixinProtoChunk {
             ChunkSection section = this.sections[y >> 4];
 
             if (section != null) {
-                return section.getFluidState(x & 15, y & 15, z & 15);
+                return section.getContainer().get(x & 15, y & 15, z & 15).getFluidState();
             }
         }
 

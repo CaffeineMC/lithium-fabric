@@ -27,7 +27,7 @@ public class MixinTask<E extends LivingEntity> {
 
     @Inject(method = "<init>(Ljava/util/Map;II)V", at = @At("RETURN"))
     private void init(Map<MemoryModuleType<?>, MemoryModuleState> map, int int_1, int int_2, CallbackInfo ci) {
-        List<Pair<MemoryModuleType<?>, MemoryModuleState>> flattened = new ArrayList<>(map.size());
+        final List<Pair<MemoryModuleType<?>, MemoryModuleState>> flattened = new ArrayList<>(map.size());
 
         for (Map.Entry<MemoryModuleType<?>, MemoryModuleState> entry : this.requiredMemoryStates.entrySet()) {
             flattened.add(new Pair<>(entry.getKey(), entry.getValue()));

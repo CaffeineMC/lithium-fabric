@@ -67,7 +67,7 @@ public class MixinCompositeTask<E extends LivingEntity> {
             }
         }
 
-        Brain<?> brain = entity.getBrain();
+        final Brain<?> brain = entity.getBrain();
 
         for (MemoryModuleType<?> module : this.memoriesToForgetWhenStopped) {
             brain.forget(module);

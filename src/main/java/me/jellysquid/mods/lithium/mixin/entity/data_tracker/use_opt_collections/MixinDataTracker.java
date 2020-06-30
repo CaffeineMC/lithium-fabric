@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.entity.data_tracker.optimized_entries;
+package me.jellysquid.mods.lithium.mixin.entity.data_tracker.use_opt_collections;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.entity.Entity;
@@ -21,13 +21,13 @@ public abstract class MixinDataTracker {
     private Map<Integer, DataTracker.Entry<?>> entries;
 
     /**
-     * Using a more specifically-optimized collection type for entity data tracker entries that provides
+     * Uses a more specifically-optimized collection type for entity data tracker entries that provides
      * lower memory consumption and faster iterator implementation.
 .     *
      * @author Maity
      */
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void reinitializeEntries(Entity entity, CallbackInfo ci) {
+    private void reinitialize(Entity entity, CallbackInfo ci) {
         this.entries = new Int2ObjectOpenHashMap<>(this.entries);
     }
 }

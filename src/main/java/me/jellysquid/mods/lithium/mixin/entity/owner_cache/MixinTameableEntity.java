@@ -15,7 +15,7 @@ import java.util.UUID;
 
 /**
  * This mixin patch caches the tameable entity owner to reduce the number of DataTracker calls and
- * speed up some mob patchfinding operations.
+ * speed up some mob patchfindings operations.
  *
  * @author Maity
  */

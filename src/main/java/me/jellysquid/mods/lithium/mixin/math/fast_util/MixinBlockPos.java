@@ -9,7 +9,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 
 /**
- * This mixin patch avoids overhead offset calculations for structure/feature generation.
+ * This mixin patch speeds up {@link BlockPos} offset functions eliminating unnecessary overhead when
+ * calculating a new vector position. {@link BlockPos} is often used in many parts of the game code,
+ * but this patch is most noticeable during feature/structure generation.
  *
  * @author Maity
  */
