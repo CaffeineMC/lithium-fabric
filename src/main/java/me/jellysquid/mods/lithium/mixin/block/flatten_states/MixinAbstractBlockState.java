@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-
 @Mixin(AbstractBlock.AbstractBlockState.class)
 public abstract class MixinAbstractBlockState {
     @Shadow
@@ -34,11 +33,31 @@ public abstract class MixinAbstractBlockState {
     private FluidState fluidState = null;
 
     /**
+     * A block status cache that determines whether the current block state is ticking. This is slightly
+     * speeds up the chunk ticking and random block ticking.
+     */
+    private boolean isTicking;
+
+    /**
      * We can't use the ctor as a BlockState will be constructed *before* a Block has fully initialized.
      */
     @Inject(method = "initShapeCache", at = @At("HEAD"))
-    private void init(CallbackInfo ci) {
+    private void initCaches(CallbackInfo ci) {
+        this.isTicking = this.getBlock().hasRandomTicks(this.asBlockState());
+
+        // In Minecraft code, @Deprecated usually does not actually mean @Deprecated.
+        // In Block, deprecated methods mean "override, not call". This is because there is a corresponding
+        // method in BlockState that we must call.
         this.fluidState = this.getBlock().getFluidState(this.asBlockState());
+    }
+
+    /**
+     * @reason Use cached property
+     * @author JellySquid, Maity
+     */
+    @Overwrite
+    public boolean hasRandomTicks() {
+        return this.isTicking;
     }
 
     /**
@@ -47,6 +66,10 @@ public abstract class MixinAbstractBlockState {
      */
     @Overwrite
     public FluidState getFluidState() {
-        return this.fluidState == null ? this.getBlock().getFluidState(this.asBlockState()) : this.fluidState;
+        if (this.fluidState == null) {
+            this.fluidState = this.getBlock().getFluidState(this.asBlockState());
+        }
+
+        return this.fluidState;
     }
 }

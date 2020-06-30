@@ -27,10 +27,12 @@ minecraft {
 }
 
 dependencies {
-	//to change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    // Fix missing javax annotations
+    compileOnly group: "com.google.code.findbugs", name: "jsr305", version: "3.0.2"
 }
 
 processResources {
@@ -38,7 +40,6 @@ processResources {
 
 	from(sourceSets.main.resources.srcDirs) {
 		include "fabric.mod.json"
-
 		expand "version": project.version
 	}
 
@@ -47,9 +48,7 @@ processResources {
 	}
 }
 
-// ensure that the encoding is set to UTF-8, no matter what the system default is
-// this fixes some edge cases with special characters not displaying correctly
-// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+// http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
 tasks.withType(JavaCompile) {
 	options.encoding = "UTF-8"
 }
@@ -79,10 +78,10 @@ curseforge {
 
         addGameVersion project.cf_game_version
 
-        def displayNameBase = "${project.cf_project_name} mc${project.minecraft_version}-${project.version}"
+        def display_name_base = "${project.cf_project_name} mc${project.minecraft_version}-${project.version}"
 
         mainArtifact(jar) {
-            displayName = displayNameBase
+            displayName = display_name_base
         }
     }
 

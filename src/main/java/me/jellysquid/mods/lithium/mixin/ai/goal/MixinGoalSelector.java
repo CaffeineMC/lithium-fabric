@@ -45,6 +45,22 @@ public abstract class MixinGoalSelector {
     }
 
     /**
+     * @reason Remove lambdas and complex stream logic
+     * @author JellySquid, Maity
+     */
+    @Overwrite
+    public void remove(Goal goal) {
+        for (PrioritizedGoal wrappedGoal : this.goals) {
+            if (wrappedGoal.getGoal() == goal) {
+                if (wrappedGoal.isRunning()) {
+                    wrappedGoal.stop();
+                }
+                this.goals.remove(wrappedGoal);
+            }
+        }
+    }
+
+    /**
      * Avoid the usage of streams entirely to squeeze out additional performance.
      *
      * @reason Remove lambdas and complex stream logic
