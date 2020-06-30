@@ -88,7 +88,7 @@ public class MixinSurfaceChunkGenerator {
         double scaledVerticalScale = verticalScale * frequency;
         return sampler.sample(
                 OctavePerlinNoiseSampler.maintainPrecision(x * horizontalScale * frequency),
-                OctavePerlinNoiseSampler.maintainPrecision(scaledVerticalScale * frequency),
+                OctavePerlinNoiseSampler.maintainPrecision(y * scaledVerticalScale),
                 OctavePerlinNoiseSampler.maintainPrecision(z * horizontalScale * frequency), scaledVerticalScale, y * scaledVerticalScale) / frequency;
     }
 }
