@@ -36,7 +36,14 @@ public class MixinSurfaceChunkGenerator {
 
         // Calculate interpolation data to decide what noise to sample.
         for (int octave = 0; octave < 8; octave++) {
-            interpolationValue += sampleOctave(this.interpolationNoise.getOctave(octave), x, y, z, horizontalStretch, verticalStretch, frequency);
+            double scaledVerticalScale = verticalStretch * frequency;
+            double scaledY = y * scaledVerticalScale;
+
+            interpolationValue += sampleOctave(this.interpolationNoise.getOctave(octave),
+                    OctavePerlinNoiseSampler.maintainPrecision(x * horizontalStretch * frequency),
+                    OctavePerlinNoiseSampler.maintainPrecision(scaledY),
+                    OctavePerlinNoiseSampler.maintainPrecision(z * horizontalStretch * frequency), scaledVerticalScale, scaledY, frequency);
+
             frequency /= 2.0;
         }
 
@@ -47,7 +54,13 @@ public class MixinSurfaceChunkGenerator {
             frequency = 1.0;
             double noise = 0.0;
             for (int octave = 0; octave < 16; octave++) {
-                noise += sampleOctave(this.upperInterpolatedNoise.getOctave(octave), x, y, z, horizontalScale, verticalScale, frequency);
+                double scaledVerticalScale = verticalScale * frequency;
+                double scaledY = y * scaledVerticalScale;
+
+                noise += sampleOctave(this.upperInterpolatedNoise.getOctave(octave),
+                        OctavePerlinNoiseSampler.maintainPrecision(x * horizontalScale * frequency),
+                        OctavePerlinNoiseSampler.maintainPrecision(scaledY),
+                        OctavePerlinNoiseSampler.maintainPrecision(z * horizontalScale * frequency), scaledVerticalScale, scaledY, frequency);
 
                 frequency /= 2.0;
             }
@@ -58,7 +71,12 @@ public class MixinSurfaceChunkGenerator {
             frequency = 1.0;
             double noise = 0.0;
             for (int octave = 0; octave < 16; octave++) {
-                noise += sampleOctave(this.lowerInterpolatedNoise.getOctave(octave), x, y, z, horizontalScale, verticalScale, frequency);
+                double scaledVerticalScale = verticalScale * frequency;
+                double scaledY = y * scaledVerticalScale;
+                noise += sampleOctave(this.lowerInterpolatedNoise.getOctave(octave),
+                        OctavePerlinNoiseSampler.maintainPrecision(x * horizontalScale * frequency),
+                        OctavePerlinNoiseSampler.maintainPrecision(scaledY),
+                        OctavePerlinNoiseSampler.maintainPrecision(z * horizontalScale * frequency), scaledVerticalScale, scaledY, frequency);
 
                 frequency /= 2.0;
             }
@@ -73,8 +91,15 @@ public class MixinSurfaceChunkGenerator {
             double upperNoise = 0.0;
 
             for (int octave = 0; octave < 16; octave++) {
-                upperNoise += sampleOctave(this.upperInterpolatedNoise.getOctave(octave), x, y, z, horizontalScale, verticalScale, frequency);
-                lowerNoise += sampleOctave(this.lowerInterpolatedNoise.getOctave(octave), x, y, z, horizontalScale, verticalScale, frequency);
+                // Pre calculate these values to share them
+                double scaledVerticalScale = verticalScale * frequency;
+                double scaledY = y * scaledVerticalScale;
+                double xVal = OctavePerlinNoiseSampler.maintainPrecision(x * horizontalScale * frequency);
+                double yVal = OctavePerlinNoiseSampler.maintainPrecision(scaledY);
+                double zVal = OctavePerlinNoiseSampler.maintainPrecision(z * horizontalScale * frequency);
+
+                upperNoise += sampleOctave(this.upperInterpolatedNoise.getOctave(octave), xVal, yVal, zVal, scaledVerticalScale, scaledY, frequency);
+                lowerNoise += sampleOctave(this.lowerInterpolatedNoise.getOctave(octave), xVal, yVal, zVal, scaledVerticalScale, scaledY, frequency);
 
                 frequency /= 2.0;
             }
@@ -84,11 +109,7 @@ public class MixinSurfaceChunkGenerator {
         }
     }
 
-    private static double sampleOctave(PerlinNoiseSampler sampler, int x, int y, int z, double horizontalScale, double verticalScale, double frequency) {
-        double scaledVerticalScale = verticalScale * frequency;
-        return sampler.sample(
-                OctavePerlinNoiseSampler.maintainPrecision(x * horizontalScale * frequency),
-                OctavePerlinNoiseSampler.maintainPrecision(y * scaledVerticalScale),
-                OctavePerlinNoiseSampler.maintainPrecision(z * horizontalScale * frequency), scaledVerticalScale, y * scaledVerticalScale) / frequency;
+    private static double sampleOctave(PerlinNoiseSampler sampler, double x, double y, double z, double scaledVerticalScale, double scaledY, double frequency) {
+        return sampler.sample(x, y, z, scaledVerticalScale, scaledY) / frequency;
     }
 }
