@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(SurfaceChunkGenerator.class)
 public class MixinSurfaceChunkGenerator {
-
     @Shadow @Final private OctavePerlinNoiseSampler lowerInterpolatedNoise;
 
     @Shadow @Final private OctavePerlinNoiseSampler upperInterpolatedNoise;
@@ -47,7 +46,7 @@ public class MixinSurfaceChunkGenerator {
             frequency /= 2.0;
         }
 
-        double clampedInterpolation = (interpolationValue / 10.0D + 1.0D) / 2.0D;
+        double clampedInterpolation = (interpolationValue / 10.0 + 1.0) / 2.0;
 
         if (clampedInterpolation >= 1) {
             // Sample only upper noise, as the lower noise will be interpolated out.
@@ -65,7 +64,7 @@ public class MixinSurfaceChunkGenerator {
                 frequency /= 2.0;
             }
 
-            return noise / 512.0D;
+            return noise / 512.0;
         } else if (clampedInterpolation <= 0) {
             // Sample only lower noise, as the upper noise will be interpolated out.
             frequency = 1.0;
@@ -81,7 +80,7 @@ public class MixinSurfaceChunkGenerator {
                 frequency /= 2.0;
             }
 
-            return noise / 512.0D;
+            return noise / 512.0;
         } else {
             // [VanillaCopy] SurfaceChunkGenerator#sampleNoise
             // Sample both and interpolate, as in vanilla.
@@ -105,7 +104,7 @@ public class MixinSurfaceChunkGenerator {
             }
 
             // Vanilla behavior, return interpolated noise
-            return MathHelper.lerp(clampedInterpolation, lowerNoise / 512.0, upperNoise / 512);
+            return MathHelper.lerp(clampedInterpolation, lowerNoise / 512.0, upperNoise / 512.0);
         }
     }
 
