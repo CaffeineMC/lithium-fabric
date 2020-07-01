@@ -5,6 +5,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.ProtoChunk;
 import org.spongepowered.asm.mixin.Final;
@@ -33,7 +34,7 @@ public class MixinProtoChunk {
         final int y = blockPos.getY();
         final int z = blockPos.getZ();
 
-        if (y < 0 || y >= 256) { // [VanillaCopy] ProtoChunk#getFluidState
+        if (World.isHeightInvalid(y)) { // [VanillaCopy] ProtoChunk#getFluidState
             return VOID_AIR;
         } else {
             ChunkSection section = this.sections[y >> 4];
@@ -56,7 +57,7 @@ public class MixinProtoChunk {
         final int y = blockPos.getY();
         final int z = blockPos.getZ();
 
-        if (y >= 0 && y <= 256) {
+        if (!World.isHeightInvalid(y)) {
             ChunkSection section = this.sections[y >> 4];
 
             if (section != null) {

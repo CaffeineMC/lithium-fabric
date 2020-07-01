@@ -22,15 +22,6 @@ public abstract class MixinBlockPos extends Vec3i {
     }
 
     /**
-     * @reason Better inlining & reduce bytecode instructions
-     * @author Maity
-     */
-    @Overwrite
-    public static long asLong(int x, int y, int z) {
-        return (((long) x & (long) 67108863) << 38) | (((long) y & (long) 4095)) | (((long) z & (long) 67108863) << 12);
-    }
-
-    /**
      * @reason Avoid overhead offset calculations
      * @author Maity
      */

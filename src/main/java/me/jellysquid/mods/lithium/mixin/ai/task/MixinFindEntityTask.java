@@ -65,7 +65,7 @@ public abstract class MixinFindEntityTask<E extends LivingEntity, T extends Livi
 
     /**
      * @reason Replace stream code with traditional iteration
-     * @author Maity, JellySquid
+     * @author Maity
      */
     @Overwrite
     protected void run(ServerWorld world, E self, long time) {

@@ -19,7 +19,7 @@ public class MixinMeetVillagerTask {
 
     /**
      * @reason Replace stream code with traditional iteration
-     * @author Maity, JellySquid
+     * @author Maity
      */
     @Overwrite
     protected void run(ServerWorld world, LivingEntity entity, long time) {

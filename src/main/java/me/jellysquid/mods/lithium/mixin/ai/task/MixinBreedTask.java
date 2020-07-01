@@ -49,6 +49,6 @@ public class MixinBreedTask {
             }
         }
 
-        return Optional.of(ret);
+        return Optional.ofNullable(ret);
     }
 }

@@ -20,6 +20,12 @@ public abstract class MixinAbstractBlockState {
     public abstract Block getBlock();
 
     /**
+     * A block status cache that determines whether the current block state is ticking. This is slightly
+     * speeds up the chunk ticking and random block ticking.
+     */
+    private boolean isTicking;
+
+    /**
      * We can avoid excessive overhead in looking up the fluid state of a block by caching those values in the
      * BlockState itself. This notably improves performance when scanning for fluid blocks by eliminating the pointer
      * dereferences, dynamic dispatch, and bounds check of calling into BaseFluid to retrieve a fluid.
@@ -31,12 +37,6 @@ public abstract class MixinAbstractBlockState {
      * Block#getFluidState(BlockState).
      */
     private FluidState fluidState = null;
-
-    /**
-     * A block status cache that determines whether the current block state is ticking. This is slightly
-     * speeds up the chunk ticking and random block ticking.
-     */
-    private boolean isTicking;
 
     /**
      * We can't use the ctor as a BlockState will be constructed *before* a Block has fully initialized.

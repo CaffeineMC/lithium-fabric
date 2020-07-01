@@ -22,7 +22,7 @@ public class MixinFollowMobTask {
 
     /**
      * @reason Replace stream code with traditional iteration
-     * @author Maity, JellySquid
+     * @author Maity
      */
     @Overwrite
     protected boolean shouldRun(ServerWorld world, LivingEntity entity) {
