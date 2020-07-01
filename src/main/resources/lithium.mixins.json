@@ -89,7 +89,6 @@
         "world.mob_spawning.MixinBiome",
         "world.player_chunk_tick.MixinThreadedAnvilChunkStorage",
         "world.tick_scheduler.MixinServerWorld",
-        "world.tile_unloading.MixinServerWorld",
         "world.tile_unloading.MixinWorld"
     ]
 }

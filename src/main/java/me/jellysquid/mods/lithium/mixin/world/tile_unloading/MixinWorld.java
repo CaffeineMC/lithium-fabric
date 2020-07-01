@@ -1,7 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.world.tile_unloading;
 
 import me.jellysquid.mods.lithium.common.util.collections.CollectionAsList;
-import me.jellysquid.mods.lithium.common.world.NullBlockEntityList;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.RegistryKey;
@@ -34,9 +33,10 @@ import java.util.function.Supplier;
  * (since it uses the contains method and Sets has O(1) for it) and improve the speed of
  * add, addAll, remove and removeAll methods World#unloadedBlockEntities.
  *
- * I also noticed that, {@link World#blockEntities} copies the logic of World#tickingBlockEntities
- * slowing all these processes down by half. This patch removes it, which should reduce resource
- * consumption and increase the performance of block entity ticking.
+ * TODO I also noticed that, {@link World#blockEntities} copies the logic of World#tickingBlockEntities
+ *     slowing all these processes down by half. It may be worth removing it for servers with a
+ *     large number of players online. However, this may disrupt the operation of other mods. Then it
+ *     can initially disable it???
  *
  * @author Maity
  */
@@ -47,20 +47,8 @@ public class MixinWorld {
     @Mutable
     private List<BlockEntity> unloadedBlockEntities;
 
-    @Shadow
-    @Final
-    @Mutable
-    public List<BlockEntity> blockEntities;
-
-    /**
-     * Re-initialize block entity collections using custom adapters, which avoids errors with other mods
-     * and supporting their work.
-     */
     @Inject(method = "<init>", at = @At("RETURN"))
     private void reinitialize(MutableWorldProperties props, RegistryKey<World> worldKey, RegistryKey<DimensionType> dimensionKey, DimensionType type, Supplier<Profiler> profiler, boolean isDebugWorld, boolean isClient, long seed, CallbackInfo ci) {
         this.unloadedBlockEntities = new CollectionAsList<>(new HashSet<>());
-
-        // This will "delete" this unnecessary list by overriding all methods with empty clones.
-        this.blockEntities = new NullBlockEntityList<>();
     }
 }
