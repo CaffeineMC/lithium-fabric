@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -50,12 +51,16 @@ public abstract class MixinGoalSelector {
      */
     @Overwrite
     public void remove(Goal goal) {
-        for (PrioritizedGoal wrappedGoal : this.goals) {
+        Iterator<PrioritizedGoal> itr = this.goals.iterator();
+
+        while (itr.hasNext()) {
+            PrioritizedGoal wrappedGoal = itr.next();
+
             if (wrappedGoal.getGoal() == goal) {
                 if (wrappedGoal.isRunning()) {
                     wrappedGoal.stop();
                 }
-                this.goals.remove(wrappedGoal);
+                itr.remove();
             }
         }
     }

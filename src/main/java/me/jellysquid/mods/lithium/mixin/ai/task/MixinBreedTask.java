@@ -27,9 +27,9 @@ public class MixinBreedTask {
      */
     @Overwrite
     private Optional<? extends AnimalEntity> findBreedTarget(AnimalEntity entity) {
-        final Brain<?> brain = entity.getBrain();
+        Brain<?> brain = entity.getBrain();
 
-        final List<LivingEntity> visibleMobs = entity.getBrain().getOptionalMemory(MemoryModuleType.VISIBLE_MOBS)
+        List<LivingEntity> visibleMobs = entity.getBrain().getOptionalMemory(MemoryModuleType.VISIBLE_MOBS)
                 .orElse(Collections.emptyList());
 
         AnimalEntity ret = null;

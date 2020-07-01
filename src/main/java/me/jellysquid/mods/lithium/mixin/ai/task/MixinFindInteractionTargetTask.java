@@ -67,9 +67,9 @@ public abstract class MixinFindInteractionTargetTask extends Task<LivingEntity> 
     public void run(ServerWorld world, LivingEntity self, long time) {
         super.run(world, self, time);
 
-        final Brain<?> brain = self.getBrain();
+        Brain<?> brain = self.getBrain();
 
-        final List<LivingEntity> visibleMobs = brain.getOptionalMemory(MemoryModuleType.VISIBLE_MOBS)
+        List<LivingEntity> visibleMobs = brain.getOptionalMemory(MemoryModuleType.VISIBLE_MOBS)
                 .orElse(Collections.emptyList());
 
         for (LivingEntity entity : visibleMobs) {

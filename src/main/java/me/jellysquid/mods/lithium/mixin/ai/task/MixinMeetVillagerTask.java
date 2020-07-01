@@ -23,9 +23,9 @@ public class MixinMeetVillagerTask {
      */
     @Overwrite
     protected void run(ServerWorld world, LivingEntity entity, long time) {
-        final Brain<?> brain = entity.getBrain();
+        Brain<?> brain = entity.getBrain();
 
-        final List<LivingEntity> visibleMobs = brain.getOptionalMemory(MemoryModuleType.VISIBLE_MOBS)
+        List<LivingEntity> visibleMobs = brain.getOptionalMemory(MemoryModuleType.VISIBLE_MOBS)
                 .orElse(Collections.emptyList());
 
         for (LivingEntity mob : visibleMobs) {
