@@ -110,7 +110,7 @@ public class SimplexNoiseCache {
 
                     // Try to return early if we're over the max
                     if (densityHere > density) {
-                        if (density >= MAX) {
+                        if (densityHere >= MAX) {
                             return MAX;
                         }
 
