@@ -17,3 +17,6 @@ accessible method net/minecraft/server/world/ChunkHolder updateFuture (Ljava/uti
 
 accessible class net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker
 accessible field net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker entity Lnet/minecraft/entity/Entity;
+
+extendable class net/minecraft/world/biome/layer/util/CachingLayerSampler
+accessible field net/minecraft/world/biome/layer/util/CachingLayerSampler operator Lnet/minecraft/world/biome/layer/util/LayerOperator;
