@@ -7,6 +7,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.ProtectionEnchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
@@ -288,7 +289,9 @@ public abstract class MixinExplosion {
             }
 
             double distXSq = entity.getX() - this.x;
-            double distYSq = entity.getEyeY() - this.y;
+            // [VanillaCopy] In the 1.16 snapshots Mojang added this distinction between TNT and other entities in the explosion code to
+            // fix the the increased eye height affecting explosions. The eye height increase was an attempt to fix rendering of tnt on soulsand.
+            double distYSq = (entity instanceof TntEntity ? entity.getY() : entity.getEyeY()) - this.y;
             double distZSq = entity.getZ() - this.z;
 
             double dist = MathHelper.sqrt((distXSq * distXSq) + (distYSq * distYSq) + (distZSq * distZSq));
