@@ -20,7 +20,7 @@ import java.util.List;
  * advantage of the fact that there is only ever one voxel in a simple cuboid shape, greatly speeding up collision
  * handling in most cases as block shapes are often nothing more than a single cuboid.
  */
-public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeExtended {
+public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeCaster {
     private static final double EPSILON = 1.0E-7D;
 
     private final double minX, minY, minZ, maxX, maxY, maxZ;
