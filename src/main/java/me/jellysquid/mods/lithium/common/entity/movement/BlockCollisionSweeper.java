@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.entity.movement;
 
-import me.jellysquid.mods.lithium.common.shapes.VoxelShapeExtended;
+import me.jellysquid.mods.lithium.common.shapes.VoxelShapeCaster;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
@@ -132,8 +132,8 @@ public class BlockCollisionSweeper {
      * @return A {@link VoxelShape} which contains the shape representing that which was collided with, otherwise null
      */
     private static VoxelShape getCollidedShape(Box entityBox, VoxelShape entityShape, VoxelShape shape, int x, int y, int z) {
-        if (shape instanceof VoxelShapeExtended) {
-            if (((VoxelShapeExtended) shape).intersects(entityBox, x, y, z)) {
+        if (shape instanceof VoxelShapeCaster) {
+            if (((VoxelShapeCaster) shape).intersects(entityBox, x, y, z)) {
                 return shape.offset(x, y, z);
             } else {
                 return null;
