@@ -37,10 +37,14 @@ public class MixinBlock {
         BlockShapeCacheExtended shapeCache = ((BlockShapeCacheExtendedProvider) state).getExtendedShapeCache();
 
         if (shapeCache != null) {
-            return shapeCache.sideCoversMediumSquare(Direction.UP);
+            return shapeCache.hasTopRim();
         }
 
-        return BlockShapeHelper.sideCoversSquare(state.getCollisionShape(world, pos).getFace(Direction.UP), BlockShapeHelper.SOLID_MEDIUM_SQUARE_SHAPE);
+        return hasTopRimFallback(world, pos, state);
+    }
+
+    private static boolean hasTopRimFallback(BlockView world, BlockPos pos, BlockState state) {
+        return BlockShapeHelper.sideCoversSquare(state.getSidesShape(world, pos).getFace(Direction.UP), BlockShapeHelper.SOLID_MEDIUM_SQUARE_SHAPE);
     }
 
     /**
@@ -56,7 +60,11 @@ public class MixinBlock {
             return shapeCache.sideCoversSmallSquare(side);
         }
 
-        return BlockShapeHelper.sideCoversSquare(state.getCollisionShape(world, pos).getFace(side), BlockShapeHelper.SOLID_SMALL_SQUARE_SHAPE);
+        return sideCoversSmallSquareFallback(world, pos, side, state);
+    }
+
+    private static boolean sideCoversSmallSquareFallback(WorldView world, BlockPos pos, Direction side, BlockState state) {
+        return BlockShapeHelper.sideCoversSquare(state.getSidesShape(world, pos).getFace(side), BlockShapeHelper.SOLID_SMALL_SQUARE_SHAPE);
     }
 
     /**

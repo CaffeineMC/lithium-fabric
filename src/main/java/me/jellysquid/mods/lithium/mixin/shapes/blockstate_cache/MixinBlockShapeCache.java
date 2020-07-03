@@ -2,16 +2,15 @@ package me.jellysquid.mods.lithium.mixin.shapes.blockstate_cache;
 
 import me.jellysquid.mods.lithium.common.block.BlockShapeCacheExtended;
 import me.jellysquid.mods.lithium.common.block.BlockShapeHelper;
-import me.jellysquid.mods.lithium.common.util.BitUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.tag.BlockTags;
-import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.EmptyBlockView;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -25,37 +24,52 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinBlockShapeCache implements BlockShapeCacheExtended {
     private static final Direction[] DIRECTIONS = Direction.values();
 
+    @Shadow
+    @Final
+    protected boolean[] solidFullSquare;
+
+    @Shadow
+    @Final
+    protected boolean isFullCube;
+
     private byte sideCoversSmallSquare;
-    private byte sideCoversMediumSquare;
+    private boolean hasTopRim;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(BlockState state, CallbackInfo ci) {
         // [VanillaCopy] Leaf blocks are a special case which can never support other blocks
         // This is exactly how vanilla itself implements the check.
-        if (state.isIn(BlockTags.LEAVES)) {
-            return;
+        if (!state.isIn(BlockTags.LEAVES)) {
+            this.initSidedProperties(state);
         }
+    }
 
-        VoxelShape shape = state.getCollisionShape(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
+    private void initSidedProperties(BlockState state) {
+        VoxelShape shape = state.getSidesShape(EmptyBlockView.INSTANCE, BlockPos.ORIGIN);
 
-        // If the shape is a full cube, it can always support another component
-        boolean fullCube = !VoxelShapes.matchesAnywhere(shape, VoxelShapes.fullCube(), BooleanBiFunction.NOT_SAME);
+        // If the shape is a full cube and the top face is a full square, it can always support another component
+        this.hasTopRim = (this.isFullCube && this.solidFullSquare[Direction.UP.ordinal()]) ||
+                BlockShapeHelper.sideCoversSquare(shape.getFace(Direction.UP), BlockShapeHelper.SOLID_MEDIUM_SQUARE_SHAPE);
 
-        for (Direction dir : DIRECTIONS) {
-            VoxelShape face = shape.getFace(dir);
+        for (Direction side : DIRECTIONS) {
+            // [VanillaCopy] Block#sideCoversSmallSquare
+            if (side == Direction.DOWN && state.isIn(BlockTags.UNSTABLE_BOTTOM_CENTER)) {
+                continue;
+            }
 
-            this.sideCoversSmallSquare |= BitUtil.bit(dir.ordinal(), fullCube || BlockShapeHelper.sideCoversSquare(face, BlockShapeHelper.SOLID_SMALL_SQUARE_SHAPE));
-            this.sideCoversMediumSquare |= BitUtil.bit(dir.ordinal(), fullCube || BlockShapeHelper.sideCoversSquare(face, BlockShapeHelper.SOLID_MEDIUM_SQUARE_SHAPE));
+            if (this.solidFullSquare[side.ordinal()] || BlockShapeHelper.sideCoversSquare(shape.getFace(side), BlockShapeHelper.SOLID_SMALL_SQUARE_SHAPE)) {
+                this.sideCoversSmallSquare |= (1 << side.ordinal());
+            }
         }
     }
 
     @Override
     public boolean sideCoversSmallSquare(Direction facing) {
-        return BitUtil.contains(this.sideCoversSmallSquare, facing.ordinal());
+        return (this.sideCoversSmallSquare & (1 << facing.ordinal())) != 0;
     }
 
     @Override
-    public boolean sideCoversMediumSquare(Direction facing) {
-        return BitUtil.contains(this.sideCoversMediumSquare, facing.ordinal());
+    public boolean hasTopRim() {
+        return this.hasTopRim;
     }
 }
