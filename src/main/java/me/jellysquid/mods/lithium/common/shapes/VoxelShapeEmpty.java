@@ -13,7 +13,7 @@ import net.minecraft.util.shape.VoxelShape;
  * here will always be constant. This allows a lot of unnecessary code to be eliminated that would otherwise try to
  * iterate over sets of empty voxels/vertices.
  */
-public class VoxelShapeEmpty extends VoxelShape implements VoxelShapeExtended {
+public class VoxelShapeEmpty extends VoxelShape implements VoxelShapeCaster {
     private static final DoubleList EMPTY_LIST = DoubleArrayList.wrap(new double[]{0.0D});
 
     public VoxelShapeEmpty(VoxelSet voxels) {
