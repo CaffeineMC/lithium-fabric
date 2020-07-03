@@ -90,6 +90,9 @@ public class SimplexNoiseCache {
 
         // Initialize density for the central island
         float density = ISLAND_RADIUS - MathHelper.sqrt(x * x + z * z) * 8.0F;
+        if (density >= MAX) {
+            return MAX;
+        }
 
         // Iterate through 25x25 grid cells
         for (int offsetX = -12; offsetX <= 12; ++offsetX) {
