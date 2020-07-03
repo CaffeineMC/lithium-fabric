@@ -14,5 +14,5 @@ public interface BlockShapeCacheExtended {
     /**
      * Cached and directional version of {@link net.minecraft.block.Block#hasTopRim(BlockView, BlockPos)}
      */
-    boolean sideCoversMediumSquare(Direction facing);
+    boolean hasTopRim();
 }
