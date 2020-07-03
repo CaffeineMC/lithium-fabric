@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.world.layer_caching;
 
 import me.jellysquid.mods.lithium.common.world.layer.CachedLocalLayerFactory;
+import me.jellysquid.mods.lithium.common.world.layer.CloneableContext;
 import net.minecraft.world.biome.layer.type.ParentedLayer;
 import net.minecraft.world.biome.layer.util.LayerFactory;
 import net.minecraft.world.biome.layer.util.LayerSampleContext;
@@ -20,6 +21,6 @@ public interface MixinParentedLayer extends ParentedLayer {
      */
     @Overwrite
     default <R extends LayerSampler> LayerFactory<R> create(LayerSampleContext<R> context, LayerFactory<R> parent) {
-        return new CachedLocalLayerFactory<>(this, context, parent);
+        return new CachedLocalLayerFactory<>(this, (CloneableContext<R>) context, parent);
     }
 }

@@ -9,10 +9,10 @@ public class CachedLocalLayerFactory<R extends LayerSampler> implements LayerFac
     private final ThreadLocal<R> cached = new ThreadLocal<>();
 
     private final ParentedLayer layer;
-    private final LayerSampleContext<R> context;
+    private final CloneableContext<R> context;
     private final LayerFactory<R> parent;
 
-    public CachedLocalLayerFactory(ParentedLayer layer, LayerSampleContext<R> context, LayerFactory<R> parent) {
+    public CachedLocalLayerFactory(ParentedLayer layer, CloneableContext<R> context, LayerFactory<R> parent) {
         this.layer = layer;
         this.context = context;
         this.parent = parent;
@@ -30,7 +30,7 @@ public class CachedLocalLayerFactory<R extends LayerSampler> implements LayerFac
     }
 
     private R createLocalSampler() {
-        LayerSampleContext<R> context = this.context;
+        LayerSampleContext<R> context = this.context.cloneContext();
         ParentedLayer layer = CachedLocalLayerFactory.this.layer;
         R parentSampler = this.parent.make();
 
