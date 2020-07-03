@@ -68,8 +68,8 @@ public class MixinCachingLayerContext implements CloneableContext<CachingLayerSa
         CachingLayerContext context = new CachingLayerContext(0, 0, 0);
 
         MixinCachingLayerContext access = (MixinCachingLayerContext) (Object) context;
-        this.worldSeed = access.worldSeed;
-        this.noiseSampler = access.noiseSampler;
+        access.worldSeed = this.worldSeed;
+        access.noiseSampler = this.noiseSampler;
 
         return context;
     }
