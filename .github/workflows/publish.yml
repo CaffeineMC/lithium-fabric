@@ -16,10 +16,9 @@ jobs:
           java-version: 14
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Upload assets to CurseForge
-        run: ./gradlew build curseforge
+      -   name: Upload assets to CurseForge
+        run: ./gradlew build
         env:
-            CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
             BUILD_RELEASE: ${{ github.event.prerelease == false }}
       - name: Upload assets to GitHub
         uses: AButler/upload-release-assets@v2.0

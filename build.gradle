@@ -1,6 +1,5 @@
 plugins {
     id 'fabric-loom' version '0.2.7-SNAPSHOT'
-    id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -65,29 +64,4 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 jar {
     from "LICENSE"
-}
-
-def cf_api_token = System.getenv("CF_API_TOKEN")
-
-curseforge {
-    // If the environment variable does not exist, simply pass an empty string to prevent an error during init
-    apiKey cf_api_token == null ? "" : cf_api_token
-
-    project {
-        id = project.cf_project_id
-        releaseType = 'beta'
-
-        addGameVersion project.cf_game_version
-
-        def displayNameBase = "${project.cf_project_name} mc${project.minecraft_version}-${project.version}"
-
-        mainArtifact(jar) {
-            displayName = displayNameBase
-        }
-    }
-
-    options {
-        javaIntegration = false
-        forgeGradleIntegration = false
-    }
 }
