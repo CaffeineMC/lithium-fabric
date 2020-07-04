@@ -8,7 +8,6 @@ import net.minecraft.util.collection.WeightedList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
-@Mixin(targets = "net/minecraft/entity/ai/brain/task/CompositeTask$RunMode")
 public class RunModeMixin {
     @Mixin(targets = "net/minecraft/entity/ai/brain/task/CompositeTask$RunMode$1")
     public static class MixinRunOne {

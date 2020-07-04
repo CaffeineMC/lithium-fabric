@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.poi.fast_init;
+package me.jellysquid.mods.lithium.mixin.ai.poi.fast_init;
 
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
