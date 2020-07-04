@@ -5,7 +5,7 @@ import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityTrack
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.FleeEntityGoal;
-import net.minecraft.entity.mob.MobEntityWithAi;
+import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,8 +20,8 @@ import java.util.function.Predicate;
 public class FleeEntityGoalMixin<T extends LivingEntity> {
     private NearbyEntityTracker<T> tracker;
 
-    @Inject(method = "<init>(Lnet/minecraft/entity/mob/MobEntityWithAi;Ljava/lang/Class;Ljava/util/function/Predicate;FDDLjava/util/function/Predicate;)V", at = @At("RETURN"))
-    private void init(MobEntityWithAi mob, Class<T> fleeFromType, Predicate<LivingEntity> predicate, float distance, double slowSpeed, double fastSpeed, Predicate<LivingEntity> predicate2, CallbackInfo ci) {
+    @Inject(method = "<init>(Lnet/minecraft/entity/mob/PathAwareEntity;Ljava/lang/Class;Ljava/util/function/Predicate;FDDLjava/util/function/Predicate;)V", at = @At("RETURN"))
+    private void init(PathAwareEntity mob, Class<T> fleeFromType, Predicate<LivingEntity> predicate, float distance, double slowSpeed, double fastSpeed, Predicate<LivingEntity> predicate2, CallbackInfo ci) {
         this.tracker = new NearbyEntityTracker<>(fleeFromType, mob, distance);
 
         ((NearbyEntityListenerProvider) mob).getListener().addListener(this.tracker);

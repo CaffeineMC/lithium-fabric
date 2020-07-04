@@ -51,7 +51,7 @@ public abstract class PalettedContainerMixin<T> {
 
     @Shadow
     @Final
-    private T field_12935;
+    private T defaultValue;
 
     @Shadow
     protected abstract T get(int int_1);
@@ -79,7 +79,7 @@ public abstract class PalettedContainerMixin<T> {
                 this.palette = this.fallbackPalette;
             }
 
-            this.palette.getIndex(this.field_12935);
+            this.palette.getIndex(this.defaultValue);
             this.data = new PackedIntegerArray(this.paletteSize, 4096);
         }
     }
