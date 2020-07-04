@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.poi.fast_retrieval;
+package me.jellysquid.mods.lithium.mixin.ai.poi.fast_retrieval;
 
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Codec;
