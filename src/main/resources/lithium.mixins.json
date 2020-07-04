@@ -33,10 +33,13 @@
         "ai.task.WeightedListMixin",
         "alloc.chunk_random.ServerWorldMixin",
         "alloc.chunk_random.WorldMixin",
+        "alloc.chunk_ticking.ChunkTicketManagerMixin",
         "alloc.chunk_ticking.ServerChunkManagerMixin",
+        "alloc.entity_tracker.EntityTrackerMixin",
         "alloc.enum_values.LivingEntityMixin",
         "alloc.enum_values.PistonBlockMixin",
         "alloc.enum_values.PistonHandlerMixin",
+        "alloc.world_ticking.ServerWorldMixin",
         "block.flatten_states.AbstractBlockStateMixin",
         "block.piston_shapes.PistonHeadBlockMixin",
         "cached_hashcode.BlockNeighborGroupMixin",
@@ -84,6 +87,7 @@
         "world.chunk_ticking.ThreadedAnvilChunkStorageMixin",
         "world.explosions.ExplosionMixin",
         "world.mob_spawning.BiomeMixin",
+        "world.mob_spawning.StructureAccessorMixin",
         "world.player_chunk_tick.ThreadedAnvilChunkStorageMixin",
         "world.tick_scheduler.ServerWorldMixin"
     ]

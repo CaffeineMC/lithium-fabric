@@ -22,3 +22,7 @@ extendable class net/minecraft/world/biome/layer/util/CachingLayerSampler
 accessible field net/minecraft/world/biome/layer/util/CachingLayerSampler operator Lnet/minecraft/world/biome/layer/util/LayerOperator;
 
 accessible field net/minecraft/util/math/noise/SimplexNoiseSampler gradients [[I
+
+accessible class net/minecraft/server/world/ChunkTicketManager$TicketDistanceLevelPropagator
+accessible method net/minecraft/world/ChunkPosDistanceLevelPropagator updateLevel (JIZ)V
+accessible method net/minecraft/server/world/ChunkTicket isExpired (J)Z
