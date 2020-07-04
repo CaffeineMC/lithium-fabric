@@ -33,6 +33,7 @@
         "ai.task.WeightedListMixin",
         "alloc.chunk_random.ServerWorldMixin",
         "alloc.chunk_random.WorldMixin",
+        "alloc.chunk_ticking.ServerChunkManagerMixin",
         "alloc.enum_values.LivingEntityMixin",
         "alloc.enum_values.PistonBlockMixin",
         "alloc.enum_values.PistonHandlerMixin",
