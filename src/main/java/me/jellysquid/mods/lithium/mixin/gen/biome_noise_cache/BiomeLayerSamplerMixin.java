@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BiomeLayerSampler.class)
-public abstract class MixinBiomeLayerSampler {
+public abstract class BiomeLayerSamplerMixin {
     private ThreadLocal<CachingLayerSampler> tlSampler;
 
     @Shadow

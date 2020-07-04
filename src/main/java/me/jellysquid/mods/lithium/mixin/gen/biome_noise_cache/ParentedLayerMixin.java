@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.Overwrite;
  * multiple children layers.
  */
 @Mixin(ParentedLayer.class)
-public interface MixinParentedLayer extends ParentedLayer {
+public interface ParentedLayerMixin extends ParentedLayer {
     /**
      * @reason Replace with a memoized layer factory
      * @author gegy1000
