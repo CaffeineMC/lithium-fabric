@@ -25,10 +25,10 @@ public abstract class FindInteractionTargetTaskMixin extends Task<LivingEntity> 
     private Predicate<LivingEntity> shouldRunPredicate;
 
     @Shadow
-    protected abstract List<LivingEntity> getVisibleMobs(LivingEntity livingEntity_1);
+    protected abstract List<LivingEntity> getVisibleMobs(LivingEntity entity);
 
     @Shadow
-    protected abstract boolean test(LivingEntity livingEntity_1);
+    protected abstract boolean test(LivingEntity entity);
 
     @Shadow
     @Final
@@ -43,15 +43,15 @@ public abstract class FindInteractionTargetTaskMixin extends Task<LivingEntity> 
      * @author JellySquid
      */
     @Overwrite
-    public boolean shouldRun(ServerWorld world, LivingEntity self) {
-        if (!this.shouldRunPredicate.test(self)) {
+    public boolean shouldRun(ServerWorld world, LivingEntity entity) {
+        if (!this.shouldRunPredicate.test(entity)) {
             return false;
         }
 
-        List<LivingEntity> visible = this.getVisibleMobs(self);
+        List<LivingEntity> visibleEntities = this.getVisibleMobs(entity);
 
-        for (LivingEntity entity : visible) {
-            if (this.test(entity)) {
+        for (LivingEntity otherEntity : visibleEntities) {
+            if (this.test(otherEntity)) {
                 return true;
             }
         }
@@ -64,22 +64,22 @@ public abstract class FindInteractionTargetTaskMixin extends Task<LivingEntity> 
      * @author JellySquid
      */
     @Overwrite
-    public void run(ServerWorld world, LivingEntity self, long time) {
-        super.run(world, self, time);
+    public void run(ServerWorld world, LivingEntity entity, long time) {
+        super.run(world, entity, time);
 
-        Brain<?> brain = self.getBrain();
+        Brain<?> brain = entity.getBrain();
 
-        List<LivingEntity> visible = brain.getOptionalMemory(MemoryModuleType.VISIBLE_MOBS)
+        List<LivingEntity> visibleEntities = brain.getOptionalMemory(MemoryModuleType.VISIBLE_MOBS)
                 .orElse(Collections.emptyList());
 
-        for (LivingEntity entity : visible) {
-            if (entity.squaredDistanceTo(self) > (double) this.maxSquaredDistance) {
+        for (LivingEntity otherEntity : visibleEntities) {
+            if (otherEntity.squaredDistanceTo(entity) > (double) this.maxSquaredDistance) {
                 continue;
             }
 
-            if (this.test(entity)) {
-                brain.remember(MemoryModuleType.INTERACTION_TARGET, entity);
-                brain.remember(MemoryModuleType.LOOK_TARGET, new EntityLookTarget(entity, true));
+            if (this.test(otherEntity)) {
+                brain.remember(MemoryModuleType.INTERACTION_TARGET, otherEntity);
+                brain.remember(MemoryModuleType.LOOK_TARGET, new EntityLookTarget(otherEntity, true));
 
                 break;
             }
