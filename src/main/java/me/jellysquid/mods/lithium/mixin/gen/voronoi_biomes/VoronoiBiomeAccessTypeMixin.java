@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.biome;
+package me.jellysquid.mods.lithium.mixin.gen.voronoi_biomes;
 
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeAccess;

@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.world.layer_caching;
+package me.jellysquid.mods.lithium.mixin.gen.biome_noise_cache;
 
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.layer.util.CachingLayerSampler;

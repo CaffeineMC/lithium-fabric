@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.world.fast_nether_biomes;
+package me.jellysquid.mods.lithium.mixin.gen.fast_multi_source_biomes;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.util.math.noise.DoublePerlinNoiseSampler;
@@ -13,18 +13,29 @@ import java.util.List;
 
 @Mixin(MultiNoiseBiomeSource.class)
 public class MixinMultiNoiseBiomeSource {
+    @Shadow
+    @Final
+    private boolean threeDimensionalSampling;
 
-    @Shadow @Final private boolean threeDimensionalSampling;
+    @Shadow
+    @Final
+    private DoublePerlinNoiseSampler temperatureNoise;
 
-    @Shadow @Final private DoublePerlinNoiseSampler temperatureNoise;
+    @Shadow
+    @Final
+    private DoublePerlinNoiseSampler humidityNoise;
 
-    @Shadow @Final private DoublePerlinNoiseSampler humidityNoise;
+    @Shadow
+    @Final
+    private DoublePerlinNoiseSampler weirdnessNoise;
 
-    @Shadow @Final private DoublePerlinNoiseSampler weirdnessNoise;
+    @Shadow
+    @Final
+    private DoublePerlinNoiseSampler altitudeNoise;
 
-    @Shadow @Final private DoublePerlinNoiseSampler altitudeNoise;
-
-    @Shadow @Final private List<Pair<Biome.MixedNoisePoint, Biome>> biomePoints;
+    @Shadow
+    @Final
+    private List<Pair<Biome.MixedNoisePoint, Biome>> biomePoints;
 
     /**
      * @reason Remove stream based code in favor of regular collections.
@@ -39,10 +50,10 @@ public class MixinMultiNoiseBiomeSource {
 
         // Calculate the noise point based using 4 perlin noise samplers.
         Biome.MixedNoisePoint mixedNoisePoint = new Biome.MixedNoisePoint(
-                (float)this.temperatureNoise.sample(biomeX, y, biomeZ),
-                (float)this.humidityNoise.sample(biomeX, y, biomeZ),
-                (float)this.altitudeNoise.sample(biomeX, y, biomeZ),
-                (float)this.weirdnessNoise.sample(biomeX, y, biomeZ),
+                (float) this.temperatureNoise.sample(biomeX, y, biomeZ),
+                (float) this.humidityNoise.sample(biomeX, y, biomeZ),
+                (float) this.altitudeNoise.sample(biomeX, y, biomeZ),
+                (float) this.weirdnessNoise.sample(biomeX, y, biomeZ),
                 0.0F);
 
         int idx = -1;

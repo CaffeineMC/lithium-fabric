@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.world.layer_caching;
+package me.jellysquid.mods.lithium.mixin.gen.biome_noise_cache;
 
 import me.jellysquid.mods.lithium.common.world.layer.CachedLocalLayerFactory;
 import me.jellysquid.mods.lithium.common.world.layer.CloneableContext;
@@ -20,6 +20,7 @@ public interface MixinParentedLayer extends ParentedLayer {
      * @author gegy1000
      */
     @Overwrite
+    @SuppressWarnings("unchecked")
     default <R extends LayerSampler> LayerFactory<R> create(LayerSampleContext<R> context, LayerFactory<R> parent) {
         return new CachedLocalLayerFactory<>(this, (CloneableContext<R>) context, parent);
     }

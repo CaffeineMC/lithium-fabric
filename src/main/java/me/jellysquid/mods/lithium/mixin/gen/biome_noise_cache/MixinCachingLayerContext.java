@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.world.layer_caching;
+package me.jellysquid.mods.lithium.mixin.gen.biome_noise_cache;
 
 import it.unimi.dsi.fastutil.longs.Long2IntLinkedOpenHashMap;
 import me.jellysquid.mods.lithium.common.world.layer.CloneableContext;

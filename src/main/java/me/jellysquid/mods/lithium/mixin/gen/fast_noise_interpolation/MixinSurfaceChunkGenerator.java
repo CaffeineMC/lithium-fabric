@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.world.fast_noise;
+package me.jellysquid.mods.lithium.mixin.gen.fast_noise_interpolation;
 
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.noise.OctavePerlinNoiseSampler;
@@ -11,11 +11,17 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(SurfaceChunkGenerator.class)
 public class MixinSurfaceChunkGenerator {
-    @Shadow @Final private OctavePerlinNoiseSampler lowerInterpolatedNoise;
+    @Shadow
+    @Final
+    private OctavePerlinNoiseSampler lowerInterpolatedNoise;
 
-    @Shadow @Final private OctavePerlinNoiseSampler upperInterpolatedNoise;
+    @Shadow
+    @Final
+    private OctavePerlinNoiseSampler upperInterpolatedNoise;
 
-    @Shadow @Final private OctavePerlinNoiseSampler interpolationNoise;
+    @Shadow
+    @Final
+    private OctavePerlinNoiseSampler interpolationNoise;
 
     /**
      * @reason Smarter use of perlin noise that avoids unneeded sampling.
