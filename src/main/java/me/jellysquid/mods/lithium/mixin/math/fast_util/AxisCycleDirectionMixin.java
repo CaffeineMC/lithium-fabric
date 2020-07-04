@@ -1,17 +1,14 @@
 package me.jellysquid.mods.lithium.mixin.math.fast_util;
 
-import net.minecraft.util.math.AxisCycleDirection;
 import net.minecraft.util.math.Direction;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
 /**
  * The JVM has difficulty optimizing these functions due to the use of dynamic dispatch. They can trivially be
- * implemented as a simple switch lookup table.
+ * implemented as a simple switch lookup table. Switch-on-enum is avoided due to issues in Mixin hotswap.
  */
-@Mixin(AxisCycleDirection.class)
 public class AxisCycleDirectionMixin {
-
     static {
         assert Direction.Axis.X.ordinal() == 0;
         assert Direction.Axis.Y.ordinal() == 1;
