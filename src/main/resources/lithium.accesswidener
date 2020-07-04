@@ -20,3 +20,5 @@ accessible field net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTrac
 
 extendable class net/minecraft/world/biome/layer/util/CachingLayerSampler
 accessible field net/minecraft/world/biome/layer/util/CachingLayerSampler operator Lnet/minecraft/world/biome/layer/util/LayerOperator;
+
+accessible field net/minecraft/util/math/noise/SimplexNoiseSampler gradients [[I

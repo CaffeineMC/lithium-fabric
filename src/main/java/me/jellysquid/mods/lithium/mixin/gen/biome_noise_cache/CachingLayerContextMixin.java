@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(CachingLayerContext.class)
-public class MixinCachingLayerContext implements CloneableContext<CachingLayerSampler> {
+public class CachingLayerContextMixin implements CloneableContext<CachingLayerSampler> {
     @Shadow
     @Final
     @Mutable
@@ -67,7 +67,7 @@ public class MixinCachingLayerContext implements CloneableContext<CachingLayerSa
     public LayerSampleContext<CachingLayerSampler> cloneContext() {
         CachingLayerContext context = new CachingLayerContext(0, 0, 0);
 
-        MixinCachingLayerContext access = (MixinCachingLayerContext) (Object) context;
+        CachingLayerContextMixin access = (CachingLayerContextMixin) (Object) context;
         access.worldSeed = this.worldSeed;
         access.noiseSampler = this.noiseSampler;
 

@@ -17,7 +17,7 @@ public class AxisCycleDirectionMixin {
     }
 
     @Mixin(targets = "net/minecraft/util/math/AxisCycleDirection$2")
-    public static class MixinForward {
+    public static class ForwardMixin {
         /**
          * @reason Avoid expensive array/modulo operations
          * @author JellySquid
@@ -38,7 +38,7 @@ public class AxisCycleDirectionMixin {
     }
 
     @Mixin(targets = "net/minecraft/util/math/AxisCycleDirection$3")
-    public static class MixinBackward {
+    public static class BackwardMixin {
         /**
          * @reason Avoid expensive array/modulo operations
          * @author JellySquid

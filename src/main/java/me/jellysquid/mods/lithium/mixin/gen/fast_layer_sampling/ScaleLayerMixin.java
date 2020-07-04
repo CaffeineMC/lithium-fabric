@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ScaleLayer.class)
-public abstract class MixinScaleLayer {
+public abstract class ScaleLayerMixin {
     @Shadow
     public abstract int transformX(int x);
 

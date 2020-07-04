@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(SurfaceChunkGenerator.class)
-public class MixinSurfaceChunkGenerator {
+public class SurfaceChunkGeneratorMixin {
     @Shadow
     @Final
     private OctavePerlinNoiseSampler lowerInterpolatedNoise;

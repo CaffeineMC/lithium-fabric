@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.List;
 
 @Mixin(MultiNoiseBiomeSource.class)
-public class MixinMultiNoiseBiomeSource {
+public class MultiNoiseBiomeSourceMixin {
     @Shadow
     @Final
     private boolean threeDimensionalSampling;
