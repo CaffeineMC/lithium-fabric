@@ -21,7 +21,7 @@ made available on GitHub slightly sooner than other locations.
 
 If you'd like to get help with the mod, check out the latest developments, or be notified when there's a new release,
 the Discord community might be for you! You can join the official server for my mods by clicking
-[here](https://jellysquid.me).
+[here](https://jellysquid.me/discord).
 
 ---
 
