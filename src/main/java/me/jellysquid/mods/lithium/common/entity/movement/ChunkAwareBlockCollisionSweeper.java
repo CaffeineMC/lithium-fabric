@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.entity.movement;
 
-import me.jellysquid.mods.lithium.common.shapes.VoxelShapeExtended;
+import me.jellysquid.mods.lithium.common.shapes.VoxelShapeCaster;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
@@ -22,6 +22,8 @@ import static me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions.E
  * section keeping track of the amount of oversized blocks inside the number of iterations can often be reduced.
  */
 public class ChunkAwareBlockCollisionSweeper {
+    private static final boolean OVERSIZED_BLOCK_COUNTING_ENABLED = OversizedBlocksCounter.class.isAssignableFrom(ChunkSection.class);
+
     private final BlockPos.Mutable pos = new BlockPos.Mutable();
 
     /**
@@ -59,12 +61,12 @@ public class ChunkAwareBlockCollisionSweeper {
         this.context = entity == null ? ShapeContext.absent() : ShapeContext.of(entity);
         this.view = view;
 
-        this.minX = MathHelper.floor(box.x1 - EPSILON);
-        this.maxX = MathHelper.floor(box.x2 + EPSILON);
-        this.minY = MathHelper.clamp((int)(box.y1 - EPSILON),0,255);
-        this.maxY = MathHelper.clamp((int)(box.y2 + EPSILON),0,255);
-        this.minZ = MathHelper.floor(box.z1 - EPSILON);
-        this.maxZ = MathHelper.floor(box.z2 + EPSILON);
+        this.minX = MathHelper.floor(box.minX - EPSILON);
+        this.maxX = MathHelper.floor(box.maxX + EPSILON);
+        this.minY = MathHelper.clamp((int)(box.minY - EPSILON),0,255);
+        this.maxY = MathHelper.clamp((int)(box.maxY + EPSILON),0,255);
+        this.minZ = MathHelper.floor(box.minZ - EPSILON);
+        this.maxZ = MathHelper.floor(box.maxZ + EPSILON);
 
         this.chunkX = (this.minX - 1) >> 4;
         this.chunkZ = (this.minZ - 1) >> 4;
@@ -212,8 +214,8 @@ public class ChunkAwareBlockCollisionSweeper {
      * @return A {@link VoxelShape} which contains the shape representing that which was collided with, otherwise null
      */
     private static VoxelShape getCollidedShape(Box entityBox, VoxelShape entityShape, VoxelShape shape, int x, int y, int z) {
-        if (shape instanceof VoxelShapeExtended) {
-            if (((VoxelShapeExtended) shape).intersects(entityBox, x, y, z)) {
+        if (shape instanceof VoxelShapeCaster) {
+            if (((VoxelShapeCaster) shape).intersects(entityBox, x, y, z)) {
                 return shape.offset(x, y, z);
             } else {
                 return null;
@@ -234,8 +236,11 @@ public class ChunkAwareBlockCollisionSweeper {
      * @return Whether there are any oversized blocks in the chunk section.
      */
     private static boolean hasChunkSectionOversizedBlocks(Chunk chunk, int chunkY) {
-        ChunkSection section = chunk.getSectionArray()[chunkY];
-        return section != null && ((OversizedBlocksCounter)section).hasOversizedBlocks();
+        if (OVERSIZED_BLOCK_COUNTING_ENABLED) {
+            ChunkSection section = chunk.getSectionArray()[chunkY];
+            return section != null && ((OversizedBlocksCounter)section).hasOversizedBlocks();
+        }
+        return true; //like vanilla, assume that a chunk section has oversized blocks, when the section mixin isn't loaded
     }
     public interface OversizedBlocksCounter {
         boolean hasOversizedBlocks();
