@@ -77,6 +77,7 @@
         "shapes.blockstate_cache.AbstractBlockStateMixin",
         "shapes.blockstate_cache.BlockMixin",
         "shapes.blockstate_cache.BlockShapeCacheMixin",
+        "shapes.blockstate_use_collision_cache.AbstractBlockStateMixin",
         "shapes.precompute_shape_arrays.SimpleVoxelShapeMixin",
         "shapes.shape_merging.VoxelShapesMixin",
         "shapes.specialized_shapes.VoxelShapeMixin",

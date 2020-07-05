@@ -26,3 +26,6 @@ accessible field net/minecraft/util/math/noise/SimplexNoiseSampler gradients [[I
 accessible class net/minecraft/server/world/ChunkTicketManager$TicketDistanceLevelPropagator
 accessible method net/minecraft/world/ChunkPosDistanceLevelPropagator updateLevel (JIZ)V
 accessible method net/minecraft/server/world/ChunkTicket isExpired (J)Z
+
+accessible field net/minecraft/block/AbstractBlock$AbstractBlockState shapeCache Lnet/minecraft/block/AbstractBlock$AbstractBlockState$ShapeCache;
+accessible field net/minecraft/block/AbstractBlock$AbstractBlockState$ShapeCache collisionShape Lnet/minecraft/util/shape/VoxelShape;
