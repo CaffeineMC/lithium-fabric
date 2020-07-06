@@ -76,7 +76,7 @@
         "shapes.shape_merging.VoxelShapesMixin",
         "shapes.specialized_shapes.VoxelShapeMixin",
         "shapes.specialized_shapes.VoxelShapesMixin",
-        "tag.TagImplMixin",
+        "tag.SetTagMixin",
         "world.chunk_access.ChunkHolderMixin",
         "world.chunk_access.ServerChunkManagerMixin",
         "world.chunk_access.WorldMixin",
