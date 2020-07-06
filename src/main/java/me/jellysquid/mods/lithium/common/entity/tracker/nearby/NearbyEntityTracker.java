@@ -25,7 +25,7 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
         this.clazz = clazz;
         this.self = self;
         this.rangeSq = range * range;
-        this.rangeC = Math.min(MathHelper.ceil(range) >> 4, 1);
+        this.rangeC = Math.max((MathHelper.ceil(range) + 15) >> 4, 1);
     }
 
     @Override
