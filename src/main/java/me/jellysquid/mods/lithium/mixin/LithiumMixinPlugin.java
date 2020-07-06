@@ -50,7 +50,13 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
         String mixin = mixinClassName.substring(MIXIN_PACKAGE_ROOT.length());
         Option option = this.config.getOptionForMixin(mixin);
 
-        if (option.isUserDefined()) {
+        if (!option.getModsDefiningValue().isEmpty()) {
+            if (option.isEnabled()) {
+                this.logger.warn("Applying mixin '{}' as mod(s) {} forcefully enable it", mixin, option.getModsDefiningValue());
+            } else {
+                this.logger.warn("Not applying mixin '{}' as mod(s) {} forcefully disable it", mixin, option.getModsDefiningValue());
+            }
+        } else if (option.isUserDefined()) {
             if (option.isEnabled()) {
                 this.logger.warn("Applying mixin '{}' as user configuration forcefully enables it", mixin);
             } else {
