@@ -3,8 +3,11 @@ package me.jellysquid.mods.lithium.mixin.tag;
 import com.google.common.collect.ImmutableList;
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import net.minecraft.tag.SetTag;
 import net.minecraft.tag.Tag;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -12,12 +15,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Set;
 
-@Mixin(targets = "net/minecraft/tag/Tag$1")
-public abstract class TagImplMixin<T> implements Tag<T> {
-    // Synthetic field -- plugin cannot see it
-    @SuppressWarnings("ShadowTarget")
-    @Shadow(remap = false)
-    private Set<T> field_23686;
+@Mixin(SetTag.class)
+public abstract class SetTagMixin<T> implements Tag<T> {
+    @Shadow @Final @Mutable
+    private Set<T> field_25594;
 
     /**
      * If the number of elements in a tag is very small (<=3), it can be significantly faster to use simple linear scanning
@@ -29,15 +30,14 @@ public abstract class TagImplMixin<T> implements Tag<T> {
      * @author JellySquid
      */
     // Plugin has trouble seeing this, but it exists
-    @SuppressWarnings("UnresolvedMixinReference")
-    @Inject(method = "<init>(Ljava/util/Set;Lcom/google/common/collect/ImmutableList;)V", at = @At("RETURN"))
-    private void init(Set<T> set, ImmutableList<T> list, CallbackInfo ci) {
+    @Inject(method = "<init>(Ljava/util/Set;Ljava/lang/Class;)V", at = @At("RETURN"))
+    private void init(Set<T> set, Class<?> var2, CallbackInfo ci) {
         // Reference equality is safe for tag values
         // Use linear-scanning when the number of items in the tag is small
-        if (this.field_23686.size() <= 3) {
-            this.field_23686 = new ReferenceArraySet<>(this.field_23686);
+        if (this.field_25594.size() <= 3) {
+            this.field_25594 = new ReferenceArraySet<>(this.field_25594);
         } else {
-            this.field_23686 = new ReferenceOpenHashSet<>(this.field_23686);
+            this.field_25594 = new ReferenceOpenHashSet<>(this.field_25594);
         }
     }
 }
