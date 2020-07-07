@@ -20,7 +20,7 @@ public class Option {
     }
 
     public void addModOverride(boolean enabled, String modId) {
-        this.enabled = false;
+        this.enabled = enabled;
         this.modDefined.add(modId);
     }
 
