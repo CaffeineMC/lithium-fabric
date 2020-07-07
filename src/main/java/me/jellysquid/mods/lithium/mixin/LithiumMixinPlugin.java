@@ -29,7 +29,7 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
             throw new RuntimeException("Could not load configuration file for Lithium", e);
         }
 
-        this.logger.info("Loaded configuration file for Lithium ({} options available, {} user overrides)",
+        this.logger.info("Loaded configuration file for Lithium ({} options available, {} overrides)",
                 this.config.getOptionCount(), this.config.getOptionOverrideCount());
         this.logger.info("Lithium has been successfully discovered and initialized -- your game is now faster!");
 

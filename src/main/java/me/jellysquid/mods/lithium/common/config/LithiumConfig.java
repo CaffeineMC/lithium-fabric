@@ -108,7 +108,7 @@ public class LithiumConfig {
             if (meta.containsCustomValue(JSON_KEY_LITHIUM_OPTIONS)) {
                 CustomValue lithiumOverrides = meta.getCustomValue(JSON_KEY_LITHIUM_OPTIONS);
                 if (lithiumOverrides.getType() != CustomValue.CvType.OBJECT) {
-                    LOGGER.warn("Mod '{}' contains invalid lithium option overrides, ignoring", meta.getId());
+                    LOGGER.warn("Mod '{}' contains invalid Lithium option overrides, ignoring", meta.getId());
                     continue;
                 }
 
