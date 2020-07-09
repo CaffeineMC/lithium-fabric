@@ -65,13 +65,13 @@ public class PerlinNoiseSamplerMixin {
         double ooy = oy - foy;
         double ooz = oz - foz;
 
-        if (d != 0.0D) {
-            ooy = ooy - (Math.floor(Math.min(e, ooy) / d) * d);
-        }
-
         final double fx = MathHelper.perlinFade(oox);
         final double fy = MathHelper.perlinFade(ooy);
         final double fz = MathHelper.perlinFade(ooz);
+
+        if (d != 0.0D) {
+            ooy = ooy - (Math.floor(Math.min(e, ooy) / d) * d);
+        }
 
         return this.sample((int) fox, (int) foy, (int) foz, oox, ooy, ooz, fx, fy, fz);
     }
