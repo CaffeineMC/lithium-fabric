@@ -5,7 +5,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -36,14 +36,14 @@ public abstract class StructureAccessorMixin {
         while (iterator.hasNext()) {
             long pos = iterator.nextLong();
 
-            Chunk chunk = this.world.getChunk(ChunkSectionPos.getX(pos), ChunkSectionPos.getZ(pos), ChunkStatus.STRUCTURE_STARTS);
+            Chunk chunk = this.world.getChunk(ChunkPos.getPackedX(pos), ChunkPos.getPackedZ(pos), ChunkStatus.STRUCTURE_STARTS);
             StructureStart<?> structure = chunk.getStructureStart(feature);
 
             if (structure == null || !structure.hasChildren() || !structure.getBoundingBox().contains(blockPos)) {
                 continue;
             }
 
-            if (!fine || anyPieceContainsPosition(structure, blockPos)) {
+            if (!fine || this.anyPieceContainsPosition(structure, blockPos)) {
                 return structure;
             }
         }
