@@ -84,4 +84,9 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
 
         return null;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + " for entity class: " + clazz.getName() + ", in rangeSq: " + rangeSq + ", around entity: " + self.toString();
+    }
 }
