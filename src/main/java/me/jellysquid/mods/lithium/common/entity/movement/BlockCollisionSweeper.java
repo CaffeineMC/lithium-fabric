@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.entity.movement;
 
-import me.jellysquid.mods.lithium.common.shapes.VoxelShapeExtended;
+import me.jellysquid.mods.lithium.common.shapes.VoxelShapeCaster;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
@@ -104,12 +104,12 @@ public class BlockCollisionSweeper {
      * with the {@param box}.
      */
     private static CuboidBlockIterator createVolumeIteratorForCollision(Box box) {
-        int minX = MathHelper.floor(box.x1 - EPSILON) - 1;
-        int maxX = MathHelper.floor(box.x2 + EPSILON) + 1;
-        int minY = MathHelper.floor(box.y1 - EPSILON) - 1;
-        int maxY = MathHelper.floor(box.y2 + EPSILON) + 1;
-        int minZ = MathHelper.floor(box.z1 - EPSILON) - 1;
-        int maxZ = MathHelper.floor(box.z2 + EPSILON) + 1;
+        int minX = MathHelper.floor(box.minX - EPSILON) - 1;
+        int maxX = MathHelper.floor(box.maxX + EPSILON) + 1;
+        int minY = MathHelper.floor(box.minY - EPSILON) - 1;
+        int maxY = MathHelper.floor(box.maxY + EPSILON) + 1;
+        int minZ = MathHelper.floor(box.minZ - EPSILON) - 1;
+        int maxZ = MathHelper.floor(box.maxZ + EPSILON) + 1;
 
         return new CuboidBlockIterator(minX, minY, minZ, maxX, maxY, maxZ);
     }
@@ -132,8 +132,8 @@ public class BlockCollisionSweeper {
      * @return A {@link VoxelShape} which contains the shape representing that which was collided with, otherwise null
      */
     private static VoxelShape getCollidedShape(Box entityBox, VoxelShape entityShape, VoxelShape shape, int x, int y, int z) {
-        if (shape instanceof VoxelShapeExtended) {
-            if (((VoxelShapeExtended) shape).intersects(entityBox, x, y, z)) {
+        if (shape instanceof VoxelShapeCaster) {
+            if (((VoxelShapeCaster) shape).intersects(entityBox, x, y, z)) {
                 return shape.offset(x, y, z);
             } else {
                 return null;

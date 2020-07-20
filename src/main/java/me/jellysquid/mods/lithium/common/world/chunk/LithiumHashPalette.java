@@ -14,6 +14,7 @@ import net.minecraft.world.chunk.PaletteResizeListener;
 
 import java.util.Arrays;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static it.unimi.dsi.fastutil.Hash.FAST_LOAD_FACTOR;
 
@@ -94,8 +95,14 @@ public class LithiumHashPalette<T> implements Palette<T> {
     }
 
     @Override
-    public boolean accepts(T obj) {
-        return this.table.containsKey(obj);
+    public boolean accepts(Predicate<T> predicate) {
+        for (int i = 0; i < this.size; ++i) {
+            if (predicate.test(this.entries[i])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

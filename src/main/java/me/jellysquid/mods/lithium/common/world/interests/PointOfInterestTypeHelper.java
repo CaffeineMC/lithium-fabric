@@ -17,13 +17,7 @@ public class PointOfInterestTypeHelper {
     }
 
     public static boolean shouldScan(ChunkSection section) {
-        for (BlockState state : TYPES) {
-            if (section.method_19523(state)) {
-                return true;
-            }
-        }
-
-        return false;
+        return section.method_19523(TYPES::contains);
     }
 
 }
