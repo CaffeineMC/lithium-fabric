@@ -68,6 +68,7 @@
         "gen.fast_layer_sampling.ScaleLayerMixin",
         "gen.fast_multi_source_biomes.MultiNoiseBiomeSourceMixin",
         "gen.fast_noise_interpolation.SurfaceChunkGeneratorMixin",
+        "gen.features.StructureFeatureMixin",
         "gen.perlin_noise.PerlinNoiseSamplerMixin",
         "gen.voronoi_biomes.VoronoiBiomeAccessTypeMixin",
         "math.fast_util.AxisCycleDirectionMixin$BackwardMixin",
