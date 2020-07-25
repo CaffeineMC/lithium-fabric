@@ -42,7 +42,7 @@ public class StructureFeatureMixin {
                         int q = k + j * o;
                         int r = m + j * p;
                         ChunkPos chunkPos = thisStructure.method_27218(structureConfig, l, chunkRandom, q, r);
-                        if(worldView.getBiomeAccess().getBiomeForNoiseGen(chunkPos.x << 2, 60, chunkPos.z << 2).hasStructureFeature(thisStructure)) {
+                        if(worldView.getBiomeForNoiseGen(chunkPos.x << 2, 60, chunkPos.z << 2).hasStructureFeature(thisStructure)) {
                             Chunk chunk = worldView.getChunk(chunkPos.x, chunkPos.z, ChunkStatus.STRUCTURE_STARTS);
                             StructureStart<?> structureStart = structureAccessor.getStructureStart(ChunkSectionPos.from(chunk.getPos(), 0), thisStructure, chunk);
                             if (structureStart != null && structureStart.hasChildren()) {
