@@ -25,6 +25,7 @@ public class ServerWorldMixin {
                     to = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;loadEntityUnchecked(Lnet/minecraft/entity/Entity;)V")
             ),
             at = @At(
+                    remap = false,
                     value = "INVOKE",
                     target = "Lit/unimi/dsi/fastutil/objects/ObjectSet;iterator()Lit/unimi/dsi/fastutil/objects/ObjectIterator;"
             ))
