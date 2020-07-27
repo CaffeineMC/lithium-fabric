@@ -1,74 +1,70 @@
 package me.jellysquid.mods.lithium.mixin.gen.features;
 
 import net.minecraft.structure.StructureStart;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.world.StructureHolder;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.gen.ChunkRandom;
 import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.StructureConfig;
-import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.StructureFeature;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Slice;
 
 @Mixin(StructureFeature.class)
 public class StructureFeatureMixin {
-
     /**
-     * @reason Why generate an empty chunk to check for a structure if
+     * Why generate an empty chunk to check for a structure if
      * the chunk's biome cannot generate the structure anyway?
      * Checking the biome first = SPEED!
+     *
      * @author TelepathicGrunt
      */
-    @Overwrite
-    public BlockPos locateStructure(WorldView worldView, StructureAccessor structureAccessor, BlockPos blockPos, int i, boolean skipExistingChunks, long l, StructureConfig structureConfig) {
-        int j = structureConfig.getSpacing();
-        int k = blockPos.getX() >> 4;
-        int m = blockPos.getZ() >> 4;
-        int n = 0;
-        StructureFeature thisStructure = ((StructureFeature) (Object) this);
 
-        for(ChunkRandom chunkRandom = new ChunkRandom(); n <= i; ++n) {
-            for(int o = -n; o <= n; ++o) {
-                boolean bl = o == -n || o == n;
+    /**
+     * @reason Return null chunk if biome doesn't match structure
+     * @author MrGrim
+     */
+    @Redirect(method = "locateStructure", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldView;getChunk(IILnet/minecraft/world/chunk/ChunkStatus;)Lnet/minecraft/world/chunk/Chunk;", ordinal = 0),
+            slice = @Slice(from = @At(value = "FIELD", opcode = Opcodes.GETSTATIC, target = "Lnet/minecraft/world/chunk/ChunkStatus;STRUCTURE_STARTS:Lnet/minecraft/world/chunk/ChunkStatus;", ordinal = 0),
+                    to = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/Chunk;getPos()Lnet/minecraft/util/math/ChunkPos;", ordinal = 0)))
+    private Chunk biomeConditionalGetChunk(WorldView worldView, int x, int z, ChunkStatus status)
+    {
+        if (worldView.getBiomeAccess().getBiomeForNoiseGen(x << 2, 60, z << 2).hasStructureFeature((StructureFeature) (Object) this))
+            return worldView.getChunk(x, z, status);
+        else
+            return null;
+    }
 
-                for(int p = -n; p <= n; ++p) {
-                    boolean bl2 = p == -n || p == n;
-                    if (bl || bl2) {
-                        int q = k + j * o;
-                        int r = m + j * p;
-                        ChunkPos chunkPos = thisStructure.method_27218(structureConfig, l, chunkRandom, q, r);
-                        if(worldView.getBiomeForNoiseGen(chunkPos.x << 2, 60, chunkPos.z << 2).hasStructureFeature(thisStructure)) {
-                            Chunk chunk = worldView.getChunk(chunkPos.x, chunkPos.z, ChunkStatus.STRUCTURE_STARTS);
-                            StructureStart<?> structureStart = structureAccessor.getStructureStart(ChunkSectionPos.from(chunk.getPos(), 0), thisStructure, chunk);
-                            if (structureStart != null && structureStart.hasChildren()) {
-                                if (skipExistingChunks && structureStart.isInExistingChunk()) {
-                                    structureStart.incrementReferences();
-                                    return structureStart.getPos();
-                                }
+    /**
+     * @reason Can't avoid the call to Chunk.getPos(), and now the
+     * chunk might be null. Send a new (0,0) ChunkPos if so. It
+     * won't be used anyway.
+     * @author MrGrim
+     */
+    @Redirect(method = "locateStructure", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/Chunk;getPos()Lnet/minecraft/util/math/ChunkPos;", ordinal = 0),
+            slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldView;getChunk(IILnet/minecraft/world/chunk/ChunkStatus;)Lnet/minecraft/world/chunk/Chunk;", ordinal = 0),
+                    to = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/ChunkSectionPos;from(Lnet/minecraft/util/math/ChunkPos;I)Lnet/minecraft/util/math/ChunkSectionPos;", ordinal = 0)))
+    private ChunkPos checkForNull(Chunk chunk)
+    {
+        return chunk == null ? new ChunkPos(0, 0) : chunk.getPos();
+    }
 
-                                if (!skipExistingChunks) {
-                                    return structureStart.getPos();
-                                }
-                            }
-                        }
-
-                        if (n == 0) {
-                            break;
-                        }
-                    }
-                }
-
-                if (n == 0) {
-                    break;
-                }
-            }
-        }
-
-        return null;
+    /**
+     * @reason Return null here if the chunk is null. This will
+     * bypass the following if statement allowing the search
+     * to continue.
+     * @author MrGrim
+     */
+    @Redirect(method = "locateStructure", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/StructureAccessor;getStructureStart(Lnet/minecraft/util/math/ChunkSectionPos;Lnet/minecraft/world/gen/feature/StructureFeature;Lnet/minecraft/world/StructureHolder;)Lnet/minecraft/structure/StructureStart;", ordinal = 0),
+            slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/ChunkSectionPos;from(Lnet/minecraft/util/math/ChunkPos;I)Lnet/minecraft/util/math/ChunkSectionPos;", ordinal = 0),
+                    to = @At(value = "INVOKE", target = "Lnet/minecraft/structure/StructureStart;hasChildren()Z", ordinal = 0)))
+    private StructureStart<?> checkChunkBeforeGetStructureStart(StructureAccessor structureAccessor, ChunkSectionPos sectionPos, StructureFeature<?> thisStructure, StructureHolder chunk)
+    {
+        return chunk == null ? null : structureAccessor.getStructureStart(sectionPos, thisStructure, chunk);
     }
 }
