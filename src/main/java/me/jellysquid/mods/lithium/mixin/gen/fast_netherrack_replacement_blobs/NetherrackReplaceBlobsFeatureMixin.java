@@ -1,12 +1,11 @@
 package me.jellysquid.mods.lithium.mixin.gen.fast_netherrack_replacement_blobs;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-import com.google.common.collect.ImmutableList;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ReferenceLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,7 +24,7 @@ import net.minecraft.world.gen.feature.NetherrackReplaceBlobsFeatureConfig;
 
 @Mixin(NetherrackReplaceBlobsFeature.class)
 public abstract class NetherrackReplaceBlobsFeatureMixin {
-	private static final Long2ObjectOpenHashMap<List<BlockPos>> DELTA_CACHE = new Long2ObjectOpenHashMap<>();
+	private static final Long2ReferenceLinkedOpenHashMap<LongArrayList> DELTA_CACHE = new Long2ReferenceLinkedOpenHashMap<>();
 
 	static {
 		DELTA_CACHE.defaultReturnValue(null);
@@ -64,13 +63,13 @@ public abstract class NetherrackReplaceBlobsFeatureMixin {
 			boolean didPlace = false;
 
 			// Get the delta positions from size vector
-			List<BlockPos> deltas = getDeltas(method_27108(random, config));
+            LongArrayList deltas = getDeltas(method_27108(random, config));
 			BlockPos.Mutable mutable = new BlockPos.Mutable();
 
 			// Iterate through the delta positions and attempt to place each one.
-			for (BlockPos delta : deltas) {
+			for (long delta : deltas) {
 				// Add the delta to the start position
-				mutable.set(startPos, delta.getX(), delta.getY(), delta.getZ());
+				mutable.set(startPos, BlockPos.unpackLongX(delta), BlockPos.unpackLongY(delta), BlockPos.unpackLongZ(delta));
 
 				// If the block here is the target, replace.
 				BlockState hereState = world.getBlockState(mutable);
@@ -84,10 +83,10 @@ public abstract class NetherrackReplaceBlobsFeatureMixin {
 		}
 	}
 
-	private static List<BlockPos> getDeltas(Vec3i size) {
+	private static LongArrayList getDeltas(Vec3i size) {
 	    // Attempt to retrieve values from the cache
 		long packed = BlockPos.asLong(size.getX(), size.getY(), size.getZ());
-		List<BlockPos> deltas = DELTA_CACHE.get(packed);
+        LongArrayList deltas = DELTA_CACHE.get(packed);
 
 		// Cache hit, return value
 		if (deltas != null) {
@@ -100,19 +99,25 @@ public abstract class NetherrackReplaceBlobsFeatureMixin {
 		int maxExtent = Math.max(size.getX(), Math.max(size.getY(), size.getZ()));
 
 		// Iterate outwards and add the deltas that are within the max extent
-		deltas = new ArrayList<>();
+		deltas = new LongArrayList();
 		for (BlockPos pos : BlockPos.iterateOutwards(BlockPos.ORIGIN, size.getX(), size.getY(), size.getZ())) {
 			BlockPos delta = pos.toImmutable();
 
 			// Only add the positions whose distance from the origin are less than the maxExtent, creating a sphere.
             // In vanilla, this is run every time the feature generates but we can cache it for a large benefit.
 			if (!(delta.getManhattanDistance(BlockPos.ORIGIN) > maxExtent)) {
-				deltas.add(delta);
+				deltas.add(delta.asLong());
 			}
 		}
 
 		// Store values and return
 		DELTA_CACHE.put(packed, deltas);
+
+		// Ensure that the cache doesn't overflow by removing entries after a certain threshold.
+        // In this case, the chosen threshold is 125 as vanilla only creates blobs that have a size from 3-7 on all axes.
+		if (DELTA_CACHE.size() > 125) {
+		    DELTA_CACHE.removeLast();
+        }
 
 		return deltas;
 
