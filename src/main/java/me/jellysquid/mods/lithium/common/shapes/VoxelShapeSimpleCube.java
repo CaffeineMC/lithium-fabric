@@ -8,6 +8,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelSet;
 import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
 
 import java.util.List;
 
@@ -21,9 +22,9 @@ import java.util.List;
  * handling in most cases as block shapes are often nothing more than a single cuboid.
  */
 public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeCaster {
-    private static final double EPSILON = 1.0E-7D;
+    static final double EPSILON = 1.0E-7D;
 
-    private final double minX, minY, minZ, maxX, maxY, maxZ;
+    final double minX, minY, minZ, maxX, maxY, maxZ;
 
     public VoxelShapeSimpleCube(VoxelSet voxels, double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         super(voxels);
@@ -59,17 +60,17 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeCaster
     private double calculatePenetration(AxisCycleDirection dir, Box box, double maxDist) {
         switch (dir) {
             case NONE:
-                return this.calculatePenetration(this.minX, this.maxX, box.minX, box.maxX, maxDist);
+                return VoxelShapeSimpleCube.calculatePenetration(this.minX, this.maxX, box.minX, box.maxX, maxDist);
             case FORWARD:
-                return this.calculatePenetration(this.minZ, this.maxZ, box.minZ, box.maxZ, maxDist);
+                return VoxelShapeSimpleCube.calculatePenetration(this.minZ, this.maxZ, box.minZ, box.maxZ, maxDist);
             case BACKWARD:
-                return this.calculatePenetration(this.minY, this.maxY, box.minY, box.maxY, maxDist);
+                return VoxelShapeSimpleCube.calculatePenetration(this.minY, this.maxY, box.minY, box.maxY, maxDist);
             default:
                 throw new IllegalArgumentException();
         }
     }
 
-    private boolean intersects(AxisCycleDirection dir, Box box) {
+    boolean intersects(AxisCycleDirection dir, Box box) {
         switch (dir) {
             case NONE:
                 return lessThan(this.minY, box.maxY) && lessThan(box.minY, this.maxY) && lessThan(this.minZ, box.maxZ) && lessThan(box.minZ, this.maxZ);
@@ -82,28 +83,24 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeCaster
         }
     }
 
-    private double calculatePenetration(double a1, double a2, double b1, double b2, double maxDist) {
+    private static double calculatePenetration(double a1, double a2, double b1, double b2, double maxDist) {
         double penetration;
 
         if (maxDist > 0.0D) {
             penetration = a1 - b2;
 
             if ((penetration < -EPSILON) || (maxDist < penetration)) {
+                //already far enough inside this shape to not collide with the surface or
+                //outside the shape and still far enough away for no collision at all
                 return maxDist;
             }
-
-            if (penetration < EPSILON) {
-                return 0.0D;
-            }
+            //allow moving up to the shape but not into it. This also includes going backwards by at most EPSILON.
         } else {
+            //whole code again, just negated for the other direction
             penetration = a2 - b1;
 
             if ((penetration > EPSILON) || (maxDist > penetration)) {
                 return maxDist;
-            }
-
-            if (penetration > -EPSILON) {
-                return 0.0D;
             }
         }
 
@@ -194,5 +191,11 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeCaster
         return (box.minX < (this.maxX + x)) && (box.maxX > (this.minX + x)) &&
                 (box.minY < (this.maxY + y)) && (box.maxY > (this.minY + y)) &&
                 (box.minZ < (this.maxZ + z)) && (box.maxZ > (this.minZ + z));
+    }
+
+
+    @Override
+    public void forEachBox(VoxelShapes.BoxConsumer boxConsumer) {
+        boxConsumer.consume(this.minX, this.minY, this.minZ, this.maxX, this.maxY, this.maxZ);
     }
 }

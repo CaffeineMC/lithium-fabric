@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes;
 
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeEmpty;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeSimpleCube;
+import me.jellysquid.mods.lithium.common.shapes.VoxelShapeAlignedCuboid;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.shape.BitSetVoxelSet;
 import net.minecraft.util.shape.VoxelSet;
@@ -66,11 +67,47 @@ public abstract class VoxelShapesMixin {
      * represent these cases with nothing more than the two vertexes. This provides a modest speed up for entity
      * collision code by allowing them to also use our optimized shapes.
      *
+     * Vanilla uses different kinds of VoxelShapes depending on the size and position of the box.
+     * A box that isn't aligned with 1/8th of a block will become a very simple ArrayVoxelShape, while others
+     * will become a "SimpleVoxelShape" with a BitSetVoxelSet that possibly has a higher resolution (1-3 bits) per axis.
+     *
+     * Shapes that have a high resolution (e.g. extended piston base has 2 bits on one axis) have collision
+     * layers inside them. An upwards extended piston base has extra collision boxes at 0.25 and 0.5 height.
+     * Slabs don't have extra collision boxes, because they are only as high as the smallest height that is possible
+     * with their bit resolution (1, so half a block).
+     *
      * @reason Use our optimized shape types
-     * @author JellySquid
+     * @author JellySquid, 2No2Name
      */
     @Overwrite
     public static VoxelShape cuboid(Box box) {
-        return new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
+        int xRes;
+        int yRes;
+        int zRes;
+        //findRequiredBitResolution(...) looks unnecessarily slow, and it seems to unintentionally return -1 on inputs like -1e-8,
+        //A faster implementation is not in the scope of this mixin.
+
+        //Description of what vanilla does:
+        //If the VoxelShape cannot be represented by a BitSet with 3 bit resolution on any axis (BitSetVoxelSet),
+        //a shape without boxes inside will be used in vanilla (ArrayVoxelShape with only 2 PointPositions on each axis)
+
+        if ((xRes = VoxelShapes.findRequiredBitResolution(box.minX, box.maxX)) == -1 ||
+                (yRes = VoxelShapes.findRequiredBitResolution(box.minY, box.maxY)) == -1 ||
+                (zRes = VoxelShapes.findRequiredBitResolution(box.minZ, box.maxZ)) == -1) {
+            //vanilla uses ArrayVoxelShape here without any rounding of the coordinates
+            return new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
+        }
+        //vanilla rounds the coordinates to be aligned to the resolution. We just round to 1/8 of a block, which also rounds to 1/4 and 1/2 of a block correctly.
+        else if ((xRes <= 1 || (box.maxX - box.minX) * (1 << xRes) < 1.5D) &&
+                (yRes <= 1 || (box.maxY - box.minY) * (1 << yRes) < 1.5D) &&
+                (zRes <= 1 || (box.maxZ - box.minZ) * (1 << zRes) < 1.5D)) {
+            //here we ensured that the VoxelShape is at most one bit in the BitSet large in vanilla.
+            //Therefore there are no hitboxes inside, as they are only between the space represented by the BitSetVoxelSet entries
+            //Use a VoxelShapeSimpleCube if there is no extra hitbox inside the shape
+            return new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, Math.round(box.minX * 8D) / 8D, Math.round(box.minY * 8D) / 8D, Math.round(box.minZ * 8D) / 8D, Math.round(box.maxX * 8D) / 8D, Math.round(box.maxY * 8D) / 8D, Math.round(box.maxZ * 8D) / 8D);
+        }
+        else { //vanilla would use a SimpleVoxelShape with a BitSetVoxelSet of resolution of xRes, yRes, zRes here, we match its behavior
+            return new VoxelShapeAlignedCuboid(FULL_CUBE_VOXELS,Math.round(box.minX * 8D) / 8D, Math.round(box.minY * 8D) / 8D, Math.round(box.minZ * 8D) / 8D, Math.round(box.maxX * 8D) / 8D, Math.round(box.maxY * 8D) / 8D, Math.round(box.maxZ * 8D) / 8D, xRes, yRes, zRes);
+        }
     }
 }
