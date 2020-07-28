@@ -67,7 +67,7 @@ public abstract class NetherrackReplaceBlobsFeatureMixin {
         // Iterate through the delta positions and attempt to place each one.
         LongListIterator iterator = shape.iterator();
 
-        // the first value is the size key: skip it
+        // The first value is the size key, so we skip it.
         iterator.nextLong();
 
         while (iterator.hasNext()) {
@@ -120,15 +120,15 @@ public abstract class NetherrackReplaceBlobsFeatureMixin {
 
             LongList entry = this.table[idx];
             if (entry != null && entry.getLong(0) == key) {
-                // cache hit: first value in entry matches our key
+                // Cache hit: first value in entry matches our key
                 return entry;
             }
 
-            // cache miss: compute and store
+            // Cache miss: compute and store
             entry = new LongArrayList(128);
 
-            // first value in the entry is the key
-            // we do this to avoid race conditions by having two separate arrays for the keys and values
+            // First value in the entry is the key.
+            // We do this to avoid race conditions by having two separate arrays for the keys and values.
             entry.add(key);
 
             this.addPositionsTo(size, entry);
