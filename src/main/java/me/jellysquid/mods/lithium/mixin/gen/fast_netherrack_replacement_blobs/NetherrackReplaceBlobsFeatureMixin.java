@@ -125,7 +125,7 @@ public abstract class NetherrackReplaceBlobsFeatureMixin {
             }
 
             // cache miss: compute and store
-            entry = new LongArrayList(16);
+            entry = new LongArrayList(128);
 
             // first value in the entry is the key
             // we do this to avoid race conditions by having two separate arrays for the keys and values
