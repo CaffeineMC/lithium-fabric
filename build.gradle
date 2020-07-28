@@ -64,4 +64,4 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 jar {
     from "LICENSE"
-} 
+}
