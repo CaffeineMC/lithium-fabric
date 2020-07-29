@@ -13,24 +13,26 @@ import net.minecraft.structure.StructureManager;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.ChunkSerializer;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ProtoChunk;
 import net.minecraft.world.poi.PointOfInterestStorage;
 import net.minecraft.server.world.ChunkHolder;
 
 @Mixin(ChunkSerializer.class)
 public class ChunkSerializerMixin {
     @Inject(at = @At("RETURN"), method = "deserialize")
-    private static void cacheSlimeChunk(ServerWorld world, StructureManager structureManager, PointOfInterestStorage poiStorage, ChunkPos pos, CompoundTag tag, CallbackInfo ci) {
+    private static void cacheSlimeChunk(ServerWorld world, StructureManager structureManager, PointOfInterestStorage poiStorage, ChunkPos pos, CompoundTag tag, CallbackInfoReturnable<ProtoChunk> cir) {
         CompoundTag compoundTag = tag.getCompound("Level");
         boolean isSlime = compoundTag.getBoolean("slimeChunk-LITHIUM");
 
         if(isSlime) {
             SlimeChunkStorage.addSlimeChunk(pos);
+            System.out.println("Slime chunk loaded at "+ pos);
         }
     }
 
     @Inject(at = @At("RETURN"), method = "serialize", cancellable = true)
     private static void attachSlimeChunk(ServerWorld world, Chunk chunk, CallbackInfoReturnable<CompoundTag> cir) {
         cir.getReturnValue().putBoolean("slimeChunk-LITHIUM", SlimeChunkStorage.checkSlimeChunk(chunk.getPos()));
-        SlimeChunkStorage.clearChunks(world);
+        System.out.println("Slime chunk saved at "+ chunk.getPos());
     }
 }

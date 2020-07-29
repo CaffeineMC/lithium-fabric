@@ -28,6 +28,7 @@ public class SlimeChunkStorage{
                 for(ChunkPos currentPos : slimeChunks) {
                     if(!world.getChunkManager().isChunkLoaded(currentPos.x, currentPos.z)) {
                         slimeChunks.remove(currentPos);
+                        System.out.println("Uncaching slime chunk at" + currentPos);
                     }
                 }
             }

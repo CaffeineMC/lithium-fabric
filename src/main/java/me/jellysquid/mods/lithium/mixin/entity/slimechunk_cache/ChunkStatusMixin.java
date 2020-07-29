@@ -35,6 +35,7 @@ public class ChunkStatusMixin {
 
                 if(isSlimeChunk) {
                     SlimeChunkStorage.addSlimeChunk(chunkPos);
+                    System.out.println("Slime Chunk genreated at" + chunkPos);
                 }
             }
         }
