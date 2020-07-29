@@ -108,7 +108,7 @@ public class EntityTrackerEngine {
                 list.removeListener(listener);
             }
         } else {
-            throw new IllegalArgumentException("Entity listener not tracked");
+            throw new IllegalArgumentException("Entity listener not tracked:" + listener.toString());
         }
     }
 
