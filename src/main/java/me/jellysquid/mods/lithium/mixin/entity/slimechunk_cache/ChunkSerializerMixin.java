@@ -14,9 +14,10 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.ChunkSerializer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.poi.PointOfInterestStorage;
+import net.minecraft.server.world.ChunkHolder;
 
 @Mixin(ChunkSerializer.class)
-public class ServerChunkMixin {
+public class ChunkSerializerMixin {
     @Inject(at = @At("RETURN"), method = "deserialize")
     private static void cacheSlimeChunk(ServerWorld world, StructureManager structureManager, PointOfInterestStorage poiStorage, ChunkPos pos, CompoundTag tag, CallbackInfo ci) {
         CompoundTag compoundTag = tag.getCompound("Level");
