@@ -32,7 +32,7 @@ public class PiglinBrainMixin {
      * @param isInventory if the player broke a block that stores items 
      */
     @Inject(method = "onGuardedBlockBroken", at = @At("HEAD"), cancellable = true)
-    public static void onGuardedBlockBroken(PlayerEntity player, boolean isInventory, CallbackInfo ci) {
+    private static void onGuardedBlockBroken(PlayerEntity player, boolean isInventory, CallbackInfo ci) {
         List<PiglinEntity> list = player.world.getNonSpectatingEntities(PiglinEntity.class, player.getBoundingBox().expand(16.0D));
         PlayerEntity target;
 
@@ -53,7 +53,7 @@ public class PiglinBrainMixin {
      * @param piglin
      */
     @Inject(method = "angerNearbyPiglins", at = @At("HEAD"), cancellable = true)
-    public static void angerNearbyPiglins(PiglinEntity piglin, CallbackInfo ci) {
+    private static void angerNearbyPiglins(PiglinEntity piglin, CallbackInfo ci) {
         List<PiglinEntity> nearPiglins = getNearbyPiglins(piglin);
         Optional<PlayerEntity> player;
 
