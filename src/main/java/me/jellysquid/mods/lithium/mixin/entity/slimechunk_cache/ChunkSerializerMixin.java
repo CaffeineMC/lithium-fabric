@@ -3,7 +3,6 @@ package me.jellysquid.mods.lithium.mixin.entity.slimechunk_cache;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import me.jellysquid.mods.lithium.common.chunk.ChunkWithSlimeTag;
@@ -15,7 +14,6 @@ import net.minecraft.world.ChunkSerializer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ProtoChunk;
 import net.minecraft.world.poi.PointOfInterestStorage;
-import net.minecraft.server.world.ChunkHolder;
 
 @Mixin(ChunkSerializer.class)
 public class ChunkSerializerMixin {

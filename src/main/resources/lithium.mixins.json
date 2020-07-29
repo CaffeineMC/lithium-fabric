@@ -63,6 +63,8 @@
         "entity.slimechunk_cache.ChunkSerializerMixin",
         "entity.slimechunk_cache.ChunkStatusMixin",
         "entity.slimechunk_cache.SlimeEntityMixin",
+        "entity.slimechunk_cache.ProtoChunkMixin",
+        "entity.slimechunk_cache.WorldChunkMixin",
         "gen.biome_noise_cache.BiomeLayerSamplerMixin",
         "gen.biome_noise_cache.CachingLayerContextMixin",
         "gen.biome_noise_cache.ParentedLayerMixin",

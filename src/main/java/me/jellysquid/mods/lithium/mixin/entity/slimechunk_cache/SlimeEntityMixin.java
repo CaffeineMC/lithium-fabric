@@ -4,8 +4,6 @@ import java.util.Random;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 
 import me.jellysquid.mods.lithium.common.chunk.ChunkWithSlimeTag;
 
@@ -42,6 +40,9 @@ public class SlimeEntityMixin extends MobEntity {
 
             // boolean isSlimeChunk = ChunkRandom.getSlimeRandom(chunkPos.x, chunkPos.z, ((ServerWorldAccess)world).getSeed(), 987234911L).nextInt(10) == 0;
             boolean isSlimeChunk = ((ChunkWithSlimeTag)world.getChunk(pos)).isSlimeChunk();
+            if(isSlimeChunk) {
+                System.out.println("its a slimey one");
+            }
             if (pos.getY() < 40 && isSlimeChunk && random.nextInt(10) == 0) {
                 return canMobSpawn(type, world, spawnReason, pos, random);
             }
