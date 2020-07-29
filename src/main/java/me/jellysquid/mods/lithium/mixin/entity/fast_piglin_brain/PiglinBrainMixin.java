@@ -21,7 +21,7 @@ import net.minecraft.world.GameRules;
 public class PiglinBrainMixin {
 
     /**
-     * The vanilla implimentation here seems to be heavy usage of
+     * The vanilla implementation here seems to be heavy usage of
      * functional style java and similar which performs poorly when
      * used in hot code
      * 
