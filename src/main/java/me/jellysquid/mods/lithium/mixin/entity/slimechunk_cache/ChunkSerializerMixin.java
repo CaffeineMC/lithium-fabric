@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import me.jellysquid.mods.lithium.common.chunk.SlimeChunkStorage;
+import me.jellysquid.mods.lithium.common.chunk.ChunkWithSlimeTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructureManager;
@@ -25,13 +25,13 @@ public class ChunkSerializerMixin {
         boolean isSlime = compoundTag.getBoolean("slimeChunk-LITHIUM");
 
         if(isSlime) {
-            SlimeChunkStorage.addSlimeChunk(pos);
+            ((ChunkWithSlimeTag)cir.getReturnValue()).setSlimeChunk(true);
         }
     }
 
     @Inject(at = @At("RETURN"), method = "serialize", cancellable = true)
     private static void attachSlimeChunk(ServerWorld world, Chunk chunk, CallbackInfoReturnable<CompoundTag> cir) {
-        cir.getReturnValue().putBoolean("slimeChunk-LITHIUM", SlimeChunkStorage.checkSlimeChunk(chunk.getPos()));
-        SlimeChunkStorage.clearChunks(world);
+        cir.getReturnValue().putBoolean("slimeChunk-LITHIUM", ((ChunkWithSlimeTag)chunk).isSlimeChunk());
+        
     }
 }

@@ -7,20 +7,19 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 
-import me.jellysquid.mods.lithium.common.chunk.SlimeChunkStorage;
+import me.jellysquid.mods.lithium.common.chunk.ChunkWithSlimeTag;
+
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.SlimeEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
-import net.minecraft.world.gen.ChunkRandom;
 
 @Mixin(SlimeEntity.class)
 public class SlimeEntityMixin extends MobEntity {
@@ -41,9 +40,8 @@ public class SlimeEntityMixin extends MobEntity {
                 return false;
             }
 
-            ChunkPos chunkPos = new ChunkPos(pos);
             // boolean isSlimeChunk = ChunkRandom.getSlimeRandom(chunkPos.x, chunkPos.z, ((ServerWorldAccess)world).getSeed(), 987234911L).nextInt(10) == 0;
-            boolean isSlimeChunk = SlimeChunkStorage.checkSlimeChunk(chunkPos);
+            boolean isSlimeChunk = ((ChunkWithSlimeTag)world.getChunk(pos)).isSlimeChunk();
             if (pos.getY() < 40 && isSlimeChunk && random.nextInt(10) == 0) {
                 return canMobSpawn(type, world, spawnReason, pos, random);
             }
