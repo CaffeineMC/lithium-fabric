@@ -31,4 +31,4 @@ public class ServerChunkMixin {
     private static void attachSlimeChunk(ServerWorld world, Chunk chunk, CallbackInfoReturnable<CompoundTag> cir) {
         cir.getReturnValue().putBoolean("slimeChunk-LITHIUM", SlimeChunkStorage.checkSlimeChunk(chunk.getPos()));
     }
-}o
+}
