@@ -26,13 +26,12 @@ public class ChunkSerializerMixin {
 
         if(isSlime) {
             SlimeChunkStorage.addSlimeChunk(pos);
-            System.out.println("Slime chunk loaded at "+ pos);
         }
     }
 
     @Inject(at = @At("RETURN"), method = "serialize", cancellable = true)
     private static void attachSlimeChunk(ServerWorld world, Chunk chunk, CallbackInfoReturnable<CompoundTag> cir) {
         cir.getReturnValue().putBoolean("slimeChunk-LITHIUM", SlimeChunkStorage.checkSlimeChunk(chunk.getPos()));
-        System.out.println("Slime chunk saved at "+ chunk.getPos());
+        SlimeChunkStorage.clearChunks(world);
     }
 }

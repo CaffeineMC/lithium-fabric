@@ -29,13 +29,13 @@ public class ChunkStatusMixin {
     @Inject(at = @At("RETURN"), method = "runGenerationTask")
     public void genSlimeChunks(ServerWorld world, ChunkGenerator chunkGenerator, StructureManager structureManager, ServerLightingProvider lightingProvider, Function<Chunk, CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>>> function, List<Chunk> chunks, CallbackInfoReturnable<CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>>> cir) {
         if(world.getDimension() == DimensionType.getOverworldDimensionType()) {
+
             for(Chunk currentChunk : chunks) {
                 ChunkPos chunkPos = currentChunk.getPos();
                 boolean isSlimeChunk = ChunkRandom.getSlimeRandom(chunkPos.x, chunkPos.z, ((ServerWorldAccess)world).getSeed(), 987234911L).nextInt(10) == 0;
 
                 if(isSlimeChunk) {
                     SlimeChunkStorage.addSlimeChunk(chunkPos);
-                    System.out.println("Slime Chunk genreated at" + chunkPos);
                 }
             }
         }
