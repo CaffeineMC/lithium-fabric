@@ -60,8 +60,6 @@
         "entity.replace_entitytype_predicates.FormCaravanGoalMixin",
         "entity.replace_entitytype_predicates.ItemFrameEntityMixin",
         "entity.stream_entity_collisions_lazily.EntityMixin",
-        "entity.slimechunk_cache.ChunkSerializerMixin",
-        "entity.slimechunk_cache.ChunkStatusMixin",
         "entity.slimechunk_cache.SlimeEntityMixin",
         "entity.slimechunk_cache.ProtoChunkMixin",
         "entity.slimechunk_cache.WorldChunkMixin",

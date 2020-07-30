@@ -9,7 +9,7 @@ import net.minecraft.world.chunk.WorldChunk;
 @Mixin(WorldChunk.class)
 public abstract class WorldChunkMixin implements Chunk, ChunkWithSlimeTag{
 
-    public boolean isSlime = false;
+    public boolean isSlime = true;
 
     @Override
     public boolean isSlimeChunk() {

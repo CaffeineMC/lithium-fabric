@@ -15,7 +15,7 @@ public abstract class ReadOnlyChunkMixin extends ProtoChunk implements ChunkWith
         super(pos, upgradeData);
     }
 
-    public boolean isSlime = false;
+    public boolean isSlime = true;
 
     @Override
     public boolean isSlimeChunk() {
