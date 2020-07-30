@@ -39,7 +39,7 @@ public class SlimeEntityMixin extends MobEntity {
             }
 
             // boolean isSlimeChunk = ChunkRandom.getSlimeRandom(chunkPos.x, chunkPos.z, ((ServerWorldAccess)world).getSeed(), 987234911L).nextInt(10) == 0;
-            boolean isSlimeChunk = ((ChunkWithSlimeTag)world.getChunk(pos)).isSlimeChunk();
+            boolean isSlimeChunk = ((ChunkWithSlimeTag)world.getWorld().getWorldChunk(pos)).isSlimeChunk();
             if(isSlimeChunk) {
                 System.out.println("its a slimey one");
             }
