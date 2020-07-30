@@ -42,10 +42,9 @@ public class SlimeEntityMixin extends MobEntity {
 
             // boolean isSlimeChunk = ChunkRandom.getSlimeRandom(chunkPos.x, chunkPos.z, ((ServerWorldAccess)world).getSeed(), 987234911L).nextInt(10) == 0;
             boolean isSlimeChunk = ((ChunkWithSlimeTag)((WorldView)world).getChunk(pos)).isSlimeChunk();
-            if(!isSlimeChunk) {
-                // cache miss
+            if(isSlimeChunk) {
                 isSlimeChunk = ChunkRandom.getSlimeRandom(pos.getX(), pos.getZ(), ((ServerWorldAccess)world).getSeed(), 987234911L).nextInt(10) == 0;
-                ((ChunkWithSlimeTag)((WorldView)world).getChunk(pos)).setSlimeChunk(true);
+                ((ChunkWithSlimeTag)((WorldView)world).getChunk(pos)).setSlimeChunk(isSlimeChunk);
             }
             if (pos.getY() < 40 && isSlimeChunk && random.nextInt(10) == 0) {
                 return canMobSpawn(type, world, spawnReason, pos, random);
