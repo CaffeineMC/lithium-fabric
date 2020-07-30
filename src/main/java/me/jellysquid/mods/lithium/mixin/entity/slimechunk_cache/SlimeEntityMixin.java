@@ -16,8 +16,10 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+import net.minecraft.world.WorldView;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
+import net.minecraft.world.gen.ChunkRandom;
 
 @Mixin(SlimeEntity.class)
 public class SlimeEntityMixin extends MobEntity {
@@ -39,9 +41,11 @@ public class SlimeEntityMixin extends MobEntity {
             }
 
             // boolean isSlimeChunk = ChunkRandom.getSlimeRandom(chunkPos.x, chunkPos.z, ((ServerWorldAccess)world).getSeed(), 987234911L).nextInt(10) == 0;
-            boolean isSlimeChunk = ((ChunkWithSlimeTag)world.getWorld().getWorldChunk(pos)).isSlimeChunk();
-            if(isSlimeChunk) {
-                System.out.println("its a slimey one");
+            boolean isSlimeChunk = ((ChunkWithSlimeTag)((WorldView)world).getChunk(pos)).isSlimeChunk();
+            if(!isSlimeChunk) {
+                // cache miss
+                isSlimeChunk = ChunkRandom.getSlimeRandom(pos.getX(), pos.getZ(), ((ServerWorldAccess)world).getSeed(), 987234911L).nextInt(10) == 0;
+                ((ChunkWithSlimeTag)((WorldView)world).getChunk(pos)).setSlimeChunk(true);
             }
             if (pos.getY() < 40 && isSlimeChunk && random.nextInt(10) == 0) {
                 return canMobSpawn(type, world, spawnReason, pos, random);
