@@ -12,6 +12,7 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.SlimeEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
@@ -44,10 +45,8 @@ public class SlimeEntityMixin extends MobEntity {
             boolean isSlimeChunk = ((ChunkWithSlimeTag)((WorldView)world).getChunk(pos)).isSlimeChunk();
             if(isSlimeChunk) {
                 // double check that value isn't just default
-                isSlimeChunk = ChunkRandom.getSlimeRandom(pos.getX(), pos.getZ(), ((ServerWorldAccess)world).getSeed(), 987234911L).nextInt(10) == 0;
-                if(!isSlimeChunk){
-                    System.out.println("Slime cache incorrect... fixing");
-                }
+                ChunkPos chunkPos = new ChunkPos(pos);
+                isSlimeChunk = ChunkRandom.getSlimeRandom(chunkPos.x, chunkPos.z, ((ServerWorldAccess)world).getSeed(), 987234911L).nextInt(10) == 0;
                 ((ChunkWithSlimeTag)((WorldView)world).getChunk(pos)).setSlimeChunk(isSlimeChunk);
             }
             if (pos.getY() < 40 && isSlimeChunk && random.nextInt(10) == 0) {
