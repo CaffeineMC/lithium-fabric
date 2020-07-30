@@ -95,7 +95,7 @@ public class LithiumEntityCollisions {
             return false;
         }
 
-        return getEntityCollisionProducer(view, entity, box, predicate).computeNext(null);
+        return getEntityCollisionProducer(view, entity, box.expand(EPSILON), predicate).computeNext(null);
     }
 
     /**
