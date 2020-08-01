@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.mixin.world.chunk_inline_block_access;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
@@ -15,6 +16,7 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(value = WorldChunk.class, priority = 500)
 public class WorldChunkMixin {
     private static final BlockState DEFAULT_BLOCK_STATE = Blocks.AIR.getDefaultState();
+    private static final FluidState EMPTY_FLUID = Fluids.EMPTY.getDefaultState();
 
     @Shadow
     @Final
@@ -47,10 +49,19 @@ public class WorldChunkMixin {
 
     /**
      * @reason Reduce method size to help the JVM inline
-     * @author JellySquid
+     * @author Maity
      */
     @Overwrite
-    public FluidState getFluidState(BlockPos pos) {
-        return this.getBlockState(pos).getFluidState();
+    public FluidState getFluidState(int x, int y, int z) {
+        // WorldChunk#getFluidState(BlockPos) redirects to this method
+        if (!World.isHeightInvalid(y)) {
+            ChunkSection section = this.sections[y >> 4];
+
+            if (section != EMPTY_SECTION) {
+                return section.getFluidState(x & 15, y & 15, z & 15);
+            }
+        }
+
+        return EMPTY_FLUID;
     }
 }

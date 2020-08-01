@@ -85,5 +85,4 @@ public abstract class FindInteractionTargetTaskMixin extends Task<LivingEntity> 
             }
         }
     }
-
 }

@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -42,6 +43,26 @@ public abstract class GoalSelectorMixin {
     @Inject(method = "<init>", at = @At("RETURN"))
     private void reinit(Supplier<Profiler> supplier, CallbackInfo ci) {
         this.goals = new ObjectLinkedOpenHashSet<>(this.goals);
+    }
+
+    /**
+     * @reason Use a faster implementation by replacing complex Stream API with simple code
+     * @author Maity
+     */
+    @Overwrite
+    public void remove(Goal goal) {
+        Iterator<PrioritizedGoal> itr = this.goals.iterator();
+
+        while (itr.hasNext()) {
+            PrioritizedGoal wrappedGoal = itr.next();
+
+            if (wrappedGoal.getGoal() == goal) {
+                if (wrappedGoal.isRunning()) {
+                    wrappedGoal.stop();
+                }
+                itr.remove();
+            }
+        }
     }
 
     /**
