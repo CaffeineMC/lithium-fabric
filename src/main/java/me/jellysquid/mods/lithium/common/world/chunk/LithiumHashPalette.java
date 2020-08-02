@@ -134,7 +134,7 @@ public class LithiumHashPalette<T> implements Palette<T> {
         buf.writeVarInt(size);
 
         for (int i = 0; i < size; ++i) {
-            buf.writeVarInt(this.idList.getId(this.getByIndex(i)));
+            buf.writeVarInt(this.idList.getRawId(this.getByIndex(i)));
         }
     }
 
@@ -143,7 +143,7 @@ public class LithiumHashPalette<T> implements Palette<T> {
         int size = PacketByteBuf.getVarIntSizeBytes(this.size);
 
         for (int i = 0; i < this.size; ++i) {
-            size += PacketByteBuf.getVarIntSizeBytes(this.idList.getId(this.getByIndex(i)));
+            size += PacketByteBuf.getVarIntSizeBytes(this.idList.getRawId(this.getByIndex(i)));
         }
 
         return size;

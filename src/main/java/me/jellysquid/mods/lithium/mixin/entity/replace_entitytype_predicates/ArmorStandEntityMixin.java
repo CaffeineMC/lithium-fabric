@@ -20,12 +20,12 @@ public class ArmorStandEntityMixin {
     @Final
     private static Predicate<Entity> RIDEABLE_MINECART_PREDICATE;
 
-    @Redirect(method = "tickCramming", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getEntities(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"))
+    @Redirect(method = "tickCramming", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getOtherEntities(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"))
     private List<Entity> getMinecartsDirectly(World world, Entity excluded, Box box, Predicate<? super Entity> predicate){
         if (predicate == RIDEABLE_MINECART_PREDICATE) {
             //not using MinecartEntity.class and no predicate, because mods may add another minecart that is type ridable without being MinecartEntity
-            return world.getEntities(AbstractMinecartEntity.class, box, (Entity e) -> e != excluded && ((AbstractMinecartEntity)e).getMinecartType() == AbstractMinecartEntity.Type.RIDEABLE);
+            return world.getEntitiesByClass(AbstractMinecartEntity.class, box, (Entity e) -> e != excluded && ((AbstractMinecartEntity)e).getMinecartType() == AbstractMinecartEntity.Type.RIDEABLE);
         }
-        return world.getEntities(excluded, box, predicate);
+        return world.getOtherEntities(excluded, box, predicate);
     }
 }

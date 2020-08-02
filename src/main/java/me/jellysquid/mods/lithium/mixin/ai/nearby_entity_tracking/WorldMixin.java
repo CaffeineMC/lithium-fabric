@@ -25,7 +25,7 @@ public class WorldMixin implements EntityTrackerEngineProvider {
      * Initialize the {@link EntityTrackerEngine} which all entities of the world will interact with.
      */
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(MutableWorldProperties mutableWorldProperties, RegistryKey<World> registryKey, RegistryKey<DimensionType> registryKey2, DimensionType dimensionType, Supplier<Profiler> profiler, boolean bl, boolean bl2, long l, CallbackInfo ci) {
+    private void init(MutableWorldProperties properties, RegistryKey<World> registryKey, final DimensionType dimensionType, Supplier<Profiler> supplier, boolean bl, boolean bl2, long l, CallbackInfo ci) {
         this.tracker = new EntityTrackerEngine();
     }
 

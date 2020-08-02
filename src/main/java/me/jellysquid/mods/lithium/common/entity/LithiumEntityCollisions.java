@@ -112,7 +112,7 @@ public class LithiumEntityCollisions {
             @Override
             public boolean computeNext(Consumer<? super VoxelShape> consumer) {
                 if (this.it == null) {
-                    this.it = view.getEntities(entity, box).iterator();
+                    this.it = view.getOtherEntities(entity, box).iterator();
                 }
 
                 while (this.it.hasNext()) {
@@ -122,39 +122,25 @@ public class LithiumEntityCollisions {
                         continue;
                     }
 
-                    if (entity != null && entity.isConnectedThroughVehicle(otherEntity)) {
+                    /**
+                     * {@link Entity#method_30948} returns false by default, designed to be overridden by
+                     * entities whose collisions should be "hard" (boats and shulkers, for now).
+                     * 
+                     * {@link Entity#method_30949} only allows hard collisions if the calling entity is not riding
+                     * otherEntity as a vehicle.
+                     */
+                    if (entity == null) {
+                        if (!otherEntity.method_30948()) {
+                            continue;
+                        }
+                    } else if (!entity.method_30949(otherEntity)) {
                         continue;
                     }
 
-                    Box otherEntityBox = otherEntity.getCollisionBox();
-
-                    boolean produced = false;
-
-                    if (otherEntityBox != null && box.intersects(otherEntityBox)) {
-                        if (consumer == null) {
-                            return true;
-                        } else {
-                            produced = true;
-                            consumer.accept(VoxelShapes.cuboid(otherEntityBox));
-                        }
+                    if (consumer != null) {
+                        consumer.accept(VoxelShapes.cuboid(otherEntity.getBoundingBox()));
                     }
-
-                    if (entity != null) {
-                        Box otherEntityHardBox = entity.getHardCollisionBox(otherEntity);
-
-                        if (otherEntityHardBox != null && box.intersects(otherEntityHardBox)) {
-                            if (consumer == null) {
-                                return true;
-                            } else {
-                                produced = true;
-                                consumer.accept(VoxelShapes.cuboid(otherEntityHardBox));
-                            }
-                        }
-                    }
-
-                    if (produced) {
-                        return true;
-                    }
+                    return true;
                 }
 
                 return false;

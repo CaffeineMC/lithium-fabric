@@ -1,9 +1,16 @@
 package me.jellysquid.mods.lithium.mixin.gen.biome_noise_cache;
 
+import net.minecraft.SharedConstants;
+import net.minecraft.util.Util;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BuiltinBiomes;
 import net.minecraft.world.biome.layer.util.CachingLayerSampler;
 import net.minecraft.world.biome.layer.util.LayerFactory;
 import net.minecraft.world.biome.source.BiomeLayerSampler;
+import org.apache.logging.log4j.Logger;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,7 +23,8 @@ public abstract class BiomeLayerSamplerMixin {
     private ThreadLocal<CachingLayerSampler> tlSampler;
 
     @Shadow
-    protected abstract Biome getBiome(int id);
+    @Final
+    private static Logger LOGGER;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(LayerFactory<CachingLayerSampler> factory, CallbackInfo ci) {
@@ -28,8 +36,26 @@ public abstract class BiomeLayerSamplerMixin {
      * @author gegy1000
      */
     @Overwrite
-    public Biome sample(int x, int y) {
+    public Biome sample(Registry<Biome> registry, int i, int j) {
+        // [VanillaCopy]
         CachingLayerSampler tlSampler = this.tlSampler.get();
-        return this.getBiome(tlSampler.sample(x, y));
+
+        int k = tlSampler.sample(i, j);
+        RegistryKey<Biome> registryKey = BuiltinBiomes.fromRawId(k);
+        if (registryKey == null) {
+            throw new IllegalStateException("Unknown biome id emitted by layers: " + k);
+        } else {
+            Biome biome = registry.get(registryKey);
+            if (biome == null) {
+                if (SharedConstants.isDevelopment) {
+                    throw Util.throwOrPause(new IllegalStateException("Unknown biome id: " + k));
+                } else {
+                    LOGGER.warn("Unknown biome id: {}", k);
+                    return registry.get(BuiltinBiomes.fromRawId(0));
+                }
+            } else {
+                return biome;
+            }
+        }
     }
 }
