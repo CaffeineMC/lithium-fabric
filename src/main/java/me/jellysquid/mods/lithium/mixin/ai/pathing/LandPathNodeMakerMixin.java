@@ -187,6 +187,8 @@ public abstract class LandPathNodeMakerMixin {
             type = PathNodeType.DANGER_OTHER;
         } else if (method_27138(state)) {
             type = PathNodeType.DANGER_FIRE;
+        } else if (state.getFluidState().isIn(FluidTags.WATER)) {
+            return PathNodeType.WATER_BORDER;
         } else {
             type = PathNodeType.OPEN;
         }

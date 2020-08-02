@@ -276,7 +276,7 @@ public abstract class ExplosionMixin {
         int minZ = MathHelper.floor(this.z - (double) range - 1.0D);
         int maxZ = MathHelper.floor(this.z + (double) range + 1.0D);
 
-        List<Entity> entities = this.world.getEntities(this.entity, new Box(minX, minY, minZ, maxX, maxY, maxZ));
+        List<Entity> entities = this.world.getOtherEntities(this.entity, new Box(minX, minY, minZ, maxX, maxY, maxZ));
 
         Vec3d selfPos = new Vec3d(this.x, this.y, this.z);
 

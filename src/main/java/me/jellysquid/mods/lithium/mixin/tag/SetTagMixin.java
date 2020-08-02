@@ -1,6 +1,5 @@
 package me.jellysquid.mods.lithium.mixin.tag;
 
-import com.google.common.collect.ImmutableList;
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.tag.SetTag;
@@ -18,7 +17,7 @@ import java.util.Set;
 @Mixin(SetTag.class)
 public abstract class SetTagMixin<T> implements Tag<T> {
     @Shadow @Final @Mutable
-    private Set<T> field_25594;
+    private Set<T> valueSet;
 
     /**
      * If the number of elements in a tag is very small (<=3), it can be significantly faster to use simple linear scanning
@@ -34,10 +33,10 @@ public abstract class SetTagMixin<T> implements Tag<T> {
     private void init(Set<T> set, Class<?> var2, CallbackInfo ci) {
         // Reference equality is safe for tag values
         // Use linear-scanning when the number of items in the tag is small
-        if (this.field_25594.size() <= 3) {
-            this.field_25594 = new ReferenceArraySet<>(this.field_25594);
+        if (this.valueSet.size() <= 3) {
+            this.valueSet = new ReferenceArraySet<>(this.valueSet);
         } else {
-            this.field_25594 = new ReferenceOpenHashSet<>(this.field_25594);
+            this.valueSet = new ReferenceOpenHashSet<>(this.valueSet);
         }
     }
 }

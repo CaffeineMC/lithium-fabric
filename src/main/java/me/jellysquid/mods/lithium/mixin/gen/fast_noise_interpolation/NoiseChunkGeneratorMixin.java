@@ -3,14 +3,14 @@ package me.jellysquid.mods.lithium.mixin.gen.fast_noise_interpolation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.noise.OctavePerlinNoiseSampler;
 import net.minecraft.util.math.noise.PerlinNoiseSampler;
-import net.minecraft.world.gen.chunk.SurfaceChunkGenerator;
+import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(SurfaceChunkGenerator.class)
-public class SurfaceChunkGeneratorMixin {
+@Mixin(NoiseChunkGenerator.class)
+public class NoiseChunkGeneratorMixin {
     @Shadow
     @Final
     private OctavePerlinNoiseSampler lowerInterpolatedNoise;

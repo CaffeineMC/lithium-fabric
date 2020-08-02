@@ -27,7 +27,7 @@ public abstract class StructureAccessorMixin {
      * @author JellySquid
      */
     @Overwrite
-    public StructureStart<?> method_28388(BlockPos blockPos, boolean fine, StructureFeature<?> feature) {
+    public StructureStart<?> getStructureAt(BlockPos blockPos, boolean fine, StructureFeature<?> feature) {
         Chunk originChunk = this.world.getChunk(blockPos.getX() >> 4, blockPos.getZ() >> 4, ChunkStatus.STRUCTURE_REFERENCES);
 
         LongSet references = originChunk.getStructureReferences(feature);
