@@ -74,6 +74,7 @@
         "math.fast_util.AxisCycleDirectionMixin$ForwardMixin",
         "math.fast_util.BoxMixin",
         "math.fast_util.DirectionMixin",
+        "shapes.blockstate_cache.BlockMixin",
         "shapes.precompute_shape_arrays.SimpleVoxelShapeMixin",
         "shapes.shape_merging.VoxelShapesMixin",
         "shapes.specialized_shapes.VoxelShapeMixin",
