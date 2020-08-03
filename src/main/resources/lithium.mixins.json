@@ -89,7 +89,7 @@
         "world.chunk_ticking.PlayerChunkWatchingManagerMixin",
         "world.chunk_ticking.ThreadedAnvilChunkStorageMixin",
         "world.explosions.ExplosionMixin",
-        "world.fast_island_noise.MixinSurfaceChunkGenerator",
+        "world.fast_island_noise.MixinNoiseChunkGenerator",
         "world.fast_island_noise.MixinTheEndBiomeSource",
         "world.mob_spawning.SpawnSettingsMixin",
         "world.mob_spawning.StructureAccessorMixin",
