@@ -78,6 +78,10 @@ public class EntityTrackerEngine {
             return;
         }
 
+        if (this.sectionsByEntity.containsKey(listener)) {
+            throw new IllegalStateException("Adding Entity listener a second time: " + listener.toString());
+        }
+
         List<TrackedEntityList> all = new ArrayList<>(r * r * r);
 
         for (int x2 = x - r; x2 <= x + r; x2++) {

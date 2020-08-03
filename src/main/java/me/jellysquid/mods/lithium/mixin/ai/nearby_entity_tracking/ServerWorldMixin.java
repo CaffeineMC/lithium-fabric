@@ -25,12 +25,12 @@ public class ServerWorldMixin {
             return;
         }
 
-        int x = MathHelper.floor(entity.getX()) >> 4;
-        int y = MathHelper.floor(entity.getY()) >> 4;
-        int z = MathHelper.floor(entity.getZ()) >> 4;
+        int chunkX = MathHelper.floor(entity.getX()) >> 4;
+        int chunkY = MathHelper.clamp(MathHelper.floor(entity.getY()) >> 4, 0, 15);
+        int chunkZ = MathHelper.floor(entity.getZ()) >> 4;
 
         EntityTrackerEngine tracker = EntityTrackerEngineProvider.getEntityTracker(this);
-        tracker.onEntityAdded(x, y, z, (LivingEntity) entity);
+        tracker.onEntityAdded(chunkX, chunkY, chunkZ, (LivingEntity) entity);
 
     }
 
@@ -57,7 +57,7 @@ public class ServerWorldMixin {
         }
 
         int chunkX = MathHelper.floor(entity.getX()) >> 4;
-        int chunkY = MathHelper.floor(entity.getY()) >> 4;
+        int chunkY = MathHelper.clamp(MathHelper.floor(entity.getY()) >> 4, 0, 15);
         int chunkZ = MathHelper.floor(entity.getZ()) >> 4;
 
         EntityTrackerEngine tracker = EntityTrackerEngineProvider.getEntityTracker(this);
@@ -74,7 +74,7 @@ public class ServerWorldMixin {
         }
 
         int chunkX = MathHelper.floor(entity.getX()) >> 4;
-        int chunkY = MathHelper.floor(entity.getY()) >> 4;
+        int chunkY = MathHelper.clamp(MathHelper.floor(entity.getY()) >> 4, 0, 15);
         int chunkZ = MathHelper.floor(entity.getZ()) >> 4;
 
         EntityTrackerEngine tracker = EntityTrackerEngineProvider.getEntityTracker(this);
