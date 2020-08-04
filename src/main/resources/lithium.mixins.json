@@ -7,12 +7,11 @@
         "defaultRequire": 1
     },
     "client": [
-        "ai.nearby_entity_tracking.ClientWorldMixin"
     ],
     "mixins": [
         "ai.goal.GoalSelectorMixin",
         "ai.nearby_entity_tracking.LivingEntityMixin",
-        "ai.nearby_entity_tracking.ServerWorldMixin",
+        "ai.nearby_entity_tracking.WorldChunkMixin",
         "ai.nearby_entity_tracking.WorldMixin",
         "ai.nearby_entity_tracking.goals.FleeEntityGoalMixin",
         "ai.nearby_entity_tracking.goals.LookAtGoalMixin",
