@@ -9,15 +9,16 @@ import net.minecraft.world.chunk.WorldChunk;
 @Mixin(WorldChunk.class)
 public abstract class WorldChunkMixin implements Chunk, ChunkWithSlimeTag{
 
-    public boolean isSlime = true;
+    // Set the value to 2 for being unsure of a slime chunk.
+    public int isSlime = 2;
 
     @Override
-    public boolean isSlimeChunk() {
+    public int isSlimeChunk() {
         return isSlime;
     }
 
     @Override
-    public void setSlimeChunk(boolean flag) {
-        this.isSlime = flag;
+    public void setSlimeChunk(int value) {
+        this.isSlime = value;
     }
 }

@@ -37,32 +37,39 @@ public abstract class SlimeEntityMixin extends MobEntity {
 
     @Overwrite
     public static boolean canSpawn(EntityType<SlimeEntity> type, WorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random) {
+        world.getWorld().getProfiler().push("Slime spawning");
         if (world.getDifficulty() != Difficulty.PEACEFUL) {
             Biome biome = world.getBiome(pos);
             if(biome == Biomes.SWAMP) {
                 if (pos.getY() > 50 && pos.getY() < 70 && random.nextFloat() < 0.5F && random.nextFloat() < world.getMoonSize() && world.getLightLevel(pos) <= random.nextInt(8)) {
+                    world.getWorld().getProfiler().pop();
                     return (canMobSpawn(type, world, spawnReason, pos, random));
                 }
-            // dont even bother with normal slime chunks if not in a swamp
+            // dont even bother with normal slime chunks if in a swamp
             } else {
                 if (!(world instanceof ServerWorldAccess)) {
+                    world.getWorld().getProfiler().pop();
                     return (false);
                 }
 
-                // check for stored value of slime chunk
-                boolean isSlimeChunk = ((ChunkWithSlimeTag)((WorldView)world).getChunk(pos)).isSlimeChunk();
-                if(isSlimeChunk) {
-                    // double check that value isn't just default
-                    ChunkPos chunkPos = new ChunkPos(pos);
-                    isSlimeChunk = ChunkRandom.getSlimeRandom(chunkPos.x, chunkPos.z, ((ServerWorldAccess)world).getSeed(), 987234911L).nextInt(10) == 0;
-                    // set the value to be accurate (even if it didn't change)
-                    ((ChunkWithSlimeTag)((WorldView)world).getChunk(pos)).setSlimeChunk(isSlimeChunk);
+                // check for stored value of slime chunk 
+                // 2 = unchecked
+                // 1 = true
+                // 0 = false
+                int slimeChunk = ((ChunkWithSlimeTag)((WorldView)world).getChunk(pos)).isSlimeChunk();
+                boolean isSlimeChunk = slimeChunk == 1;
+                if(slimeChunk == 2) {
+                    slimeChunk = ChunkRandom.getSlimeRandom(pos.getX() >> 4, pos.getZ() >> 4, ((ServerWorldAccess)world).getSeed(), 987234911L).nextInt(10) == 0 ? 1 : 0;
+                    // set the flag to the new value of the chunk
+                    ((ChunkWithSlimeTag)((WorldView)world).getChunk(pos)).setSlimeChunk(slimeChunk);
                 }
                 if (isSlimeChunk && pos.getY() < 40 && random.nextInt(10) == 0) {
+                    world.getWorld().getProfiler().pop();
                     return (canMobSpawn(type, world, spawnReason, pos, random));
                 }
             }
         }
+        world.getWorld().getProfiler().pop();
         return (false);
     }
 
