@@ -256,8 +256,9 @@ public abstract class ExplosionMixin {
                     // Get the explosion resistance like vanilla
                     Optional<Float> blastResistance = this.behavior.getBlastResistance(TypeCast.toExplosion(this), this.world, pos, blockState, fluidState);
                     // Calculate how much this block will resist an explosion's ray
-                    totalResistance = blastResistance.map(aFloat -> (aFloat + 0.3F) * 0.3F).orElse(0.0F);
-
+                    if (blastResistance.isPresent()) {
+                        totalResistance = (blastResistance.get() + 0.3F) * 0.3F;
+                    }
                 }
             }
         }
