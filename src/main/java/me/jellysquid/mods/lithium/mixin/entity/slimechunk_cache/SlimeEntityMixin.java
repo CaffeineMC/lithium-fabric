@@ -36,7 +36,7 @@ public abstract class SlimeEntityMixin extends MobEntity {
     }
 
     @Overwrite
-    public static boolean canSpawn(EntityType<SlimeEntity> type, WorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random, CallbackInfoReturnable<Boolean> cir) {
+    public static boolean canSpawn(EntityType<SlimeEntity> type, WorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random) {
         if (world.getDifficulty() != Difficulty.PEACEFUL) {
             Biome biome = world.getBiome(pos);
             if(biome == Biomes.SWAMP) {
