@@ -1,10 +1,14 @@
 package me.jellysquid.mods.lithium.mixin.chunk.oversized_blocks;
 
 import me.jellysquid.mods.lithium.common.entity.movement.ChunkAwareBlockCollisionSweeper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.PalettedContainer;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,7 +23,10 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
  * @author 2No2Name
  */
 @Mixin(ChunkSection.class)
-public class MixinChunkSection implements ChunkAwareBlockCollisionSweeper.OversizedBlocksCounter {
+public abstract class MixinChunkSection implements ChunkAwareBlockCollisionSweeper.OversizedBlocksCounter {
+    @Shadow
+    public abstract void calculateCounts();
+
     @Unique
     private short oversizedBlockCount;
 
@@ -55,5 +62,15 @@ public class MixinChunkSection implements ChunkAwareBlockCollisionSweeper.Oversi
     @Override
     public boolean hasOversizedBlocks() {
         return this.oversizedBlockCount > 0;
+    }
+
+    /**
+     * Initialize oversized block count in the client worlds.
+     * This also initializes other values (randomtickable blocks counter), but they are unused in the client worlds.
+     */
+    @Environment(EnvType.CLIENT)
+    @Inject(method = "fromPacket", at = @At("RETURN"))
+    private void initCounts(PacketByteBuf packetByteBuf, CallbackInfo ci) {
+        this.calculateCounts();
     }
 }

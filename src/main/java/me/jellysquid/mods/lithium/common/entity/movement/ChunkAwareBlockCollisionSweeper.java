@@ -169,12 +169,12 @@ public class ChunkAwareBlockCollisionSweeper {
                 //stop condition was already checked using this.cIterated at the start of the method
             }
 
-            final int edgesHit = this.sectionOversizedBlocks ? 0 :
-                            //using < minX and > maxX instead of <= and >= in vanilla, because minX, maxX are the coordinates
-                            //that were of box that wasn't extended for oversized blocks yet.
-                            (x < this.minX || x > this.maxX ? 1 : 0) +
-                            (y < this.minY || y > this.maxY ? 1 : 0) +
-                            (z < this.minZ || z > this.maxZ ? 1 : 0);
+            //using < minX and > maxX instead of <= and >= in vanilla, because minX, maxX are the coordinates
+            //of the box that wasn't extended for oversized blocks yet.
+            final int edgesHit = this.sectionOversizedBlocks ?
+                    (x < this.minX || x > this.maxX ? 1 : 0) +
+                    (y < this.minY || y > this.maxY ? 1 : 0) +
+                    (z < this.minZ || z > this.maxZ ? 1 : 0) : 0;
 
             if (edgesHit == 3) {
                 continue;
