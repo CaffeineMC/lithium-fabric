@@ -2,7 +2,6 @@ package me.jellysquid.mods.lithium.mixin.world.explosions;
 
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import me.jellysquid.mods.lithium.common.util.TypeCast;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.ProtectionEnchantment;
@@ -199,7 +198,7 @@ public abstract class ExplosionMixin {
     }
 
     /**
-     * Called for every step made by a ray being cast by an explosion.
+     * Called for every step made by a ray being cast by an explosion. fai
      * @param strength The strength of the ray during this step
      * @param blockX The x-coordinate of the block the ray is inside of
      * @param blockY The y-coordinate of the block the ray is inside of
@@ -211,7 +210,7 @@ public abstract class ExplosionMixin {
 
         // Early-exit if the y-coordinate is out of bounds.
         if (World.isHeightInvalid(blockY)) {
-            Optional<Float> blastResistance = this.behavior.getBlastResistance(TypeCast.toExplosion(this), this.world, pos, Blocks.AIR.getDefaultState(), Fluids.EMPTY.getDefaultState());
+            Optional<Float> blastResistance = this.behavior.getBlastResistance((Explosion) (Object) this, this.world, pos, Blocks.AIR.getDefaultState(), Fluids.EMPTY.getDefaultState());
             if (blastResistance.isPresent()) {
                 return (blastResistance.get() + 0.3F) * 0.3F;
             }
@@ -254,7 +253,7 @@ public abstract class ExplosionMixin {
                     FluidState fluidState = blockState.getFluidState();
 
                     // Get the explosion resistance like vanilla
-                    Optional<Float> blastResistance = this.behavior.getBlastResistance(TypeCast.toExplosion(this), this.world, pos, blockState, fluidState);
+                    Optional<Float> blastResistance = this.behavior.getBlastResistance((Explosion) (Object) this, this.world, pos, blockState, fluidState);
                     // Calculate how much this block will resist an explosion's ray
                     if (blastResistance.isPresent()) {
                         totalResistance = (blastResistance.get() + 0.3F) * 0.3F;
@@ -267,7 +266,7 @@ public abstract class ExplosionMixin {
         // of positions to destroy
         float reducedStrength = strength - totalResistance;
         if (reducedStrength > 0.0F) {
-            if (this.behavior.canDestroyBlock(TypeCast.toExplosion(this), this.world, pos, blockState, reducedStrength)) {
+            if (this.behavior.canDestroyBlock((Explosion) (Object) this, this.world, pos, blockState, reducedStrength)) {
                 touched.add(pos.asLong());
             }
         }
