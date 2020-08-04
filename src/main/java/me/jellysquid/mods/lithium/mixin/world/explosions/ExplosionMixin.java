@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.mixin.world.explosions;
 
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import me.jellysquid.mods.lithium.common.util.TypeCast;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.ProtectionEnchantment;
@@ -11,6 +12,7 @@ import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
@@ -19,6 +21,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.explosion.ExplosionBehavior;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,6 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 @Mixin(Explosion.class)
@@ -72,6 +76,9 @@ public abstract class ExplosionMixin {
     @Final
     private Map<PlayerEntity, Vec3d> affectedPlayers;
 
+    @Shadow
+    @Final
+    private ExplosionBehavior behavior;
     // The cached mutable block position used during block traversal.
     private final BlockPos.Mutable cachedPos = new BlockPos.Mutable();
 
@@ -155,7 +162,7 @@ public abstract class ExplosionMixin {
         int prevY = Integer.MIN_VALUE;
         int prevZ = Integer.MIN_VALUE;
 
-        float prevResistance = 0.0f;
+        float prevResistance = 0.0F;
 
         // Step through the ray until it is finally stopped
         while (strength > 0.0F) {
@@ -181,8 +188,9 @@ public abstract class ExplosionMixin {
                 resistance = prevResistance;
             }
 
+            strength -= resistance;
             // Apply a constant fall-off
-            strength -= resistance + 0.225F;
+            strength -= 0.22500001F;
 
             stepX += normX * 0.3D;
             stepY += normY * 0.3D;
@@ -199,12 +207,17 @@ public abstract class ExplosionMixin {
      * @return The resistance of the current block space to the ray
      */
     private float traverseBlock(float strength, int blockX, int blockY, int blockZ, LongOpenHashSet touched) {
+        BlockPos pos = this.cachedPos.set(blockX, blockY, blockZ);
+
         // Early-exit if the y-coordinate is out of bounds.
         if (World.isHeightInvalid(blockY)) {
-            return 0.0f;
+            Optional<Float> blastResistance = this.behavior.getBlastResistance(TypeCast.toExplosion(this), this.world, pos, Blocks.AIR.getDefaultState(), Fluids.EMPTY.getDefaultState());
+            if (blastResistance.isPresent()) {
+                return (blastResistance.get() + 0.3F) * 0.3F;
+            }
+            return 0.0F;
         }
 
-        BlockPos pos = this.cachedPos.set(blockX, blockY, blockZ);
 
         int chunkX = blockX >> 4;
         int chunkZ = blockZ >> 4;
@@ -220,7 +233,7 @@ public abstract class ExplosionMixin {
         final Chunk chunk = this.prevChunk;
 
         BlockState blockState = Blocks.AIR.getDefaultState();
-        float totalResistance = 0.0f;
+        float totalResistance = 0.0F;
 
         // If the chunk is missing or out of bounds, assume that it is air
         if (chunk != null) {
@@ -240,24 +253,20 @@ public abstract class ExplosionMixin {
                     // do anyways, except that it would have to retrieve the block state a second time, adding overhead.
                     FluidState fluidState = blockState.getFluidState();
 
-                    // Pick the highest resistance value between the block and fluid
-                    float resistance = Math.max(blockState.getBlock().getBlastResistance(), fluidState.getBlastResistance());
+                    // Get the explosion resistance like vanilla
+                    Optional<Float> blastResistance = this.behavior.getBlastResistance(TypeCast.toExplosion(this), this.world, pos, blockState, fluidState);
+                    // Calculate how much this block will resist an explosion's ray
+                    totalResistance = blastResistance.map(aFloat -> (aFloat + 0.3F) * 0.3F).orElse(0.0F);
 
-                    // If this explosion was caused by an entity, allow for it to modify the resistance of this position
-                    if (this.entity != null) {
-                        resistance = this.entity.getEffectiveExplosionResistance((Explosion) (Object) this, this.world, pos, blockState, fluidState, resistance);
-                    }
-
-                    // Calculate how much this block space will resist an explosion's ray
-                    totalResistance = (resistance + 0.3F) * 0.3F;
                 }
             }
         }
 
         // Check if this ray is still strong enough to break blocks, and if so, add this position to the set
         // of positions to destroy
-        if ((strength - totalResistance) > 0.0F) {
-            if ((this.entity == null) || this.entity.canExplosionDestroyBlock((Explosion) (Object) this, this.world, pos, blockState, strength)) {
+        float reducedStrength = strength - totalResistance;
+        if (reducedStrength > 0.0F) {
+            if (this.behavior.canDestroyBlock(TypeCast.toExplosion(this), this.world, pos, blockState, reducedStrength)) {
                 touched.add(pos.asLong());
             }
         }
