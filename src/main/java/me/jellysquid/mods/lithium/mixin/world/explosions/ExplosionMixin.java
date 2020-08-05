@@ -233,33 +233,39 @@ public abstract class ExplosionMixin {
 
         BlockState blockState = Blocks.AIR.getDefaultState();
         float totalResistance = 0.0F;
+        Optional<Float> blastResistance;
 
-        // If the chunk is missing or out of bounds, assume that it is air
-        if (chunk != null) {
-            // We operate directly on chunk sections to avoid interacting with BlockPos and to squeeze out as much
-            // performance as possible here
-            ChunkSection section = chunk.getSectionArray()[blockY >> 4];
+        labelGetBlastResistance:
+        {
+            // If the chunk is missing or out of bounds, assume that it is air
+            if (chunk != null) {
+                // We operate directly on chunk sections to avoid interacting with BlockPos and to squeeze out as much
+                // performance as possible here
+                ChunkSection section = chunk.getSectionArray()[blockY >> 4];
 
-            // If the section doesn't exist or it's empty, assume that the block is air
-            if (section != null && !section.isEmpty()) {
-                // Retrieve the block state from the chunk section directly to avoid associated overhead
-                blockState = section.getBlockState(blockX & 15, blockY & 15, blockZ & 15);
+                // If the section doesn't exist or it's empty, assume that the block is air
+                if (section != null && !section.isEmpty()) {
+                    // Retrieve the block state from the chunk section directly to avoid associated overhead
+                    blockState = section.getBlockState(blockX & 15, blockY & 15, blockZ & 15);
 
-                // If the block state is air, it cannot have fluid or any kind of resistance, so just leave
-                if (blockState.getBlock() != Blocks.AIR) {
-                    // Rather than query the fluid state from the container as we just did with the block state, we can
-                    // simply ask the block state we retrieved what fluid it has. This is exactly what the call would
-                    // do anyways, except that it would have to retrieve the block state a second time, adding overhead.
-                    FluidState fluidState = blockState.getFluidState();
+                    // If the block state is air, it cannot have fluid or any kind of resistance, so just leave
+                    if (blockState.getBlock() != Blocks.AIR) {
+                        // Rather than query the fluid state from the container as we just did with the block state, we can
+                        // simply ask the block state we retrieved what fluid it has. This is exactly what the call would
+                        // do anyways, except that it would have to retrieve the block state a second time, adding overhead.
+                        FluidState fluidState = blockState.getFluidState();
 
-                    // Get the explosion resistance like vanilla
-                    Optional<Float> blastResistance = this.behavior.getBlastResistance((Explosion) (Object) this, this.world, pos, blockState, fluidState);
-                    // Calculate how much this block will resist an explosion's ray
-                    if (blastResistance.isPresent()) {
-                        totalResistance = (blastResistance.get() + 0.3F) * 0.3F;
+                        // Get the explosion resistance like vanilla
+                        blastResistance = this.behavior.getBlastResistance((Explosion) (Object) this, this.world, pos, blockState, fluidState);
+                        break labelGetBlastResistance;
                     }
                 }
             }
+            blastResistance = this.behavior.getBlastResistance((Explosion) (Object) this, this.world, pos, Blocks.AIR.getDefaultState(), Fluids.EMPTY.getDefaultState());
+        }
+        // Calculate how much this block will resist an explosion's ray
+        if (blastResistance.isPresent()) {
+            totalResistance = (blastResistance.get() + 0.3F) * 0.3F;
         }
 
         // Check if this ray is still strong enough to break blocks, and if so, add this position to the set
