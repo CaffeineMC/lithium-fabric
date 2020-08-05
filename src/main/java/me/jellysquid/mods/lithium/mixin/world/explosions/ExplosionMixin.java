@@ -198,7 +198,7 @@ public abstract class ExplosionMixin {
     }
 
     /**
-     * Called for every step made by a ray being cast by an explosion. fai
+     * Called for every step made by a ray being cast by an explosion.
      * @param strength The strength of the ray during this step
      * @param blockX The x-coordinate of the block the ray is inside of
      * @param blockY The y-coordinate of the block the ray is inside of
