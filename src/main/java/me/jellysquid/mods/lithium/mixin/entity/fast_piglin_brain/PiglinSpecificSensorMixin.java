@@ -9,8 +9,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.mob.HoglinEntity;
@@ -32,19 +35,15 @@ import net.minecraft.entity.ai.brain.sensor.PiglinSpecificSensor;
 public class PiglinSpecificSensorMixin {
 
     @Overwrite
-    protected void sense(ServerWorld world, LivingEntity entity) {
-        world.getProfiler().push("Piglin Sensing");
-
+    public void sense(ServerWorld world, LivingEntity entity) {
         Brain<?> brain = entity.getBrain();
         brain.remember(MemoryModuleType.NEAREST_REPELLENT, findSoulFire(world, entity));
         List<PiglinEntity> visableAdultPiglins = Lists.newArrayList();
-        List<PiglinEntity> allAdultPiglins = Lists.newArrayList();
 
         // This list appears to be sorted from nearest to furthest
         List<LivingEntity> allVisibleMobs = (List)brain.getOptionalMemory(MemoryModuleType.VISIBLE_MOBS).orElse(ImmutableList.of());
 
         int visibleHoglinCount = 0;
-        boolean isAdult;
 
         // prevent allocations and tons of calls each time through the loop
         boolean foundHuntableHoglin = false;
@@ -58,35 +57,32 @@ public class PiglinSpecificSensorMixin {
         for(LivingEntity currentLivingEntity : allVisibleMobs) {
             // avoid many calls to isBaby() and just inline by hand to make sure
 
-            isAdult = !currentLivingEntity.isBaby();
-
-                // check if entity is a hoglin
-                if(currentLivingEntity instanceof HoglinEntity)  {
-                    if(isAdult) {
-                        visibleHoglinCount++;
-                        if(!foundHuntableHoglin && ((HoglinEntity)currentLivingEntity).canBeHunted()) {
-                            brain.remember(MemoryModuleType.NEAREST_VISIBLE_HUNTABLE_HOGLIN, Optional.of((HoglinEntity)currentLivingEntity));
-                            foundHuntableHoglin = true;
-                        }
-                    } else {
-                        if(!foundBabyHoglin) {
-                            brain.remember(MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN, Optional.of((HoglinEntity)currentLivingEntity));
-                        }
-                    }
+            if(currentLivingEntity.isBaby()) {
+                // check for hoglins
+                if(!foundBabyHoglin && currentLivingEntity instanceof HoglinEntity)  {
+                    brain.remember(MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN, Optional.of((HoglinEntity)currentLivingEntity));
                     continue;
                 }
 
-                // check if entity is a piglin
-                else if(currentLivingEntity instanceof PiglinEntity) {
-                    if(isAdult) {
-                        visableAdultPiglins.add((PiglinEntity)currentLivingEntity);
-                    } else if(!foundBabyPiglin) {
-                        brain.remember(MemoryModuleType.NEAREST_VISIBLE_BABY_PIGLIN, Optional.of((PiglinEntity)currentLivingEntity));
+                else if(!foundBabyPiglin && currentLivingEntity instanceof PiglinEntity) {
+                    brain.remember(MemoryModuleType.NEAREST_VISIBLE_BABY_PIGLIN, Optional.of((PiglinEntity)currentLivingEntity));
+                    continue;
+                }
+            } else {
+
+                if(currentLivingEntity instanceof PiglinEntity) {
+                    visableAdultPiglins.add((PiglinEntity)currentLivingEntity);
+                    continue;
+
+                } else if(currentLivingEntity instanceof HoglinEntity)  {
+                    visibleHoglinCount++;
+                    if(!foundHuntableHoglin && ((HoglinEntity)currentLivingEntity).canBeHunted()) {
+                        brain.remember(MemoryModuleType.NEAREST_VISIBLE_HUNTABLE_HOGLIN, Optional.of((HoglinEntity)currentLivingEntity));
+                        foundHuntableHoglin = true;
                     }
                     continue;
                 }
-
-                // check if entity is a player
+                
                 else if(currentLivingEntity instanceof PlayerEntity) {
                     if(!foundAttackablePlayer && EntityPredicates.EXCEPT_CREATIVE_SPECTATOR_OR_PEACEFUL.test(currentLivingEntity) && !PiglinBrain.wearsGoldArmor((PlayerEntity)currentLivingEntity)) {
                         brain.remember(MemoryModuleType.NEAREST_TARGETABLE_PLAYER_NOT_WEARING_GOLD, (PlayerEntity)currentLivingEntity);
@@ -98,33 +94,31 @@ public class PiglinSpecificSensorMixin {
                     continue;
                 }
 
-                // check if entity is Zombified Piglin
-                else if(currentLivingEntity instanceof ZombifiedPiglinEntity) {
-                    if(!foundZombifiedPiglin) {
-                        brain.remember(MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED, (ZombifiedPiglinEntity)currentLivingEntity);
-                        foundZombifiedPiglin = true;
-                    }
+                // check if entity is zombified piglin
+                else if(!foundZombifiedPiglin && currentLivingEntity instanceof ZombifiedPiglinEntity) {
+                    brain.remember(MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED, (ZombifiedPiglinEntity)currentLivingEntity);
+                    foundZombifiedPiglin = true;
+                    continue;
                 }
 
                 // check if entity can be a nemisis
-                else if(currentLivingEntity instanceof WitherEntity || currentLivingEntity instanceof WitherEntity) {
-                    if(!foundNemisis) {
-                        brain.remember(MemoryModuleType.NEAREST_VISIBLE_NEMESIS, (MobEntity)currentLivingEntity);
-                        foundNemisis = true;
-                    }
+                else if(!foundNemisis && currentLivingEntity instanceof WitherEntity || currentLivingEntity instanceof WitherEntity) {
+                    brain.remember(MemoryModuleType.NEAREST_VISIBLE_NEMESIS, (MobEntity)currentLivingEntity);
+                    foundNemisis = true;
+                    continue;
                 }
-                
-            }
 
-            // finish adding memories
-            brain.remember(MemoryModuleType.NEAREST_ADULT_PIGLINS, allAdultPiglins);
-            brain.remember(MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT, allAdultPiglins.size());
-            brain.remember(MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, visibleHoglinCount);
+
+            }
             
         }
-            
-        
 
+        // finish adding memories
+        brain.remember(MemoryModuleType.NEAREST_ADULT_PIGLINS, visableAdultPiglins);
+        brain.remember(MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT, visableAdultPiglins.size());
+        brain.remember(MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, visibleHoglinCount);
+    }
+            
     @Shadow
     private static Optional<BlockPos> findSoulFire(ServerWorld world, LivingEntity entity) {
         return null;

@@ -61,6 +61,7 @@
         "entity.replace_entitytype_predicates.ItemFrameEntityMixin",
         "entity.stream_entity_collisions_lazily.EntityMixin",
         "entity.fast_piglin_brain.PiglinBrainMixin",
+        "entity.fast_piglin_brain.PiglinSpecificSensorMixin",
         "gen.biome_noise_cache.BiomeLayerSamplerMixin",
         "gen.biome_noise_cache.CachingLayerContextMixin",
         "gen.biome_noise_cache.ParentedLayerMixin",
