@@ -68,7 +68,7 @@ public abstract class FindEntityTaskMixin<E extends LivingEntity, T extends Livi
      * @author Maity
      */
     @Overwrite
-    protected void run(ServerWorld world, E self, long time) {
+    public void run(ServerWorld world, E self, long time) {
         Brain<?> brain = self.getBrain();
 
         List<LivingEntity> visibleMobs = brain.getOptionalMemory(MemoryModuleType.VISIBLE_MOBS)
@@ -83,8 +83,10 @@ public abstract class FindEntityTaskMixin<E extends LivingEntity, T extends Livi
                 continue;
             }
 
-            if (this.method_24583(mob)) {
+            //noinspection unchecked
+            if (this.predicate.test((T) mob)) {
                 // [VanillaCopy]
+                //noinspection unchecked
                 brain.remember(this.targetModule, Optional.of((T) mob));
                 brain.remember(MemoryModuleType.LOOK_TARGET, new EntityLookTarget(mob, true));
                 brain.remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityLookTarget(mob, false), this.speed, this.completionRange));

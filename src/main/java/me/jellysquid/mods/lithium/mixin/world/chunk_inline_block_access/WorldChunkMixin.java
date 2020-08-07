@@ -49,7 +49,7 @@ public class WorldChunkMixin {
 
     /**
      * @reason Reduce method size to help the JVM inline
-     * @author JellySquid
+     * @author JellySquid, Maity
      */
     @Overwrite
     public FluidState getFluidState(int x, int y, int z) {

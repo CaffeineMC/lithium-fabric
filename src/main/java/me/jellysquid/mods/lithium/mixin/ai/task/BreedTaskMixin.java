@@ -27,25 +27,21 @@ public class BreedTaskMixin {
      */
     @Overwrite
     private Optional<? extends AnimalEntity> findBreedTarget(AnimalEntity entity) {
-        Brain<?> brain = entity.getBrain();
-
         List<LivingEntity> visibleMobs = entity.getBrain().getOptionalMemory(MemoryModuleType.VISIBLE_MOBS)
                 .orElse(Collections.emptyList());
 
         AnimalEntity ret = null;
 
         for (LivingEntity mob : visibleMobs) {
-            if (mob == null || mob.getType() != this.targetType) {
+            if (mob.getType() != this.targetType) {
                 continue;
             }
 
-            if (mob instanceof AnimalEntity) {
-                AnimalEntity animal = (AnimalEntity) mob;
+            AnimalEntity animal = (AnimalEntity) mob;
 
-                if (entity.canBreedWith(animal)) {
-                    ret = animal;
-                    break;
-                }
+            if (entity.canBreedWith(animal)) {
+                ret = animal;
+                break;
             }
         }
 
