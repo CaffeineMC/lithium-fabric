@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.world.fast_island_noise;
 
 import me.jellysquid.mods.lithium.common.world.noise.SimplexNoiseCache;
+import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
 import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,8 +12,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.util.math.noise.SimplexNoiseSampler;
 import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.gen.chunk.ChunkGeneratorType;
-
 import java.util.function.Supplier;
 
 @Mixin(NoiseChunkGenerator.class)
@@ -23,7 +22,7 @@ public class MixinNoiseChunkGenerator {
     private ThreadLocal<SimplexNoiseCache> tlCache;
 
     @Inject(method = "Lnet/minecraft/world/gen/chunk/NoiseChunkGenerator;<init>(Lnet/minecraft/world/biome/source/BiomeSource;Lnet/minecraft/world/biome/source/BiomeSource;JLjava/util/function/Supplier;)V", at = @At("RETURN"))
-    private void hookConstructor(BiomeSource biomeSource, BiomeSource biomeSource2, long worldSeed, Supplier<ChunkGeneratorType> supplier, CallbackInfo ci) {
+    private void hookConstructor(BiomeSource biomeSource, BiomeSource biomeSource2, long worldSeed, Supplier<ChunkGeneratorSettings> supplier, CallbackInfo ci) {
         tlCache = ThreadLocal.withInitial(() -> new SimplexNoiseCache(this.islandNoise));
     }
 

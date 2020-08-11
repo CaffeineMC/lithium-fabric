@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.mixin.gen.fast_multi_source_biomes;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.util.math.noise.DoublePerlinNoiseSampler;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.Biomes;
 import net.minecraft.world.biome.source.MultiNoiseBiomeSource;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -10,6 +11,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 @Mixin(MultiNoiseBiomeSource.class)
 public class MultiNoiseBiomeSourceMixin {
@@ -35,7 +37,7 @@ public class MultiNoiseBiomeSourceMixin {
 
     @Shadow
     @Final
-    private List<Pair<Biome.MixedNoisePoint, Biome>> biomePoints;
+    private List<Pair<Biome.MixedNoisePoint, Supplier<Biome>>> biomePoints;
 
     /**
      * @reason Remove stream based code in favor of regular collections.
@@ -71,6 +73,6 @@ public class MultiNoiseBiomeSourceMixin {
         }
 
         // Return the biome with the noise point closest to the evaluated one.
-        return biomePoints.get(idx).getSecond();
+        return biomePoints.get(idx).getSecond().get() == null ? Biomes.THE_VOID : biomePoints.get(idx).getSecond().get();
     }
 }
