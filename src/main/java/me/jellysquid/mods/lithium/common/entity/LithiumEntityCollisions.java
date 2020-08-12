@@ -123,11 +123,11 @@ public class LithiumEntityCollisions {
                     }
 
                     /**
-                     * method_30948 returns false by default, designed to be overridden by entities whose collisions
-                     * should be "hard" (boats and shulkers, for now).
+                     * {@link Entity#method_30948} returns false by default, designed to be overridden by
+                     * entities whose collisions should be "hard" (boats and shulkers, for now).
                      * 
-                     * method_30949 only allows hard collisions if the calling entity is not riding otherEntity as a
-                     * vehicle.
+                     * {@link Entity#method_30949} only allows hard collisions if the calling entity is not riding
+                     * otherEntity as a vehicle.
                      */
                     if (entity == null) {
                         if (!otherEntity.method_30948()) {
