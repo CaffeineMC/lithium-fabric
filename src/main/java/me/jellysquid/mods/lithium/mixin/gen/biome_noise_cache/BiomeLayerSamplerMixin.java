@@ -45,13 +45,13 @@ public abstract class BiomeLayerSamplerMixin {
         if (registryKey == null) {
             throw new IllegalStateException("Unknown biome id emitted by layers: " + k);
         } else {
-            Biome biome = (Biome)registry.get(registryKey);
+            Biome biome = registry.get(registryKey);
             if (biome == null) {
                 if (SharedConstants.isDevelopment) {
-                    throw (IllegalStateException) Util.throwOrPause(new IllegalStateException("Unknown biome id: " + k));
+                    throw Util.throwOrPause(new IllegalStateException("Unknown biome id: " + k));
                 } else {
-                    LOGGER.warn("Unknown biome id: ", k);
-                    return (Biome)registry.get(Biomes.fromRawId(0));
+                    LOGGER.warn("Unknown biome id: {}", k);
+                    return registry.get(Biomes.fromRawId(0));
                 }
             } else {
                 return biome;
