@@ -20,7 +20,7 @@ public class MixinTheEndBiomeSource {
     private SimplexNoiseSampler noise;
     private ThreadLocal<SimplexNoiseCache> tlCache;
 
-    @Inject(method = "Lnet/minecraft/world/biome/source/TheEndBiomeSource;<init>(Lnet/minecraft/util/registry/Registry;JLnet/minecraft/world/biome/Biome;Lnet/minecraft/world/biome/Biome;Lnet/minecraft/world/biome/Biome;Lnet/minecraft/world/biome/Biome;Lnet/minecraft/world/biome/Biome;)V",
+    @Inject(method = "<init>(Lnet/minecraft/util/registry/Registry;JLnet/minecraft/world/biome/Biome;Lnet/minecraft/world/biome/Biome;Lnet/minecraft/world/biome/Biome;Lnet/minecraft/world/biome/Biome;Lnet/minecraft/world/biome/Biome;)V",
             at = @At("RETURN"))
     private void hookConstructor(Registry<Biome> registry, long seed, Biome biome, Biome biome2, Biome biome3, Biome biome4, Biome biome5, CallbackInfo ci) {
         tlCache = ThreadLocal.withInitial(() -> new SimplexNoiseCache(this.noise));

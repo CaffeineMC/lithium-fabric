@@ -21,7 +21,7 @@ public class MixinNoiseChunkGenerator {
     private SimplexNoiseSampler islandNoise;
     private ThreadLocal<SimplexNoiseCache> tlCache;
 
-    @Inject(method = "Lnet/minecraft/world/gen/chunk/NoiseChunkGenerator;<init>(Lnet/minecraft/world/biome/source/BiomeSource;Lnet/minecraft/world/biome/source/BiomeSource;JLjava/util/function/Supplier;)V", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/world/biome/source/BiomeSource;Lnet/minecraft/world/biome/source/BiomeSource;JLjava/util/function/Supplier;)V", at = @At("RETURN"))
     private void hookConstructor(BiomeSource biomeSource, BiomeSource biomeSource2, long worldSeed, Supplier<ChunkGeneratorSettings> supplier, CallbackInfo ci) {
         tlCache = ThreadLocal.withInitial(() -> new SimplexNoiseCache(this.islandNoise));
     }
