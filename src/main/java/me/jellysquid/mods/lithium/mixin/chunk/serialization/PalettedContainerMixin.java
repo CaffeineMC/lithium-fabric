@@ -93,7 +93,6 @@ public abstract class PalettedContainerMixin<T> {
         // If we aren't going to use an empty data array, start a compaction
         if (dataArray == null) {
             LithiumHashPalette<T> compactedPalette = new LithiumHashPalette<>(this.idList, this.paletteSize, null, this.elementDeserializer, this.elementSerializer);
-            compactedPalette.getIndex(this.defaultValue);
 
             short[] array = cachedCompactionArrays.get();
             ((CompactingPackedIntegerArray) this.data).compact(this.palette, compactedPalette, array);
