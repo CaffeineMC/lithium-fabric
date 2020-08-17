@@ -93,6 +93,7 @@ public class LithiumConfig {
         this.addMixinRule("world.mob_spawning", true);
         this.addMixinRule("world.player_chunk_tick", true);
         this.addMixinRule("world.tick_scheduler", true);
+        this.addMixinRule("world.tile_ticking", true);
     }
 
     /**
