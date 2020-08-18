@@ -14,100 +14,100 @@ import java.util.stream.Stream;
  * @author Maity
  */
 public class HashSetBackedList<E> implements List<E> {
-    private final Collection<E> backedC;
+    private final Collection<E> backedCollection;
 
     public HashSetBackedList() {
-        this.backedC = new HashSet<>();
+        this.backedCollection = new HashSet<>();
     }
 
     @Override
     public int size() {
-        return this.backedC.size();
+        return this.backedCollection.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return this.backedC.isEmpty();
+        return this.backedCollection.isEmpty();
     }
 
     @Override
     public boolean contains(Object o) {
-        return this.backedC.contains(o);
+        return this.backedCollection.contains(o);
     }
 
     @Override
     public Iterator<E> iterator() {
-        return this.backedC.iterator();
+        return this.backedCollection.iterator();
     }
 
     @Override
     public void forEach(Consumer<? super E> action) {
-        this.backedC.forEach(action);
+        this.backedCollection.forEach(action);
     }
 
     @Override
     public Object[] toArray() {
-        return this.backedC.toArray();
+        return this.backedCollection.toArray();
     }
 
     @Override
     public <T> T[] toArray(T[] a) {
-        return this.backedC.toArray(a);
+        return this.backedCollection.toArray(a);
     }
 
     @Override
     public boolean add(E e) {
-        return this.backedC.add(e);
+        return this.backedCollection.add(e);
     }
 
     @Override
     public boolean remove(Object o) {
-        return this.backedC.remove(o);
+        return this.backedCollection.remove(o);
     }
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        return this.backedC.containsAll(c);
+        return this.backedCollection.containsAll(c);
     }
 
     @Override
     public boolean addAll(Collection<? extends E> c) {
-        return this.backedC.addAll(c);
+        return this.backedCollection.addAll(c);
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return this.backedC.removeAll(c);
+        return this.backedCollection.removeAll(c);
     }
 
     @Override
     public boolean removeIf(Predicate<? super E> filter) {
-        return this.backedC.removeIf(filter);
+        return this.backedCollection.removeIf(filter);
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return this.backedC.retainAll(c);
+        return this.backedCollection.retainAll(c);
     }
 
     @Override
     public void clear() {
-        this.backedC.clear();
+        this.backedCollection.clear();
     }
 
     @Override
     public Spliterator<E> spliterator() {
-        return this.backedC.spliterator();
+        return this.backedCollection.spliterator();
     }
 
     @Override
     public Stream<E> stream() {
-        return this.backedC.stream();
+        return this.backedCollection.stream();
     }
 
     @Override
     public Stream<E> parallelStream() {
-        return this.backedC.parallelStream();
+        return this.backedCollection.parallelStream();
     }
 
     @Override
@@ -172,16 +172,16 @@ public class HashSetBackedList<E> implements List<E> {
 
     @Override
     public final int hashCode() {
-        return this.backedC.hashCode();
+        return this.backedCollection.hashCode();
     }
 
     @Override
     public final boolean equals(Object o) {
-        return this.backedC.equals(o);
+        return this.backedCollection.equals(o);
     }
 
     @Override
     public final String toString() {
-        return this.backedC.toString();
+        return this.backedCollection.toString();
     }
 }
