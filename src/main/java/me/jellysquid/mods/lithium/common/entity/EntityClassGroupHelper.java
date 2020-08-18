@@ -29,10 +29,10 @@ public class EntityClassGroupHelper {
      */
     public static List<Entity> getEntitiesWithCollisionBoxForEntity(EntityView entityView, Box selection, Entity entity) {
         if (CUSTOM_TYPE_FILTERABLE_LIST_DISABLED || entity != null && EntityClassGroup.HARD_COLLISION_BOX_OVERRIDE.contains(entity.getClass()) || !(entityView instanceof World)) {
-            //use vanilla code when getHardCollisionBox(Entity other) is overwritten, as every entity could be relevant as argument of getHardCollisionBox
-            return entityView.getEntities(entity, selection);
+            //use vanilla code when method_30949 (previously getHardCollisionBox(Entity other)) is overwritten, as every entity could be relevant as argument of getHardCollisionBox
+            return entityView.getOtherEntities(entity, selection);
         } else {
-            //only get entities that overwrite getCollisionBox
+            //only get entities that overwrite method_30948 (previously getCollisionBox)
             return WorldHelper.getEntitiesOfClassGroup((World)entityView, entity, EntityClassGroup.COLLISION_BOX_OVERRIDE, selection, EXCEPT_SPECTATOR);
         }
     }

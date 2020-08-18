@@ -44,6 +44,7 @@
         "block.flatten_states.FluidStateMixin",
         "block.piston_shapes.PistonHeadBlockMixin",
         "cached_hashcode.BlockNeighborGroupMixin",
+        "chunk.collidableEntityList.TypeFilterableListMixin",
         "chunk.count_oversized_blocks.MixinChunkSection",
         "chunk.no_locking.PalettedContainerMixin",
         "chunk.palette.PalettedContainerMixin",

@@ -13,6 +13,7 @@ import net.minecraft.world.chunk.WorldChunk;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class WorldHelper {
 
@@ -23,10 +24,10 @@ public class WorldHelper {
      */
     public static List<Entity> getEntitiesOfClassGroup(World world, Entity excluded, EntityClassGroup type, Box box_1, Predicate<Entity> predicate_1) {
         world.getProfiler().visit("getEntities");
-        int int_1 = MathHelper.floor((box_1.x1 - 2.0D) / 16.0D);
-        int int_2 = MathHelper.ceil((box_1.x2 + 2.0D) / 16.0D);
-        int int_3 = MathHelper.floor((box_1.z1 - 2.0D) / 16.0D);
-        int int_4 = MathHelper.ceil((box_1.z2 + 2.0D) / 16.0D);
+        int int_1 = MathHelper.floor((box_1.minX - 2.0D) / 16.0D);
+        int int_2 = MathHelper.ceil((box_1.maxX + 2.0D) / 16.0D);
+        int int_3 = MathHelper.floor((box_1.minZ - 2.0D) / 16.0D);
+        int int_4 = MathHelper.ceil((box_1.maxZ + 2.0D) / 16.0D);
         List<Entity> list_1 = Lists.newArrayList();
         ChunkManager chunkManager_1 = world.getChunkManager();
 
@@ -47,12 +48,13 @@ public class WorldHelper {
      */
     public static void getEntitiesOfClassGroup(WorldChunk worldChunk, Entity excluded, EntityClassGroup type, Box box_1, List<Entity> list_1, Predicate<Entity> predicate_1) {
         TypeFilterableList<Entity>[] entitySections = worldChunk.getEntitySectionArray();
-        int int_1 = MathHelper.floor((box_1.y1 - 2.0D) / 16.0D);
-        int int_2 = MathHelper.floor((box_1.y2 + 2.0D) / 16.0D);
+        int int_1 = MathHelper.floor((box_1.minY - 2.0D) / 16.0D);
+        int int_2 = MathHelper.floor((box_1.maxY + 2.0D) / 16.0D);
         int_1 = MathHelper.clamp(int_1, 0, entitySections.length - 1);
         int_2 = MathHelper.clamp(int_2, 0, entitySections.length - 1);
 
         for(int int_3 = int_1; int_3 <= int_2; ++int_3) {
+            //noinspection rawtypes
             for(Object entity_1 : ((ClassGroupFilterableList)entitySections[int_3]).getAllOfGroupType(type)) {
                 if (entity_1 != excluded && ((Entity)entity_1).getBoundingBox().intersects(box_1) && (predicate_1 == null || predicate_1.test((Entity)entity_1))) {
                     list_1.add((Entity)entity_1);

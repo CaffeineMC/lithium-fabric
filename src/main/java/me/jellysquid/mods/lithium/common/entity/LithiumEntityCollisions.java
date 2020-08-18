@@ -111,6 +111,10 @@ public class LithiumEntityCollisions {
             @Override
             public boolean computeNext(Consumer<? super VoxelShape> consumer) {
                 if (this.it == null) {
+                    /*
+                     * In case entity's class is overriding method_30949, all types of entities may be (=> are assumed to be) required.
+                     * Otherwise only get entities that override method_30948 are required, as other entities cannot collide.
+                     */
                     this.it = EntityClassGroupHelper.getEntitiesWithCollisionBoxForEntity(view, box, entity).iterator();
                 }
 
@@ -121,7 +125,7 @@ public class LithiumEntityCollisions {
                         continue;
                     }
 
-                    /**
+                    /*
                      * {@link Entity#method_30948} returns false by default, designed to be overridden by
                      * entities whose collisions should be "hard" (boats and shulkers, for now).
                      *

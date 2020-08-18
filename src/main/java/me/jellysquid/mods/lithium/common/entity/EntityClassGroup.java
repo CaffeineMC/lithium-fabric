@@ -25,7 +25,7 @@ public class EntityClassGroup {
                 while(entityClass != null && entityClass != Entity.class) {
                     try {
                         overwritten = true;
-                        entityClass.getDeclaredMethod("getCollisionBox");
+                        entityClass.getDeclaredMethod("method_30948");
                     } catch (NoSuchMethodException e) {
                         overwritten = false;
                         entityClass = entityClass.getSuperclass();
@@ -43,7 +43,7 @@ public class EntityClassGroup {
             while(entityClass != null && entityClass != Entity.class) {
                 try {
                     overwritten = true;
-                    entityClass.getDeclaredMethod("getHardCollisionBox", Entity.class);
+                    entityClass.getDeclaredMethod("method_30949", Entity.class);
                 } catch (NoSuchMethodException e) {
                     overwritten = false;
                     entityClass = entityClass.getSuperclass();
