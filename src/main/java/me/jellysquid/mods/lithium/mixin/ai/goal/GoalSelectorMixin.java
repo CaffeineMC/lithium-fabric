@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -38,10 +39,34 @@ public abstract class GoalSelectorMixin {
 
     /**
      * Replace the goal set with an optimized collection type which performs better for iteration.
+     *
+     * @author JellySquid
      */
     @Inject(method = "<init>", at = @At("RETURN"))
     private void reinit(Supplier<Profiler> supplier, CallbackInfo ci) {
         this.goals = new ObjectLinkedOpenHashSet<>(this.goals);
+    }
+
+    /**
+     * Uses faster goal removal by using a simple iterator instead of a complex Stream API.
+     *
+     * @reason Remove lambdas and complex stream logic
+     * @author Maity
+     */
+    @Overwrite
+    public void remove(Goal goal) {
+        Iterator<PrioritizedGoal> it = this.goals.iterator();
+
+        while (it.hasNext()) {
+            PrioritizedGoal wrappedGoal = it.next();
+
+            if (wrappedGoal.getGoal() == goal) {
+                if (wrappedGoal.isRunning()) {
+                    wrappedGoal.stop();
+                }
+                it.remove();
+            }
+        }
     }
 
     /**
