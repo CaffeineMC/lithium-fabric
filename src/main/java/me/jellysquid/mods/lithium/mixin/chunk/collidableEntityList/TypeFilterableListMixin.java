@@ -7,14 +7,18 @@ import me.jellysquid.mods.lithium.common.entity.EntityClassGroupHelper;
 import me.jellysquid.mods.lithium.common.world.chunk.ClassGroupFilterableList;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.collection.TypeFilterableList;
-import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Patches {@link TypeFilterableList} to improve performance when entities are being queried in the world.

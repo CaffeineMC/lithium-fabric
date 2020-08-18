@@ -11,7 +11,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkManager;
 import net.minecraft.world.chunk.WorldChunk;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
