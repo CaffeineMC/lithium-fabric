@@ -16,10 +16,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 
 /**
- * Why generate an empty chunk to check for a structure if
- * the chunk's biome cannot generate the structure anyway?
- * Checking the biome first = SPEED!
- *
+ * Why generate an empty chunk to check for a structure if the chunk's biome cannot generate the
+ * structure anyway? Checking the biome first = SPEED!
  * @author TelepathicGrunt
  */
 @Mixin(StructureFeature.class)
@@ -36,16 +34,16 @@ public class StructureFeatureMixin {
     {
         //magic numbers << 2) + 2 and biomeY = 0 taken from ChunkGenerator.setStructureStarts
         //noinspection rawtypes
-        if (worldView.getBiomeForNoiseGen((x << 2) + 2, 0, (z << 2) + 2).getGenerationSettings().hasStructureFeature((StructureFeature) (Object) this))
+        if (worldView.getBiomeForNoiseGen((x << 2) + 2, 0, (z << 2) + 2).getGenerationSettings().hasStructureFeature((StructureFeature) (Object) this)) {
             return worldView.getChunk(x, z, status);
-        else
+        } else {
             return null;
+        }
     }
 
     /**
-     * @reason Can't avoid the call to Chunk.getPos(), and now the
-     * chunk might be null. Send a new (0,0) ChunkPos if so. It
-     * won't be used anyway.
+     * @reason Can't avoid the call to Chunk.getPos(), and now the chunk might be null.
+     * Send a new (0,0) ChunkPos if so. It won't be used anyway.
      * @author MrGrim
      */
     @Redirect(method = "locateStructure", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/Chunk;getPos()Lnet/minecraft/util/math/ChunkPos;", ordinal = 0),
@@ -57,9 +55,8 @@ public class StructureFeatureMixin {
     }
 
     /**
-     * @reason Return null here if the chunk is null. This will
-     * bypass the following if statement allowing the search
-     * to continue.
+     * @reason Return null here if the chunk is null. This will bypass the following if statement
+     * allowing the search to continue.
      * @author MrGrim
      */
     @Redirect(method = "locateStructure", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/StructureAccessor;getStructureStart(Lnet/minecraft/util/math/ChunkSectionPos;Lnet/minecraft/world/gen/feature/StructureFeature;Lnet/minecraft/world/StructureHolder;)Lnet/minecraft/structure/StructureStart;", ordinal = 0),
