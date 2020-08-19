@@ -16,6 +16,11 @@ public class HashedList<T> implements List<T> {
         this.set = set;
     }
 
+    public HashedList(List<T> list) {
+        this.list = list;
+        this.set = new HashSet<>();
+    }
+
     @Override
     public int size() {
         return this.list.size();

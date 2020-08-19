@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking;
 
-import me.jellysquid.mods.lithium.common.util.collections.HashSetBackedList;
+import me.jellysquid.mods.lithium.common.util.collections.HashedList;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.RegistryKey;
@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -47,8 +48,6 @@ public class WorldMixin {
     private void reinitialize(MutableWorldProperties properties, RegistryKey<World> registryKey,
                               final DimensionType dimensionType, Supplier<Profiler> profiler,
                               boolean isClient, boolean isDebugWorld, long seed, CallbackInfo ci) {
-        // Uses a safely wrapper to keep other mods running. However, indexing is not implemented and
-        // because of this, other mods may throw an error. Should we use HashedList?
-        this.unloadedBlockEntities = new HashSetBackedList<>();
+        this.unloadedBlockEntities = new HashedList<>(this.unloadedBlockEntities);
     }
 }
