@@ -11,14 +11,18 @@ public class HashedList<T> implements List<T> {
     private final List<T> list;
     private final Set<T> set;
 
+    public HashedList(List<T> list) {
+        this.list = list;
+        this.set = new HashSet<>(list);
+    }
+
     private HashedList(List<T> list, Set<T> set) {
         this.list = list;
         this.set = set;
     }
 
-    public HashedList(List<T> list) {
-        this.list = list;
-        this.set = new HashSet<>();
+    public static <T> HashedList<T> wrapper(List<T> list) {
+        return new HashedList<>(list, new ObjectArraySet<>(list));
     }
 
     @Override
@@ -164,9 +168,5 @@ public class HashedList<T> implements List<T> {
     @Override
     public List<T> subList(int fromIndex, int toIndex) {
         return this.list.subList(fromIndex, toIndex);
-    }
-
-    public static <T> HashedList<T> wrapper(List<T> list) {
-        return new HashedList<>(list, new ObjectArraySet<>(list));
     }
 }
