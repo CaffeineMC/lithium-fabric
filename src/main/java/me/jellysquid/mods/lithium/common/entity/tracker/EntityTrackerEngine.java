@@ -79,7 +79,8 @@ public class EntityTrackerEngine {
         }
 
         if (this.sectionsByEntity.containsKey(listener)) {
-            throw new IllegalStateException("Adding Entity listener a second time: " + listener.toString());
+
+            throw new IllegalStateException(errorMessageAlreadyListening(this.sectionsByEntity, listener, ChunkSectionPos.from(x,y,z)));
         }
 
         List<TrackedEntityList> all = new ArrayList<>(r * r * r);
@@ -176,6 +177,10 @@ public class EntityTrackerEngine {
         return ChunkSectionPos.asLong(x, y, z);
     }
 
+    private static ChunkSectionPos decode(long xyz) {
+        return ChunkSectionPos.from(xyz);
+    }
+
     private class TrackedEntityList {
         private final Set<LivingEntity> entities = new ReferenceOpenHashSet<>();
         private final Set<NearbyEntityListener> listeners = new ReferenceOpenHashSet<>();
@@ -231,5 +236,27 @@ public class EntityTrackerEngine {
                 EntityTrackerEngine.this.sections.remove(this.key);
             }
         }
+    }
+
+
+    private static String errorMessageAlreadyListening(HashMap<NearbyEntityListener, List<TrackedEntityList>> sectionsByEntity, NearbyEntityListener listener, ChunkSectionPos newLocation) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Adding Entity listener a second time: ").append(listener.toString());
+        builder.append("\n");
+        builder.append(" wants to listen at: ").append(newLocation.toString());
+        builder.append(" with cube radius: ").append(listener.getChunkRange());
+        builder.append("\n");
+        builder.append(" but was already listening at chunk sections: ");
+        String[] comma = new String[]{""};
+        if (sectionsByEntity.get(listener) == null) {
+            builder.append("null");
+        } else {
+            sectionsByEntity.get(listener).forEach(a -> {
+                builder.append(comma[0]);
+                builder.append(decode(a.key).toString());
+                comma[0] = ", ";
+            });
+        }
+        return builder.toString();
     }
 }
