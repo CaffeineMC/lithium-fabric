@@ -83,10 +83,13 @@ public class EntityTrackerEngine {
             throw new IllegalStateException(errorMessageAlreadyListening(this.sectionsByEntity, listener, ChunkSectionPos.from(x,y,z)));
         }
 
-        List<TrackedEntityList> all = new ArrayList<>(r * r * r);
+        int yMin = Math.max(0, y - r);
+        int yMax = Math.min(y + r, 15);
+
+        List<TrackedEntityList> all = new ArrayList<>((2*r+1) * (yMax - yMin +1) * (2*r+1));
 
         for (int x2 = x - r; x2 <= x + r; x2++) {
-            for (int y2 = y - r; y2 <= y + r; y2++) {
+            for (int y2 = yMin; y2 <= yMax; y2++) {
                 for (int z2 = z - r; z2 <= z + r; z2++) {
                     TrackedEntityList list = this.getOrCreateList(x2, y2, z2);
                     list.addListener(listener);
