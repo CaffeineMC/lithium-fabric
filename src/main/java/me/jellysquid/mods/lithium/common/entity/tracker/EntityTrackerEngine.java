@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.common.entity.tracker;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListener;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerProvider;
@@ -9,10 +10,7 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Tracks the entities within a world and provides notifications to listeners when a tracked entity enters or leaves a
@@ -20,8 +18,14 @@ import java.util.Set;
  * provides a sizable boost to performance.
  */
 public class EntityTrackerEngine {
-    private final Long2ObjectOpenHashMap<TrackedEntityList> sections = new Long2ObjectOpenHashMap<>();
-    private final HashMap<NearbyEntityListener, List<TrackedEntityList>> sectionsByEntity = new HashMap<>();
+    private final Long2ObjectOpenHashMap<TrackedEntityList> sections;
+    private final Reference2ReferenceOpenHashMap<NearbyEntityListener, List<TrackedEntityList>> sectionsByEntity;
+
+
+    public EntityTrackerEngine() {
+        this.sections = new Long2ObjectOpenHashMap<>();
+        this.sectionsByEntity = new Reference2ReferenceOpenHashMap<>();
+    }
 
     /**
      * Called when an entity is added to the world.
@@ -242,7 +246,7 @@ public class EntityTrackerEngine {
     }
 
 
-    private static String errorMessageAlreadyListening(HashMap<NearbyEntityListener, List<TrackedEntityList>> sectionsByEntity, NearbyEntityListener listener, ChunkSectionPos newLocation) {
+    private static String errorMessageAlreadyListening(Reference2ReferenceOpenHashMap<NearbyEntityListener, List<TrackedEntityList>> sectionsByEntity, NearbyEntityListener listener, ChunkSectionPos newLocation) {
         StringBuilder builder = new StringBuilder();
         builder.append("Adding Entity listener a second time: ").append(listener.toString());
         builder.append("\n");
