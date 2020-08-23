@@ -9,72 +9,72 @@ abstract class ConcatSpliterator<T, S extends Spliterator<T>>
     protected final S aSpliterator;
     protected final S bSpliterator;
     boolean beforeSplit;
-    final boolean unsized;
+    private final boolean unsized;
 
     public ConcatSpliterator(S aSpliterator, S bSpliterator) {
         this.aSpliterator = aSpliterator;
         this.bSpliterator = bSpliterator;
-        beforeSplit = true;
-        unsized = aSpliterator.estimateSize() + bSpliterator.estimateSize() < 0;
+        this.beforeSplit = true;
+        this.unsized = this.aSpliterator.estimateSize() + this.bSpliterator.estimateSize() < 0;
     }
 
     @Override
     public S trySplit() {
-        @SuppressWarnings("unchecked") final S ret = beforeSplit ? aSpliterator : (S) bSpliterator.trySplit();
-        beforeSplit = false;
+        @SuppressWarnings("unchecked") final S ret = this.beforeSplit ? this.aSpliterator : (S) this.bSpliterator.trySplit();
+        this.beforeSplit = false;
         return ret;
     }
 
     @Override
     public boolean tryAdvance(Consumer<? super T> consumer) {
         boolean hasNext;
-        if (beforeSplit) {
-            hasNext = aSpliterator.tryAdvance(consumer);
+        if (this.beforeSplit) {
+            hasNext = this.aSpliterator.tryAdvance(consumer);
             if (!hasNext) {
-                beforeSplit = false;
-                hasNext = bSpliterator.tryAdvance(consumer);
+                this.beforeSplit = false;
+                hasNext = this.bSpliterator.tryAdvance(consumer);
             }
         } else {
-            hasNext = bSpliterator.tryAdvance(consumer);
+            hasNext = this.bSpliterator.tryAdvance(consumer);
         }
         return hasNext;
     }
 
     @Override
     public void forEachRemaining(Consumer<? super T> consumer) {
-        if (beforeSplit) {
-            aSpliterator.forEachRemaining(consumer);
+        if (this.beforeSplit) {
+            this.aSpliterator.forEachRemaining(consumer);
         }
-        bSpliterator.forEachRemaining(consumer);
+        this.bSpliterator.forEachRemaining(consumer);
     }
 
     @Override
     public long estimateSize() {
-        if (beforeSplit) {
-            final long size = aSpliterator.estimateSize() + bSpliterator.estimateSize();
+        if (this.beforeSplit) {
+            final long size = this.aSpliterator.estimateSize() + this.bSpliterator.estimateSize();
             return (size >= 0) ? size : Long.MAX_VALUE;
         } else {
-            return bSpliterator.estimateSize();
+            return this.bSpliterator.estimateSize();
         }
     }
 
     @Override
     public int characteristics() {
-        return beforeSplit
-                ? (aSpliterator.characteristics() & bSpliterator.characteristics()
+        return this.beforeSplit
+                ? (this.aSpliterator.characteristics() & this.bSpliterator.characteristics()
 
                 & ~(Spliterator.DISTINCT | Spliterator.SORTED
-                | (unsized ? Spliterator.SIZED | Spliterator.SUBSIZED : 0)))
+                | (this.unsized ? Spliterator.SIZED | Spliterator.SUBSIZED : 0)))
 
-                : bSpliterator.characteristics();
+                : this.bSpliterator.characteristics();
     }
 
     @Override
     public Comparator<? super T> getComparator() {
-        if (beforeSplit) {
+        if (this.beforeSplit) {
             throw new IllegalStateException();
         }
-        return bSpliterator.getComparator();
+        return this.bSpliterator.getComparator();
     }
 
     static class OfRef<T> extends ConcatSpliterator<T, Spliterator<T>> {
@@ -93,24 +93,24 @@ abstract class ConcatSpliterator<T, S extends Spliterator<T>>
         @Override
         public boolean tryAdvance(T_CONS action) {
             boolean hasNext;
-            if (beforeSplit) {
-                hasNext = aSpliterator.tryAdvance(action);
+            if (this.beforeSplit) {
+                hasNext = this.aSpliterator.tryAdvance(action);
                 if (!hasNext) {
                     beforeSplit = false;
-                    hasNext = bSpliterator.tryAdvance(action);
+                    hasNext = this.bSpliterator.tryAdvance(action);
                 }
             } else {
-                hasNext = bSpliterator.tryAdvance(action);
+                hasNext = this.bSpliterator.tryAdvance(action);
             }
             return hasNext;
         }
 
         @Override
         public void forEachRemaining(T_CONS action) {
-            if (beforeSplit) {
-                aSpliterator.forEachRemaining(action);
+            if (this.beforeSplit) {
+                this.aSpliterator.forEachRemaining(action);
             }
-            bSpliterator.forEachRemaining(action);
+            this.bSpliterator.forEachRemaining(action);
         }
     }
 
