@@ -38,7 +38,7 @@ public abstract class PointOfInterestStorageMixin extends SerializingRegionBased
         final ChunkSectionPos sectionPos = ChunkSectionPos.from(chunkPos_1, section.getYOffset() >> 4);
         PointOfInterestSet set = this.get(sectionPos.asLong()).orElse(null);
 
-        if(set == null) {
+        if (set == null) {
             if (PointOfInterestTypeHelper.shouldScan(section)) {
                 set = this.getOrCreate(sectionPos.asLong());
                 this.scanAndPopulate(section, sectionPos, set::add);
