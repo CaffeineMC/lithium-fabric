@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.common.entity.tracker;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListener;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerProvider;
@@ -9,10 +10,7 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Tracks the entities within a world and provides notifications to listeners when a tracked entity enters or leaves a
@@ -20,8 +18,14 @@ import java.util.Set;
  * provides a sizable boost to performance.
  */
 public class EntityTrackerEngine {
-    private final Long2ObjectOpenHashMap<TrackedEntityList> sections = new Long2ObjectOpenHashMap<>();
-    private final HashMap<NearbyEntityListener, List<TrackedEntityList>> sectionsByEntity = new HashMap<>();
+    private final Long2ObjectOpenHashMap<TrackedEntityList> sections;
+    private final Reference2ReferenceOpenHashMap<NearbyEntityListener, List<TrackedEntityList>> sectionsByEntity;
+
+
+    public EntityTrackerEngine() {
+        this.sections = new Long2ObjectOpenHashMap<>();
+        this.sectionsByEntity = new Reference2ReferenceOpenHashMap<>();
+    }
 
     /**
      * Called when an entity is added to the world.
@@ -79,13 +83,17 @@ public class EntityTrackerEngine {
         }
 
         if (this.sectionsByEntity.containsKey(listener)) {
-            throw new IllegalStateException("Adding Entity listener a second time: " + listener.toString());
+
+            throw new IllegalStateException(errorMessageAlreadyListening(this.sectionsByEntity, listener, ChunkSectionPos.from(x,y,z)));
         }
 
-        List<TrackedEntityList> all = new ArrayList<>(r * r * r);
+        int yMin = Math.max(0, y - r);
+        int yMax = Math.min(y + r, 15);
+
+        List<TrackedEntityList> all = new ArrayList<>((2*r+1) * (yMax - yMin +1) * (2*r+1));
 
         for (int x2 = x - r; x2 <= x + r; x2++) {
-            for (int y2 = y - r; y2 <= y + r; y2++) {
+            for (int y2 = yMin; y2 <= yMax; y2++) {
                 for (int z2 = z - r; z2 <= z + r; z2++) {
                     TrackedEntityList list = this.getOrCreateList(x2, y2, z2);
                     list.addListener(listener);
@@ -174,6 +182,10 @@ public class EntityTrackerEngine {
         return ChunkSectionPos.asLong(x, y, z);
     }
 
+    private static ChunkSectionPos decode(long xyz) {
+        return ChunkSectionPos.from(xyz);
+    }
+
     private class TrackedEntityList {
         private final Set<LivingEntity> entities = new ReferenceOpenHashSet<>();
         private final Set<NearbyEntityListener> listeners = new ReferenceOpenHashSet<>();
@@ -229,5 +241,27 @@ public class EntityTrackerEngine {
                 EntityTrackerEngine.this.sections.remove(this.key);
             }
         }
+    }
+
+
+    private static String errorMessageAlreadyListening(Reference2ReferenceOpenHashMap<NearbyEntityListener, List<TrackedEntityList>> sectionsByEntity, NearbyEntityListener listener, ChunkSectionPos newLocation) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Adding Entity listener a second time: ").append(listener.toString());
+        builder.append("\n");
+        builder.append(" wants to listen at: ").append(newLocation.toString());
+        builder.append(" with cube radius: ").append(listener.getChunkRange());
+        builder.append("\n");
+        builder.append(" but was already listening at chunk sections: ");
+        String[] comma = new String[]{""};
+        if (sectionsByEntity.get(listener) == null) {
+            builder.append("null");
+        } else {
+            sectionsByEntity.get(listener).forEach(a -> {
+                builder.append(comma[0]);
+                builder.append(decode(a.key).toString());
+                comma[0] = ", ";
+            });
+        }
+        return builder.toString();
     }
 }
