@@ -33,9 +33,9 @@ public class SpawnSettingsMixin {
      */
     @Inject(method = "<init>", at = @At("RETURN"))
     private void reinit(float creatureSpawnProbability, Map<SpawnGroup, List<SpawnSettings.SpawnEntry>> spawners, Map<EntityType<?>, SpawnSettings.SpawnDensity> spawnCosts, boolean playerSpawnFriendly, CallbackInfo ci) {
-        Map<SpawnGroup, List<SpawnSettings.SpawnEntry>> spawns = Maps.newEnumMap(SpawnGroup.class);
+        final Map<SpawnGroup, List<SpawnSettings.SpawnEntry>> spawns = Maps.newEnumMap(SpawnGroup.class);
 
-        for (Map.Entry<SpawnGroup, List<SpawnSettings.SpawnEntry>> entry : this.spawners.entrySet()) {
+        for (final Map.Entry<SpawnGroup, List<SpawnSettings.SpawnEntry>> entry : this.spawners.entrySet()) {
             spawns.put(entry.getKey(), HashedList.wrapper(entry.getValue()));
         }
 

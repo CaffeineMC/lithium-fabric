@@ -170,7 +170,7 @@ public class ChunkAwareBlockCollisionSweeper {
             }
 
             //using < minX and > maxX instead of <= and >= in vanilla, because minX, maxX are the coordinates
-            //of the box that wasn't extended for oversized blocks yet.
+            //of the box that wasn't extended for over-sized blocks yet.
             final int edgesHit = this.sectionOversizedBlocks ?
                     (x < this.minX || x > this.maxX ? 1 : 0) +
                     (y < this.minY || y > this.maxY ? 1 : 0) +
@@ -184,10 +184,10 @@ public class ChunkAwareBlockCollisionSweeper {
 
             if (canInteractWithBlock(state, edgesHit)) {
                 this.pos.set(x, y, z);
-                VoxelShape collisionShape = state.getCollisionShape(this.view, this.pos, this.context);
+                final VoxelShape collisionShape = state.getCollisionShape(this.view, this.pos, this.context);
 
                 if (collisionShape != VoxelShapes.empty()) {
-                    VoxelShape collidedShape = getCollidedShape(this.box, this.shape, collisionShape, x, y, z);
+                    final VoxelShape collidedShape = getCollidedShape(this.box, this.shape, collisionShape, x, y, z);
                     if (collidedShape != null) {
                         return collidedShape;
                     }
@@ -215,20 +215,11 @@ public class ChunkAwareBlockCollisionSweeper {
      */
     private static VoxelShape getCollidedShape(Box entityBox, VoxelShape entityShape, VoxelShape shape, int x, int y, int z) {
         if (shape instanceof VoxelShapeCaster) {
-            if (((VoxelShapeCaster) shape).intersects(entityBox, x, y, z)) {
-                return shape.offset(x, y, z);
-            } else {
-                return null;
-            }
+            return ((VoxelShapeCaster) shape).intersects(entityBox, x, y, z) ? shape.offset(x, y, z) : null;
         }
 
         shape = shape.offset(x, y, z);
-
-        if (VoxelShapes.matchesAnywhere(shape, entityShape, BooleanBiFunction.AND)) {
-            return shape;
-        }
-
-        return null;
+        return VoxelShapes.matchesAnywhere(shape, entityShape, BooleanBiFunction.AND) ? shape : null;
     }
 
     /**
@@ -240,7 +231,7 @@ public class ChunkAwareBlockCollisionSweeper {
             ChunkSection section = chunk.getSectionArray()[chunkY];
             return section != null && ((OversizedBlocksCounter)section).hasOversizedBlocks();
         }
-        return true; //like vanilla, assume that a chunk section has oversized blocks, when the section mixin isn't loaded
+        return true; //like vanilla, assume that a chunk section has over-sized blocks, when the section mixin isn't loaded
     }
     public interface OversizedBlocksCounter {
         boolean hasOversizedBlocks();

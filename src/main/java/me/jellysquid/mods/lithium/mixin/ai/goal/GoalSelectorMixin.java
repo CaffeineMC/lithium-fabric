@@ -96,8 +96,8 @@ public abstract class GoalSelectorMixin {
      * Performs a scan over all currently held controls and releases them if their associated goal is stopped.
      */
     private void cleanupControls() {
-        for (Goal.Control control : CONTROLS) {
-            PrioritizedGoal goal = this.goalsByControl.get(control);
+        for (final Goal.Control control : CONTROLS) {
+            final PrioritizedGoal goal = this.goalsByControl.get(control);
 
             // If the control has been acquired by a goal, check if the goal should still be running
             // If the goal should not be running anymore, release the control held by it
@@ -111,7 +111,7 @@ public abstract class GoalSelectorMixin {
      * Attempts to start all goals which are not-already running, can be started, and have their controls available.
      */
     private void startGoals() {
-        for (PrioritizedGoal goal : this.goals) {
+        for (final PrioritizedGoal goal : this.goals) {
             // Filter out goals which are already running or can't be started
             if (goal.isRunning() || !goal.canStart()) {
                 continue;
@@ -123,8 +123,8 @@ public abstract class GoalSelectorMixin {
             }
 
             // Hand over controls to this goal and stop any goals which depended on those controls
-            for (Goal.Control control : goal.getControls()) {
-                PrioritizedGoal otherGoal = this.getGoalOccupyingControl(control);
+            for (final Goal.Control control : goal.getControls()) {
+                final PrioritizedGoal otherGoal = this.getGoalOccupyingControl(control);
 
                 if (otherGoal != null) {
                     otherGoal.stop();
@@ -144,7 +144,7 @@ public abstract class GoalSelectorMixin {
         this.profiler.get().push("goalTick");
 
         // Tick all currently running goals
-        for (PrioritizedGoal goal : this.goals) {
+        for (final PrioritizedGoal goal : this.goals) {
             if (goal.isRunning()) {
                 goal.tick();
             }
@@ -157,7 +157,7 @@ public abstract class GoalSelectorMixin {
      * Returns true if any controls of the specified goal are disabled.
      */
     private boolean areControlsDisabled(PrioritizedGoal goal) {
-        for (Goal.Control control : goal.getControls()) {
+        for (final Goal.Control control : goal.getControls()) {
             if (this.isControlDisabled(control)) {
                 return true;
             }
@@ -171,12 +171,12 @@ public abstract class GoalSelectorMixin {
      * (acquired by another goal, but eligible for replacement) and not disabled for the entity.
      */
     private boolean areGoalControlsAvailable(PrioritizedGoal goal) {
-        for (Goal.Control control : goal.getControls()) {
+        for (final Goal.Control control : goal.getControls()) {
             if (this.isControlDisabled(control)) {
                 return false;
             }
 
-            PrioritizedGoal occupied = this.getGoalOccupyingControl(control);
+            final PrioritizedGoal occupied = this.getGoalOccupyingControl(control);
 
             if (occupied != null && !occupied.canBeReplacedBy(goal)) {
                 return false;

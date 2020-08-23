@@ -72,7 +72,7 @@ public class EntityTrackerEngine {
     }
 
     private void addListener(int x, int y, int z, NearbyEntityListener listener) {
-        int r = listener.getChunkRange();
+        final int r = listener.getChunkRange();
 
         if (r == 0) {
             return;
@@ -99,9 +99,7 @@ public class EntityTrackerEngine {
     }
 
     private void removeListener(NearbyEntityListener listener) {
-        int r = listener.getChunkRange();
-
-        if (r == 0) {
+        if (listener.getChunkRange() == 0) {
             return;
         }
 
@@ -118,7 +116,7 @@ public class EntityTrackerEngine {
 
     // Faster implementation which avoids removing from/adding to every list twice on an entity move event
     private void moveListener(int aX, int aY, int aZ, int bX, int bY, int bZ, NearbyEntityListener listener) {
-        int radius = listener.getChunkRange();
+        final int radius = listener.getChunkRange();
 
         if (radius == 0) {
             return;
@@ -213,7 +211,7 @@ public class EntityTrackerEngine {
         }
 
         public boolean removeTrackedEntity(LivingEntity entity) {
-            boolean ret = this.entities.remove(entity);
+            final boolean ret = this.entities.remove(entity);
 
             if (ret) {
                 for (NearbyEntityListener listener : this.listeners) {

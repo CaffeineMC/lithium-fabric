@@ -115,7 +115,7 @@ public abstract class PalettedContainerMixin<T> {
             }
         }
 
-        ListTag paletteTag = new ListTag();
+        final ListTag paletteTag = new ListTag();
         palette.toTag(paletteTag);
 
         rootTag.put(paletteKey, paletteTag);
@@ -133,19 +133,19 @@ public abstract class PalettedContainerMixin<T> {
      */
     @Inject(method = "count", at = @At("HEAD"), cancellable = true)
     public void count(PalettedContainer.CountConsumer<T> consumer, CallbackInfo ci) {
-        int len = (1 << this.paletteSize);
+        final int len = (1 << this.paletteSize);
 
         // Do not allocate huge arrays if we're using a large palette
         if (len > 4096) {
             return;
         }
 
-        short[] counts = new short[len];
+        final short[] counts = new short[len];
 
         this.data.forEach(i -> counts[i]++);
 
         for (int i = 0; i < counts.length; i++) {
-            T obj = this.palette.getByIndex(i);
+            final T obj = this.palette.getByIndex(i);
 
             if (obj != null) {
                 consumer.accept(obj, counts[i]);

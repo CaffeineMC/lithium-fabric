@@ -38,14 +38,14 @@ public abstract class BiomeLayerSamplerMixin {
     @Overwrite
     public Biome sample(Registry<Biome> registry, int i, int j) {
         // [VanillaCopy]
-        CachingLayerSampler tlSampler = this.tlSampler.get();
+        final CachingLayerSampler tlSampler = this.tlSampler.get();
 
-        int k = tlSampler.sample(i, j);
-        RegistryKey<Biome> registryKey = BuiltinBiomes.fromRawId(k);
+        final int k = tlSampler.sample(i, j);
+        final RegistryKey<Biome> registryKey = BuiltinBiomes.fromRawId(k);
         if (registryKey == null) {
             throw new IllegalStateException("Unknown biome id emitted by layers: " + k);
         } else {
-            Biome biome = registry.get(registryKey);
+            final Biome biome = registry.get(registryKey);
             if (biome == null) {
                 if (SharedConstants.isDevelopment) {
                     throw Util.throwOrPause(new IllegalStateException("Unknown biome id: " + k));

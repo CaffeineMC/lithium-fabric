@@ -34,7 +34,7 @@ public abstract class AbstractBlockStateMixin {
     private FluidState fluidState = null;
 
     /**
-     * We can't use the ctor as a BlockState will be constructed *before* a Block has fully initialized.
+     * We can't use the actor as a BlockState will be constructed *before* a Block has fully initialized.
      */
     @Inject(method = "initShapeCache", at = @At("HEAD"))
     private void init(CallbackInfo ci) {

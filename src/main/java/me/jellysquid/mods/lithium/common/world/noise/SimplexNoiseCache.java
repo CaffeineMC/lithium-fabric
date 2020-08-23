@@ -42,8 +42,8 @@ public class SimplexNoiseCache {
      */
     private float getDistanceFactor(int x, int z) {
         // Hash key and get index
-        long key = ChunkPos.toLong(x, z);
-        int idx = (int) HashCommon.mix(key) & this.mask;
+        final long key = ChunkPos.toLong(x, z);
+        final int idx = (int) HashCommon.mix(key) & this.mask;
 
         if (this.keys[idx] == key) {
             // Cache hit, return cached value
@@ -55,9 +55,7 @@ public class SimplexNoiseCache {
         // A marker for no value.
         float value = -1.0F;
 
-        long lx = x;
-        long lz = z;
-        long distanceFromOriginSq = lx * lx + lz * lz;
+        final long distanceFromOriginSq = (long) x * (long) x + (long) z * (long) z;
 
         // Ensure we are 64 grid cells away from the origin.
         if (distanceFromOriginSq > 64 * 64) {
@@ -81,12 +79,12 @@ public class SimplexNoiseCache {
     public float getNoiseAt(int x, int z) {
         // [VanillaCopy] TheEndBiomeSource#getNoiseAt
 
-        int gridX = x / GRID_SIZE;
-        int gridZ = z / GRID_SIZE;
+        final int gridX = x / GRID_SIZE;
+        final int gridZ = z / GRID_SIZE;
 
         // This is the "center point", offset to center around the current grid cell
-        int gridOriginX = x % GRID_SIZE;
-        int gridOriginZ = z % GRID_SIZE;
+        final int gridOriginX = x % GRID_SIZE;
+        final int gridOriginZ = z % GRID_SIZE;
 
         // Initialize density for the central island
         float density = ISLAND_RADIUS - MathHelper.sqrt(x * x + z * z) * 8.0F;
@@ -97,19 +95,19 @@ public class SimplexNoiseCache {
         // Iterate through 25x25 grid cells
         for (int offsetX = -12; offsetX <= 12; ++offsetX) {
             for (int offsetZ = -12; offsetZ <= 12; ++offsetZ) {
-                int globalGridX = gridX + offsetX;
-                int globalGridZ = gridZ + offsetZ;
+                final int globalGridX = gridX + offsetX;
+                final int globalGridZ = gridZ + offsetZ;
 
                 // Try to retrieve values from cache
-                float distanceFactor = getDistanceFactor(globalGridX, globalGridZ);
+                final float distanceFactor = getDistanceFactor(globalGridX, globalGridZ);
                 if (distanceFactor != -1.0F) {
                     // Compute the distance to the origin
-                    float deltaX = gridOriginX - offsetX * GRID_SIZE;
-                    float deltaZ = gridOriginZ - offsetZ * GRID_SIZE;
+                    final float deltaX = gridOriginX - offsetX * GRID_SIZE;
+                    final float deltaZ = gridOriginZ - offsetZ * GRID_SIZE;
 
                     // Calculate the density at this grid cell
-                    float scaledDistance = MathHelper.sqrt(deltaX * deltaX + deltaZ * deltaZ) * distanceFactor;
-                    float densityHere = ISLAND_RADIUS - scaledDistance;
+                    final float scaledDistance = MathHelper.sqrt(deltaX * deltaX + deltaZ * deltaZ) * distanceFactor;
+                    final float densityHere = ISLAND_RADIUS - scaledDistance;
 
                     // Try to return early if we're over the max
                     if (densityHere > density) {
@@ -124,10 +122,6 @@ public class SimplexNoiseCache {
         }
 
         // Avoid a call to Math.max because the density cannot be bigger than the max.
-        if (density < MIN) {
-            return MIN;
-        }
-
-        return density;
+        return density < MIN ? MIN : density;
     }
 }

@@ -48,10 +48,10 @@ public class MultiNoiseBiomeSourceMixin {
         // [VanillaCopy] MultiNoiseBiomeSource#getBiomeForNoiseGen
 
         // Get the y value for perlin noise sampling. This field is always set to false in vanilla code.
-        int y = threeDimensionalSampling ? biomeY : 0;
+        final int y = threeDimensionalSampling ? biomeY : 0;
 
         // Calculate the noise point based using 4 perlin noise samplers.
-        Biome.MixedNoisePoint mixedNoisePoint = new Biome.MixedNoisePoint(
+        final Biome.MixedNoisePoint mixedNoisePoint = new Biome.MixedNoisePoint(
                 (float) this.temperatureNoise.sample(biomeX, y, biomeZ),
                 (float) this.humidityNoise.sample(biomeX, y, biomeZ),
                 (float) this.altitudeNoise.sample(biomeX, y, biomeZ),
@@ -63,7 +63,7 @@ public class MultiNoiseBiomeSourceMixin {
 
         // Iterate through the biome points and calculate the distance to the current noise point.
         for (int i = 0; i < biomePoints.size(); i++) {
-            float distance = biomePoints.get(i).getFirst().calculateDistanceTo(mixedNoisePoint);
+            final float distance = biomePoints.get(i).getFirst().calculateDistanceTo(mixedNoisePoint);
 
             // If the distance is less than the recorded minimum, update the minimum and set the current index.
             if (min > distance) {

@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.entity.stream_entity_collisions_lazily;
 
+import me.jellysquid.mods.lithium.common.util.streams.StreamUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.shape.VoxelShape;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,8 +16,8 @@ public class EntityMixin {
      */
     @Redirect(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;",
             at = @At(value = "INVOKE", target = "Ljava/util/stream/Stream;concat(Ljava/util/stream/Stream;Ljava/util/stream/Stream;)Ljava/util/stream/Stream;"))
-    private Stream<VoxelShape> reorderStreams_WorldBorderCollisionsFirst(Stream<? extends VoxelShape> entityShapes, Stream<? extends VoxelShape> blockShapes) {
-        return Stream.concat(blockShapes, entityShapes);
+    private Stream<VoxelShape> reorderStreamsWorldBorderCollisionsFirst(Stream<? extends VoxelShape> entityShapes, Stream<? extends VoxelShape> blockShapes) {
+        return StreamUtil.concat(blockShapes, entityShapes);
     }
 
 
@@ -25,7 +26,7 @@ public class EntityMixin {
      */
     @Redirect(method = "adjustMovementForCollisions(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Lnet/minecraft/world/World;Lnet/minecraft/block/ShapeContext;Lnet/minecraft/util/collection/ReusableStream;)Lnet/minecraft/util/math/Vec3d;",
             at = @At(value = "INVOKE", target = "Ljava/util/stream/Stream;concat(Ljava/util/stream/Stream;Ljava/util/stream/Stream;)Ljava/util/stream/Stream;"))
-    private static Stream<VoxelShape> reorderStreams_BlockCollisionsFirst(Stream<? extends VoxelShape> entityShapes, Stream<? extends VoxelShape> blockShapes){
-        return Stream.concat(blockShapes, entityShapes);
+    private static Stream<VoxelShape> reorderStreamsBlockCollisionsFirst(Stream<? extends VoxelShape> entityShapes, Stream<? extends VoxelShape> blockShapes){
+        return StreamUtil.concat(blockShapes, entityShapes);
     }
 }

@@ -36,11 +36,9 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
     @SuppressWarnings("unchecked")
     @Override
     public void onEntityEnteredRange(LivingEntity entity) {
-        if (!this.clazz.isInstance(entity)) {
-            return;
+        if (this.clazz.isInstance(entity)) {
+            this.nearby.add((T) entity);
         }
-
-        this.nearby.add((T) entity);
     }
 
     @SuppressWarnings("unchecked")
@@ -78,11 +76,7 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
             }
         }
 
-        if (nearestDistance <= this.rangeSq) {
-            return nearest;
-        }
-
-        return null;
+        return nearestDistance <= this.rangeSq ? nearest : null;
     }
 
     @Override

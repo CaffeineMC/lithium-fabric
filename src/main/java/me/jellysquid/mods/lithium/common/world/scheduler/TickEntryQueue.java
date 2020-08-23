@@ -71,6 +71,6 @@ public class TickEntryQueue<T> {
     }
 
     public boolean isEmpty() {
-        return this.size <= 0;
+        return this.size < 1;
     }
 }

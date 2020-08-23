@@ -38,13 +38,13 @@ public abstract class ThreadedAnvilChunkStorageMixin {
     @Overwrite
     @SuppressWarnings("ConstantConditions")
     public boolean isTooFarFromPlayersToSpawnMobs(ChunkPos pos) {
-        long key = pos.toLong();
+        final long key = pos.toLong();
 
         if (!this.ticketManager.method_20800(key)) {
             return true;
         }
 
-        for (ServerPlayerEntity player : ((PlayerChunkWatchingManagerIterable) (Object) this.playerChunkWatchingManager).getPlayers()) {
+        for (final ServerPlayerEntity player : ((PlayerChunkWatchingManagerIterable) (Object) this.playerChunkWatchingManager).getPlayers()) {
             // [VanillaCopy] Only non-spectator players within 128 blocks of the chunk can enable mob spawning
             if (!player.isSpectator() && getSquaredDistance(pos, player) < 16384.0D) {
                 return false;

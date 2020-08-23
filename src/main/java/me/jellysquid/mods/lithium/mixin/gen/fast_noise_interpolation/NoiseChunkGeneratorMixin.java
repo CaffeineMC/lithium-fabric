@@ -9,6 +9,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
+import java.util.Objects;
+
 @Mixin(NoiseChunkGenerator.class)
 public class NoiseChunkGeneratorMixin {
     @Shadow
@@ -41,10 +43,10 @@ public class NoiseChunkGeneratorMixin {
 
         // Calculate interpolation data to decide what noise to sample.
         for (int octave = 0; octave < 8; octave++) {
-            double scaledVerticalScale = verticalStretch * frequency;
-            double scaledY = y * scaledVerticalScale;
+            final double scaledVerticalScale = verticalStretch * frequency;
+            final double scaledY = y * scaledVerticalScale;
 
-            interpolationValue += sampleOctave(this.interpolationNoise.getOctave(octave),
+            interpolationValue += sampleOctave(Objects.requireNonNull(this.interpolationNoise.getOctave(octave)),
                     OctavePerlinNoiseSampler.maintainPrecision(x * horizontalStretch * frequency),
                     OctavePerlinNoiseSampler.maintainPrecision(scaledY),
                     OctavePerlinNoiseSampler.maintainPrecision(z * horizontalStretch * frequency), scaledVerticalScale, scaledY, frequency);
@@ -52,17 +54,17 @@ public class NoiseChunkGeneratorMixin {
             frequency /= 2.0;
         }
 
-        double clampedInterpolation = (interpolationValue / 10.0 + 1.0) / 2.0;
+        final double clampedInterpolation = (interpolationValue / 10.0 + 1.0) / 2.0;
 
         if (clampedInterpolation >= 1) {
             // Sample only upper noise, as the lower noise will be interpolated out.
             frequency = 1.0;
             double noise = 0.0;
             for (int octave = 0; octave < 16; octave++) {
-                double scaledVerticalScale = verticalScale * frequency;
-                double scaledY = y * scaledVerticalScale;
+                final double scaledVerticalScale = verticalScale * frequency;
+                final double scaledY = y * scaledVerticalScale;
 
-                noise += sampleOctave(this.upperInterpolatedNoise.getOctave(octave),
+                noise += sampleOctave(Objects.requireNonNull(this.upperInterpolatedNoise.getOctave(octave)),
                         OctavePerlinNoiseSampler.maintainPrecision(x * horizontalScale * frequency),
                         OctavePerlinNoiseSampler.maintainPrecision(scaledY),
                         OctavePerlinNoiseSampler.maintainPrecision(z * horizontalScale * frequency), scaledVerticalScale, scaledY, frequency);
@@ -76,9 +78,9 @@ public class NoiseChunkGeneratorMixin {
             frequency = 1.0;
             double noise = 0.0;
             for (int octave = 0; octave < 16; octave++) {
-                double scaledVerticalScale = verticalScale * frequency;
-                double scaledY = y * scaledVerticalScale;
-                noise += sampleOctave(this.lowerInterpolatedNoise.getOctave(octave),
+                final double scaledVerticalScale = verticalScale * frequency;
+                final double scaledY = y * scaledVerticalScale;
+                noise += sampleOctave(Objects.requireNonNull(this.lowerInterpolatedNoise.getOctave(octave)),
                         OctavePerlinNoiseSampler.maintainPrecision(x * horizontalScale * frequency),
                         OctavePerlinNoiseSampler.maintainPrecision(scaledY),
                         OctavePerlinNoiseSampler.maintainPrecision(z * horizontalScale * frequency), scaledVerticalScale, scaledY, frequency);
@@ -97,14 +99,14 @@ public class NoiseChunkGeneratorMixin {
 
             for (int octave = 0; octave < 16; octave++) {
                 // Pre calculate these values to share them
-                double scaledVerticalScale = verticalScale * frequency;
-                double scaledY = y * scaledVerticalScale;
-                double xVal = OctavePerlinNoiseSampler.maintainPrecision(x * horizontalScale * frequency);
-                double yVal = OctavePerlinNoiseSampler.maintainPrecision(scaledY);
-                double zVal = OctavePerlinNoiseSampler.maintainPrecision(z * horizontalScale * frequency);
+                final double scaledVerticalScale = verticalScale * frequency;
+                final double scaledY = y * scaledVerticalScale;
+                final double xVal = OctavePerlinNoiseSampler.maintainPrecision(x * horizontalScale * frequency);
+                final double yVal = OctavePerlinNoiseSampler.maintainPrecision(scaledY);
+                final double zVal = OctavePerlinNoiseSampler.maintainPrecision(z * horizontalScale * frequency);
 
-                upperNoise += sampleOctave(this.upperInterpolatedNoise.getOctave(octave), xVal, yVal, zVal, scaledVerticalScale, scaledY, frequency);
-                lowerNoise += sampleOctave(this.lowerInterpolatedNoise.getOctave(octave), xVal, yVal, zVal, scaledVerticalScale, scaledY, frequency);
+                upperNoise += sampleOctave(Objects.requireNonNull(this.upperInterpolatedNoise.getOctave(octave)), xVal, yVal, zVal, scaledVerticalScale, scaledY, frequency);
+                lowerNoise += sampleOctave(Objects.requireNonNull(this.lowerInterpolatedNoise.getOctave(octave)), xVal, yVal, zVal, scaledVerticalScale, scaledY, frequency);
 
                 frequency /= 2.0;
             }

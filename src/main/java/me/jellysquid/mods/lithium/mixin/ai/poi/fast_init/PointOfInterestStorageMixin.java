@@ -35,22 +35,20 @@ public abstract class PointOfInterestStorageMixin extends SerializingRegionBased
      */
     @Overwrite
     public void initForPalette(ChunkPos chunkPos_1, ChunkSection section) {
-        ChunkSectionPos sectionPos = ChunkSectionPos.from(chunkPos_1, section.getYOffset() >> 4);
-
+        final ChunkSectionPos sectionPos = ChunkSectionPos.from(chunkPos_1, section.getYOffset() >> 4);
         PointOfInterestSet set = this.get(sectionPos.asLong()).orElse(null);
 
-        if (set != null) {
+        if(set == null) {
+            if (PointOfInterestTypeHelper.shouldScan(section)) {
+                set = this.getOrCreate(sectionPos.asLong());
+                this.scanAndPopulate(section, sectionPos, set::add);
+            }
+        } else {
             set.updatePointsOfInterest((consumer) -> {
                 if (PointOfInterestTypeHelper.shouldScan(section)) {
                     this.scanAndPopulate(section, sectionPos, consumer);
                 }
             });
-        } else {
-            if (PointOfInterestTypeHelper.shouldScan(section)) {
-                set = this.getOrCreate(sectionPos.asLong());
-
-                this.scanAndPopulate(section, sectionPos, set::add);
-            }
         }
     }
 }

@@ -65,9 +65,9 @@ public class CachingLayerContextMixin implements CloneableContext<CachingLayerSa
 
     @Override
     public LayerSampleContext<CachingLayerSampler> cloneContext() {
-        CachingLayerContext context = new CachingLayerContext(0, 0, 0);
+        final CachingLayerContext context = new CachingLayerContext(0, 0, 0);
 
-        CachingLayerContextMixin access = (CachingLayerContextMixin) (Object) context;
+        final CachingLayerContextMixin access = (CachingLayerContextMixin) (Object) context;
         access.worldSeed = this.worldSeed;
         access.noiseSampler = this.noiseSampler;
 

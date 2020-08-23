@@ -28,16 +28,16 @@ public abstract class StructureAccessorMixin {
      */
     @Overwrite
     public StructureStart<?> getStructureAt(BlockPos blockPos, boolean fine, StructureFeature<?> feature) {
-        Chunk originChunk = this.world.getChunk(blockPos.getX() >> 4, blockPos.getZ() >> 4, ChunkStatus.STRUCTURE_REFERENCES);
+        final Chunk originChunk = this.world.getChunk(blockPos.getX() >> 4, blockPos.getZ() >> 4, ChunkStatus.STRUCTURE_REFERENCES);
 
-        LongSet references = originChunk.getStructureReferences(feature);
-        LongIterator iterator = references.iterator();
+        final LongSet references = originChunk.getStructureReferences(feature);
+        final LongIterator iterator = references.iterator();
 
         while (iterator.hasNext()) {
-            long pos = iterator.nextLong();
+            final long pos = iterator.nextLong();
 
-            Chunk chunk = this.world.getChunk(ChunkPos.getPackedX(pos), ChunkPos.getPackedZ(pos), ChunkStatus.STRUCTURE_STARTS);
-            StructureStart<?> structure = chunk.getStructureStart(feature);
+            final Chunk chunk = this.world.getChunk(ChunkPos.getPackedX(pos), ChunkPos.getPackedZ(pos), ChunkStatus.STRUCTURE_STARTS);
+            final StructureStart<?> structure = chunk.getStructureStart(feature);
 
             if (structure == null || !structure.hasChildren() || !structure.getBoundingBox().contains(blockPos)) {
                 continue;
@@ -52,7 +52,7 @@ public abstract class StructureAccessorMixin {
     }
 
     private boolean anyPieceContainsPosition(StructureStart<?> structure, BlockPos blockPos) {
-        for (StructurePiece piece : structure.getChildren()) {
+        for (final StructurePiece piece : structure.getChildren()) {
             if (piece.getBoundingBox().contains(blockPos)) {
                 return true;
             }

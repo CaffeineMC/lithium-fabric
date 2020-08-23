@@ -47,12 +47,13 @@ public abstract class ChunkRegionMixin {
      */
     @Overwrite
     public BlockState getBlockState(BlockPos pos) {
-        int x = (pos.getX() >> 4) - this.minChunkX;
-        int z = (pos.getZ() >> 4) - this.minChunkZ;
-        int w = this.width;
+        final int x = (pos.getX() >> 4) - this.minChunkX;
+        final int z = (pos.getZ() >> 4) - this.minChunkZ;
+        final int w = this.width;
 
         if (x >= 0 && z >= 0 && x < w && z < w) {
-            return this.chunksArr[x + z * w].getBlockState(pos);
+            final int index = x + z * w;
+            return this.chunksArr[index].getBlockState(pos);
         } else {
             throw new NullPointerException("No chunk exists at " + new ChunkPos(pos));
         }

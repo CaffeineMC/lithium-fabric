@@ -30,12 +30,12 @@ public class VoxelShapesMixin {
             return;
         }
         //here the movement axis must be Axis.Y, and the movement is negative / downwards
-        int x = MathHelper.floor((box.minX + box.maxX) / 2);
-        int y = MathHelper.ceil(box.minY) - 1;
-        int z = MathHelper.floor((box.minZ + box.maxZ) / 2);
-        BlockPos pos = new BlockPos(x,y,z);
+        final int x = MathHelper.floor((box.minX + box.maxX) / 2);
+        final int y = MathHelper.ceil(box.minY) - 1;
+        final int z = MathHelper.floor((box.minZ + box.maxZ) / 2);
+        final BlockPos pos = new BlockPos(x,y,z);
         //[VanillaCopy] collide with the block below the center of the box exactly like vanilla does during block iteration
-        BlockState blockState = world.getBlockState(pos);
+        final BlockState blockState = world.getBlockState(pos);
         movement = blockState.getCollisionShape(world, pos, context).calculateMaxDistance(Direction.Axis.Y, box.offset(-x, -y, -z), movement);
         if (Math.abs(movement) < 1.0E-7D) {
             cir.setReturnValue(0.0D);

@@ -33,10 +33,8 @@ public abstract class SetTagMixin<T> implements Tag<T> {
     private void init(Set<T> set, Class<?> var2, CallbackInfo ci) {
         // Reference equality is safe for tag values
         // Use linear-scanning when the number of items in the tag is small
-        if (this.valueSet.size() <= 3) {
-            this.valueSet = new ReferenceArraySet<>(this.valueSet);
-        } else {
-            this.valueSet = new ReferenceOpenHashSet<>(this.valueSet);
-        }
+        this.valueSet = this.valueSet.size() <= 3
+                ? new ReferenceArraySet<>(this.valueSet)
+                : new ReferenceOpenHashSet<>(this.valueSet);
     }
 }

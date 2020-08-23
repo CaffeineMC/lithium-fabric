@@ -52,13 +52,8 @@ public class LithiumHashPalette<T> implements Palette<T> {
 
     @Override
     public int getIndex(T obj) {
-        int id = this.table.getInt(obj);
-
-        if (id == ABSENT_VALUE) {
-            id = this.computeEntry(obj);
-        }
-
-        return id;
+        final int id = this.table.getInt(obj);
+        return id == ABSENT_VALUE ? this.computeEntry(obj) : id;
     }
 
     private int computeEntry(T obj) {
@@ -76,7 +71,7 @@ public class LithiumHashPalette<T> implements Palette<T> {
     }
 
     private int addEntry(T obj) {
-        int nextId = this.size;
+        final int nextId = this.size;
 
         if (nextId >= this.entries.length) {
             this.resize(this.size);
@@ -107,13 +102,8 @@ public class LithiumHashPalette<T> implements Palette<T> {
 
     @Override
     public T getByIndex(int id) {
-        T[] entries = this.entries;
-
-        if (id >= 0 && id < entries.length) {
-            return entries[id];
-        }
-
-        return null;
+        final T[] entries = this.entries;
+        return id >= 0 && id < entries.length ? entries[id] : null;
     }
 
     @Override
@@ -121,7 +111,7 @@ public class LithiumHashPalette<T> implements Palette<T> {
     public void fromPacket(PacketByteBuf buf) {
         this.clear();
 
-        int entryCount = buf.readVarInt();
+        final int entryCount = buf.readVarInt();
 
         for (int i = 0; i < entryCount; ++i) {
             this.addEntry(this.idList.get(buf.readVarInt()));
@@ -130,7 +120,7 @@ public class LithiumHashPalette<T> implements Palette<T> {
 
     @Override
     public void toPacket(PacketByteBuf buf) {
-        int size = this.size;
+        final int size = this.size;
         buf.writeVarInt(size);
 
         for (int i = 0; i < size; ++i) {

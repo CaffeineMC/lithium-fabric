@@ -84,7 +84,7 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeCaster
     }
 
     private static double calculatePenetration(double a1, double a2, double b1, double b2, double maxDist) {
-        double penetration;
+        final double penetration;
 
         if (maxDist > 0.0D) {
             penetration = a1 - b2;
@@ -171,15 +171,7 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeCaster
 
     @Override
     protected int getCoordIndex(Direction.Axis axis, double coord) {
-        if (coord < this.getMin(axis)) {
-            return -1;
-        }
-
-        if (coord >= this.getMax(axis)) {
-            return 1;
-        }
-
-        return 0;
+        return (coord < this.getMin(axis)) ? -1 : (coord >= this.getMax(axis) ? 1 : 0);
     }
 
     private static boolean lessThan(double a, double b) {

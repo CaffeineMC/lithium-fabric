@@ -25,7 +25,7 @@ public class WorldMixin {
     @Shadow
     @Mutable
     @Final
-    private List<BlockEntity> unloadedBlockEntities;
+    protected List<BlockEntity> unloadedBlockEntities;
 
     /**
      * Re-initializes the collection of unloaded block entities to a more specific optimized version,

@@ -48,9 +48,9 @@ public abstract class FindInteractionTargetTaskMixin extends Task<LivingEntity> 
             return false;
         }
 
-        List<LivingEntity> visibleEntities = this.getVisibleMobs(entity);
+        final List<LivingEntity> visibleEntities = this.getVisibleMobs(entity);
 
-        for (LivingEntity otherEntity : visibleEntities) {
+        for (final LivingEntity otherEntity : visibleEntities) {
             if (this.test(otherEntity)) {
                 return true;
             }
@@ -67,12 +67,12 @@ public abstract class FindInteractionTargetTaskMixin extends Task<LivingEntity> 
     public void run(ServerWorld world, LivingEntity entity, long time) {
         super.run(world, entity, time);
 
-        Brain<?> brain = entity.getBrain();
+        final Brain<?> brain = entity.getBrain();
 
-        List<LivingEntity> visibleEntities = brain.getOptionalMemory(MemoryModuleType.VISIBLE_MOBS)
+        final List<LivingEntity> visibleEntities = brain.getOptionalMemory(MemoryModuleType.VISIBLE_MOBS)
                 .orElse(Collections.emptyList());
 
-        for (LivingEntity otherEntity : visibleEntities) {
+        for (final LivingEntity otherEntity : visibleEntities) {
             if (otherEntity.squaredDistanceTo(entity) > (double) this.maxSquaredDistance) {
                 continue;
             }

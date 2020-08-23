@@ -116,7 +116,7 @@ public class PistonHeadBlockMixin {
     }
 
     private static VoxelShape[] createShape(VoxelShape head, VoxelShape shortArm, VoxelShape arm) {
-        VoxelShape[] shapes = new VoxelShape[2];
+        final VoxelShape[] shapes = new VoxelShape[2];
         shapes[SHORT_IDX] = VoxelShapes.union(head, shortArm);
         shapes[LONG_IDX] = VoxelShapes.union(head, arm);
 

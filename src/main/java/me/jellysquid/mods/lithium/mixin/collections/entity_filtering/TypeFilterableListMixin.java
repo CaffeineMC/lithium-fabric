@@ -35,11 +35,7 @@ public class TypeFilterableListMixin<T> {
     public <S> Collection<S> getAllOfType(Class<S> type) {
         Collection<T> collection = this.elementsByType.get(type);
 
-        if (collection == null) {
-            collection = this.createAllOfType(type);
-        }
-
-        return (Collection<S>) Collections.unmodifiableCollection(collection);
+        return (Collection<S>) (collection == null ? this.createAllOfType(type) : Collections.unmodifiableCollection(collection));
     }
 
     private <S> Collection<T> createAllOfType(Class<S> type) {

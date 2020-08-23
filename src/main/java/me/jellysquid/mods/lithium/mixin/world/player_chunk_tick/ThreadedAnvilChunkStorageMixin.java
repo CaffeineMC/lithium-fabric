@@ -66,18 +66,18 @@ public abstract class ThreadedAnvilChunkStorageMixin {
             }
         }
 
-        int centerX = MathHelper.floor(player.getX()) >> 4;
-        int centerZ = MathHelper.floor(player.getZ()) >> 4;
+        final int centerX = MathHelper.floor(player.getX()) >> 4;
+        final int centerZ = MathHelper.floor(player.getZ()) >> 4;
 
-        ChunkSectionPos cameraPos = player.getCameraPosition();
-        ChunkSectionPos entityPos = ChunkSectionPos.from(player);
+        final ChunkSectionPos cameraPos = player.getCameraPosition();
+        final ChunkSectionPos entityPos = ChunkSectionPos.from(player);
 
-        long cameraPosL = cameraPos.toChunkPos().toLong();
-        long entityPosL = entityPos.toChunkPos().toLong();
+        final long cameraPosL = cameraPos.toChunkPos().toLong();
+        final long entityPosL = entityPos.toChunkPos().toLong();
 
-        boolean isWatchDisabled = this.playerChunkWatchingManager.isWatchDisabled(player);
-        boolean isGeneratingDisabled = this.doesNotGenerateChunks(player);
-        boolean isPlayerMoving = cameraPosL != entityPosL;
+        final boolean isWatchDisabled = this.playerChunkWatchingManager.isWatchDisabled(player);
+        final boolean isGeneratingDisabled = this.doesNotGenerateChunks(player);
+        final boolean isPlayerMoving = cameraPosL != entityPosL;
 
         if (isPlayerMoving || isWatchDisabled != isGeneratingDisabled) {
             this.method_20726(player);
@@ -107,21 +107,21 @@ public abstract class ThreadedAnvilChunkStorageMixin {
             return;
         }
 
-        int cameraCenterX = cameraPos.getSectionX();
-        int cameraCenterZ = cameraPos.getSectionZ();
+        final int cameraCenterX = cameraPos.getSectionX();
+        final int cameraCenterZ = cameraPos.getSectionZ();
 
         // TODO: Only iterate over the differing areas
         if (Math.abs(cameraCenterX - centerX) <= this.watchDistance * 2 && Math.abs(cameraCenterZ - centerZ) <= this.watchDistance * 2) {
-            int minChunkX = Math.min(centerX, cameraCenterX) - this.watchDistance;
-            int minChunkZ = Math.min(centerZ, cameraCenterZ) - this.watchDistance;
+            final int minChunkX = Math.min(centerX, cameraCenterX) - this.watchDistance;
+            final int minChunkZ = Math.min(centerZ, cameraCenterZ) - this.watchDistance;
 
-            int maxChunkX = Math.max(centerX, cameraCenterX) + this.watchDistance;
-            int maxChunkZ = Math.max(centerZ, cameraCenterZ) + this.watchDistance;
+            final int maxChunkX = Math.max(centerX, cameraCenterX) + this.watchDistance;
+            final int maxChunkZ = Math.max(centerZ, cameraCenterZ) + this.watchDistance;
 
             for (int chunkX = minChunkX; chunkX <= maxChunkX; ++chunkX) {
                 for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; ++chunkZ) {
-                    boolean withinMaxWatchDistance = getChebyshevDistance(chunkX, chunkZ, cameraCenterX, cameraCenterZ) <= this.watchDistance;
-                    boolean withinViewDistance = getChebyshevDistance(chunkX, chunkZ, centerX, centerZ) <= this.watchDistance;
+                    final boolean withinMaxWatchDistance = getChebyshevDistance(chunkX, chunkZ, cameraCenterX, cameraCenterZ) <= this.watchDistance;
+                    final boolean withinViewDistance = getChebyshevDistance(chunkX, chunkZ, centerX, centerZ) <= this.watchDistance;
 
                     this.sendWatchPackets$lithium(player, chunkX, chunkZ, this.getCachedWatchPacketsArray(), withinMaxWatchDistance, withinViewDistance);
                 }
@@ -149,10 +149,10 @@ public abstract class ThreadedAnvilChunkStorageMixin {
     private void sendWatchPackets$lithium(ServerPlayerEntity player, int x, int z, Packet<?>[] packets, boolean withinMaxWatchDistance, boolean withinViewDistance) {
         if (withinViewDistance && !withinMaxWatchDistance) {
             // Encode the chunk position directly
-            ChunkHolder holder = this.getChunkHolder(ChunkPos.toLong(x, z));
+            final ChunkHolder holder = this.getChunkHolder(ChunkPos.toLong(x, z));
 
             if (holder != null) {
-                WorldChunk chunk = holder.getWorldChunk();
+                final WorldChunk chunk = holder.getWorldChunk();
 
                 if (chunk != null) {
                     this.sendChunkDataPackets(player, packets, chunk);

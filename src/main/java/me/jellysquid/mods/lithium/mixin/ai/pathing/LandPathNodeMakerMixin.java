@@ -59,12 +59,10 @@ public abstract class LandPathNodeMakerMixin {
             // This is only ever called in vanilla after all other possibilities are exhausted, but before fluid checks
             // It should be safe to perform it last in actuality and take advantage of the cache for fluid types as well
             // since fluids will always pass this check.
-            if (!blockState.canPathfindThrough(blockView, blockPos, NavigationType.LAND)) {
-                return PathNodeType.BLOCKED;
-            }
-
-            // All checks succeed, this path node really is open!
-            return PathNodeType.OPEN;
+            return !blockState.canPathfindThrough(blockView, blockPos, NavigationType.LAND)
+                    ? PathNodeType.BLOCKED
+                    // All checks succeed, this path node really is open!
+                    : PathNodeType.OPEN;
         }
 
         // Return the cached value since we found an obstacle earlier

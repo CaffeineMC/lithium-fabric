@@ -31,7 +31,7 @@ public class ChunkHolderMixin implements ChunkHolderExtended {
 
     @Override
     public boolean updateLastAccessTime(long time) {
-        long prev = this.lastRequestTime;
+        final long prev = this.lastRequestTime;
         this.lastRequestTime = time;
 
         return prev != time;

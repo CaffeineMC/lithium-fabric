@@ -110,19 +110,19 @@ public abstract class ExplosionMixin {
 
         // Explosions work by casting many rays through the world from the origin of the explosion
         for (int rayX = 0; rayX < 16; ++rayX) {
-            boolean xPlane = rayX == 0 || rayX == 15;
+            final boolean xPlane = rayX == 0 || rayX == 15;
 
             for (int rayY = 0; rayY < 16; ++rayY) {
-                boolean yPlane = rayY == 0 || rayY == 15;
+                final boolean yPlane = rayY == 0 || rayY == 15;
 
                 for (int rayZ = 0; rayZ < 16; ++rayZ) {
-                    boolean zPlane = rayZ == 0 || rayZ == 15;
+                    final boolean zPlane = rayZ == 0 || rayZ == 15;
 
                     // We only fire rays from the surface of our origin volume
                     if (xPlane || yPlane || zPlane) {
-                        double vecX = (((float) rayX / 15.0F) * 2.0F) - 1.0F;
-                        double vecY = (((float) rayY / 15.0F) * 2.0F) - 1.0F;
-                        double vecZ = (((float) rayZ / 15.0F) * 2.0F) - 1.0F;
+                        final double vecX = (((float) rayX / 15.0F) * 2.0F) - 1.0F;
+                        final double vecY = (((float) rayY / 15.0F) * 2.0F) - 1.0F;
+                        final double vecZ = (((float) rayZ / 15.0F) * 2.0F) - 1.0F;
 
                         this.performRayCast(random, vecX, vecY, vecZ, touched);
                     }
@@ -133,9 +133,8 @@ public abstract class ExplosionMixin {
         // We can now iterate back over the set of positions we modified and re-build BlockPos objects from them
         // This will only allocate as many objects as there are in the set, where otherwise we would allocate them
         // each step of a every ray.
-        List<BlockPos> affectedBlocks = this.affectedBlocks;
-
-        LongIterator it = touched.iterator();
+        final List<BlockPos> affectedBlocks = this.affectedBlocks;
+        final LongIterator it = touched.iterator();
 
         while (it.hasNext()) {
             affectedBlocks.add(BlockPos.fromLong(it.nextLong()));
@@ -145,11 +144,11 @@ public abstract class ExplosionMixin {
     }
 
     private void performRayCast(Random random, double vecX, double vecY, double vecZ, LongOpenHashSet touched) {
-        double dist = Math.sqrt((vecX * vecX) + (vecY * vecY) + (vecZ * vecZ));
+        final double dist = Math.sqrt((vecX * vecX) + (vecY * vecY) + (vecZ * vecZ));
 
-        double normX = vecX / dist;
-        double normY = vecY / dist;
-        double normZ = vecZ / dist;
+        final double normX = vecX / dist;
+        final double normY = vecY / dist;
+        final double normZ = vecZ / dist;
 
         float strength = this.power * (0.7F + (random.nextFloat() * 0.6F));
 
@@ -206,20 +205,17 @@ public abstract class ExplosionMixin {
      * @return The resistance of the current block space to the ray
      */
     private float traverseBlock(float strength, int blockX, int blockY, int blockZ, LongOpenHashSet touched) {
-        BlockPos pos = this.cachedPos.set(blockX, blockY, blockZ);
+        final BlockPos pos = this.cachedPos.set(blockX, blockY, blockZ);
 
         // Early-exit if the y-coordinate is out of bounds.
         if (World.isHeightInvalid(blockY)) {
-            Optional<Float> blastResistance = this.behavior.getBlastResistance((Explosion) (Object) this, this.world, pos, Blocks.AIR.getDefaultState(), Fluids.EMPTY.getDefaultState());
-            if (blastResistance.isPresent()) {
-                return (blastResistance.get() + 0.3F) * 0.3F;
-            }
-            return 0.0F;
+            final Optional<Float> blastResistance = this.behavior.getBlastResistance((Explosion) (Object) this, this.world, pos, Blocks.AIR.getDefaultState(), Fluids.EMPTY.getDefaultState());
+            return blastResistance.map(aFloat -> (aFloat + 0.3F) * 0.3F).orElse(0.0F);
         }
 
 
-        int chunkX = blockX >> 4;
-        int chunkZ = blockZ >> 4;
+        final int chunkX = blockX >> 4;
+        final int chunkZ = blockZ >> 4;
 
         // Avoid calling into the chunk manager as much as possible through managing chunks locally
         if (this.prevChunkX != chunkX || this.prevChunkZ != chunkZ) {
@@ -233,7 +229,7 @@ public abstract class ExplosionMixin {
 
         BlockState blockState = Blocks.AIR.getDefaultState();
         float totalResistance = 0.0F;
-        Optional<Float> blastResistance;
+        final Optional<Float> blastResistance;
 
         labelGetBlastResistance:
         {
@@ -241,7 +237,7 @@ public abstract class ExplosionMixin {
             if (chunk != null) {
                 // We operate directly on chunk sections to avoid interacting with BlockPos and to squeeze out as much
                 // performance as possible here
-                ChunkSection section = chunk.getSectionArray()[blockY >> 4];
+                final ChunkSection section = chunk.getSectionArray()[blockY >> 4];
 
                 // If the section doesn't exist or it's empty, assume that the block is air
                 if (section != null && !section.isEmpty()) {
@@ -270,7 +266,7 @@ public abstract class ExplosionMixin {
 
         // Check if this ray is still strong enough to break blocks, and if so, add this position to the set
         // of positions to destroy
-        float reducedStrength = strength - totalResistance;
+        final float reducedStrength = strength - totalResistance;
         if (reducedStrength > 0.0F) {
             if (this.behavior.canDestroyBlock((Explosion) (Object) this, this.world, pos, blockState, reducedStrength)) {
                 touched.add(pos.asLong());
@@ -284,23 +280,23 @@ public abstract class ExplosionMixin {
     private void damageEntities() {
         float range = this.power * 2.0F;
 
-        int minX = MathHelper.floor(this.x - (double) range - 1.0D);
-        int maxX = MathHelper.floor(this.x + (double) range + 1.0D);
-        int minY = MathHelper.floor(this.y - (double) range - 1.0D);
-        int maxY = MathHelper.floor(this.y + (double) range + 1.0D);
-        int minZ = MathHelper.floor(this.z - (double) range - 1.0D);
-        int maxZ = MathHelper.floor(this.z + (double) range + 1.0D);
+        final int minX = MathHelper.floor(this.x - (double) range - 1.0D);
+        final int maxX = MathHelper.floor(this.x + (double) range + 1.0D);
+        final int minY = MathHelper.floor(this.y - (double) range - 1.0D);
+        final int maxY = MathHelper.floor(this.y + (double) range + 1.0D);
+        final int minZ = MathHelper.floor(this.z - (double) range - 1.0D);
+        final int maxZ = MathHelper.floor(this.z + (double) range + 1.0D);
 
-        List<Entity> entities = this.world.getOtherEntities(this.entity, new Box(minX, minY, minZ, maxX, maxY, maxZ));
+        final List<Entity> entities = this.world.getOtherEntities(this.entity, new Box(minX, minY, minZ, maxX, maxY, maxZ));
 
-        Vec3d selfPos = new Vec3d(this.x, this.y, this.z);
+        final Vec3d selfPos = new Vec3d(this.x, this.y, this.z);
 
         for (Entity entity : entities) {
             if (entity.isImmuneToExplosion()) {
                 continue;
             }
 
-            double damageScale = MathHelper.sqrt(entity.squaredDistanceTo(selfPos)) / range;
+            final double damageScale = MathHelper.sqrt(entity.squaredDistanceTo(selfPos)) / range;
 
             if (damageScale > 1.0D) {
                 continue;
@@ -322,21 +318,17 @@ public abstract class ExplosionMixin {
             distYSq = distYSq / dist;
             distZSq = distZSq / dist;
 
-            double exposure = getExposure(selfPos, entity);
-            double damage = (1.0D - damageScale) * exposure;
+            final double exposure = getExposure(selfPos, entity);
+            final double damage = (1.0D - damageScale) * exposure;
 
             entity.damage(this.getDamageSource(), (int) (((((damage * damage) + damage) / 2.0D) * 7.0D * (double) range) + 1.0D));
 
-            double knockback = damage;
+            final double velocity = (entity instanceof LivingEntity) ? ProtectionEnchantment.transformExplosionKnockback((LivingEntity) entity, damage) : damage;
 
-            if (entity instanceof LivingEntity) {
-                knockback = ProtectionEnchantment.transformExplosionKnockback((LivingEntity) entity, damage);
-            }
-
-            entity.setVelocity(entity.getVelocity().add(distXSq * knockback, distYSq * knockback, distZSq * knockback));
+            entity.setVelocity(entity.getVelocity().add(distXSq * velocity, distYSq * velocity, distZSq * velocity));
 
             if (entity instanceof PlayerEntity) {
-                PlayerEntity player = (PlayerEntity) entity;
+                final PlayerEntity player = (PlayerEntity) entity;
 
                 if (!player.isSpectator() && (!player.isCreative() || !player.abilities.flying)) {
                     this.affectedPlayers.put(player, new Vec3d(distXSq * damage, distYSq * damage, distZSq * damage));

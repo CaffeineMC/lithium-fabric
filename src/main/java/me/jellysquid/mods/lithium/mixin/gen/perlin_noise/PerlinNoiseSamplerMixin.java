@@ -61,9 +61,9 @@ public class PerlinNoiseSamplerMixin {
         final double foy = Math.floor(oy);
         final double foz = Math.floor(oz);
 
-        double oox = ox - fox;
+        final double oox = ox - fox;
         double ooy = oy - foy;
-        double ooz = oz - foz;
+        final double ooz = oz - foz;
 
         final double fx = MathHelper.perlinFade(oox);
         final double fy = MathHelper.perlinFade(ooy);

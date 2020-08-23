@@ -81,9 +81,9 @@ public abstract class VoxelShapesMixin {
      */
     @Overwrite
     public static VoxelShape cuboid(Box box) {
-        int xRes;
-        int yRes;
-        int zRes;
+        final int xRes;
+        final int yRes;
+        final int zRes;
         //findRequiredBitResolution(...) looks unnecessarily slow, and it seems to unintentionally return -1 on inputs like -1e-8,
         //A faster implementation is not in the scope of this mixin.
 

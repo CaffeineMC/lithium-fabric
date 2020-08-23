@@ -45,7 +45,7 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
 
     @Override
     public VoxelShape offset(double x, double y, double z) {
-        return new VoxelShapeAlignedCuboid_Offset(this, this.voxels, x, y, z);
+        return new VoxelShapeAlignedCuboidOffset(this, this.voxels, x, y, z);
     }
 
 
@@ -55,13 +55,8 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
             return 0.0D;
         }
 
-        double penetration = this.calculatePenetration(cycleDirection, box, maxDist);
-
-        if ((penetration != maxDist) && this.intersects(cycleDirection, box)) {
-            return penetration;
-        }
-
-        return maxDist;
+        final double penetration = this.calculatePenetration(cycleDirection, box, maxDist);
+        return ((penetration != maxDist) && this.intersects(cycleDirection, box)) ? penetration : maxDist;
     }
 
     private double calculatePenetration(AxisCycleDirection dir, Box box, double maxDist) {
@@ -81,7 +76,7 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
      * Determine how far the movement is possible.
      */
     private static double calculatePenetration(double aMin, double aMax, final int segmentsPerUnit, double bMin, double bMax, double maxDist) {
-        double gap;
+        final double gap;
 
         if (maxDist > 0.0D) {
             gap = aMin - bMax;

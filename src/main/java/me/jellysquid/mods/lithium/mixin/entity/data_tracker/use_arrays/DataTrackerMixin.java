@@ -43,18 +43,17 @@ public abstract class DataTrackerMixin {
      */
     @Redirect(method = "addTrackedData", at = @At(value = "INVOKE", target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"))
     private Object onAddTrackedDataInsertMap(Map<Class<? extends Entity>, Integer> map, /* Integer */ Object keyRaw, /* DataTracker.Entry<?> */ Object valueRaw) {
-        int k = (int) keyRaw;
-        DataTracker.Entry<?> v = (DataTracker.Entry<?>) valueRaw;
-
-        DataTracker.Entry<?>[] storage = this.entriesArray;
+        final int k = (int) keyRaw;
+        final DataTracker.Entry<?> v = (DataTracker.Entry<?>) valueRaw;
+        final DataTracker.Entry<?>[] storage;
 
         // Check if we need to grow the backing array to accommodate the new key range
-        if (storage.length <= k) {
+        if (this.entriesArray.length <= k) {
             // Grow the array to accommodate 8 entries after this one, but limit it to never be larger
             // than 256 entries as per the vanilla limit
-            int newSize = Math.min(k + GROW_FACTOR, 256);
-
-            this.entriesArray = storage = Arrays.copyOf(storage, newSize);
+            this.entriesArray = storage = Arrays.copyOf(this.entriesArray, Math.min(k + GROW_FACTOR, 256));
+        } else {
+            storage = this.entriesArray;
         }
 
         // Update the storage

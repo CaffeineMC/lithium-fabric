@@ -17,31 +17,31 @@ public final class LithiumDoublePairList implements PairList {
     private final DoubleArrayList pairs;
 
     public LithiumDoublePairList(DoubleList aPoints, DoubleList bPoints, boolean flag1, boolean flag2) {
-        double[] araw;
+        final double[] aRaw;
 
         if (aPoints instanceof DoubleArrayList) {
-            araw = ((DoubleArrayList) aPoints).elements();
+            aRaw = ((DoubleArrayList) aPoints).elements();
         } else {
-            araw = new double[aPoints.size()];
+            aRaw = new double[aPoints.size()];
 
-            for (int i = 0; i < araw.length; i++) {
-                araw[i] = aPoints.getDouble(i);
+            for (int i = 0; i < aRaw.length; i++) {
+                aRaw[i] = aPoints.getDouble(i);
             }
         }
 
-        double[] braw;
+        final double[] bRaw;
 
         if (bPoints instanceof DoubleArrayList) {
-            braw = ((DoubleArrayList) bPoints).elements();
+            bRaw = ((DoubleArrayList) bPoints).elements();
         } else {
-            braw = new double[bPoints.size()];
+            bRaw = new double[bPoints.size()];
 
-            for (int i = 0; i < braw.length; i++) {
-                braw[i] = bPoints.getDouble(i);
+            for (int i = 0; i < bRaw.length; i++) {
+                bRaw[i] = bPoints.getDouble(i);
             }
         }
 
-        int size = araw.length + braw.length;
+        final int size = aRaw.length + bRaw.length;
 
         this.merged = new double[size];
         this.indicesFirst = new int[size];
@@ -49,7 +49,7 @@ public final class LithiumDoublePairList implements PairList {
 
         this.pairs = DoubleArrayList.wrap(this.merged);
 
-        this.merge(araw, braw, araw.length, braw.length, flag1, flag2);
+        this.merge(aRaw, bRaw, aRaw.length, bRaw.length, flag1, flag2);
     }
 
     private void merge(double[] aPoints, double[] bPoints, int aSize, int bSize, boolean flag1, boolean flag2) {
@@ -61,22 +61,15 @@ public final class LithiumDoublePairList implements PairList {
         int a1 = 0, a2 = 0;
 
         while (true) {
-            boolean aWithinBounds = aIdx < aSize;
-            boolean bWithinBounds = bIdx < bSize;
+            final boolean aWithinBounds = aIdx < aSize;
+            final boolean bWithinBounds = bIdx < bSize;
 
             if (!aWithinBounds && !bWithinBounds) {
                 break;
             }
 
-            boolean flip = aWithinBounds && (!bWithinBounds || aPoints[aIdx] < bPoints[bIdx] + 1.0E-7D);
-
-            double value;
-
-            if (flip) {
-                value = aPoints[aIdx++];
-            } else {
-                value = bPoints[bIdx++];
-            }
+            final boolean flip = aWithinBounds && (!bWithinBounds || aPoints[aIdx] < bPoints[bIdx] + 1.0E-7D);
+            final double value = flip ? aPoints[aIdx++] : bPoints[bIdx++];
 
             if ((aIdx == 0 || !aWithinBounds) && !flip && !flag2) {
                 continue;

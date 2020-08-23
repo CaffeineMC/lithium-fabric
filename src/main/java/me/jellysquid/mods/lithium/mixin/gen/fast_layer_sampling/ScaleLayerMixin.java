@@ -27,9 +27,9 @@ public abstract class ScaleLayerMixin {
     public int sample(LayerSampleContext<?> ctx, LayerSampler parent, int x, int z) {
         // [VanillaCopy] ScaleLayer#sample
 
-        int tl = parent.sample(this.transformX(x), this.transformZ(z));
-        int ix = x & 1;
-        int iz = z & 1;
+        final int tl = parent.sample(this.transformX(x), this.transformZ(z));
+        final int ix = x & 1;
+        final int iz = z & 1;
 
         if (ix == 0 && iz == 0) {
             return tl;
@@ -38,24 +38,22 @@ public abstract class ScaleLayerMixin {
         ctx.initSeed(x & ~1, z & ~1);
 
         if (ix == 0) {
-            int bl = parent.sample(this.transformX(x), this.transformZ(z + 1));
-            return ctx.choose(tl, bl);
+            return ctx.choose(tl, parent.sample(this.transformX(x), this.transformZ(z + 1)));
         }
 
         // move `choose` into above if-statement: maintain rng parity
         ((CachingLayerContextExtended) ctx).skipInt();
 
         if (iz == 0) {
-            int tr = parent.sample(this.transformX(x + 1), this.transformZ(z));
-            return ctx.choose(tl, tr);
+            return ctx.choose(tl, parent.sample(this.transformX(x + 1), this.transformZ(z)));
         }
 
         // move `choose` into above if-statement: maintain rng parity
         ((CachingLayerContextExtended) ctx).skipInt();
 
-        int bl = parent.sample(this.transformX(x), this.transformZ(z + 1));
-        int tr = parent.sample(this.transformX(x + 1), this.transformZ(z));
-        int br = parent.sample(this.transformX(x + 1), this.transformZ(z + 1));
+        final int bl = parent.sample(this.transformX(x), this.transformZ(z + 1));
+        final int tr = parent.sample(this.transformX(x + 1), this.transformZ(z));
+        final int br = parent.sample(this.transformX(x + 1), this.transformZ(z + 1));
 
         return this.sample(ctx, tl, tr, bl, br);
     }

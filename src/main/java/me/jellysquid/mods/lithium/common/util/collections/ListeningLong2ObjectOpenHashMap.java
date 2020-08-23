@@ -16,7 +16,7 @@ public class ListeningLong2ObjectOpenHashMap<V> extends Long2ObjectOpenHashMap<V
 
     @Override
     public V put(long k, V v) {
-        V ret = super.put(k, v);
+        final V ret = super.put(k, v);
 
         if (ret != v) {
             if (ret != null) {
@@ -31,7 +31,7 @@ public class ListeningLong2ObjectOpenHashMap<V> extends Long2ObjectOpenHashMap<V
 
     @Override
     public V remove(long k) {
-        V ret = super.remove(k);
+        final V ret = super.remove(k);
 
         if (ret != null) {
             this.removeCallback.apply(k, ret);

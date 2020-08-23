@@ -38,8 +38,8 @@ public final class FastCachingLayerSampler extends CachingLayerSampler {
 
     @Override
     public int sample(int x, int z) {
-        long key = key(x, z);
-        int idx = hash(key) & this.mask;
+        final long key = key(x, z);
+        final int idx = hash(key) & this.mask;
 
         // if the entry here has a key that matches ours, we have a cache hit
         if (this.keys[idx] == key) {
@@ -47,7 +47,7 @@ public final class FastCachingLayerSampler extends CachingLayerSampler {
         }
 
         // cache miss: sample the operator and put the result into our cache entry
-        int sampled = this.operator.apply(x, z);
+        final int sampled = this.operator.apply(x, z);
         this.values[idx] = sampled;
         this.keys[idx] = key;
 

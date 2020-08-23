@@ -24,7 +24,7 @@ public abstract class SortedArraySetMixin<T> implements Collection<T> {
     public boolean removeIf(Predicate<? super T> filter) {
         T[] arr = this.elements;
 
-        int writeLim = this.size;
+        final int writeLim = this.size;
         int writeIdx = 0;
 
         for (int readIdx = 0; readIdx < writeLim; readIdx++) {

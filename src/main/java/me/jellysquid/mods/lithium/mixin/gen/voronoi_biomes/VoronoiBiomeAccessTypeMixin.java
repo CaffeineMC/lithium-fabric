@@ -17,17 +17,17 @@ public abstract class VoronoiBiomeAccessTypeMixin {
     @SuppressWarnings("ConstantConditions")
     @Overwrite
     public Biome getBiome(long seed, int x, int y, int z, BiomeAccess.Storage storage) {
-        int x1 = x - 2;
-        int y1 = y - 2;
-        int z1 = z - 2;
+        final int x1 = x - 2;
+        final int y1 = y - 2;
+        final int z1 = z - 2;
 
-        int x2 = x1 >> 2;
-        int y2 = y1 >> 2;
-        int z2 = z1 >> 2;
+        final int x2 = x1 >> 2;
+        final int y2 = y1 >> 2;
+        final int z2 = z1 >> 2;
 
-        double x3 = (double) (x1 & 3) / 4.0D;
-        double y3 = (double) (y1 & 3) / 4.0D;
-        double z3 = (double) (z1 & 3) / 4.0D;
+        final double x3 = (double) (x1 & 3) / 4.0D;
+        final double y3 = (double) (y1 & 3) / 4.0D;
+        final double z3 = (double) (z1 & 3) / 4.0D;
 
         int retX = Integer.MIN_VALUE;
         int retY = Integer.MIN_VALUE;
@@ -39,14 +39,14 @@ public abstract class VoronoiBiomeAccessTypeMixin {
 
         for (int i = 0; i < 8; i++) {
             // Block sample positions
-            int bX;
-            int bY;
-            int bZ;
+            final int bX;
+            final int bY;
+            final int bZ;
 
             // Sample positions
-            double sX;
-            double sY;
-            double sZ;
+            final double sX;
+            final double sY;
+            final double sZ;
 
             if ((i & 0b100) == 0) {
                 bX = x2;
@@ -72,7 +72,7 @@ public abstract class VoronoiBiomeAccessTypeMixin {
                 sZ = z3 - 1.0D;
             }
 
-            double dist = calcSquaredDistance(seed, bX, bY, bZ, sX, sY, sZ);
+            final double dist = calcSquaredDistance(seed, bX, bY, bZ, sX, sY, sZ);
 
             if (minDist > dist) {
                 minDist = dist;

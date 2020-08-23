@@ -61,13 +61,12 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
             return;
         }
 
-        int x = ChunkSectionPos.unpackX(key);
-        int z = ChunkSectionPos.unpackZ(key);
+        final int x = ChunkSectionPos.unpackX(key);
+        final int z = ChunkSectionPos.unpackZ(key);
 
-        long pos = ChunkPos.toLong(x, z);
+        final long pos = ChunkPos.toLong(x, z);
 
         BitSet flags = this.columns.get(pos);
-
         if (flags == null) {
             this.columns.put(pos, flags = new BitSet(16));
         }
@@ -77,23 +76,19 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
 
     @Override
     public Stream<R> getWithinChunkColumn(int chunkX, int chunkZ) {
-        BitSet flags = this.getCachedColumnInfo(chunkX, chunkZ);
+        final BitSet flags = this.getCachedColumnInfo(chunkX, chunkZ);
 
-        // No items are present in this column
-        if (flags.isEmpty()) {
-            return Stream.empty();
-        }
+        return flags.isEmpty()
+                // No items are present in this column
+                ? Stream.empty()
 
-        return flags.stream()
-                .mapToObj((chunkY) -> {
-                    return this.loadedElements.get(ChunkSectionPos.asLong(chunkX, chunkY, chunkZ)).orElse(null);
-                })
+                : flags.stream().mapToObj((chunkY) -> this.loadedElements.get(ChunkSectionPos.asLong(chunkX, chunkY, chunkZ)).orElse(null))
                 .filter(Objects::nonNull);
     }
 
     @Override
     public boolean collectWithinChunkColumn(int chunkX, int chunkZ, Collector<R> consumer) {
-        BitSet flags = this.getCachedColumnInfo(chunkX, chunkZ);
+        final BitSet flags = this.getCachedColumnInfo(chunkX, chunkZ);
 
         // No items are present in this column
         if (flags.isEmpty()) {
@@ -112,9 +107,8 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
     }
 
     private BitSet getCachedColumnInfo(int chunkX, int chunkZ) {
-        long pos = ChunkPos.toLong(chunkX, chunkZ);
-
-        BitSet flags = this.getColumnInfo(pos, false);
+        final long pos = ChunkPos.toLong(chunkX, chunkZ);
+        final BitSet flags = this.getColumnInfo(pos, false);
 
         if (flags != null) {
             return flags;
@@ -126,7 +120,7 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
     }
 
     private BitSet getColumnInfo(long pos, boolean required) {
-        BitSet set = this.columns.get(pos);
+        final BitSet set = this.columns.get(pos);
 
         if (set == null && required) {
             throw new NullPointerException("No data is present for column: " + new ChunkPos(pos));

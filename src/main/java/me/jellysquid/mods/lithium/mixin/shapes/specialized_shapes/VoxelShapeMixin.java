@@ -46,11 +46,11 @@ public abstract class VoxelShapeMixin {
             return 0.0D;
         }
 
-        AxisCycleDirection cycle = cycleDirection.opposite();
+        final AxisCycleDirection cycle = cycleDirection.opposite();
 
-        Direction.Axis axisX = cycle.cycle(Direction.Axis.X);
-        Direction.Axis axisY = cycle.cycle(Direction.Axis.Y);
-        Direction.Axis axisZ = cycle.cycle(Direction.Axis.Z);
+        final Direction.Axis axisX = cycle.cycle(Direction.Axis.X);
+        final Direction.Axis axisY = cycle.cycle(Direction.Axis.Y);
+        final Direction.Axis axisZ = cycle.cycle(Direction.Axis.Z);
 
         int minY = Integer.MIN_VALUE;
         int maxY = Integer.MIN_VALUE;
@@ -59,13 +59,13 @@ public abstract class VoxelShapeMixin {
 
         int x, y, z;
 
-        double dist;
+        final double dist;
 
         if (maxDist > 0.0D) {
-            double max = box.getMax(axisX);
-            int maxIdx = this.getCoordIndex(axisX, max - POSITIVE_EPSILON);
+            final double max = box.getMax(axisX);
+            final int maxIdx = this.getCoordIndex(axisX, max - POSITIVE_EPSILON);
 
-            int maxX = this.voxels.getSize(axisX);
+            final int maxX = this.voxels.getSize(axisX);
 
             for (x = maxIdx + 1; x < maxX; ++x) {
                 minY = minY == Integer.MIN_VALUE ? Math.max(0, this.getCoordIndex(axisY, box.getMin(axisY) + POSITIVE_EPSILON)) : minY;
@@ -89,8 +89,8 @@ public abstract class VoxelShapeMixin {
                 }
             }
         } else if (maxDist < 0.0D) {
-            double min = box.getMin(axisX);
-            int minIdx = this.getCoordIndex(axisX, min + POSITIVE_EPSILON);
+            final double min = box.getMin(axisX);
+            final int minIdx = this.getCoordIndex(axisX, min + POSITIVE_EPSILON);
 
             for (x = minIdx - 1; x >= 0; --x) {
                 minY = minY == Integer.MIN_VALUE ? Math.max(0, this.getCoordIndex(axisY, box.getMin(axisY) + POSITIVE_EPSILON)) : minY;
@@ -129,7 +129,7 @@ public abstract class VoxelShapeMixin {
     public int getCoordIndex(Direction.Axis axis, double coord) {
         DoubleList list = this.getPointPositions(axis);
 
-        int size = this.voxels.getSize(axis);
+        final int size = this.voxels.getSize(axis);
 
         int start = 0;
         int end = size + 1 - start;

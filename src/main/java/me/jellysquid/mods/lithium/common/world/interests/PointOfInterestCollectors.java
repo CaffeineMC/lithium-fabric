@@ -11,15 +11,7 @@ import java.util.function.Predicate;
 
 public class PointOfInterestCollectors {
     public static Collector<PointOfInterest> collectAllWithinRadius(BlockPos pos, double radius, Collector<PointOfInterest> out) {
-        double radiusSq = radius * radius;
-
-        return (point) -> {
-            if (point.getPos().getSquaredDistance(pos) <= radiusSq) {
-                return out.collect(point);
-            }
-
-            return true;
-        };
+        return point -> !(point.getPos().getSquaredDistance(pos) <= (radius * radius)) || out.collect(point);
     }
 
     public static Collector<PointOfInterestSet> collectAllMatching(Predicate<PointOfInterestType> predicate, PointOfInterestStorage.OccupationStatus status, Collector<PointOfInterest> out) {

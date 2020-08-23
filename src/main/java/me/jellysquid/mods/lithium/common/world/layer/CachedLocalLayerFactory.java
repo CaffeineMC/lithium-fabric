@@ -30,9 +30,9 @@ public class CachedLocalLayerFactory<R extends LayerSampler> implements LayerFac
     }
 
     private R createLocalSampler() {
-        LayerSampleContext<R> context = this.context.cloneContext();
-        ParentedLayer layer = CachedLocalLayerFactory.this.layer;
-        R parentSampler = this.parent.make();
+        final LayerSampleContext<R> context = this.context.cloneContext();
+        final ParentedLayer layer = CachedLocalLayerFactory.this.layer;
+        final R parentSampler = this.parent.make();
 
         return context.createSampler((x, z) -> {
             context.initSeed(x, z);

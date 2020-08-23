@@ -30,12 +30,12 @@ public class WorldChunkMixin {
      */
     @Overwrite
     public BlockState getBlockState(BlockPos pos) {
-        int x = pos.getX();
-        int y = pos.getY();
-        int z = pos.getZ();
+        final int x = pos.getX();
+        final int y = pos.getY();
+        final int z = pos.getZ();
 
         if (!World.isHeightInvalid(y)) {
-            ChunkSection section = this.sections[y >> 4];
+            final ChunkSection section = this.sections[y >> 4];
 
             if (section != EMPTY_SECTION) {
                 return section.getBlockState(x & 15, y & 15, z & 15);

@@ -116,7 +116,7 @@ public class HashedList<T> implements List<T> {
 
     @Override
     public T set(int index, T element) {
-        T prev = this.list.set(index, element);
+        final T prev = this.list.set(index, element);
 
         if (prev != null) {
             this.set.remove(prev);
@@ -136,7 +136,7 @@ public class HashedList<T> implements List<T> {
 
     @Override
     public T remove(int index) {
-        T prev = this.list.remove(index);
+        final T prev = this.list.remove(index);
 
         if (prev != null) {
             this.set.remove(prev);

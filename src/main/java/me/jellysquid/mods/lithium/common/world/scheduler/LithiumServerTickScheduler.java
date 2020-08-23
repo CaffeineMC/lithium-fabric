@@ -77,30 +77,19 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
 
     @Override
     public boolean isTicking(BlockPos pos, T obj) {
-        TickEntry<T> entry = this.scheduledTicks.get(new ScheduledTick<>(pos, obj));
-
-        if (entry == null) {
-            return false;
-        }
-
-        return entry.executing;
+        final TickEntry<T> entry = this.scheduledTicks.get(new ScheduledTick<>(pos, obj));
+        return entry != null && entry.executing;
     }
 
     @Override
     public boolean isScheduled(BlockPos pos, T obj) {
-        TickEntry<T> entry = this.scheduledTicks.get(new ScheduledTick<>(pos, obj));
-
-        if (entry == null) {
-            return false;
-        }
-
-        return entry.scheduled;
+        final TickEntry<T> entry = this.scheduledTicks.get(new ScheduledTick<>(pos, obj));
+        return entry != null && entry.scheduled;
     }
 
     @Override
     public List<ScheduledTick<T>> getScheduledTicksInChunk(ChunkPos chunkPos, boolean mutates, boolean getStaleTicks) {
-        BlockBox box = new BlockBox(chunkPos.getStartX() - 2, chunkPos.getStartZ() - 2, chunkPos.getEndX() + 2, chunkPos.getEndZ() + 2);
-
+        final BlockBox box = new BlockBox(chunkPos.getStartX() - 2, chunkPos.getStartZ() - 2, chunkPos.getEndX() + 2, chunkPos.getEndZ() + 2);
         return this.getScheduledTicks(box, mutates, getStaleTicks);
     }
 
@@ -111,7 +100,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
 
     @Override
     public void copyScheduledTicks(BlockBox box, BlockPos pos) {
-        List<ScheduledTick<T>> list = this.getScheduledTicks(box, false, false);
+        final List<ScheduledTick<T>> list = this.getScheduledTicks(box, false, false);
 
         for (ScheduledTick<T> tick : list) {
             this.addScheduledTick(new ScheduledTick<>(tick.pos.add(pos), tick.getObject(), tick.time, tick.priority));
@@ -146,7 +135,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
      */
     public void selectTicks(ServerChunkManager chunkManager, long time) {
         // Calculates the maximum key value which includes all ticks scheduled before the specified time
-        long headKey = getBucketKey(time + 1, TickPriority.EXTREMELY_HIGH) - 1;
+        final long headKey = getBucketKey(time + 1, TickPriority.EXTREMELY_HIGH) - 1;
 
         // [VanillaCopy] ServerTickScheduler#tick
         // In order to fulfill the promise of not breaking vanilla behaviour, we keep the vanilla artifact of
@@ -157,18 +146,18 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
         long prevChunk = Long.MIN_VALUE;
 
         // Create an iterator over only
-        Iterator<TickEntryQueue<T>> it = this.scheduledTicksOrdered.headMap(headKey).values().iterator();
+        final Iterator<TickEntryQueue<T>> it = this.scheduledTicksOrdered.headMap(headKey).values().iterator();
 
         // Iterate over all scheduled ticks and enqueue them for until we exceed our budget
         while (limit > 0 && it.hasNext()) {
-            TickEntryQueue<T> list = it.next();
+            final TickEntryQueue<T> list = it.next();
 
             // Pointer for writing scheduled ticks back into the queue
             int w = 0;
 
             // Re-builds the scheduled tick queue in-place
             for (int i = 0; i < list.size(); i++) {
-                TickEntry<T> tick = list.getTickAtIndex(i);
+                final TickEntry<T> tick = list.getTickAtIndex(i);
 
                 if (!tick.scheduled) {
                     continue;
@@ -178,7 +167,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
                 // bucket and skip it. This deliberately introduces a bug where backlogged ticks will not be re-scheduled
                 // properly, re-producing the vanilla issue of tick suppression.
                 if (limit > 0) {
-                    long chunk = ChunkPos.toLong(tick.pos.getX() >> 4, tick.pos.getZ() >> 4);
+                    final long chunk = ChunkPos.toLong(tick.pos.getX() >> 4, tick.pos.getZ() >> 4);
 
                     // Take advantage of the fact that if any position in a chunk can be updated, then all other positions
                     // in the same chunk can be updated. This avoids the more expensive check to the chunk manager.
@@ -258,13 +247,13 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
             for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
                 long chunk = ChunkPos.toLong(chunkX, chunkZ);
 
-                Set<TickEntry<T>> set = this.scheduledTicksByChunk.get(chunk);
+                final Set<TickEntry<T>> set = this.scheduledTicksByChunk.get(chunk);
 
                 if (set == null) {
                     continue;
                 }
 
-                for (TickEntry<T> tick : set) {
+                for (final TickEntry<T> tick : set) {
                     if (!box.contains(tick.pos) || !predicate.test(tick)) {
                         continue;
                     }
@@ -275,7 +264,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
         }
 
         if (remove) {
-            for (ScheduledTick<T> tick : ret) {
+            for (final ScheduledTick<T> tick : ret) {
                 // It's not possible to downcast a collection, so we have to upcast here
                 // This will always succeed
                 this.removeTickEntry((TickEntry<T>) tick);
@@ -290,10 +279,10 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
      * scheduled ticks which are set to execute at a different time.
      */
     private void addScheduledTick(ScheduledTick<T> tick) {
-        TickEntry<T> entry = this.scheduledTicks.computeIfAbsent(tick, this::createTickEntry);
+        final TickEntry<T> entry = this.scheduledTicks.computeIfAbsent(tick, this::createTickEntry);
 
         if (!entry.scheduled) {
-            TickEntryQueue<T> timeIdx = this.scheduledTicksOrdered.computeIfAbsent(getBucketKey(tick.time, tick.priority), key -> new TickEntryQueue<>());
+            final TickEntryQueue<T> timeIdx = this.scheduledTicksOrdered.computeIfAbsent(getBucketKey(tick.time, tick.priority), key -> new TickEntryQueue<>());
             timeIdx.push(entry);
 
             entry.scheduled = true;
@@ -301,7 +290,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     }
 
     private TickEntry<T> createTickEntry(ScheduledTick<T> tick) {
-        Set<TickEntry<T>> chunkIdx = this.scheduledTicksByChunk.computeIfAbsent(getChunkKey(tick.pos), LithiumServerTickScheduler::createChunkIndex);
+        final Set<TickEntry<T>> chunkIdx = this.scheduledTicksByChunk.computeIfAbsent(getChunkKey(tick.pos), LithiumServerTickScheduler::createChunkIndex);
 
         return new TickEntry<>(tick, chunkIdx);
     }

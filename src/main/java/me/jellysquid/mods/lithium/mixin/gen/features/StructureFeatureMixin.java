@@ -5,6 +5,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.StructureHolder;
 import net.minecraft.world.WorldView;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.gen.StructureAccessor;
@@ -32,14 +33,19 @@ public class StructureFeatureMixin {
                     to = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/Chunk;getPos()Lnet/minecraft/util/math/ChunkPos;", ordinal = 0)))
     private Chunk biomeConditionalGetChunk(WorldView worldView, int x, int z, ChunkStatus status)
     {
-        //magic numbers << 2) + 2 and biomeY = 0 taken from ChunkGenerator.setStructureStarts
+        //magic numbers << 2) + 2 and bY = 0 taken from ChunkGenerator.setStructureStarts
+        final int bX = (x << 2) + 2;
+        final int bY = 0;
+        final int bZ = (x << 2) + 2;
+
         //noinspection rawtypes
-        if (worldView.getBiomeForNoiseGen((x << 2) + 2, 0, (z << 2) + 2).getGenerationSettings().hasStructureFeature((StructureFeature) (Object) this)) {
-            return worldView.getChunk(x, z, status);
-        } else {
-            return null;
-        }
+        return worldView
+                .getBiomeForNoiseGen(bX, bY, bZ)
+                .getGenerationSettings()
+                .hasStructureFeature((StructureFeature) (Object) this)
+                ? worldView.getChunk(x, z, status) : null;
     }
+
 
     /**
      * @reason Can't avoid the call to Chunk.getPos(), and now the chunk might be null.

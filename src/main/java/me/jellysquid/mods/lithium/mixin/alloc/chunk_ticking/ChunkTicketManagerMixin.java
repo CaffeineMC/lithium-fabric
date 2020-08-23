@@ -39,13 +39,13 @@ public abstract class ChunkTicketManagerMixin {
     public void purge() {
         ++this.age;
 
-        ObjectIterator<Long2ObjectMap.Entry<SortedArraySet<ChunkTicket<?>>>> iterator =
+        final ObjectIterator<Long2ObjectMap.Entry<SortedArraySet<ChunkTicket<?>>>> iterator =
                 this.ticketsByPosition.long2ObjectEntrySet().fastIterator();
-        Predicate<ChunkTicket<?>> predicate = (chunkTicket) -> chunkTicket.isExpired(this.age);
+        final Predicate<ChunkTicket<?>> predicate = (chunkTicket) -> chunkTicket.isExpired(this.age);
 
         while (iterator.hasNext()) {
-            Long2ObjectMap.Entry<SortedArraySet<ChunkTicket<?>>> entry = iterator.next();
-            SortedArraySet<ChunkTicket<?>> value = entry.getValue();
+            final Long2ObjectMap.Entry<SortedArraySet<ChunkTicket<?>>> entry = iterator.next();
+            final SortedArraySet<ChunkTicket<?>> value = entry.getValue();
 
             if (value.removeIf(predicate)) {
                 this.distanceFromTicketTracker.updateLevel(entry.getLongKey(), getLevel(entry.getValue()), false);

@@ -62,21 +62,21 @@ public class ChunkCacheMixin {
      */
     @Overwrite
     public BlockState getBlockState(BlockPos pos) {
-        int y = pos.getY();
+        final int y = pos.getY();
 
         if (!World.isHeightInvalid(pos.getY())) {
-            int x = pos.getX();
-            int z = pos.getZ();
+            final int x = pos.getX();
+            final int z = pos.getZ();
 
-            int chunkX = (x >> 4) - this.minX;
-            int chunkZ = (z >> 4) - this.minZ;
+            final int chunkX = (x >> 4) - this.minX;
+            final int chunkZ = (z >> 4) - this.minZ;
 
             if (chunkX >= 0 && chunkX < this.xLen && chunkZ >= 0 && chunkZ < this.zLen) {
-                Chunk chunk = this.chunksFlat[(chunkX * this.zLen) + chunkZ];
+                final Chunk chunk = this.chunksFlat[(chunkX * this.zLen) + chunkZ];
 
                 // Avoid going through Chunk#getBlockState
                 if (chunk != null) {
-                    ChunkSection section = chunk.getSectionArray()[y >> 4];
+                    final ChunkSection section = chunk.getSectionArray()[y >> 4];
 
                     if (section != null) {
                         return section.getBlockState(x & 15, y & 15, z & 15);

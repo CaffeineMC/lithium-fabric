@@ -80,16 +80,16 @@ public abstract class ServerChunkManagerMixin {
         }
 
         // Store a local reference to the cached keys array in order to prevent bounds checks later
-        long[] cacheKeys = this.cacheKeys;
+        final long[] cacheKeys = this.cacheKeys;
 
         // Create a key which will identify this request in the cache
-        long key = createCacheKey(x, z, status);
+        final long key = createCacheKey(x, z, status);
 
         for (int i = 0; i < 4; ++i) {
             // Consolidate the scan into one comparison, allowing the JVM to better optimize the function
             // This is considerably faster than scanning two arrays side-by-side
             if (key == cacheKeys[i]) {
-                Chunk chunk = this.cacheChunks[i];
+                final Chunk chunk = this.cacheChunks[i];
 
                 // If the chunk exists for the key or we didn't need to create one, return the result
                 if (chunk != null || !create) {
@@ -99,7 +99,7 @@ public abstract class ServerChunkManagerMixin {
         }
 
         // We couldn't find the chunk in the cache, so perform a blocking retrieval of the chunk from storage
-        Chunk chunk = this.getChunkBlocking(x, z, status, create);
+        final Chunk chunk = this.getChunkBlocking(x, z, status, create);
 
         if (chunk != null) {
             this.addToCache(key, chunk);
@@ -111,9 +111,7 @@ public abstract class ServerChunkManagerMixin {
     }
 
     private Chunk getChunkOffThread(int x, int z, ChunkStatus status, boolean create) {
-        return CompletableFuture.supplyAsync(() -> {
-            return this.getChunk(x, z, status, create);
-        }, this.mainThreadExecutor).join();
+        return CompletableFuture.supplyAsync(() -> this.getChunk(x, z, status, create), this.mainThreadExecutor).join();
     }
 
     /**
@@ -160,7 +158,7 @@ public abstract class ServerChunkManagerMixin {
         }
 
         CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> loadFuture = null;
-        CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> statusFuture = ((ChunkHolderExtended) holder).getFutureByStatus(status.getIndex());
+        final CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> statusFuture = ((ChunkHolderExtended) holder).getFutureByStatus(status.getIndex());
 
         if (statusFuture != null) {
             Either<Chunk, ChunkHolder.Unloaded> immediate = statusFuture.getNow(null);
@@ -183,7 +181,7 @@ public abstract class ServerChunkManagerMixin {
         if (loadFuture == null) {
             if (ChunkHolder.getTargetStatusForLevel(holder.getLevel()).isAtLeast(status)) {
                 // Create a new future which upgrades the chunk from the previous status level to the desired one
-                CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> mergedFuture = this.threadedAnvilChunkStorage.getChunk(holder, status);
+                final CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> mergedFuture = this.threadedAnvilChunkStorage.getChunk(holder, status);
 
                 // Add this future to the chunk holder so subsequent calls will see it
                 holder.combineSavingFuture(mergedFuture);
@@ -213,8 +211,7 @@ public abstract class ServerChunkManagerMixin {
     }
 
     private void createChunkLoadTicket(int x, int z, int level) {
-        ChunkPos chunkPos = new ChunkPos(x, z);
-
+        final ChunkPos chunkPos = new ChunkPos(x, z);
         this.ticketManager.addTicketWithLevel(ChunkTicketType.field_14032, chunkPos, level, chunkPos);
     }
 

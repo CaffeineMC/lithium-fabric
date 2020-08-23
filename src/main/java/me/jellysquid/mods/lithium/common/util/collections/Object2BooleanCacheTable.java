@@ -37,14 +37,14 @@ public final class Object2BooleanCacheTable<T> {
     }
 
     public boolean get(T key) {
-        int idx = hash(key) & this.mask;
+        final int idx = hash(key) & this.mask;
 
-        Node<T> node = this.nodes[idx];
+        final Node<T> node = this.nodes[idx];
         if (node != null && key.equals(node.key)) {
             return node.value;
         }
 
-        boolean test = this.operator.test(key);
+        final boolean test = this.operator.test(key);
         this.nodes[idx] = new Node<>(key, test);
 
         return test;

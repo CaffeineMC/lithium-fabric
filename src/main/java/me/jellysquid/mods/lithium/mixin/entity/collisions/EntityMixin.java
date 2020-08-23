@@ -33,14 +33,8 @@ public abstract class EntityMixin {
      */
     @Redirect(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/shape/VoxelShapes;matchesAnywhere(Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/shape/VoxelShape;Lnet/minecraft/util/function/BooleanBiFunction;)Z"))
     private boolean redirectWorldBorderMatchesAnywhere(VoxelShape borderShape, VoxelShape entityShape, BooleanBiFunction func, Vec3d motion) {
-        boolean isWithinWorldBorder = LithiumEntityCollisions.isBoxFullyWithinWorldBorder(this.world.getWorldBorder(), this.getBoundingBox().contract(1.0E-7D));
-
         // If the entity is within the world border (enabling collisions against it), check that the player will cross the
         // border this physics step.
-        if (isWithinWorldBorder) {
-            return LithiumEntityCollisions.isBoxFullyWithinWorldBorder(this.world.getWorldBorder(), this.getBoundingBox().stretch(motion));
-        }
-
-        return true;
+        return !LithiumEntityCollisions.isBoxFullyWithinWorldBorder(this.world.getWorldBorder(), this.getBoundingBox().contract(1.0E-7D)) || LithiumEntityCollisions.isBoxFullyWithinWorldBorder(this.world.getWorldBorder(), this.getBoundingBox().stretch(motion));
     }
 }

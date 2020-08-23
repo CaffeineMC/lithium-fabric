@@ -22,9 +22,8 @@ public abstract class ItemFrameEntityMixin extends AbstractDecorationEntity {
 
     @Redirect(method = "canStayAttached", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getOtherEntities(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"))
     private List<Entity> getAbstractDecorationEntities(World world, Entity excluded, Box box, Predicate<? super Entity> predicate) {
-        if (predicate == PREDICATE) {
-            return WorldHelper.getEntitiesOfClass(world, excluded, AbstractDecorationEntity.class, box);
-        }
-        return world.getOtherEntities(excluded, box, predicate);
+        return predicate == PREDICATE
+                ? WorldHelper.getEntitiesOfClass(world, excluded, AbstractDecorationEntity.class, box)
+                : world.getOtherEntities(excluded, box, predicate);
     }
 }

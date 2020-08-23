@@ -52,7 +52,6 @@ public class BlockCollisionSweeper {
      */
     public boolean step() {
         this.collidedShape = null;
-
         final CuboidBlockIterator cuboidIt = this.cuboidIt;
 
         if (!cuboidIt.step()) {
@@ -75,13 +74,13 @@ public class BlockCollisionSweeper {
             return true;
         }
 
-        final BlockPos.Mutable mpos = this.mpos;
-        mpos.set(x, y, z);
+        final BlockPos.Mutable pos = this.mpos;
+        pos.set(x, y, z);
 
-        final BlockState state = chunk.getBlockState(mpos);
+        final BlockState state = chunk.getBlockState(pos);
 
         if (canInteractWithBlock(state, edgesHit)) {
-            VoxelShape collisionShape = state.getCollisionShape(this.view, mpos, this.context);
+            final VoxelShape collisionShape = state.getCollisionShape(this.view, pos, this.context);
 
             if (collisionShape != VoxelShapes.empty()) {
                 this.collidedShape = getCollidedShape(this.box, this.shape, collisionShape, x, y, z);

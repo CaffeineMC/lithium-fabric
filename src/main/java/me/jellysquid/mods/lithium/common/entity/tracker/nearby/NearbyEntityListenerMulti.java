@@ -4,6 +4,7 @@ import net.minecraft.entity.LivingEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Allows for multiple listeners on an entity to be grouped under one logical listener. No guarantees are made about the
@@ -47,13 +48,8 @@ public class NearbyEntityListenerMulti implements NearbyEntityListener {
 
     @Override
     public String toString() {
-        StringBuilder sublisteners = new StringBuilder();
-        String comma = "";
-        for (NearbyEntityListener listener : listeners) {
-            sublisteners.append(comma).append(listener.toString());
-            comma = ","; //trick to drop the first comma
-        }
+        final String subListeners = listeners.stream().map(Object::toString).collect(Collectors.joining(","));
 
-        return super.toString() + " with sublisteners: [" + sublisteners + "]";
+        return super.toString() + " with sub listeners: [" + subListeners + "]";
     }
 }

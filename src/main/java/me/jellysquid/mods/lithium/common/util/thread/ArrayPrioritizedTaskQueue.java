@@ -32,11 +32,10 @@ public class ArrayPrioritizedTaskQueue implements TaskQueue<TaskQueue.Prioritize
     @Override
     public Runnable poll() {
         for (Queue<Runnable> queue : this.queues) {
-            Runnable task = queue.poll();
+            final Runnable task = queue.poll();
 
             if (task != null) {
                 this.size.decrementAndGet();
-
                 return task;
             }
         }
