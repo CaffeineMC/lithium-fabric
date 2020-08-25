@@ -13,7 +13,7 @@ public abstract class BlockPosMixin extends Vec3i {
     }
 
     /**
-     * @reason Reduce overhead calculations
+     * @reason Manually write function logic avoiding unnecessary costs
      * @author Maity
      */
     @Overwrite
@@ -22,7 +22,7 @@ public abstract class BlockPosMixin extends Vec3i {
     }
 
     /**
-     * @reason Reduce overhead calculations
+     * @reason Manually write function logic avoiding unnecessary costs
      * @author Maity
      */
     @Overwrite
@@ -35,7 +35,7 @@ public abstract class BlockPosMixin extends Vec3i {
     }
 
     /**
-     * @reason Reduce overhead calculations
+     * @reason Manually write function logic avoiding unnecessary costs
      * @author Maity
      */
     @Overwrite
@@ -44,7 +44,7 @@ public abstract class BlockPosMixin extends Vec3i {
     }
 
     /**
-     * @reason Reduce overhead calculations
+     * @reason Manually write function logic avoiding unnecessary costs
      * @author Maity
      */
     @Overwrite
@@ -57,7 +57,7 @@ public abstract class BlockPosMixin extends Vec3i {
     }
 
     /**
-     * @reason Reduce overhead calculations
+     * @reason Manually write function logic avoiding unnecessary costs
      * @author Maity
      */
     @Overwrite
@@ -66,7 +66,7 @@ public abstract class BlockPosMixin extends Vec3i {
     }
 
     /**
-     * @reason Reduce overhead calculations
+     * @reason Manually write function logic avoiding unnecessary costs
      * @author Maity
      */
     @Overwrite
@@ -79,7 +79,7 @@ public abstract class BlockPosMixin extends Vec3i {
     }
 
     /**
-     * @reason Reduce overhead calculations
+     * @reason Manually write function logic avoiding unnecessary costs
      * @author Maity
      */
     @Overwrite
@@ -88,7 +88,7 @@ public abstract class BlockPosMixin extends Vec3i {
     }
 
     /**
-     * @reason Reduce overhead calculations
+     * @reason Manually write function logic avoiding unnecessary costs
      * @author Maity
      */
     @Overwrite
@@ -101,7 +101,7 @@ public abstract class BlockPosMixin extends Vec3i {
     }
 
     /**
-     * @reason Reduce overhead calculations
+     * @reason Manually write function logic avoiding unnecessary costs
      * @author Maity
      */
     @Overwrite
@@ -110,7 +110,7 @@ public abstract class BlockPosMixin extends Vec3i {
     }
 
     /**
-     * @reason Reduce overhead calculations
+     * @reason Manually write function logic avoiding unnecessary costs
      * @author Maity
      */
     @Overwrite
@@ -123,7 +123,7 @@ public abstract class BlockPosMixin extends Vec3i {
     }
 
     /**
-     * @reason Reduce overhead calculations
+     * @reason Manually write function logic avoiding unnecessary costs
      * @author Maity
      */
     @Overwrite
@@ -132,7 +132,7 @@ public abstract class BlockPosMixin extends Vec3i {
     }
 
     /**
-     * @reason Reduce overhead calculations
+     * @reason Manually write function logic avoiding unnecessary costs
      * @author Maity
      */
     @Overwrite
@@ -145,7 +145,7 @@ public abstract class BlockPosMixin extends Vec3i {
     }
 
     /**
-     * @reason Reduce overhead calculations
+     * @reason Manually write function logic avoiding unnecessary costs
      * @author Maity
      */
     @Overwrite
@@ -171,7 +171,7 @@ public abstract class BlockPosMixin extends Vec3i {
     }
 
     /**
-     * @reason Reduce overhead calculations
+     * @reason Manually write function logic avoiding unnecessary costs
      * @author Maity
      */
     @Overwrite
