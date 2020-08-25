@@ -72,6 +72,7 @@
         "gen.voronoi_biomes.VoronoiBiomeAccessTypeMixin",
         "math.fast_util.AxisCycleDirectionMixin$BackwardMixin",
         "math.fast_util.AxisCycleDirectionMixin$ForwardMixin",
+        "math.fast_util.BlockPosMixin",
         "math.fast_util.BoxMixin",
         "math.fast_util.DirectionMixin",
         "shapes.blockstate_cache.BlockMixin",
