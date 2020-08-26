@@ -8,6 +8,16 @@ import org.spongepowered.asm.mixin.Overwrite;
 
 @Mixin(BlockPos.class)
 public abstract class BlockPosMixin extends Vec3i {
+    static {
+        assert Direction.DOWN.ordinal() == 0;
+        assert Direction.UP.ordinal() == 1;
+        assert Direction.NORTH.ordinal() == 2;
+        assert Direction.SOUTH.ordinal() == 3;
+        assert Direction.WEST.ordinal() == 4;
+        assert Direction.EAST.ordinal() == 5;
+        assert Direction.values().length == 6;
+    }
+
     private BlockPosMixin(int x, int y, int z) {
         super(x, y, z);
     }
@@ -145,33 +155,9 @@ public abstract class BlockPosMixin extends Vec3i {
     }
 
     /**
-     * @reason Manually write function logic avoiding unnecessary costs
-     * @author Maity
-     */
-    @Overwrite
-    public BlockPos offset(Direction direction) {
-        // According to my tests, direction switching is quicker than vanilla calculations
-        switch (direction) {
-            case UP:
-                return new BlockPos(this.getX(), this.getY() + 1, this.getZ());
-            case DOWN:
-                return new BlockPos(this.getX(), this.getY() - 1, this.getZ());
-            case NORTH:
-                return new BlockPos(this.getX(), this.getY(), this.getZ() - 1);
-            case SOUTH:
-                return new BlockPos(this.getX(), this.getY(), this.getZ() + 1);
-            case WEST:
-                return new BlockPos(this.getX() - 1, this.getY(), this.getZ());
-            case EAST:
-                return new BlockPos(this.getX() + 1, this.getY(), this.getZ());
-            default:
-                // [VanillaCode]
-                return new BlockPos(this.getX() + direction.getOffsetX(), this.getY() + direction.getOffsetY(), this.getZ() + direction.getOffsetZ());
-        }
-    }
-
-    /**
-     * @reason Manually write function logic avoiding unnecessary costs
+     * Direction switching is quicker than vanilla calculations.
+     *
+     * @reason Use better implementation
      * @author Maity
      */
     @Overwrite
@@ -180,22 +166,31 @@ public abstract class BlockPosMixin extends Vec3i {
             return (BlockPos) (Object) this;
         }
 
-        switch (direction) {
-            case UP:
-                return new BlockPos(this.getX(), this.getY() + distance, this.getZ());
-            case DOWN:
+        switch (direction.ordinal()) {
+            case 0: // DOWN
                 return new BlockPos(this.getX(), this.getY() - distance, this.getZ());
-            case NORTH:
+            case 1: // UP
+                return new BlockPos(this.getX(), this.getY() + distance, this.getZ());
+            case 2: // NORTH
                 return new BlockPos(this.getX(), this.getY(), this.getZ() - distance);
-            case SOUTH:
+            case 3: // SOUTH
                 return new BlockPos(this.getX(), this.getY(), this.getZ() + distance);
-            case WEST:
+            case 4: // WEST
                 return new BlockPos(this.getX() - distance, this.getY(), this.getZ());
-            case EAST:
+            case 5: // EAST
                 return new BlockPos(this.getX() + distance, this.getY(), this.getZ());
             default:
-                // [VanillaCode]
+                // [VanillaCopy]
                 return new BlockPos(this.getX() + direction.getOffsetX() * distance, this.getY() + direction.getOffsetY() * distance, this.getZ() + direction.getOffsetZ() * distance);
         }
+    }
+
+    /**
+     * @reason Use better implementation
+     * @author Maity
+     */
+    @Overwrite
+    public BlockPos offset(Direction direction) {
+        return this.offset(direction, 1);
     }
 }
