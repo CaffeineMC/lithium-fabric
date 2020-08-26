@@ -50,7 +50,7 @@ public class LithiumConfig {
         this.addMixinRule("cached_hashcode", true);
 
         this.addMixinRule("chunk", true);
-        this.addMixinRule("chunk.no_locking", false);
+        this.addMixinRule("chunk.no_locking", true);
         this.addMixinRule("chunk.palette", true);
         this.addMixinRule("chunk.serialization", true);
 
