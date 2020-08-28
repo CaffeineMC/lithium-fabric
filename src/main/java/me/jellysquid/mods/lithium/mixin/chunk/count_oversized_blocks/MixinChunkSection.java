@@ -59,7 +59,7 @@ public abstract class MixinChunkSection implements ChunkAwareBlockCollisionSweep
                     value = "INVOKE",
                     target = "Lnet/minecraft/block/BlockState;hasRandomTicks()Z",
                     shift = At.Shift.BEFORE,
-                    ordinal = 0,
+                    ordinal = 0
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
