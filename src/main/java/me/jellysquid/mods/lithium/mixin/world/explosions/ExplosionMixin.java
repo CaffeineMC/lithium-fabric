@@ -67,9 +67,7 @@ public abstract class ExplosionMixin {
     public abstract DamageSource getDamageSource();
 
     @Shadow
-    public static float getExposure(Vec3d self, Entity entity) {
-        throw new UnsupportedOperationException();
-    }
+    public static native float getExposure(Vec3d self, Entity entity);
 
     @Shadow
     @Final
@@ -78,6 +76,7 @@ public abstract class ExplosionMixin {
     @Shadow
     @Final
     private ExplosionBehavior behavior;
+
     // The cached mutable block position used during block traversal.
     private final BlockPos.Mutable cachedPos = new BlockPos.Mutable();
 

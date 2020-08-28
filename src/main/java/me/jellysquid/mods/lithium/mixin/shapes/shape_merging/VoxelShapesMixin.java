@@ -11,10 +11,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(VoxelShapes.class)
 public class VoxelShapesMixin {
+
     /**
      * Replaces the returned list pair with our own optimized type.
      */
-    @Inject(method = "createListPair", at = @At(value = "NEW", target = "net/minecraft/util/shape/SimplePairList", shift = At.Shift.BEFORE), cancellable = true)
+    @Inject(
+            method = "createListPair",
+            at = @At(
+                    value = "NEW",
+                    target = "net/minecraft/util/shape/SimplePairList",
+                    shift = At.Shift.BEFORE
+            ),
+            cancellable = true
+    )
     private static void injectCustomListPair(int size, DoubleList a, DoubleList b, boolean flag1, boolean flag2, CallbackInfoReturnable<PairList> cir) {
         cir.setReturnValue(new LithiumDoublePairList(a, b, flag1, flag2));
     }

@@ -27,9 +27,7 @@ public abstract class ChunkTicketManagerMixin {
     private ChunkTicketManager.TicketDistanceLevelPropagator distanceFromTicketTracker;
 
     @Shadow
-    private static int getLevel(SortedArraySet<ChunkTicket<?>> sortedArraySet) {
-        throw new UnsupportedOperationException();
-    }
+    private static native int getLevel(SortedArraySet<ChunkTicket<?>> sortedArraySet);
 
     /**
      * @reason Remove lambda allocation in every iteration

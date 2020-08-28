@@ -84,29 +84,30 @@ public abstract class VoxelShapesMixin {
         int xRes;
         int yRes;
         int zRes;
-        //findRequiredBitResolution(...) looks unnecessarily slow, and it seems to unintentionally return -1 on inputs like -1e-8,
-        //A faster implementation is not in the scope of this mixin.
+        // findRequiredBitResolution(...) looks unnecessarily slow, and it seems to unintentionally return -1 on inputs
+        // like -1e-8, a faster implementation is not in the scope of this mixin.
 
-        //Description of what vanilla does:
-        //If the VoxelShape cannot be represented by a BitSet with 3 bit resolution on any axis (BitSetVoxelSet),
-        //a shape without boxes inside will be used in vanilla (ArrayVoxelShape with only 2 PointPositions on each axis)
+        // Description of what vanilla does:
+        // If the VoxelShape cannot be represented by a BitSet with 3 bit resolution on any axis (BitSetVoxelSet), a shape
+        // without boxes inside will be used in vanilla (ArrayVoxelShape with only 2 PointPositions on each axis).
 
         if ((xRes = VoxelShapes.findRequiredBitResolution(box.minX, box.maxX)) == -1 ||
                 (yRes = VoxelShapes.findRequiredBitResolution(box.minY, box.maxY)) == -1 ||
                 (zRes = VoxelShapes.findRequiredBitResolution(box.minZ, box.maxZ)) == -1) {
-            //vanilla uses ArrayVoxelShape here without any rounding of the coordinates
+            // Vanilla uses ArrayVoxelShape here without any rounding of the coordinates
             return new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
-        }
-        //vanilla rounds the coordinates to be aligned to the resolution. We just round to 1/8 of a block, which also rounds to 1/4 and 1/2 of a block correctly.
-        else if ((xRes <= 1 || (box.maxX - box.minX) * (1 << xRes) < 1.5D) &&
+
+        // Vanilla rounds the coordinates to be aligned to the resolution. We just round to 1/8 of a block, which also rounds to 1/4 and 1/2 of a block correctly.
+        } else if ((xRes <= 1 || (box.maxX - box.minX) * (1 << xRes) < 1.5D) &&
                 (yRes <= 1 || (box.maxY - box.minY) * (1 << yRes) < 1.5D) &&
                 (zRes <= 1 || (box.maxZ - box.minZ) * (1 << zRes) < 1.5D)) {
-            //here we ensured that the VoxelShape is at most one bit in the BitSet large in vanilla.
-            //Therefore there are no hitboxes inside, as they are only between the space represented by the BitSetVoxelSet entries
-            //Use a VoxelShapeSimpleCube if there is no extra hitbox inside the shape
+            // Here we ensured that the VoxelShape is at most one bit in the BitSet large in vanilla.
+            // Therefore there are no hitboxes inside, as they are only between the space represented by the BitSetVoxelSet entries
+            // Use a VoxelShapeSimpleCube if there is no extra hitbox inside the shape
             return new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, Math.round(box.minX * 8D) / 8D, Math.round(box.minY * 8D) / 8D, Math.round(box.minZ * 8D) / 8D, Math.round(box.maxX * 8D) / 8D, Math.round(box.maxY * 8D) / 8D, Math.round(box.maxZ * 8D) / 8D);
-        }
-        else { //vanilla would use a SimpleVoxelShape with a BitSetVoxelSet of resolution of xRes, yRes, zRes here, we match its behavior
+
+            // Vanilla would use a SimpleVoxelShape with a BitSetVoxelSet of resolution of xRes, yRes, zRes here, we match its behavior.
+        } else {
             return new VoxelShapeAlignedCuboid(FULL_CUBE_VOXELS,Math.round(box.minX * 8D) / 8D, Math.round(box.minY * 8D) / 8D, Math.round(box.minZ * 8D) / 8D, Math.round(box.maxX * 8D) / 8D, Math.round(box.maxY * 8D) / 8D, Math.round(box.maxZ * 8D) / 8D, xRes, yRes, zRes);
         }
     }

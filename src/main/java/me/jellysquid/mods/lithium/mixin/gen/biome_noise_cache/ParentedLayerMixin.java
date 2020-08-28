@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.Overwrite;
  */
 @Mixin(ParentedLayer.class)
 public interface ParentedLayerMixin extends ParentedLayer {
+
     /**
      * @reason Replace with a memoized layer factory
      * @author gegy1000

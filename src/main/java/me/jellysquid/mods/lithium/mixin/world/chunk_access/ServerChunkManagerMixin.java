@@ -62,6 +62,7 @@ public abstract class ServerChunkManagerMixin {
     @Shadow
     @Final
     private Thread serverThread;
+
     private long time;
 
     @Inject(method = "tick()Z", at = @At("HEAD"))

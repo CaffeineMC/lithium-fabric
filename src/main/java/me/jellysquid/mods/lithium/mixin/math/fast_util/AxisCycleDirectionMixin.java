@@ -25,11 +25,11 @@ public class AxisCycleDirectionMixin {
         @Overwrite
         public Direction.Axis cycle(Direction.Axis axis) {
             switch (axis.ordinal()) {
-                case 0: //X
+                case 0: // X
                     return Direction.Axis.Y;
-                case 1: //Y
+                case 1: // Y
                     return Direction.Axis.Z;
-                case 2: //Z
+                case 2: // Z
                     return Direction.Axis.X;
             }
 
@@ -46,11 +46,11 @@ public class AxisCycleDirectionMixin {
         @Overwrite
         public Direction.Axis cycle(Direction.Axis axis) {
             switch (axis.ordinal()) {
-                case 0: //X
+                case 0: // X
                     return Direction.Axis.Z;
-                case 1: //Y
+                case 1: // Y
                     return Direction.Axis.X;
-                case 2: //Z
+                case 2: // Z
                     return Direction.Axis.Y;
             }
 

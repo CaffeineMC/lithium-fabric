@@ -16,11 +16,17 @@ import java.util.function.Predicate;
 
 @Mixin(ItemFrameEntity.class)
 public abstract class ItemFrameEntityMixin extends AbstractDecorationEntity {
-    protected ItemFrameEntityMixin(EntityType<? extends AbstractDecorationEntity> entityType_1, World world_1) {
-        super(entityType_1, world_1);
+    private ItemFrameEntityMixin(EntityType<? extends AbstractDecorationEntity> type, World world) {
+        super(type, world);
     }
 
-    @Redirect(method = "canStayAttached", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getOtherEntities(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"))
+    @Redirect(
+            method = "canStayAttached",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/World;getOtherEntities(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"
+            )
+    )
     private List<Entity> getAbstractDecorationEntities(World world, Entity excluded, Box box, Predicate<? super Entity> predicate) {
         if (predicate == PREDICATE) {
             return WorldHelper.getEntitiesOfClass(world, excluded, AbstractDecorationEntity.class, box);

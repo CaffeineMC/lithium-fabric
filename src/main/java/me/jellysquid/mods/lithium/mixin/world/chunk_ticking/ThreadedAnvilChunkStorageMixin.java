@@ -22,9 +22,7 @@ public abstract class ThreadedAnvilChunkStorageMixin {
     private PlayerChunkWatchingManager playerChunkWatchingManager;
 
     @Shadow
-    private static double getSquaredDistance(ChunkPos pos, Entity entity) {
-        throw new UnsupportedOperationException();
-    }
+    private static native double getSquaredDistance(ChunkPos pos, Entity entity);
 
     /**
      * The usage of stream code here can be rather costly, as this method will be called for every loaded chunk each

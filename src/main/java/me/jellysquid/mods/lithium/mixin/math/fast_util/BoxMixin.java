@@ -47,11 +47,11 @@ public class BoxMixin {
     @Overwrite
     public double getMin(Direction.Axis axis) {
         switch (axis.ordinal()) {
-            case 0: //X
+            case 0: // X
                 return this.minX;
-            case 1: //Y
+            case 1: // Y
                 return this.minY;
-            case 2: //Z
+            case 2: // Z
                 return this.minZ;
         }
 
@@ -65,11 +65,11 @@ public class BoxMixin {
     @Overwrite
     public double getMax(Direction.Axis axis) {
         switch (axis.ordinal()) {
-            case 0: //X
+            case 0: // X
                 return this.maxX;
-            case 1: //Y
+            case 1: // Y
                 return this.maxY;
-            case 2: //Z
+            case 2: // Z
                 return this.maxZ;
         }
 

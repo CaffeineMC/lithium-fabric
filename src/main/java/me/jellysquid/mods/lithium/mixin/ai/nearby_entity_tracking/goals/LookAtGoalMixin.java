@@ -26,12 +26,24 @@ public class LookAtGoalMixin {
         ((NearbyEntityListenerProvider) mob).getListener().addListener(this.tracker);
     }
 
-    @Redirect(method = "canStart", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getClosestEntityIncludingUngeneratedChunks(Ljava/lang/Class;Lnet/minecraft/entity/ai/TargetPredicate;Lnet/minecraft/entity/LivingEntity;DDDLnet/minecraft/util/math/Box;)Lnet/minecraft/entity/LivingEntity;"))
+    @Redirect(
+            method = "canStart",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/World;getClosestEntityIncludingUngeneratedChunks(Ljava/lang/Class;Lnet/minecraft/entity/ai/TargetPredicate;Lnet/minecraft/entity/LivingEntity;DDDLnet/minecraft/util/math/Box;)Lnet/minecraft/entity/LivingEntity;"
+            )
+    )
     private <T extends LivingEntity> LivingEntity redirectGetClosestEntity(World world, Class<? extends T> entityClass, TargetPredicate targetPredicate, LivingEntity entity, double x, double y, double z, Box box) {
         return this.tracker.getClosestEntity(box, targetPredicate);
     }
 
-    @Redirect(method = "canStart", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getClosestPlayer(Lnet/minecraft/entity/ai/TargetPredicate;Lnet/minecraft/entity/LivingEntity;DDD)Lnet/minecraft/entity/player/PlayerEntity;"))
+    @Redirect(
+            method = "canStart",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/World;getClosestPlayer(Lnet/minecraft/entity/ai/TargetPredicate;Lnet/minecraft/entity/LivingEntity;DDD)Lnet/minecraft/entity/player/PlayerEntity;"
+            )
+    )
     private PlayerEntity redirectGetClosestPlayer(World world, TargetPredicate targetPredicate, LivingEntity entity, double x, double y, double z) {
         return (PlayerEntity) this.tracker.getClosestEntity(null, targetPredicate);
     }

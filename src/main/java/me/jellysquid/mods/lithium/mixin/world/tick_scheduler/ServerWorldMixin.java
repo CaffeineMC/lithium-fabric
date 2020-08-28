@@ -15,6 +15,7 @@ import java.util.function.Predicate;
 
 @Mixin(ServerWorld.class)
 public abstract class ServerWorldMixin {
+
     /**
      * Redirects the creation of the vanilla server tick scheduler with our own. This only happens once per world load.
      */

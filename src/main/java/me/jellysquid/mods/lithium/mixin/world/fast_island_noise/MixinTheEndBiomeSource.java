@@ -18,19 +18,29 @@ public class MixinTheEndBiomeSource {
     @Shadow
     @Final
     private SimplexNoiseSampler noise;
-    private ThreadLocal<SimplexNoiseCache> tlCache;
 
-    @Inject(method = "<init>(Lnet/minecraft/util/registry/Registry;JLnet/minecraft/world/biome/Biome;Lnet/minecraft/world/biome/Biome;Lnet/minecraft/world/biome/Biome;Lnet/minecraft/world/biome/Biome;Lnet/minecraft/world/biome/Biome;)V",
-            at = @At("RETURN"))
-    private void hookConstructor(Registry<Biome> registry, long seed, Biome biome, Biome biome2, Biome biome3, Biome biome4, Biome biome5, CallbackInfo ci) {
-        tlCache = ThreadLocal.withInitial(() -> new SimplexNoiseCache(this.noise));
+    private ThreadLocal<SimplexNoiseCache> threadLocalCache;
+
+    @Inject(
+            method = "<init>(Lnet/minecraft/util/registry/Registry;JLnet/minecraft/world/biome/Biome;Lnet/minecraft/world/biome/Biome;Lnet/minecraft/world/biome/Biome;Lnet/minecraft/world/biome/Biome;Lnet/minecraft/world/biome/Biome;)V",
+            at = @At("RETURN")
+    )
+    private void hookConstructor(Registry<Biome> registry, long seed, Biome biome, Biome biome2, Biome biome3, Biome biome4,
+                                 Biome biome5, CallbackInfo ci) {
+        this.threadLocalCache = ThreadLocal.withInitial(() -> new SimplexNoiseCache(this.noise));
     }
 
     /**
      * Use our fast cache instead of vanilla's uncached noise generation.
      */
-    @Redirect(method = "getBiomeForNoiseGen", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/biome/source/TheEndBiomeSource;getNoiseAt(Lnet/minecraft/util/math/noise/SimplexNoiseSampler;II)F"))
+    @Redirect(
+            method = "getBiomeForNoiseGen",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/biome/source/TheEndBiomeSource;getNoiseAt(Lnet/minecraft/util/math/noise/SimplexNoiseSampler;II)F"
+            )
+    )
     private float handleNoiseSample(SimplexNoiseSampler simplexNoiseSampler, int x, int z) {
-        return tlCache.get().getNoiseAt(x, z);
+        return this.threadLocalCache.get().getNoiseAt(x, z);
     }
 }

@@ -16,6 +16,7 @@ import java.util.stream.Stream;
  */
 @Mixin(EntityView.class)
 public interface EntityViewMixin {
+
     /**
      * @reason Avoid usage of heavy stream code
      * @author JellySquid

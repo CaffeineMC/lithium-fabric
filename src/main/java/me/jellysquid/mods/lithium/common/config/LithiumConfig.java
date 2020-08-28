@@ -50,8 +50,8 @@ public class LithiumConfig {
         this.addMixinRule("cached_hashcode", true);
 
         this.addMixinRule("chunk", true);
+        this.addMixinRule("chunk.count_oversized_blocks", true);
         this.addMixinRule("chunk.no_locking", false);
-        this.addMixinRule("chunk.oversized_blocks", true);
         this.addMixinRule("chunk.palette", true);
         this.addMixinRule("chunk.serialization", true);
 
@@ -73,7 +73,7 @@ public class LithiumConfig {
         this.addMixinRule("gen.fast_layer_sampling", true);
         this.addMixinRule("gen.fast_multi_source_biomes", true);
         this.addMixinRule("gen.fast_noise_interpolation", true);
-        this.addMixinRule("gen.features", true);
+        this.addMixinRule("gen.feature_finding", true);
         this.addMixinRule("gen.perlin_noise", true);
         this.addMixinRule("gen.voronoi_biomes", true);
 
@@ -89,7 +89,7 @@ public class LithiumConfig {
         this.addMixinRule("tag", true);
 
         this.addMixinRule("world", true);
-        this.addMixinRule("world.block_entity_ticking", true);
+        this.addMixinRule("world.block_entity_unloading", true);
         this.addMixinRule("world.chunk_access", true);
         this.addMixinRule("world.chunk_inline_block_access", true);
         this.addMixinRule("world.chunk_task_system", true);

@@ -28,9 +28,7 @@ public abstract class LandPathNodeMakerMixin {
     private static final Reference2ReferenceMap<BlockState, PathNodeType> neighborTypes = new Reference2ReferenceOpenHashMap<>();
 
     @Shadow
-    private static boolean method_27138(BlockState blockState) {
-        throw new UnsupportedOperationException();
-    }
+    private static native boolean method_27138(BlockState blockState);
 
     /**
      * @reason Use optimized implementation
