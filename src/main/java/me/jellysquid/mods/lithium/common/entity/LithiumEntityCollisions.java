@@ -39,23 +39,13 @@ public class LithiumEntityCollisions {
         final ChunkAwareBlockCollisionSweeper sweeper = new ChunkAwareBlockCollisionSweeper(world, entity, box, predicate);
 
         return StreamSupport.stream(new Spliterators.AbstractSpliterator<VoxelShape>(Long.MAX_VALUE, Spliterator.NONNULL | Spliterator.IMMUTABLE) {
-            private boolean skipWorldBorderCheck = entity == null;
-
             @Override
             public boolean tryAdvance(Consumer<? super VoxelShape> consumer) {
-                if (!this.skipWorldBorderCheck) {
-                    this.skipWorldBorderCheck = true;
+                VoxelShape shape = sweeper.getNextCollidedShape();
 
-                    if (canEntityCollideWithWorldBorder(world, entity)) {
-                        consumer.accept(world.getWorldBorder().asVoxelShape());
-
-                        return true;
-                    }
-                }
-
-                VoxelShape shape = sweeper.step();
                 if (shape != null) {
                     consumer.accept(shape);
+
                     return true;
                 }
 
@@ -75,8 +65,8 @@ public class LithiumEntityCollisions {
         }
 
         final ChunkAwareBlockCollisionSweeper sweeper = new ChunkAwareBlockCollisionSweeper(world, entity, box, predicate);
+        final VoxelShape shape = sweeper.getNextCollidedShape();
 
-        VoxelShape shape = sweeper.step();
         return shape != null;
     }
 
@@ -158,7 +148,7 @@ public class LithiumEntityCollisions {
      *
      * @return True if the {@param box} is fully within the {@param border}, otherwise false.
      */
-    public static boolean isBoxFullyWithinWorldBorder(WorldBorder border, Box box) {
+    public static boolean isWithinWorldBorder(WorldBorder border, Box box) {
         double wboxMinX = Math.floor(border.getBoundWest());
         double wboxMinZ = Math.floor(border.getBoundNorth());
 
@@ -169,11 +159,11 @@ public class LithiumEntityCollisions {
                 box.maxX >= wboxMinX && box.maxX < wboxMaxX && box.maxZ >= wboxMinZ && box.maxZ < wboxMaxZ;
     }
 
-    private static boolean canEntityCollideWithWorldBorder(CollisionView world, Entity entity) {
+    public static boolean canEntityCollideWithWorldBorder(CollisionView world, Entity entity) {
         WorldBorder border = world.getWorldBorder();
 
-        boolean isInsideBorder = isBoxFullyWithinWorldBorder(border, entity.getBoundingBox().contract(EPSILON));
-        boolean isCrossingBorder = isBoxFullyWithinWorldBorder(border, entity.getBoundingBox().expand(EPSILON));
+        boolean isInsideBorder = isWithinWorldBorder(border, entity.getBoundingBox().contract(EPSILON));
+        boolean isCrossingBorder = isWithinWorldBorder(border, entity.getBoundingBox().expand(EPSILON));
 
         return !isInsideBorder && isCrossingBorder;
     }
