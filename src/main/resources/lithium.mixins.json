@@ -96,7 +96,6 @@
         "world.fast_island_noise.MixinTheEndBiomeSource",
         "world.mob_spawning.SpawnSettingsMixin",
         "world.mob_spawning.StructureAccessorMixin",
-        "world.player_chunk_tick.ThreadedAnvilChunkStorageMixin",
         "world.tick_scheduler.ServerWorldMixin"
     ]
 }
