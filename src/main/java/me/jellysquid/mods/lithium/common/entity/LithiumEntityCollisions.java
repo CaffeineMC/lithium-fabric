@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.common.entity;
 
+import me.jellysquid.mods.lithium.common.entity.movement.BlockCollisionPredicate;
 import me.jellysquid.mods.lithium.common.entity.movement.ChunkAwareBlockCollisionSweeper;
 import me.jellysquid.mods.lithium.common.util.Producer;
 import net.minecraft.entity.Entity;
@@ -26,13 +27,16 @@ public class LithiumEntityCollisions {
      * This is a much, much faster implementation which uses simple collision testing against full-cube block shapes.
      * Checks against the world border are replaced with our own optimized functions which do not go through the
      * VoxelShape system.
+     *
+     * The {@link BlockCollisionPredicate} can be used to filter which blocks will be considered for collision testing
+     * during iteration.
      */
-    public static Stream<VoxelShape> getBlockCollisions(CollisionView world, Entity entity, Box box) {
+    public static Stream<VoxelShape> getBlockCollisions(CollisionView world, Entity entity, Box box, BlockCollisionPredicate predicate) {
         if (isBoxEmpty(box)) {
             return Stream.empty();
         }
 
-        final ChunkAwareBlockCollisionSweeper sweeper = new ChunkAwareBlockCollisionSweeper(world, entity, box);
+        final ChunkAwareBlockCollisionSweeper sweeper = new ChunkAwareBlockCollisionSweeper(world, entity, box, predicate);
 
         return StreamSupport.stream(new Spliterators.AbstractSpliterator<VoxelShape>(Long.MAX_VALUE, Spliterator.NONNULL | Spliterator.IMMUTABLE) {
             private boolean skipWorldBorderCheck = entity == null;
@@ -61,16 +65,16 @@ public class LithiumEntityCollisions {
     }
 
     /**
-     * See {@link LithiumEntityCollisions#getBlockCollisions(CollisionView, Entity, Box)}
+     * See {@link LithiumEntityCollisions#getBlockCollisions(CollisionView, Entity, Box, BlockCollisionPredicate)}
      *
      * @return True if the box (possibly that of an entity's) collided with any blocks
      */
-    public static boolean doesBoxCollideWithBlocks(CollisionView world, Entity entity, Box box) {
+    public static boolean doesBoxCollideWithBlocks(CollisionView world, Entity entity, Box box, BlockCollisionPredicate predicate) {
         if (isBoxEmpty(box)) {
             return false;
         }
 
-        final ChunkAwareBlockCollisionSweeper sweeper = new ChunkAwareBlockCollisionSweeper(world, entity, box);
+        final ChunkAwareBlockCollisionSweeper sweeper = new ChunkAwareBlockCollisionSweeper(world, entity, box, predicate);
 
         VoxelShape shape = sweeper.step();
         return shape != null;

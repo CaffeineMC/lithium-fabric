@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.entity.collisions;
 
 import me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions;
+import me.jellysquid.mods.lithium.common.entity.movement.BlockCollisionPredicate;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.shape.VoxelShape;
@@ -23,7 +24,7 @@ public interface CollisionViewMixin {
      */
     @Overwrite
     default Stream<VoxelShape> getBlockCollisions(final Entity entity, Box box) {
-        return LithiumEntityCollisions.getBlockCollisions((CollisionView) this, entity, box);
+        return LithiumEntityCollisions.getBlockCollisions((CollisionView) this, entity, box, BlockCollisionPredicate.ANY);
     }
 
     /**
@@ -32,7 +33,7 @@ public interface CollisionViewMixin {
      */
     @Overwrite
     default boolean doesNotCollide(Entity entity, Box box, Predicate<Entity> predicate) {
-        boolean ret = !LithiumEntityCollisions.doesBoxCollideWithBlocks((CollisionView) this, entity, box);
+        boolean ret = !LithiumEntityCollisions.doesBoxCollideWithBlocks((CollisionView) this, entity, box, BlockCollisionPredicate.ANY);
 
         // If no blocks were collided with, try to check for entity collisions if we can read entities
         if (ret && this instanceof EntityView) {
