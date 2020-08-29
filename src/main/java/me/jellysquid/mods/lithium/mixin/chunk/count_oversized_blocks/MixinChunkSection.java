@@ -1,9 +1,10 @@
-package me.jellysquid.mods.lithium.mixin.chunk.oversized_blocks;
+package me.jellysquid.mods.lithium.mixin.chunk.count_oversized_blocks;
 
 import me.jellysquid.mods.lithium.common.entity.movement.ChunkAwareBlockCollisionSweeper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.PalettedContainer;
@@ -46,8 +47,8 @@ public abstract class MixinChunkSection implements ChunkAwareBlockCollisionSweep
     }
 
     @Inject(method = "setBlockState(IIILnet/minecraft/block/BlockState;Z)Lnet/minecraft/block/BlockState;", at = @At(ordinal = 0, value = "INVOKE", target = "Lnet/minecraft/block/BlockState;hasRandomTicks()Z", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void decrOversizedBlockCount(int x, int y, int z, BlockState state, boolean lock, CallbackInfoReturnable<BlockState> cir) {
-        if (state.exceedsCube()) {
+    private void decrOversizedBlockCount(int x, int y, int z, BlockState state, boolean lock, CallbackInfoReturnable<BlockState> cir, BlockState blockState2, FluidState fluidState, FluidState fluidState2) {
+        if (blockState2.exceedsCube()) {
             --this.oversizedBlockCount;
         }
     }

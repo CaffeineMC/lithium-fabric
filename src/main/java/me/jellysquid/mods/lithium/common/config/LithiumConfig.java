@@ -51,7 +51,6 @@ public class LithiumConfig {
 
         this.addMixinRule("chunk", true);
         this.addMixinRule("chunk.no_locking", false);
-        this.addMixinRule("chunk.oversized_blocks", true);
         this.addMixinRule("chunk.palette", true);
         this.addMixinRule("chunk.serialization", true);
 
