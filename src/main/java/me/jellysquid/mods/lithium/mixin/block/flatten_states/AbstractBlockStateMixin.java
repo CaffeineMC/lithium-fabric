@@ -11,7 +11,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-
+/**
+ * This patch safely avoids excessive overhead in some hot methods by caching some constant values in the BlockState
+ * itself, excluding dynamic dispatch and the pointer dereferences.
+ */
 @Mixin(AbstractBlock.AbstractBlockState.class)
 public abstract class AbstractBlockStateMixin {
     @Shadow
@@ -21,24 +24,24 @@ public abstract class AbstractBlockStateMixin {
     public abstract Block getBlock();
 
     /**
-     * We can avoid excessive overhead in looking up the fluid state of a block by caching those values in the
-     * BlockState itself. This notably improves performance when scanning for fluid blocks by eliminating the pointer
-     * dereferences, dynamic dispatch, and bounds check of calling into BaseFluid to retrieve a fluid.
-     * <p>
-     * The fluid state is constant for any given block state, therefore making it safe to cache it. However, the block
-     * implementation may not be initialized fully before this block state is constructed.
-     * <p>
-     * If this value is null, it is assumed that the value has not been cached and that we should fall back to calling
-     * Block#getFluidState(BlockState).
+     * The fluid state is constant for any given block state, so it can be safely cached. This notably improves performance
+     * when scanning for fluid blocks.
      */
-    private FluidState fluidState = null;
+    private FluidState fluidStateCache = null;
+
+    /**
+     * Indicates whether the current block state can be ticked. Since this value is always the same for any given block state
+     * and random block ticking is a frequent process during chunk ticking, in theory this is a very good change.
+     */
+    private boolean isTickable;
 
     /**
      * We can't use the ctor as a BlockState will be constructed *before* a Block has fully initialized.
      */
     @Inject(method = "initShapeCache", at = @At("HEAD"))
     private void init(CallbackInfo ci) {
-        this.fluidState = this.getBlock().getFluidState(this.asBlockState());
+        this.fluidStateCache = this.getBlock().getFluidState(this.asBlockState());
+        this.isTickable = this.getBlock().hasRandomTicks(this.asBlockState());
     }
 
     /**
@@ -47,6 +50,19 @@ public abstract class AbstractBlockStateMixin {
      */
     @Overwrite
     public FluidState getFluidState() {
-        return this.fluidState == null ? this.getBlock().getFluidState(this.asBlockState()) : this.fluidState;
+        if (this.fluidStateCache == null) {
+            this.fluidStateCache = this.getBlock().getFluidState(this.asBlockState());
+        }
+
+        return this.fluidStateCache;
+    }
+
+    /**
+     * @reason Use cached property
+     * @author Maity
+     */
+    @Overwrite
+    public boolean hasRandomTicks() {
+        return this.isTickable;
     }
 }

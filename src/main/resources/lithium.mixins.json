@@ -41,6 +41,7 @@
     "alloc.enum_values.PistonHandlerMixin",
     "alloc.world_ticking.ServerWorldMixin",
     "block.flatten_states.AbstractBlockStateMixin",
+    "block.flatten_states.FluidStateMixin",
     "block.piston_shapes.PistonHeadBlockMixin",
     "cached_hashcode.BlockNeighborGroupMixin",
     "chunk.count_oversized_blocks.MixinChunkSection",
