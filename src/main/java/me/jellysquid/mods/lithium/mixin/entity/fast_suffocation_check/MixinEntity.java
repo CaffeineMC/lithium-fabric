@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.entity.fast_suffocation_check;
 
 import me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions;
+import me.jellysquid.mods.lithium.common.entity.movement.BlockCollisionPredicate;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.util.math.Box;
@@ -41,9 +42,10 @@ public abstract class MixinEntity {
 
         float width = this.dimensions.width * 0.8F;
 
-        Box box = Box.method_30048(width, 0.10000000149011612D, width)
+        Box box = Box.method_30048(width, 0.1D, width)
                 .offset(this.getX(), this.getEyeY(), this.getZ());
 
-        return LithiumEntityCollisions.doesBoxCollideWithBlocks(this.world, (Entity) (Object) this, box);
+        return LithiumEntityCollisions.doesBoxCollideWithBlocks(this.world, (Entity) (Object) this, box,
+                BlockCollisionPredicate.SUFFOCATES);
     }
 }
