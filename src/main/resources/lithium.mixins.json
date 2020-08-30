@@ -58,6 +58,7 @@
     "entity.data_tracker.no_locks.DataTrackerMixin",
     "entity.data_tracker.use_arrays.DataTrackerMixin",
     "entity.fast_suffocation_check.MixinEntity",
+    "entity.fire.EntityMixin",
     "entity.gravity_check_block_below.VoxelShapesMixin",
     "entity.replace_entitytype_predicates.AbstractDecorationEntityMixin",
     "entity.replace_entitytype_predicates.ArmorStandEntityMixin",
