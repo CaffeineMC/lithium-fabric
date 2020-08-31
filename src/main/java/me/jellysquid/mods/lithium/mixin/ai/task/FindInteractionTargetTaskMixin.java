@@ -34,7 +34,7 @@ public abstract class FindInteractionTargetTaskMixin extends Task<LivingEntity> 
     @Final
     private int maxSquaredDistance;
 
-    public FindInteractionTargetTaskMixin(Map<MemoryModuleType<?>, MemoryModuleState> memories) {
+    private FindInteractionTargetTaskMixin(Map<MemoryModuleType<?>, MemoryModuleState> memories) {
         super(memories);
     }
 
