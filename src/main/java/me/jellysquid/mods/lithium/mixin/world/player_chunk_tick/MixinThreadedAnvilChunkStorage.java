@@ -32,87 +32,88 @@ public abstract class MixinThreadedAnvilChunkStorage {
             }
         }
 
-        ChunkSectionPos prevPos = player.getCameraPosition();
+        ChunkSectionPos oldPos = player.getCameraPosition();
         ChunkSectionPos newPos = ChunkSectionPos.from(player);
 
-        long prevPosKey = ChunkPos.toLong(prevPos.getX(), prevPos.getZ());
-        long newPosKey = ChunkPos.toLong(newPos.getX(), newPos.getZ());
+        boolean isWatchingWorld = this.playerChunkWatchingManager.isWatchDisabled(player);
+        boolean doesNotGenerateChunks = this.doesNotGenerateChunks(player);
+        boolean movedSections = !newPos.equals(oldPos);
 
-        // Check whether the player has entered a new chunk. If not, we do not need to consider
-        if (prevPosKey == newPosKey) {
+        if (movedSections || isWatchingWorld != doesNotGenerateChunks) {
+            // Notify the client that the chunk map origin has changed. This must happen before any chunk payloads are sent.
+            this.method_20726(player);
+
+            if (!isWatchingWorld) {
+                this.ticketManager.handleChunkLeave(oldPos, player);
+            }
+
+            if (!doesNotGenerateChunks) {
+                this.ticketManager.handleChunkEnter(newPos, player);
+            }
+
+            if (!isWatchingWorld && doesNotGenerateChunks) {
+                this.playerChunkWatchingManager.disableWatch(player);
+            }
+
+            if (isWatchingWorld && !doesNotGenerateChunks) {
+                this.playerChunkWatchingManager.enableWatch(player);
+            }
+
+            long oldChunkPos = ChunkPos.toLong(oldPos.getX(), oldPos.getZ());
+            long newChunkPos = ChunkPos.toLong(newPos.getX(), newPos.getZ());
+
+            this.playerChunkWatchingManager.movePlayer(oldChunkPos, newChunkPos, player);
+        } else {
+            // The player hasn't changed locations and isn't changing dimensions
             return;
         }
 
-        boolean isWatchDisabled = this.playerChunkWatchingManager.isWatchDisabled(player);
-        boolean doesNotGenerateChunks = this.doesNotGenerateChunks(player);
-
-        if (!isWatchDisabled) {
-            this.ticketManager.handleChunkLeave(prevPos, player);
-        }
-
-        if (!doesNotGenerateChunks) {
-            this.ticketManager.handleChunkEnter(newPos, player);
-        }
-
-        if (!isWatchDisabled && doesNotGenerateChunks) {
-            this.playerChunkWatchingManager.disableWatch(player);
-        }
-
-        if (isWatchDisabled && !doesNotGenerateChunks) {
-            this.playerChunkWatchingManager.enableWatch(player);
-        }
-
-        this.playerChunkWatchingManager.movePlayer(prevPosKey, newPosKey, player);
-
-        // Notify the client that the chunk map origin has changed. This must happen before any chunk payloads are sent.
-        this.method_20726(player);
-
-        // We can only send chunks if the world matches. This hoists a check that would otherwise be performed every
-        // time we try to send a chunk over.
+        // We can only send chunks if the world matches. This hoists a check that
+        // would otherwise be performed every time we try to send a chunk over.
         if (player.world == this.world) {
-            this.sendChunks(player);
+            this.sendChunks(oldPos, player);
         }
     }
 
-    private void sendChunks(ServerPlayerEntity player) {
-        int centerX = MathHelper.floor(player.getX()) >> 4;
-        int centerZ = MathHelper.floor(player.getZ()) >> 4;
+    private void sendChunks(ChunkSectionPos oldPos, ServerPlayerEntity player) {
+        int newCenterX = MathHelper.floor(player.getX()) >> 4;
+        int newCenterZ = MathHelper.floor(player.getZ()) >> 4;
 
-        int prevX = player.getCameraPosition().getSectionX();
-        int prevZ = player.getCameraPosition().getSectionZ();
+        int oldCenterX = oldPos.getSectionX();
+        int oldCenterZ = oldPos.getSectionZ();
 
-        int distance = this.watchDistance;
-        int diameter = distance * 2;
+        int watchRadius = this.watchDistance;
+        int watchDiameter = watchRadius * 2;
 
-        if (Math.abs(prevX - centerX) <= diameter && Math.abs(prevZ - centerZ) <= diameter) {
-            int minX = Math.min(centerX, prevX) - distance;
-            int minZ = Math.min(centerZ, prevZ) - distance;
-            int maxX = Math.max(centerX, prevX) + distance;
-            int maxZ = Math.max(centerZ, prevZ) + distance;
+        if (Math.abs(oldCenterX - newCenterX) <= watchDiameter && Math.abs(oldCenterZ - newCenterZ) <= watchDiameter) {
+            int minX = Math.min(newCenterX, oldCenterX) - watchRadius;
+            int minZ = Math.min(newCenterZ, oldCenterZ) - watchRadius;
+            int maxX = Math.max(newCenterX, oldCenterX) + watchRadius;
+            int maxZ = Math.max(newCenterZ, oldCenterZ) + watchRadius;
 
             for (int x = minX; x <= maxX; x++) {
                 for (int z = minZ; z <= maxZ; z++) {
-                    boolean prevLoaded = getChunkDistance(x, z, prevX, prevZ) <= distance;
-                    boolean loaded = getChunkDistance(x, z, centerX, centerZ) <= distance;
+                    boolean isWithinOldRadius = getChunkDistance(x, z, oldCenterX, oldCenterZ) <= watchRadius;
+                    boolean isWithinNewRadius = getChunkDistance(x, z, newCenterX, newCenterZ) <= watchRadius;
 
-                    if (loaded && !prevLoaded) {
+                    if (isWithinNewRadius && !isWithinOldRadius) {
                         this.startWatchingChunk(player, x, z);
                     }
 
-                    if (prevLoaded && !loaded) {
+                    if (isWithinOldRadius && !isWithinNewRadius) {
                         this.stopWatchingChunk(player, x, z);
                     }
                 }
             }
         } else {
-            for (int x = prevX - distance; x <= prevX + distance; ++x) {
-                for (int z = prevZ - distance; z <= prevZ + distance; ++z) {
+            for (int x = oldCenterX - watchRadius; x <= oldCenterX + watchRadius; ++x) {
+                for (int z = oldCenterZ - watchRadius; z <= oldCenterZ + watchRadius; ++z) {
                     this.stopWatchingChunk(player, x, z);
                 }
             }
 
-            for (int x = centerX - distance; x <= centerX + distance; ++x) {
-                for (int z = centerZ - distance; z <= centerZ + distance; ++z) {
+            for (int x = newCenterX - watchRadius; x <= newCenterX + watchRadius; ++x) {
+                for (int z = newCenterZ - watchRadius; z <= newCenterZ + watchRadius; ++z) {
                     this.startWatchingChunk(player, x, z);
                 }
             }
