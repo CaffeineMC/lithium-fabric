@@ -8,37 +8,41 @@ import net.minecraft.entity.vehicle.MinecartEntity;
 
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 
 /**
- * Class for grouping Entity classes that meet some requirement for use in TypeFilterableList
- * Designed to allow create groups of entity classes that are updated when mods add new entities that fit into the group.
+ * Class for grouping Entity classes by some property for use in TypeFilterableList
+ * It is intended that an EntityClassGroup acts as if it was immutable, however we cannot predict which subclasses of
+ * Entity might appear. Therefore we evaluate whether a class belongs to the class group when it is first seen.
+ * Once a class was evaluated the result of it is cached and cannot be changed.
  * @author 2No2Name
  */
 public class EntityClassGroup {
-    public static final EntityClassGroup COLLISION_BOX_OVERRIDE;
-    public static final EntityClassGroup HARD_COLLISION_BOX_OVERRIDE;
+    public static final EntityClassGroup BOAT_SHULKER_LIKE_COLLISION; //aka entities that other entities will do block-like collisions with when moving
+    public static final EntityClassGroup MINECART_BOAT_LIKE_COLLISION; //aka entities that will attempt to collide with all other entities when moving
 
     static {
         String remapped_method_30948 = FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_1297", "method_30948", "()Z");
-        COLLISION_BOX_OVERRIDE = new EntityClassGroup(
-                (Class<?> entityClass) -> isMethodDefinedInSubclass(entityClass, Entity.class, remapped_method_30948));
+        BOAT_SHULKER_LIKE_COLLISION = new EntityClassGroup(
+                (Class<?> entityClass) -> isMethodFromSuperclassOverwritten(entityClass, Entity.class, remapped_method_30948));
 
         String remapped_method_30949 = FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_1297", "method_30949", "(Lnet/minecraft/class_1297;)Z");
-        HARD_COLLISION_BOX_OVERRIDE = new EntityClassGroup(
-                (Class<?> entityClass) -> isMethodDefinedInSubclass(entityClass, Entity.class, remapped_method_30949, Entity.class));
+        MINECART_BOAT_LIKE_COLLISION = new EntityClassGroup(
+                (Class<?> entityClass) -> isMethodFromSuperclassOverwritten(entityClass, Entity.class, remapped_method_30949, Entity.class));
 
         //sanity check: in case intermediary mappings changed, we fail
-        if ((!HARD_COLLISION_BOX_OVERRIDE.contains(MinecartEntity.class))) {
+        if ((!MINECART_BOAT_LIKE_COLLISION.contains(MinecartEntity.class))) {
             throw new AssertionError();
         }
-        if ((!COLLISION_BOX_OVERRIDE.contains(ShulkerEntity.class))) {
+        if ((!BOAT_SHULKER_LIKE_COLLISION.contains(ShulkerEntity.class))) {
             throw new AssertionError();
         }
-        if ((HARD_COLLISION_BOX_OVERRIDE.contains(ShulkerEntity.class))) {
-            throw new AssertionError();
+        if ((MINECART_BOAT_LIKE_COLLISION.contains(ShulkerEntity.class))) {
+            //should not throw an Error here, because another mod *could* add the method to ShulkerEntity. Wwarning when this sanity check fails.
+            Logger.getLogger("Lithium EntityClassGroup").warning("Either chunk.entity_class_groups is broken or something else gave Shulkers the minecart-like collision behavior.");
         }
-        COLLISION_BOX_OVERRIDE.clear();
-        HARD_COLLISION_BOX_OVERRIDE.clear();
+        BOAT_SHULKER_LIKE_COLLISION.clear();
+        MINECART_BOAT_LIKE_COLLISION.clear();
     }
 
     private final Predicate<Class<?>> classFitEvaluator;
@@ -84,7 +88,7 @@ public class EntityClassGroup {
         return contains == 1;
     }
 
-    public static boolean isMethodDefinedInSubclass(Class<?> clazz, Class<?> superclass, String methodName, Class<?>... methodArgs) {
+    public static boolean isMethodFromSuperclassOverwritten(Class<?> clazz, Class<?> superclass, String methodName, Class<?>... methodArgs) {
         while(clazz != null && clazz != superclass && superclass.isAssignableFrom(clazz)) {
             try {
                 clazz.getDeclaredMethod(methodName, methodArgs);

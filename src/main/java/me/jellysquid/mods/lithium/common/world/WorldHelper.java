@@ -34,12 +34,12 @@ public class WorldHelper {
      * @return list of entities with collision boxes
      */
     public static List<Entity> getEntitiesWithCollisionBoxForEntity(EntityView entityView, Box box, Entity collidingEntity) {
-        if (CUSTOM_TYPE_FILTERABLE_LIST_DISABLED || collidingEntity != null && EntityClassGroup.HARD_COLLISION_BOX_OVERRIDE.contains(collidingEntity.getClass()) || !(entityView instanceof World)) {
+        if (CUSTOM_TYPE_FILTERABLE_LIST_DISABLED || collidingEntity != null && EntityClassGroup.MINECART_BOAT_LIKE_COLLISION.contains(collidingEntity.getClass()) || !(entityView instanceof World)) {
             //use vanilla code when method_30949 (previously getHardCollisionBox(Entity other)) is overwritten, as every entity could be relevant as argument of getHardCollisionBox
             return entityView.getOtherEntities(collidingEntity, box);
         } else {
             //only get entities that overwrite method_30948 (previously getCollisionBox)
-            return getEntitiesOfClassGroup((World)entityView, collidingEntity, EntityClassGroup.COLLISION_BOX_OVERRIDE, box, EXCEPT_SPECTATOR);
+            return getEntitiesOfClassGroup((World)entityView, collidingEntity, EntityClassGroup.BOAT_SHULKER_LIKE_COLLISION, box, EXCEPT_SPECTATOR);
         }
     }
 
