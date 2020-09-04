@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.common.entity;
 import me.jellysquid.mods.lithium.common.entity.movement.BlockCollisionPredicate;
 import me.jellysquid.mods.lithium.common.entity.movement.ChunkAwareBlockCollisionSweeper;
 import me.jellysquid.mods.lithium.common.util.Producer;
+import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.shape.VoxelShape;
@@ -110,7 +111,7 @@ public class LithiumEntityCollisions {
                      * In case entity's class is overriding method_30949, all types of entities may be (=> are assumed to be) required.
                      * Otherwise only get entities that override method_30948 are required, as other entities cannot collide.
                      */
-                    this.it = EntityClassGroupHelper.getEntitiesWithCollisionBoxForEntity(view, box, entity).iterator();
+                    this.it = WorldHelper.getEntitiesWithCollisionBoxForEntity(view, box, entity).iterator();
                 }
 
                 while (this.it.hasNext()) {
