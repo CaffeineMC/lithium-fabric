@@ -15,11 +15,18 @@ import java.util.function.Predicate;
  * @author 2No2Name
  */
 public class EntityClassGroup {
-    public static final EntityClassGroup COLLISION_BOX_OVERRIDE = new EntityClassGroup(
-            (Class<?> entityClass) -> isMethodDefinedInSubclass(entityClass, Entity.class, FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_1297", "method_30948", "()Z")));
-    public static final EntityClassGroup HARD_COLLISION_BOX_OVERRIDE = new EntityClassGroup(
-            (Class<?> entityClass) -> isMethodDefinedInSubclass(entityClass, Entity.class, FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_1297", "method_30949", "(Lnet/minecraft/class_1297;)Z"), Entity.class));
+    public static final EntityClassGroup COLLISION_BOX_OVERRIDE;
+    public static final EntityClassGroup HARD_COLLISION_BOX_OVERRIDE;
+
     static {
+        String remapped_method_30948 = FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_1297", "method_30948", "()Z");
+        COLLISION_BOX_OVERRIDE = new EntityClassGroup(
+                (Class<?> entityClass) -> isMethodDefinedInSubclass(entityClass, Entity.class, remapped_method_30948));
+
+        String remapped_method_30949 = FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_1297", "method_30949", "(Lnet/minecraft/class_1297;)Z");
+        HARD_COLLISION_BOX_OVERRIDE = new EntityClassGroup(
+                (Class<?> entityClass) -> isMethodDefinedInSubclass(entityClass, Entity.class, remapped_method_30949, Entity.class));
+
         //sanity check: in case intermediary mappings changed, we fail
         if ((!HARD_COLLISION_BOX_OVERRIDE.contains(MinecartEntity.class))) {
             throw new AssertionError();
@@ -33,7 +40,6 @@ public class EntityClassGroup {
         COLLISION_BOX_OVERRIDE.clear();
         HARD_COLLISION_BOX_OVERRIDE.clear();
     }
-
 
     private final Predicate<Class<?>> classFitEvaluator;
     private volatile Reference2ByteOpenHashMap<Class<?>> class2GroupContains;
