@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.chunk.collidableEntityList;
+package me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups;
 
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
@@ -81,7 +81,7 @@ public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterable
     /**
      * Start grouping by a new class group
      */
-    private <S> Collection<T> createAllOfGroupType(EntityClassGroup type) {
+    private Collection<T> createAllOfGroupType(EntityClassGroup type) {
         ReferenceLinkedOpenHashSet<T> allOfType = new ReferenceLinkedOpenHashSet<>();
 
         for (T entity : this.allElements) {

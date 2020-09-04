@@ -1,12 +1,10 @@
 package me.jellysquid.mods.lithium.common.entity;
 
+import it.unimi.dsi.fastutil.objects.Reference2ByteOpenHashMap;
 import net.minecraft.entity.Entity;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * Class for grouping Entity classes that meet some requirement for use in TypeFilterableList
@@ -14,106 +12,52 @@ import java.util.function.Function;
  * @author 2No2Name
  */
 public class EntityClassGroup {
-    //Keep a set of classes that were already added to matching class groups, so we only analyse them once.
-    private static final ConcurrentHashMap<Class<?>, Object> knownEntityClasses = new ConcurrentHashMap<>(); //value unused, no set variant available
-    //Keep track of available class groups for updating them in case an entity class is instantiated for the first time
-    private static final List<EntityClassGroup> entityClassGroups = new ArrayList<>();
-
     public static final EntityClassGroup COLLISION_BOX_OVERRIDE = new EntityClassGroup(
-            (Class<?> entityClass) -> {
-                boolean overwritten;
-                while(entityClass != null && entityClass != Entity.class) {
-                    try {
-                        overwritten = true;
-                        entityClass.getDeclaredMethod("method_30948");
-                    } catch (NoSuchMethodException e) {
-                        overwritten = false;
-                        entityClass = entityClass.getSuperclass();
-                    }
-                    if (overwritten) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-    );
+            (Class<?> entityClass) -> isMethodOverriden(entityClass, Entity.class, "method_30948"));
     public static final EntityClassGroup HARD_COLLISION_BOX_OVERRIDE = new EntityClassGroup(
-        (Class<?> entityClass) -> {
-            boolean overwritten;
-            while(entityClass != null && entityClass != Entity.class) {
-                try {
-                    overwritten = true;
-                    entityClass.getDeclaredMethod("method_30949", Entity.class);
-                } catch (NoSuchMethodException e) {
-                    overwritten = false;
-                    entityClass = entityClass.getSuperclass();
-                }
-                if (overwritten)
-                    return true;
-            }
-            return false;
-        }
-    );
+            (Class<?> entityClass) -> isMethodOverriden(entityClass, Entity.class, "method_30949", Entity.class));
 
+    private final Predicate<Class<?>> classFitEvaluator;
+    private volatile Reference2ByteOpenHashMap<Class<?>> class2GroupContains;
 
-
-    private final ConcurrentHashMap<Class<?>, Object> classGroup; //value unused, no set variant available
-    private final Function<Class<?>, Boolean> classFitEvaluator;
-
-    public EntityClassGroup() {
-        this.classGroup = new ConcurrentHashMap<>();
-        EntityClassGroup.entityClassGroups.add(this);
-        this.classFitEvaluator = null;
-
-    }
-    public EntityClassGroup(Function<Class<?>, Boolean> classFitEvaluator) {
-        this.classGroup = new ConcurrentHashMap<>();
-        EntityClassGroup.entityClassGroups.add(this);
+    public EntityClassGroup(Predicate<Class<?>> classFitEvaluator) {
+        this.class2GroupContains = new Reference2ByteOpenHashMap<>();
+        Objects.requireNonNull(classFitEvaluator);
         this.classFitEvaluator = classFitEvaluator;
-    }
-    public EntityClassGroup(Collection<Class<? >> classGroupCollection, Function<Class<?>, Boolean> classFitEvaluator) {
-        this(classFitEvaluator);
-        for (Class<?> cl : classGroupCollection) {
-            this.classGroup.put(cl, cl);
-        }
-    }
-
-    public EntityClassGroup add(Class<?> entityClass) {
-        this.classGroup.put(entityClass, entityClass);
-        return this;
     }
 
     public boolean contains(Class<?> entityClass) {
-        EntityClassGroup.analyseEntityClass(entityClass);
-        return this.classGroup.containsKey(entityClass);
+        byte contains = this.class2GroupContains.getOrDefault(entityClass, (byte)2);
+        if (contains != 2) {
+            return contains == 1;
+        } else {
+            //synchronizing here to avoid multiple threads replacing the map at the same time, and therefore possibly undoing progress
+            //it could also be fixed by using an AtomicReference's CAS, but we are writing very rarely (less than 150 for the total runtime in vanilla)
+            synchronized (this) {
+                contains = this.class2GroupContains.getOrDefault(entityClass, (byte)2);
+                if (contains != 2) {
+                    return contains == 1;
+                }
+                //construct new map to avoid thread safety problems.
+                //the map we publish in the volatile field is effectively immutable to avoid thread safety issues when modifying the map
+                //the overhead of constructing the new map and storing in volatile is negligible, because there is only a limited amount of classes to evaluate
+                Reference2ByteOpenHashMap<Class<?>> newMap = new Reference2ByteOpenHashMap<>(this.class2GroupContains);
+                newMap.put(entityClass, this.classFitEvaluator.test(entityClass) ? (byte)1 : (byte)0);
+                this.class2GroupContains = newMap;
+            }
+            return this.class2GroupContains.getOrDefault(entityClass, (byte)2) == 1;
+        }
     }
 
-    public Collection<Class<?>> getCollection() {
-        return this.classGroup.keySet();
-    }
-
-    public void addClassIfFitting(Class<?> discoveredEntityClass) {
-        if (this.classGroup.containsKey(discoveredEntityClass)) {
-            return;
+    public static boolean isMethodOverriden(Class<?> clazz, Class<?> superclass, String methodName, Class<?>... methodArgs) {
+        while(clazz != null && clazz != superclass && superclass.isAssignableFrom(clazz)) {
+            try {
+                clazz.getDeclaredMethod(methodName, methodArgs);
+                return true;
+            } catch (NoSuchMethodException e) {
+                clazz = clazz.getSuperclass();
+            }
         }
-        if (this.classFitEvaluator != null && this.classFitEvaluator.apply(discoveredEntityClass)) {
-            this.classGroup.put(discoveredEntityClass, discoveredEntityClass);
-        }
-    }
-
-    /**
-     * Adds the Class to all class groups that it meets the requirements of.
-     * Results are cached so each class is only analysed once.
-     * @param entityClass entity subclass to analyse
-     */
-    public static void analyseEntityClass(Class<?> entityClass) {
-        if (EntityClassGroup.knownEntityClasses.containsKey(entityClass)) {
-            return;
-        }
-        EntityClassGroup.knownEntityClasses.put(entityClass, entityClass);
-
-        for (EntityClassGroup entityClassGroup : EntityClassGroup.entityClassGroups) {
-            entityClassGroup.addClassIfFitting(entityClass);
-        }
+        return false;
     }
 }
