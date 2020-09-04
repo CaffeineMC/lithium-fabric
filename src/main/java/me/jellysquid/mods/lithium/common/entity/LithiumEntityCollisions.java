@@ -1,11 +1,6 @@
 package me.jellysquid.mods.lithium.common.entity;
 
 import me.jellysquid.mods.lithium.common.entity.movement.BlockCollisionPredicate;
-import me.jellysquid.mods.lithium.common.world.WorldHelper;
-import me.jellysquid.mods.lithium.common.shapes.VoxelShapeExtended;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.ShapeContext;
 import me.jellysquid.mods.lithium.common.entity.movement.ChunkAwareBlockCollisionSweeper;
 import me.jellysquid.mods.lithium.common.util.Producer;
 import net.minecraft.entity.Entity;
