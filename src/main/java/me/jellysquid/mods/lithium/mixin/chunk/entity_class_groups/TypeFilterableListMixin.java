@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups;
 
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.EntityClassGroup;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
@@ -11,9 +11,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -30,8 +28,8 @@ public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterable
     @Final
     private List<T> allElements;
 
-    private final Reference2ReferenceOpenHashMap<EntityClassGroup, ReferenceLinkedOpenHashSet<T>> entitiesByGroup =
-            new Reference2ReferenceOpenHashMap<>();
+    private final Reference2ReferenceArrayMap<EntityClassGroup, ReferenceLinkedOpenHashSet<T>> entitiesByGroup =
+            new Reference2ReferenceArrayMap<>();
 
     /**
      * Update our collections
