@@ -21,8 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Patches {@link TypeFilterableList} to improve performance when entities are being queried in the world.
- * Patches it also to allow grouping entity types.
+ * Patches {@link TypeFilterableList} to allow grouping entities by arbitrary groups of classes instead of one class only.
  */
 @Mixin(TypeFilterableList.class)
 public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterableList<T>, WorldHelper.MixinLoadTest {
@@ -31,13 +30,8 @@ public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterable
     @Final
     private List<T> allElements;
 
-
-    private Reference2ReferenceOpenHashMap<EntityClassGroup, ReferenceLinkedOpenHashSet<T>> entitiesByGroup;
-
-    @Inject(method = "<init>", at = @At("TAIL"))
-    private void init(Class<T> elementType, CallbackInfo ci) {
-        this.entitiesByGroup = new Reference2ReferenceOpenHashMap<>();
-    }
+    private final Reference2ReferenceOpenHashMap<EntityClassGroup, ReferenceLinkedOpenHashSet<T>> entitiesByGroup =
+            new Reference2ReferenceOpenHashMap<>();
 
     /**
      * Update our collections
@@ -61,12 +55,11 @@ public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterable
         for (Map.Entry<EntityClassGroup, ReferenceLinkedOpenHashSet<T>> entityGroupAndSet : this.entitiesByGroup.entrySet()) {
             entityGroupAndSet.getValue().remove(o);
         }
-
         return o;
     }
 
     /**
-     * Get entities of the given class group
+     * Get entities of a class group
      */
     public Collection<T> getAllOfGroupType(EntityClassGroup type) {
         Collection<T> collection = this.entitiesByGroup.get(type);
@@ -90,6 +83,7 @@ public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterable
             }
         }
         this.entitiesByGroup.put(type, allOfType);
+
         return allOfType;
     }
 }
