@@ -1,30 +1,33 @@
 {
-  "schemaVersion": 1,
-  "id": "lithium",
-  "version": "${version}",
-  "name": "Lithium",
-  "description": "Lithium is an free and open-source optimization mod for Minecraft which makes a wide range of performance improvements to the game.",
-  "authors": [
-    "JellySquid"
-  ],
-  "contact": {
-    "homepage": "https://jellysquid.me",
-    "sources": "https://github.com/jellysquid3/lithium"
-  },
-  "license": "LGPL-3.0-only",
-  "icon": "assets/lithium/icon.png",
-  "environment": "*",
-  "entrypoints": {
-    "main": [
-      "me.jellysquid.mods.lithium.common.LithiumMod"
-    ]
-  },
-  "mixins": [
-    "lithium.mixins.json"
-  ],
-  "accessWidener": "lithium.accesswidener",
-  "depends": {
-    "fabricloader": ">=0.9.0",
-    "minecraft": "1.16.2"
-  }
+    "schemaVersion": 1,
+    "id": "lithium",
+    "version": "${version}",
+    "name": "Lithium",
+    "description": "Lithium is an free and open-source optimization mod for Minecraft which makes a wide range of performance improvements to the game.",
+    "authors": [
+        "JellySquid"
+    ],
+    "contact": {
+        "homepage": "https://jellysquid.me",
+        "sources": "https://github.com/jellysquid3/lithium"
+    },
+    "license": "LGPL-3.0-only",
+    "icon": "assets/lithium/icon.png",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "me.jellysquid.mods.lithium.common.LithiumMod"
+        ]
+    },
+    "mixins": [
+        "lithium.mixins.json"
+    ],
+    "accessWidener": "lithium.accesswidener",
+    "depends": {
+        "fabricloader": ">=0.9.0",
+        "minecraft": "1.16.2"
+    },
+    "breaks": {
+        "optifabric": "*"
+    }
 }
