@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.util.collections;
 
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.util.*;
 
@@ -22,7 +22,7 @@ public class HashedList<T> implements List<T> {
     }
 
     public static <T> HashedList<T> wrapper(List<T> list) {
-        return new HashedList<>(list, new ObjectArraySet<>(list));
+        return new HashedList<>(list, new ObjectOpenHashSet<>(list));
     }
 
     @Override
