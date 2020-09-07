@@ -186,4 +186,8 @@ public class BlockEntityList implements List<BlockEntity> {
     public BlockEntity getEntityAtPosition(long pos) {
         return this.map.get(pos);
     }
+
+    public boolean tryAdd(BlockEntity entity) {
+        return this.map.putIfAbsent(getEntityPos(entity), entity) == null;
+    }
 }

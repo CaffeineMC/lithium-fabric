@@ -4,6 +4,7 @@ import me.jellysquid.mods.lithium.common.util.collections.BlockEntityList;
 import me.jellysquid.mods.lithium.common.util.collections.HashedList;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.Tickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.RegistryKey;
@@ -43,27 +44,24 @@ public abstract class WorldMixin implements WorldAccess {
     protected List<BlockEntity> pendingBlockEntities;
 
     @Shadow
-    public abstract boolean addBlockEntity(BlockEntity blockEntity);
-
-    @Shadow
-    public abstract void updateListeners(BlockPos pos, BlockState oldState, BlockState newState, int flags);
-
-    @Shadow
     @Final
     private Supplier<Profiler> profiler;
 
-    private BlockEntityList pendingBlockEntityList;
+    private BlockEntityList blockEntities$lithium;
+    private BlockEntityList pendingBlockEntities$lithium;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void reinit(MutableWorldProperties properties, RegistryKey<World> registryKey, DimensionType dimensionType,
                         Supplier<Profiler> supplier, boolean bl, boolean bl2, long l, CallbackInfo ci) {
         // Replace the fallback collections with our types as well
         // This won't guarantee mod compatibility, but at least it should fail loudly when it does
-        this.blockEntities = new BlockEntityList(this.blockEntities);
+        this.blockEntities$lithium = new BlockEntityList(this.blockEntities);
+        this.blockEntities = this.blockEntities$lithium;
+
         this.tickingBlockEntities = HashedList.wrapper(this.tickingBlockEntities);
 
-        this.pendingBlockEntityList = new BlockEntityList(this.pendingBlockEntities);
-        this.pendingBlockEntities = this.pendingBlockEntityList;
+        this.pendingBlockEntities$lithium = new BlockEntityList(this.pendingBlockEntities);
+        this.pendingBlockEntities = this.pendingBlockEntities$lithium;
     }
 
     /**
@@ -72,7 +70,7 @@ public abstract class WorldMixin implements WorldAccess {
      */
     @Overwrite
     private BlockEntity getPendingBlockEntity(BlockPos pos) {
-        return this.pendingBlockEntityList.getEntityAtPosition(pos.asLong());
+        return this.pendingBlockEntities$lithium.getEntityAtPosition(pos.asLong());
     }
 
     // We do not want the vanilla code for adding pending block entities to be ran. We'll inject later in
@@ -95,20 +93,23 @@ public abstract class WorldMixin implements WorldAccess {
                 continue;
             }
 
-            if (!this.blockEntities.contains(entity)) {
-                this.addBlockEntity(entity);
-            }
+            // Try-add directly to avoid the double map lookup, helps speed things along
+            if (this.blockEntities$lithium.tryAdd(entity)) {
+                if (entity instanceof Tickable) {
+                    this.tickingBlockEntities.add(entity);
+                }
 
-            BlockPos pos = entity.getPos();
+                BlockPos pos = entity.getPos();
 
-            // Avoid the double chunk lookup (isLoaded followed by getChunk) by simply inlining getChunk call
-            Chunk chunk = this.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, false);
+                // Avoid the double chunk lookup (isLoaded followed by getChunk) by simply inlining getChunk call
+                Chunk chunk = this.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, false);
 
-            if (chunk != null) {
-                BlockState state = chunk.getBlockState(pos);
-                chunk.setBlockEntity(pos, entity);
+                if (chunk != null) {
+                    BlockState state = chunk.getBlockState(pos);
+                    chunk.setBlockEntity(pos, entity);
 
-                this.updateListeners(pos, state, state, 3);
+                    this.updateListeners(pos, state, state, 3);
+                }
             }
         }
 
@@ -123,4 +124,7 @@ public abstract class WorldMixin implements WorldAccess {
     private <E> Iterator<E> nullifyBlockEntityScanDuringSetBlockEntity(List<E> list) {
         return Collections.emptyIterator();
     }
+
+    @Shadow
+    public abstract void updateListeners(BlockPos pos, BlockState oldState, BlockState newState, int flags);
 }
