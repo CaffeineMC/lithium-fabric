@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.common.entity;
 import me.jellysquid.mods.lithium.common.entity.movement.BlockCollisionPredicate;
 import me.jellysquid.mods.lithium.common.entity.movement.ChunkAwareBlockCollisionSweeper;
 import me.jellysquid.mods.lithium.common.util.Producer;
+import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.shape.VoxelShape;
@@ -106,7 +107,11 @@ public class LithiumEntityCollisions {
             @Override
             public boolean computeNext(Consumer<? super VoxelShape> consumer) {
                 if (this.it == null) {
-                    this.it = view.getOtherEntities(entity, box).iterator();
+                    /*
+                     * In case entity's class is overriding method_30949, all types of entities may be (=> are assumed to be) required.
+                     * Otherwise only get entities that override method_30948 are required, as other entities cannot collide.
+                     */
+                    this.it = WorldHelper.getEntitiesWithCollisionBoxForEntity(view, box, entity).iterator();
                 }
 
                 while (this.it.hasNext()) {
@@ -116,10 +121,10 @@ public class LithiumEntityCollisions {
                         continue;
                     }
 
-                    /**
+                    /*
                      * {@link Entity#method_30948} returns false by default, designed to be overridden by
                      * entities whose collisions should be "hard" (boats and shulkers, for now).
-                     * 
+                     *
                      * {@link Entity#method_30949} only allows hard collisions if the calling entity is not riding
                      * otherEntity as a vehicle.
                      */
