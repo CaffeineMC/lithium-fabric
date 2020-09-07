@@ -58,7 +58,12 @@ public class BlockEntityList implements List<BlockEntity> {
     public boolean add(BlockEntity blockEntity) {
         long pos = getEntityPos(blockEntity);
 
-        this.map.remove(pos);
+        BlockEntity prev = this.map.remove(pos);
+
+        if (prev != null) {
+            prev.markRemoved();
+        }
+
         this.map.put(pos, blockEntity);
 
         return true;
