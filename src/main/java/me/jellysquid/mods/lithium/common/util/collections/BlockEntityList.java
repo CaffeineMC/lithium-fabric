@@ -1,7 +1,6 @@
 package me.jellysquid.mods.lithium.common.util.collections;
 
 import it.unimi.dsi.fastutil.longs.Long2ReferenceLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import net.minecraft.block.entity.BlockEntity;
 
 import java.util.Collection;
@@ -10,11 +9,9 @@ import java.util.List;
 import java.util.ListIterator;
 
 public class BlockEntityList implements List<BlockEntity> {
-    private final Long2ReferenceMap<BlockEntity> map;
+    private final Long2ReferenceLinkedOpenHashMap<BlockEntity> map = new Long2ReferenceLinkedOpenHashMap<>();
 
     public BlockEntityList(List<BlockEntity> list) {
-        this.map = new Long2ReferenceLinkedOpenHashMap<>();
-
         this.addAll(list);
     }
 
@@ -58,13 +55,11 @@ public class BlockEntityList implements List<BlockEntity> {
     public boolean add(BlockEntity blockEntity) {
         long pos = getEntityPos(blockEntity);
 
-        BlockEntity prev = this.map.remove(pos);
+        BlockEntity prev = this.map.putAndMoveToLast(pos, blockEntity);
 
         if (prev != null) {
             prev.markRemoved();
         }
-
-        this.map.put(pos, blockEntity);
 
         return true;
     }
