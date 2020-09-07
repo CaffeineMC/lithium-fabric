@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking;
 
 import me.jellysquid.mods.lithium.common.util.collections.BlockEntityList;
-import me.jellysquid.mods.lithium.common.util.collections.HashedList;
+import me.jellysquid.mods.lithium.common.util.collections.HashedReferenceList;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.Tickable;
@@ -58,7 +58,7 @@ public abstract class WorldMixin implements WorldAccess {
         this.blockEntities$lithium = new BlockEntityList(this.blockEntities);
         this.blockEntities = this.blockEntities$lithium;
 
-        this.tickingBlockEntities = HashedList.wrapper(this.tickingBlockEntities);
+        this.tickingBlockEntities = new HashedReferenceList<>(this.tickingBlockEntities);
 
         this.pendingBlockEntities$lithium = new BlockEntityList(this.pendingBlockEntities);
         this.pendingBlockEntities = this.pendingBlockEntities$lithium;
