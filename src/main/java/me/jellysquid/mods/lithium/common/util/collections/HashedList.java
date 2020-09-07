@@ -11,11 +11,6 @@ public class HashedList<T> implements List<T> {
     private final List<T> list;
     private final Set<T> set;
 
-    public HashedList(List<T> list) {
-        this.list = list;
-        this.set = new HashSet<>(list);
-    }
-
     private HashedList(List<T> list, Set<T> set) {
         this.list = list;
         this.set = set;
