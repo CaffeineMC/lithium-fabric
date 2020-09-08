@@ -36,19 +36,18 @@ public class BlockEntityList implements List<BlockEntity> {
 
     @Override
     public Iterator<BlockEntity> iterator() {
-        return this.map
-                .values()
-                .iterator();
+        return this.map.values().iterator();
     }
 
     @Override
     public Object[] toArray() {
-        throw new UnsupportedOperationException();
+        return this.map.values().toArray();
     }
 
     @Override
+    @SuppressWarnings("SuspiciousToArrayCall")
     public <T> T[] toArray(T[] a) {
-        throw new UnsupportedOperationException();
+        return this.map.values().toArray(a);
     }
 
     @Override
@@ -57,6 +56,7 @@ public class BlockEntityList implements List<BlockEntity> {
 
         BlockEntity prev = this.map.putAndMoveToLast(pos, blockEntity);
 
+        // Replacing a block entity should always mark the previous entry as removed
         if (prev != null) {
             prev.markRemoved();
         }
@@ -121,7 +121,8 @@ public class BlockEntityList implements List<BlockEntity> {
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        throw new UnsupportedOperationException();
+        return this.map.values()
+                .retainAll(c);
     }
 
     @Override
