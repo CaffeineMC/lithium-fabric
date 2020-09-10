@@ -44,13 +44,7 @@ public final class CachedLocalLayerFactory {
     }
 
     private static <R extends LayerSampler> LayerFactory<R> createMemoized(LayerFactory<R> factory) {
-        ThreadLocal<R> cached = new ThreadLocal<>();
-        return () -> {
-            R sampler = cached.get();
-            if (sampler == null) {
-                cached.set(sampler = factory.make());
-            }
-            return sampler;
-        };
+        ThreadLocal<R> threadLocal = ThreadLocal.withInitial(factory::make);
+        return threadLocal::get;
     }
 }

@@ -1,7 +1,6 @@
 package me.jellysquid.mods.lithium.common.world.layer;
 
 import it.unimi.dsi.fastutil.HashCommon;
-import it.unimi.dsi.fastutil.longs.Long2IntLinkedOpenHashMap;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.biome.layer.util.CachingLayerSampler;
@@ -26,7 +25,7 @@ public final class FastCachingLayerSampler extends CachingLayerSampler {
     private final int mask;
 
     public FastCachingLayerSampler(int capacity, LayerOperator operator) {
-        super(new Long2IntLinkedOpenHashMap(0), 0, operator);
+        super(null, capacity, operator);
 
         capacity = MathHelper.smallestEncompassingPowerOfTwo(capacity);
         this.mask = capacity - 1;
