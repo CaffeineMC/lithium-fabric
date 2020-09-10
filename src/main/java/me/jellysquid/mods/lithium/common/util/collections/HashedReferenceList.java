@@ -266,7 +266,7 @@ public class HashedReferenceList<T> implements List<T> {
 
     @SuppressWarnings("unchecked")
     private void trackReferenceRemoved(Object o) {
-        if (this.counter.addTo((T) o, -1) <= 0) {
+        if (this.counter.addTo((T) o, -1) <= 1) {
             this.counter.removeInt(o);
         }
     }
