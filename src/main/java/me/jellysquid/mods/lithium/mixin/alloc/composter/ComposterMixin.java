@@ -1,13 +1,12 @@
 package me.jellysquid.mods.lithium.mixin.alloc.composter;
 
+import me.jellysquid.mods.lithium.common.util.ArrayConstants;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.util.math.Direction;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
 public class ComposterMixin {
-    private static final int[] EMPTY = new int[0];
-    private static final int[] ZERO = new int[]{0};
 
     @Mixin(targets = "net.minecraft.block.ComposterBlock$ComposterInventory")
     public static abstract class ComposterBlockComposterInventoryMixin implements SidedInventory {
@@ -17,7 +16,7 @@ public class ComposterMixin {
          */
         @Overwrite
         public int[] getAvailableSlots(Direction side) {
-            return side == Direction.UP ? ZERO : EMPTY;
+            return side == Direction.UP ? ArrayConstants.ZERO : ArrayConstants.EMPTY;
         }
     }
 
@@ -29,7 +28,7 @@ public class ComposterMixin {
          */
         @Overwrite
         public int[] getAvailableSlots(Direction side) {
-            return EMPTY;
+            return ArrayConstants.EMPTY;
         }
     }
 
@@ -41,7 +40,7 @@ public class ComposterMixin {
          */
         @Overwrite
         public int[] getAvailableSlots(Direction side) {
-            return side == Direction.DOWN ? ZERO : EMPTY;
+            return side == Direction.DOWN ? ArrayConstants.ZERO : ArrayConstants.EMPTY;
         }
     }
 }
