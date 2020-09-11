@@ -5,6 +5,7 @@ import me.jellysquid.mods.lithium.common.entity.EntityClassGroup;
 import me.jellysquid.mods.lithium.common.world.chunk.ClassGroupFilterableList;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.collection.TypeFilterableList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EntityView;
@@ -18,7 +19,6 @@ import java.util.function.Predicate;
 import static net.minecraft.predicate.entity.EntityPredicates.EXCEPT_SPECTATOR;
 
 public class WorldHelper {
-
     public interface MixinLoadTest {}
     public static final boolean CUSTOM_TYPE_FILTERABLE_LIST_DISABLED = !MixinLoadTest.class.isAssignableFrom(TypeFilterableList.class);
 
@@ -130,5 +130,13 @@ public class WorldHelper {
                 }
             }
         }
+    }
+
+    public static boolean areNeighborsWithinSameChunk(BlockPos pos) {
+        int localX = pos.getX() & 15;
+        int localY = pos.getY() & 15;
+        int localZ = pos.getZ() & 15;
+
+        return localX > 0 && localY > 0 && localZ > 0 && localX < 15 && localY < 15 && localZ < 15;
     }
 }

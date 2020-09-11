@@ -1,19 +1,18 @@
 package me.jellysquid.mods.lithium.mixin.ai.pathing;
 
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceMap;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import net.minecraft.block.*;
+import me.jellysquid.mods.lithium.common.ai.LandPathNodeCache;
+import me.jellysquid.mods.lithium.common.world.WorldHelper;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.entity.ai.pathing.PathNodeType;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.tag.BlockTags;
-import net.minecraft.tag.FluidTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkCache;
+import net.minecraft.world.chunk.ChunkSection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
 
 /**
  * Determining the type of node offered by a block state is a very slow operation due to the nasty chain of tag,
@@ -23,15 +22,6 @@ import org.spongepowered.asm.mixin.Shadow;
  */
 @Mixin(LandPathNodeMaker.class)
 public abstract class LandPathNodeMakerMixin {
-    // This is not thread-safe!
-    private static final Reference2ReferenceMap<BlockState, PathNodeType> commonTypes = new Reference2ReferenceOpenHashMap<>();
-    private static final Reference2ReferenceMap<BlockState, PathNodeType> neighborTypes = new Reference2ReferenceOpenHashMap<>();
-
-    @Shadow
-    private static boolean method_27138(BlockState blockState) {
-        throw new UnsupportedOperationException();
-    }
-
     /**
      * @reason Use optimized implementation
      * @author JellySquid
@@ -45,13 +35,7 @@ public abstract class LandPathNodeMakerMixin {
             return PathNodeType.OPEN;
         }
 
-        // Get the cached type for this block state
-        PathNodeType type = commonTypes.get(blockState);
-
-        // No result has been cached for this block state yet, so calculate and cache it
-        if (type == null) {
-            commonTypes.put(blockState, type = getTaggedBlockType$lithium(blockState));
-        }
+        PathNodeType type = LandPathNodeCache.getCachedNodeType(blockState);
 
         // If the node type is open, it means that we were unable to determine a more specific type, so we need
         // to check the fallback path.
@@ -71,130 +55,71 @@ public abstract class LandPathNodeMakerMixin {
         return type;
     }
 
-    // [VanillaCopy] LandPathNodeMaker#getCommonNodeType
-    // The checks which access other world state are hoisted from this method
-    private static PathNodeType getTaggedBlockType$lithium(BlockState blockState) {
-        Block block = blockState.getBlock();
-        Material material = blockState.getMaterial();
-
-        if (blockState.isIn(BlockTags.TRAPDOORS) || blockState.isOf(Blocks.LILY_PAD)) {
-            return PathNodeType.TRAPDOOR;
-        }
-
-        if (blockState.isOf(Blocks.CACTUS)) {
-            return PathNodeType.DAMAGE_CACTUS;
-        }
-
-        if (blockState.isOf(Blocks.SWEET_BERRY_BUSH)) {
-            return PathNodeType.DAMAGE_OTHER;
-        }
-
-        if (blockState.isOf(Blocks.HONEY_BLOCK)) {
-            return PathNodeType.STICKY_HONEY;
-        }
-
-        if (blockState.isOf(Blocks.COCOA)) {
-            return PathNodeType.COCOA;
-        }
-
-        if (method_27138(blockState)) {
-            return PathNodeType.DAMAGE_FIRE;
-        }
-
-        if (DoorBlock.isWoodenDoor(blockState) && !blockState.get(DoorBlock.OPEN)) {
-            return PathNodeType.DOOR_WOOD_CLOSED;
-        }
-
-        if ((block instanceof DoorBlock) && (material == Material.METAL) && !blockState.get(DoorBlock.OPEN)) {
-            return PathNodeType.DOOR_IRON_CLOSED;
-        }
-
-        if ((block instanceof DoorBlock) && blockState.get(DoorBlock.OPEN)) {
-            return PathNodeType.DOOR_OPEN;
-        }
-
-        if (block instanceof AbstractRailBlock) {
-            return PathNodeType.RAIL;
-        }
-
-        if (block instanceof LeavesBlock) {
-            return PathNodeType.LEAVES;
-        }
-
-        if (block.isIn(BlockTags.FENCES) || block.isIn(BlockTags.WALLS) || ((block instanceof FenceGateBlock) && !blockState.get(FenceGateBlock.OPEN))) {
-            return PathNodeType.FENCE;
-        }
-
-        // Retrieve the fluid state from the block state to avoid a second lookup
-        FluidState fluid = blockState.getFluidState();
-
-        if (fluid.isIn(FluidTags.WATER)) {
-            return PathNodeType.WATER;
-        } else if (fluid.isIn(FluidTags.LAVA)) {
-            return PathNodeType.LAVA;
-        }
-
-        return PathNodeType.OPEN;
-    }
-
     /**
      * @reason Use optimized implementation
      * @author JellySquid
      */
     @Overwrite
-    public static PathNodeType getNodeTypeFromNeighbors(BlockView blockView, BlockPos.Mutable pos, PathNodeType type) {
+    public static PathNodeType getNodeTypeFromNeighbors(BlockView world, BlockPos.Mutable pos, PathNodeType type) {
         int x = pos.getX();
         int y = pos.getY();
         int z = pos.getZ();
 
-        for (int x2 = -1; x2 <= 1; ++x2) {
-            for (int y2 = -1; y2 <= 1; ++y2) {
-                for (int z2 = -1; z2 <= 1; ++z2) {
-                    if (x2 != 0 || z2 != 0) {
-                        pos.set(x2 + x, y2 + y, z2 + z);
+        ChunkSection section = null;
 
-                        BlockState state = blockView.getBlockState(pos);
+        // If the neighbors for this block are all within a single chunk section, that means all block reads will
+        // come from it alone. TODO: Allow grabbing chunks from other BlockView implementations
+        if (WorldHelper.areNeighborsWithinSameChunk(pos) && world instanceof ChunkCache) {
+            BlockView chunk = ((ChunkCache) world).getExistingChunk(x >> 4, z >> 4);
 
-                        // Ensure that the block isn't air first to avoid expensive map lookups
-                        if (!state.isAir()) {
-                            PathNodeType neighborType = getNodeTypeForNeighbor(state);
+            if (chunk != null) {
+                section = ((Chunk) chunk).getSectionArray()[y >> 4];
 
-                            if (neighborType != PathNodeType.OPEN) {
-                                type = neighborType;
-                            }
-                        }
-                    }
+                // If we can guarantee that blocks won't be modified while the cache is active, try to see if the chunk
+                // section contains any dangerous blocks within the palette. If not, we can assume any checks against
+                // this chunk section will always fail, allowing us to fast-exit.
+                //
+                // It's not cheap to scan the block palette initially, though it will always result in a net-gain when
+                // the cache is used more than once.
+                if (LandPathNodeCache.isSectionSafeAsNeighbor(section)) {
+                    return type;
                 }
             }
         }
 
-        return type;
-    }
+        // Optimal iteration order is YZX
+        for (int y2 = -1; y2 <= 1; ++y2) {
+            for (int z2 = -1; z2 <= 1; ++z2) {
+                for (int x2 = -1; x2 <= 1; ++x2) {
+                    if (x2 == 0 && z2 == 0) {
+                        continue;
+                    }
 
-    private static PathNodeType getNodeTypeForNeighbor(BlockState state) {
-        PathNodeType type = neighborTypes.get(state);
+                    pos.set(x2 + x, y2 + y, z2 + z);
 
-        // We already cached a type for this block state, so return it
-        if (type != null) {
-            return type;
+                    BlockState state;
+
+                    // If we're not accessing blocks outside a given section, we can greatly accelerate block state
+                    // retrieval by calling upon the cached chunk directly.
+                    if (section != null) {
+                        state = section.getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
+                    } else {
+                        state = world.getBlockState(pos);
+                    }
+
+                    // Ensure that the block isn't air first to avoid expensive hash table accesses
+                    if (state.isAir()) {
+                        continue;
+                    }
+
+                    PathNodeType neighborType = LandPathNodeCache.getNodeTypeForNeighbor(state);
+
+                    if (neighborType != PathNodeType.OPEN) {
+                        return neighborType;
+                    }
+                }
+            }
         }
-
-        // [VanillaCopy] LandPathNodeMaker#getNodeTypeFromNeighbors
-        // Determine what kind of obstacle type this neighbor is
-        if (state.isOf(Blocks.CACTUS)) {
-            type = PathNodeType.DANGER_CACTUS;
-        } else if (state.isOf(Blocks.SWEET_BERRY_BUSH)) {
-            type = PathNodeType.DANGER_OTHER;
-        } else if (method_27138(state)) {
-            type = PathNodeType.DANGER_FIRE;
-        } else if (state.getFluidState().isIn(FluidTags.WATER)) {
-            return PathNodeType.WATER_BORDER;
-        } else {
-            type = PathNodeType.OPEN;
-        }
-
-        // If no obstacle is provided by this block, then use a special value to signal it
-        neighborTypes.put(state, type);
 
         return type;
     }
