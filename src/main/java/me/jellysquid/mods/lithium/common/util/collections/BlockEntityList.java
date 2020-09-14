@@ -57,7 +57,7 @@ public class BlockEntityList implements List<BlockEntity> {
         BlockEntity prev = this.map.putAndMoveToLast(pos, blockEntity);
 
         // Replacing a block entity should always mark the previous entry as removed
-        if (prev != null) {
+        if (prev != null && prev != blockEntity) {
             prev.markRemoved();
         }
 
