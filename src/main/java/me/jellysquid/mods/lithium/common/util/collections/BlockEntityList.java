@@ -184,6 +184,19 @@ public class BlockEntityList implements List<BlockEntity> {
     }
 
     public boolean tryAdd(BlockEntity entity) {
-        return this.map.putIfAbsent(getEntityPos(entity), entity) == null;
+        long pos = getEntityPos(entity);
+        BlockEntity value =  this.map.putIfAbsent(pos, entity);
+
+        if (value == null) {
+            return true;
+        }
+        if (value == entity) {
+            return false;
+        }
+        this.map.put(pos, entity);
+        // Replacing a block entity should always mark the previous entry as removed
+        // But vanilla does it only when placing the new one in the chunk.
+        // So we don't do that here.
+        return true;
     }
 }
