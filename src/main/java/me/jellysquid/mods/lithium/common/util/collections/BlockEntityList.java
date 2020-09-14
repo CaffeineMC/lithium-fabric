@@ -1,75 +1,109 @@
 package me.jellysquid.mods.lithium.common.util.collections;
 
-import it.unimi.dsi.fastutil.longs.Long2ReferenceLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.math.BlockPos;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 public class BlockEntityList implements List<BlockEntity> {
-    private final Long2ReferenceLinkedOpenHashMap<BlockEntity> map = new Long2ReferenceLinkedOpenHashMap<>();
+    //BlockEntityList does not support double-add of the same object. But it does support multiple at the same position.
+    //This collection behaves like a set with insertion order. It also provides a position->blockEntity lookup.
 
-    public BlockEntityList(List<BlockEntity> list) {
+    private final ReferenceLinkedOpenHashSet<BlockEntity> allBlockEntities;
+
+    //When there is only 1 BlockEntity at a position, it is stored in posMap.
+    //When there are multiple at a position, the first added is stored in posMap
+    //and all of them are stored in posMapMulti using a List (in the order they were added)
+    private final Long2ReferenceOpenHashMap<BlockEntity> posMap;
+    private final Long2ReferenceOpenHashMap<List<BlockEntity>> posMapMulti;
+    public BlockEntityList(List<BlockEntity> list, boolean hasPositionLookup) {
+        this.posMap = hasPositionLookup ? new Long2ReferenceOpenHashMap<>() : null;
+        this.posMapMulti = hasPositionLookup ? new Long2ReferenceOpenHashMap<>() : null;
+
+        if (this.posMap != null) {
+            this.posMap.defaultReturnValue(null);
+            this.posMapMulti.defaultReturnValue(null);
+        }
+
+        this.allBlockEntities = new ReferenceLinkedOpenHashSet<>();
         this.addAll(list);
     }
 
     @Override
     public int size() {
-        return this.map.size();
+        return this.allBlockEntities.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return this.map.isEmpty();
+        return this.allBlockEntities.isEmpty();
     }
 
     @Override
     public boolean contains(Object o) {
-        if (o instanceof BlockEntity) {
-            return this.map.containsKey(getEntityPos((BlockEntity) o));
-        }
-
-        return false;
+        return this.allBlockEntities.contains(o);
     }
 
     @Override
     public Iterator<BlockEntity> iterator() {
-        return this.map.values().iterator();
+        return this.allBlockEntities.iterator();
     }
 
     @Override
     public Object[] toArray() {
-        return this.map.values().toArray();
+        return this.allBlockEntities.toArray();
     }
 
     @Override
     @SuppressWarnings("SuspiciousToArrayCall")
     public <T> T[] toArray(T[] a) {
-        return this.map.values().toArray(a);
+        return this.allBlockEntities.toArray(a);
     }
 
     @Override
     public boolean add(BlockEntity blockEntity) {
-        long pos = getEntityPos(blockEntity);
+        boolean added = this.allBlockEntities.add(blockEntity);
 
-        BlockEntity prev = this.map.putAndMoveToLast(pos, blockEntity);
+        if (added && this.posMap != null) {
+            long pos = getEntityPos(blockEntity);
 
-        // Replacing a block entity should always mark the previous entry as removed
-        if (prev != null && prev != blockEntity) {
-            prev.markRemoved();
+            BlockEntity prev = this.posMap.putIfAbsent(pos, blockEntity);
+            if (prev != null) {
+                List<BlockEntity> multiEntry = this.posMapMulti.computeIfAbsent(pos, (long l) -> new ArrayList<>());
+                if (multiEntry.size() == 0) {
+                    //newly created multi entry: make sure it contains all elements
+                    multiEntry.add(prev);
+                }
+                multiEntry.add(blockEntity);
+            }
         }
-
-        return true;
+        return added;
     }
 
     @Override
     public boolean remove(Object o) {
         if (o instanceof BlockEntity) {
             BlockEntity blockEntity = (BlockEntity) o;
-
-            return this.map.remove(getEntityPos(blockEntity), blockEntity);
+            if (this.allBlockEntities.remove(o)) {
+                if (this.posMap != null) {
+                    long pos = getEntityPos(blockEntity);
+                    List<BlockEntity> multiEntry = this.posMapMulti.get(pos);
+                    if (multiEntry != null) {
+                        multiEntry.remove(blockEntity);
+                        if (multiEntry.size() <= 1) {
+                            this.posMapMulti.remove(pos);
+                        }
+                    }
+                    if (multiEntry != null && multiEntry.size() > 0) {
+                        this.posMap.put(pos, multiEntry.get(0));
+                    } else {
+                        this.posMap.remove(pos);
+                    }
+                }
+                return true;
+            }
         }
 
         return false;
@@ -77,15 +111,7 @@ public class BlockEntityList implements List<BlockEntity> {
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        for (Object obj : c) {
-            if (!(obj instanceof BlockEntity)) {
-                return false;
-            } else if (this.map.get(getEntityPos((BlockEntity) obj)) == obj) {
-                return false;
-            }
-        }
-
-        return true;
+        return this.allBlockEntities.containsAll(c);
     }
 
     @Override
@@ -107,13 +133,7 @@ public class BlockEntityList implements List<BlockEntity> {
         boolean modified = false;
 
         for (Object obj : c) {
-            if (obj instanceof BlockEntity) {
-                BlockEntity blockEntity = (BlockEntity) obj;
-
-                if (this.map.remove(getEntityPos(blockEntity), blockEntity)) {
-                    modified = true;
-                }
-            }
+            modified |= this.remove(obj);
         }
 
         return modified;
@@ -121,13 +141,22 @@ public class BlockEntityList implements List<BlockEntity> {
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return this.map.values()
-                .retainAll(c);
+        boolean modified = false;
+        for (BlockEntity blockEntity : this.allBlockEntities) {
+            if (!c.contains(blockEntity)) {
+                modified |= this.remove(blockEntity);
+            }
+        }
+        return modified;
     }
 
     @Override
     public void clear() {
-        this.map.clear();
+        this.allBlockEntities.clear();
+        if (this.posMap != null) {
+            this.posMap.clear();
+            this.posMapMulti.clear();
+        }
     }
 
     @Override
@@ -179,24 +208,52 @@ public class BlockEntityList implements List<BlockEntity> {
         return e.getPos().asLong();
     }
 
-    public BlockEntity getEntityAtPosition(long pos) {
-        return this.map.get(pos);
+
+    public boolean addIfAbsent(BlockEntity blockEntity) {
+        //we are not checking position equality but object/reference equality (like vanilla)
+        //the hashset prevents double add of the same object
+        return this.add(blockEntity);
     }
 
-    public boolean tryAdd(BlockEntity entity) {
-        long pos = getEntityPos(entity);
-        BlockEntity value = this.map.putIfAbsent(pos, entity);
+    @SuppressWarnings("unused")
+    public boolean hasPositionLookup() {
+        return this.posMap != null;
+    }
 
-        if (value == null) {
-            return true;
+    //Methods only supported when posMap is present!
+    public void markRemovedAndRemoveAllAtPosition(BlockPos blockPos) {
+        long pos = blockPos.asLong();
+        BlockEntity blockEntity = this.posMap.remove(pos);
+        if (blockEntity != null) {
+            List<BlockEntity> multiEntry = this.posMapMulti.remove(pos);
+            if (multiEntry != null) {
+                for (BlockEntity blockEntity1 : multiEntry) {
+                    blockEntity1.markRemoved();
+                    this.allBlockEntities.remove(blockEntity1);
+                }
+            } else {
+                blockEntity.markRemoved();
+                this.allBlockEntities.remove(blockEntity);
+            }
         }
-        if (value == entity) {
-            return false;
+    }
+
+    public BlockEntity getFirstNonRemovedBlockEntityAtPosition(long pos) {
+        BlockEntity blockEntity = this.posMap.get(pos);
+        //usual case: we find no BlockEntity or only one that also is not removed
+        if (blockEntity == null || !blockEntity.isRemoved()) {
+            return blockEntity;
         }
-        this.map.put(pos, entity);
-        // Replacing a block entity should always mark the previous entry as removed
-        // But vanilla does it only when placing the new one in the chunk.
-        // So we don't do that here.
-        return true;
+        //vanilla edge case: two BlockEntities at the same position
+        //Look up in the posMultiMap to find the first non-removed BlockEntity
+        List<BlockEntity> multiEntry = this.posMapMulti.get(pos);
+        if (multiEntry != null) {
+            for (BlockEntity blockEntity1 : multiEntry) {
+                if (!blockEntity1.isRemoved()) {
+                    return blockEntity1;
+                }
+            }
+        }
+        return null;
     }
 }
