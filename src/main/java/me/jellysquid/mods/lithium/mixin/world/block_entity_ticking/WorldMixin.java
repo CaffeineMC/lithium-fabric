@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
-@SuppressWarnings("OverwriteModifiers")
 @Mixin(World.class)
 public abstract class WorldMixin implements WorldAccess {
     @Shadow
@@ -71,8 +70,9 @@ public abstract class WorldMixin implements WorldAccess {
      * @author JellySquid
      * @reason Replace with direct lookup
      */
+    @SuppressWarnings("OverwriteModifiers")
     @Overwrite
-    private BlockEntity getPendingBlockEntity(BlockPos pos) {
+    public BlockEntity getPendingBlockEntity(BlockPos pos) {
         return this.pendingBlockEntities$lithium.getFirstNonRemovedBlockEntityAtPosition(pos.asLong());
     }
 

@@ -3,10 +3,12 @@ package me.jellysquid.mods.lithium.common.util.collections;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
 
+@SuppressWarnings("NullableProblems")
 public class BlockEntityList implements List<BlockEntity> {
     //BlockEntityList does not support double-add of the same object. But it does support multiple at the same position.
     //This collection behaves like a set with insertion order. It also provides a position->blockEntity lookup.
@@ -64,7 +66,14 @@ public class BlockEntityList implements List<BlockEntity> {
 
     @Override
     public boolean add(BlockEntity blockEntity) {
+        return this.addNoDoubleAdd(blockEntity, true);
+    }
+
+    private boolean addNoDoubleAdd(BlockEntity blockEntity, boolean exceptionOnDoubleAdd) {
         boolean added = this.allBlockEntities.add(blockEntity);
+        if (!added && exceptionOnDoubleAdd) {
+            this.throwException(blockEntity);
+        }
 
         if (added && this.posMap != null) {
             long pos = getEntityPos(blockEntity);
@@ -80,6 +89,10 @@ public class BlockEntityList implements List<BlockEntity> {
             }
         }
         return added;
+    }
+
+    private void throwException(BlockEntity blockEntity) {
+        throw new IllegalStateException("Lithium BlockEntityList" + (this.posMap != null ? " with posMap" : "") + ": Adding the same BlockEntity object twice: " + blockEntity.toTag(new CompoundTag()));
     }
 
     @Override
@@ -212,7 +225,7 @@ public class BlockEntityList implements List<BlockEntity> {
     public boolean addIfAbsent(BlockEntity blockEntity) {
         //we are not checking position equality but object/reference equality (like vanilla)
         //the hashset prevents double add of the same object
-        return this.add(blockEntity);
+        return this.addNoDoubleAdd(blockEntity, false);
     }
 
     @SuppressWarnings("unused")
@@ -239,6 +252,9 @@ public class BlockEntityList implements List<BlockEntity> {
     }
 
     public BlockEntity getFirstNonRemovedBlockEntityAtPosition(long pos) {
+        if (this.isEmpty()) {
+            return null;
+        }
         BlockEntity blockEntity = this.posMap.get(pos);
         //usual case: we find no BlockEntity or only one that also is not removed
         if (blockEntity == null || !blockEntity.isRemoved()) {
