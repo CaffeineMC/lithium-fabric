@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.mixin.entity.consolidated_fluid_checks;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import me.jellysquid.mods.lithium.common.entity.fluids.TransientFluidCheckState;
+import me.jellysquid.mods.lithium.common.entity.fluids.ResettableFluidCache;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
@@ -27,7 +28,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * Patches the fluid movement checks to avoid scanning the world multiple times.
  */
 @Mixin(Entity.class)
-public abstract class MixinEntity {
+public abstract class MixinEntity implements ResettableFluidCache {
     @SuppressWarnings("unchecked")
     private static final Tag<Fluid>[] SCANNED_FLUID_TAGS = new Tag[] { FluidTags.WATER, FluidTags.LAVA };
 
@@ -36,11 +37,15 @@ public abstract class MixinEntity {
 
     private boolean touchedFluidsDirty = true;
 
-    @Inject(method = "baseTick", at = @At("HEAD"))
-    private void preBaseTick(CallbackInfo ci) {
+    public void resetFluidCache() {
         // Clear the touched fluid cache and any transient state we created
         this.touchedFluidsDirty = true;
         this.fluidCheckState.clear();
+    }
+
+    @Inject(method = "baseTick", at = @At("HEAD"))
+    private void preBaseTick(CallbackInfo ci) {
+        this.resetFluidCache();
     }
 
     /**
