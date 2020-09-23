@@ -1,11 +1,11 @@
 package me.jellysquid.mods.lithium.common.world.noise;
 
-import java.util.Arrays;
-
 import it.unimi.dsi.fastutil.HashCommon;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.noise.SimplexNoiseSampler;
+
+import java.util.Arrays;
 
 /**
  * A cache for the End's noise generator that caches computed values. Through the caching, we can eliminate a large
@@ -101,7 +101,7 @@ public class SimplexNoiseCache {
                 int globalGridZ = gridZ + offsetZ;
 
                 // Try to retrieve values from cache
-                float distanceFactor = getDistanceFactor(globalGridX, globalGridZ);
+                float distanceFactor = this.getDistanceFactor(globalGridX, globalGridZ);
                 if (distanceFactor != -1.0F) {
                     // Compute the distance to the origin
                     float deltaX = gridOriginX - offsetX * GRID_SIZE;
@@ -123,11 +123,6 @@ public class SimplexNoiseCache {
             }
         }
 
-        // Avoid a call to Math.max because the density cannot be bigger than the max.
-        if (density < MIN) {
-            return MIN;
-        }
-
-        return density;
+        return Math.max(density, MIN);
     }
 }

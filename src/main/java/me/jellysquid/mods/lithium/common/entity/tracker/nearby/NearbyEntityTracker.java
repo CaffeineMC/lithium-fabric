@@ -58,7 +58,8 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
      * Gets the closest T (extends LivingEntity) to the center of this tracker that also intersects with the given box and meets the
      * requirements of the targetPredicate.
      * The result may be different from vanilla if there are multiple closest entities.
-     * @param box the box the entities have to intersect
+     *
+     * @param box             the box the entities have to intersect
      * @param targetPredicate predicate the entity has to meet
      * @return the closest Entity that meets all requirements (distance, box intersection, predicate, type T)
      */
@@ -88,6 +89,6 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
 
     @Override
     public String toString() {
-        return super.toString() + " for entity class: " + clazz.getName() + ", in rangeSq: " + rangeSq + ", around entity: " + self.toString() + " with NBT: " + self.toTag(new CompoundTag());
+        return super.toString() + " for entity class: " + this.clazz.getName() + ", in rangeSq: " + this.rangeSq + ", around entity: " + this.self.toString() + " with NBT: " + this.self.toTag(new CompoundTag());
     }
 }

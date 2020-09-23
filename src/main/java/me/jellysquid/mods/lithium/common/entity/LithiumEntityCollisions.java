@@ -28,7 +28,7 @@ public class LithiumEntityCollisions {
      * This is a much, much faster implementation which uses simple collision testing against full-cube block shapes.
      * Checks against the world border are replaced with our own optimized functions which do not go through the
      * VoxelShape system.
-     *
+     * <p>
      * The {@link BlockCollisionPredicate} can be used to filter which blocks will be considered for collision testing
      * during iteration.
      */

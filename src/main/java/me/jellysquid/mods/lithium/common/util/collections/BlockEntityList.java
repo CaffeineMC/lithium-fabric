@@ -185,7 +185,7 @@ public class BlockEntityList implements List<BlockEntity> {
 
     public boolean tryAdd(BlockEntity entity) {
         long pos = getEntityPos(entity);
-        BlockEntity value =  this.map.putIfAbsent(pos, entity);
+        BlockEntity value = this.map.putIfAbsent(pos, entity);
 
         if (value == null) {
             return true;

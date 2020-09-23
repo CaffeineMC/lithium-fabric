@@ -182,7 +182,7 @@ public class LandPathNodeCache {
      *
      * @param section The chunk section to test for dangers
      * @return True if this neighboring section is free of any dangers, otherwise false if it could
-     *         potentially contain dangers
+     * potentially contain dangers
      */
     public static boolean isSectionSafeAsNeighbor(ChunkSection section) {
         // Empty sections can never contribute a danger

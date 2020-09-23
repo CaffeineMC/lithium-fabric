@@ -13,7 +13,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
-@SuppressWarnings("unused")
 public class LithiumMixinPlugin implements IMixinConfigPlugin {
     private static final String MIXIN_PACKAGE_ROOT = "me.jellysquid.mods.lithium.mixin.";
 
@@ -44,7 +43,7 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         if (!mixinClassName.startsWith(MIXIN_PACKAGE_ROOT)) {
             this.logger.error("Expected mixin '{}' to start with package root '{}', treating as foreign and " +
-                            "disabling!", mixinClassName, MIXIN_PACKAGE_ROOT);
+                    "disabling!", mixinClassName, MIXIN_PACKAGE_ROOT);
 
             return false;
         }

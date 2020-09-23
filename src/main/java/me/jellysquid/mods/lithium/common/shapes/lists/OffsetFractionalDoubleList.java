@@ -13,7 +13,7 @@ public class OffsetFractionalDoubleList extends AbstractDoubleList {
     }
 
     public double getDouble(int position) {
-        return offset + (double) position / (double) this.numSections;
+        return this.offset + (double) position / (double) this.numSections;
     }
 
     public int size() {

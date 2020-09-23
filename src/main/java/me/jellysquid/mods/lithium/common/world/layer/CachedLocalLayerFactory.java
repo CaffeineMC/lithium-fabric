@@ -23,7 +23,7 @@ public class CachedLocalLayerFactory<R extends LayerSampler> implements LayerFac
         R sampler = this.cached.get();
 
         if (sampler == null) {
-            this.cached.set(sampler = createLocalSampler());
+            this.cached.set(sampler = this.createLocalSampler());
         }
 
         return sampler;

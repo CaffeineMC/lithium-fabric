@@ -25,20 +25,20 @@ import java.util.function.Predicate;
 /**
  * Provides greatly improved performance when compared to the vanilla tick scheduler. Key highlights:
  * - Instead of using a TreeSet collection (which is generally very slow, relatively speaking) for ordering updates, we
- *   make use of bucketed array queues indexed by a unique key composed of the scheduled time and priority. When
- *   iterating back over these updates, we simply specify the maximum bucket key range to avoid iterating over
- *   unnecessary elements. Integer bucket keys are much faster to sort against (as they are logically sorted) and
- *   are computationally trivial to slice.
- *
+ * make use of bucketed array queues indexed by a unique key composed of the scheduled time and priority. When
+ * iterating back over these updates, we simply specify the maximum bucket key range to avoid iterating over
+ * unnecessary elements. Integer bucket keys are much faster to sort against (as they are logically sorted) and
+ * are computationally trivial to slice.
+ * <p>
  * - A single single collection is used for storing ticks in the pipeline and execution flags are set on the scheduled
- *   objects directly. This eliminates the need to move ticks between multiple queues and sets constantly.
- *
+ * objects directly. This eliminates the need to move ticks between multiple queues and sets constantly.
+ * <p>
  * - We avoid repeatedly asking if a chunk is available by trying to re-use the previous computation if it involves the
- *   same chunk, reducing a lot of map operations elsewhere.
- *
+ * same chunk, reducing a lot of map operations elsewhere.
+ * <p>
  * - Ticks are stored in a HashMap with their execution state, meaning that redstone gates and other blocks which check
- *   to see if something is scheduled/executing will not have to scan a potentially very large array (which can occur
- *   when many ticks have been scheduled.)
+ * to see if something is scheduled/executing will not have to scan a potentially very large array (which can occur
+ * when many ticks have been scheduled.)
  */
 public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     private static final Predicate<TickEntry<?>> PREDICATE_ANY_TICK = entry -> true;

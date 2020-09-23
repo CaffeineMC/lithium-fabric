@@ -16,7 +16,9 @@ import java.util.Set;
 
 @Mixin(SetTag.class)
 public abstract class SetTagMixin<T> implements Tag<T> {
-    @Shadow @Final @Mutable
+    @Shadow
+    @Final
+    @Mutable
     private Set<T> valueSet;
 
     /**

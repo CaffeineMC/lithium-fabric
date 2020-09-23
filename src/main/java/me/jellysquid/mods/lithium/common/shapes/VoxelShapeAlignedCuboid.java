@@ -14,6 +14,7 @@ import net.minecraft.util.shape.VoxelShape;
  * This is an alternative to VoxelShapeSimpleCube with extra hitboxes inside.
  * Vanilla has extra hitboxes at steps of 1/8th or 1/4th of a block depending on the exact coordinates of the shape.
  * We are mimicking the effect on collisions here, as otherwise some contraptions would not behave like vanilla.
+ *
  * @author 2No2Name
  */
 public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
@@ -47,7 +48,7 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
 
     @Override
     public VoxelShape offset(double x, double y, double z) {
-        return new VoxelShapeAlignedCuboid_Offset(this, this.voxels, x, y, z);
+        return new VoxelShapeAlignedCuboidOffset(this, this.voxels, x, y, z);
     }
 
 
@@ -99,10 +100,11 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
                 }
                 //extra segment walls / hitboxes inside this shape, evenly spaced out in 0..1
                 //round to the next segment wall, but with epsilon margin like vanilla
-                double wallPos = MathHelper.ceil((bMax - EPSILON) * segmentsPerUnit) / (double)segmentsPerUnit;
+                double wallPos = MathHelper.ceil((bMax - EPSILON) * segmentsPerUnit) / (double) segmentsPerUnit;
                 //only use the wall when it is actually inside the shape, and not a border / outside the shape
-                if (wallPos < aMax - LARGE_EPSILON)
+                if (wallPos < aMax - LARGE_EPSILON) {
                     return Math.min(maxDist, wallPos - bMax);
+                }
                 return maxDist;
             }
         } else {
@@ -120,10 +122,11 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
                 }
                 //extra segment walls / hitboxes inside this shape, evenly spaced out in 0..1
                 //round to the next segment wall, but with epsilon margin like vanilla
-                double wallPos = MathHelper.floor((bMin + EPSILON) * segmentsPerUnit) / (double)segmentsPerUnit;
+                double wallPos = MathHelper.floor((bMin + EPSILON) * segmentsPerUnit) / (double) segmentsPerUnit;
                 //only use the wall when it is actually inside the shape, and not a border / outside the shape
-                if (wallPos > aMin + LARGE_EPSILON)
+                if (wallPos > aMin + LARGE_EPSILON) {
                     return Math.max(maxDist, wallPos - bMin);
+                }
                 return maxDist;
             }
         }
@@ -136,12 +139,12 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
 
     @Override
     protected double getPointPosition(Direction.Axis axis, int index) {
-        return (double)index / (double) axis.choose(this.xSegments, this.ySegments, this.zSegments);
+        return (double) index / (double) axis.choose(this.xSegments, this.ySegments, this.zSegments);
     }
 
     @Override
     protected int getCoordIndex(Direction.Axis axis, double coord) {
         int i = axis.choose(this.xSegments, this.ySegments, this.zSegments);
-        return MathHelper.clamp(MathHelper.floor(coord * (double)i), -1, i);
+        return MathHelper.clamp(MathHelper.floor(coord * (double) i), -1, i);
     }
 }

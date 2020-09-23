@@ -10,7 +10,7 @@ public interface BlockCollisionPredicate {
 
     /**
      * @param world The world of which collision tests are being performed in
-     * @param pos The position of the block in the world
+     * @param pos   The position of the block in the world
      * @param state The block state that is being collided with
      * @return True if the block can be collided with, otherwise false
      */

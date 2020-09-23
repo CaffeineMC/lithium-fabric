@@ -21,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 /**
  * Keep track of how many oversized blocks are in this chunk section. If none are there, collision code can skip a few blocks.
  * Oversized blocks are fences, walls, extended piston heads and blocks with dynamic bounds (scaffolding, shulker box, moving blocks)
+ *
  * @author 2No2Name
  */
 @Mixin(ChunkSection.class)

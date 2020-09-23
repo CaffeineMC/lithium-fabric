@@ -19,7 +19,9 @@ import java.util.function.Predicate;
 import static net.minecraft.predicate.entity.EntityPredicates.EXCEPT_SPECTATOR;
 
 public class WorldHelper {
-    public interface MixinLoadTest {}
+    public interface MixinLoadTest {
+    }
+
     public static final boolean CUSTOM_TYPE_FILTERABLE_LIST_DISABLED = !MixinLoadTest.class.isAssignableFrom(TypeFilterableList.class);
 
 
@@ -28,8 +30,9 @@ public class WorldHelper {
      * The returned entity list is only used to call getCollisionBox and getHardCollisionBox. As most entities return null
      * for both of these methods, getting those is not necessary. This is why we only get entities when they overwrite
      * getCollisionBox
-     * @param entityView the world
-     * @param box the box the entities have to collide with
+     *
+     * @param entityView      the world
+     * @param box             the box the entities have to collide with
      * @param collidingEntity the entity that is searching for the colliding entities
      * @return list of entities with collision boxes
      */
@@ -39,7 +42,7 @@ public class WorldHelper {
             return entityView.getOtherEntities(collidingEntity, box);
         } else {
             //only get entities that overwrite method_30948 (previously getCollisionBox)
-            return getEntitiesOfClassGroup((World)entityView, collidingEntity, EntityClassGroup.BOAT_SHULKER_LIKE_COLLISION, box, EXCEPT_SPECTATOR);
+            return getEntitiesOfClassGroup((World) entityView, collidingEntity, EntityClassGroup.BOAT_SHULKER_LIKE_COLLISION, box, EXCEPT_SPECTATOR);
         }
     }
 
@@ -56,8 +59,8 @@ public class WorldHelper {
         List<Entity> list_1 = Lists.newArrayList();
         ChunkManager chunkManager_1 = world.getChunkManager();
 
-        for(int int_5 = int_1; int_5 < int_2; ++int_5) {
-            for(int int_6 = int_3; int_6 < int_4; ++int_6) {
+        for (int int_5 = int_1; int_5 < int_2; ++int_5) {
+            for (int int_6 = int_3; int_6 < int_4; ++int_6) {
                 WorldChunk worldChunk_1 = chunkManager_1.getWorldChunk(int_5, int_6, false);
                 if (worldChunk_1 != null) {
                     WorldHelper.getEntitiesOfClassGroup(worldChunk_1, excluded, type, box_1, list_1, predicate_1);
@@ -67,6 +70,7 @@ public class WorldHelper {
 
         return list_1;
     }
+
     /**
      * Method that allows getting entities of a class group.
      * [VanillaCopy] but custom combination of: get class filtered entities together with excluding one entity
@@ -78,11 +82,11 @@ public class WorldHelper {
         int_1 = MathHelper.clamp(int_1, 0, entitySections.length - 1);
         int_2 = MathHelper.clamp(int_2, 0, entitySections.length - 1);
 
-        for(int int_3 = int_1; int_3 <= int_2; ++int_3) {
+        for (int int_3 = int_1; int_3 <= int_2; ++int_3) {
             //noinspection rawtypes
-            for(Object entity_1 : ((ClassGroupFilterableList)entitySections[int_3]).getAllOfGroupType(type)) {
-                if (entity_1 != excluded && ((Entity)entity_1).getBoundingBox().intersects(box_1) && (predicate_1 == null || predicate_1.test((Entity)entity_1))) {
-                    list_1.add((Entity)entity_1);
+            for (Object entity_1 : ((ClassGroupFilterableList) entitySections[int_3]).getAllOfGroupType(type)) {
+                if (entity_1 != excluded && ((Entity) entity_1).getBoundingBox().intersects(box_1) && (predicate_1 == null || predicate_1.test((Entity) entity_1))) {
+                    list_1.add((Entity) entity_1);
                 }
             }
         }
@@ -90,7 +94,7 @@ public class WorldHelper {
 
 
     /**
-     *  [VanillaCopy] Method for getting entities by class but also exclude one entity
+     * [VanillaCopy] Method for getting entities by class but also exclude one entity
      */
     public static List<Entity> getEntitiesOfClass(World world, Entity except, Class<? extends Entity> entityClass, Box box) {
         world.getProfiler().visit("getEntities");
@@ -101,8 +105,8 @@ public class WorldHelper {
         List<Entity> entityList = Lists.newArrayList();
         ChunkManager chunkManager = world.getChunkManager();
 
-        for(int chunkX = chunkX1; chunkX < chunkX2; ++chunkX) {
-            for(int chunkZ = chunkZ1; chunkZ < chunkZ2; ++chunkZ) {
+        for (int chunkX = chunkX1; chunkX < chunkX2; ++chunkX) {
+            for (int chunkZ = chunkZ1; chunkZ < chunkZ2; ++chunkZ) {
                 WorldChunk worldChunk = chunkManager.getWorldChunk(chunkX, chunkZ, false);
                 if (worldChunk != null) {
                     WorldHelper.getEntitiesOfClass(worldChunk, except, entityClass, box, entityList);
@@ -114,7 +118,7 @@ public class WorldHelper {
     }
 
     /**
-     *  [VanillaCopy] Method for getting entities by class but also exclude one entity
+     * [VanillaCopy] Method for getting entities by class but also exclude one entity
      */
     private static void getEntitiesOfClass(WorldChunk worldChunk, Entity excluded, Class<? extends Entity> entityClass, Box box, List<Entity> entityList) {
         TypeFilterableList<Entity>[] entitySections = worldChunk.getEntitySectionArray();
@@ -123,7 +127,7 @@ public class WorldHelper {
         chunkY1 = MathHelper.clamp(chunkY1, 0, entitySections.length - 1);
         chunkY2 = MathHelper.clamp(chunkY2, 0, entitySections.length - 1);
 
-        for(int chunkY = chunkY1; chunkY <= chunkY2; ++chunkY) {
+        for (int chunkY = chunkY1; chunkY <= chunkY2; ++chunkY) {
             for (Entity entity : entitySections[chunkY].getAllOfType(entityClass)) {
                 if (entity != excluded && entity.getBoundingBox().intersects(box)) {
                     entityList.add(entity);

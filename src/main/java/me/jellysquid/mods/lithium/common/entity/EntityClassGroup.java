@@ -15,6 +15,7 @@ import java.util.logging.Logger;
  * It is intended that an EntityClassGroup acts as if it was immutable, however we cannot predict which subclasses of
  * Entity might appear. Therefore we evaluate whether a class belongs to the class group when it is first seen.
  * Once a class was evaluated the result of it is cached and cannot be changed.
+ *
  * @author 2No2Name
  */
 public class EntityClassGroup {
@@ -59,11 +60,11 @@ public class EntityClassGroup {
     }
 
     public boolean contains(Class<?> entityClass) {
-        byte contains = this.class2GroupContains.getOrDefault(entityClass, (byte)2);
+        byte contains = this.class2GroupContains.getOrDefault(entityClass, (byte) 2);
         if (contains != 2) {
             return contains == 1;
         } else {
-           return testAndAddClass(entityClass);
+            return this.testAndAddClass(entityClass);
         }
     }
 
@@ -73,14 +74,14 @@ public class EntityClassGroup {
         //it could also be fixed by using an AtomicReference's CAS, but we are writing very rarely (less than 150 times for the total game runtime in vanilla)
         synchronized (this) {
             //test the same condition again after synchronizing, as the collection might have been updated while this thread blocked
-            contains = this.class2GroupContains.getOrDefault(entityClass, (byte)2);
+            contains = this.class2GroupContains.getOrDefault(entityClass, (byte) 2);
             if (contains != 2) {
                 return contains == 1;
             }
             //construct new map instead of updating the old map to avoid thread safety problems
             //the map is not modified after publication
             Reference2ByteOpenHashMap<Class<?>> newMap = this.class2GroupContains.clone();
-            contains = this.classFitEvaluator.test(entityClass) ? (byte)1 : (byte)0;
+            contains = this.classFitEvaluator.test(entityClass) ? (byte) 1 : (byte) 0;
             newMap.put(entityClass, contains);
             //publish the new map in a volatile field, so that all threads reading after this write can also see all changes to the map done before the write
             this.class2GroupContains = newMap;
@@ -89,7 +90,7 @@ public class EntityClassGroup {
     }
 
     public static boolean isMethodFromSuperclassOverwritten(Class<?> clazz, Class<?> superclass, String methodName, Class<?>... methodArgs) {
-        while(clazz != null && clazz != superclass && superclass.isAssignableFrom(clazz)) {
+        while (clazz != null && clazz != superclass && superclass.isAssignableFrom(clazz)) {
             try {
                 clazz.getDeclaredMethod(methodName, methodArgs);
                 return true;

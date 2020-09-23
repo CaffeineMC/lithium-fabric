@@ -122,6 +122,7 @@ public class PistonHeadBlockMixin {
 
         return shapes;
     }
+
     /**
      * @reason Use cached shape
      * @author JellySquid

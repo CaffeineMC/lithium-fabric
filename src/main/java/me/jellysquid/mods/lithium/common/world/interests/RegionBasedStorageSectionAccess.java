@@ -17,6 +17,7 @@ public interface RegionBasedStorageSectionAccess<R> {
     /**
      * Fast-path for collecting all items in a chunk column. This avoids needing to retrieve items for each sub-chunk
      * individually.
+     *
      * @param chunkX The x-coordinate of the chunk column
      * @param chunkZ The z-coordinate of the chunk column
      * @return False if collection was interrupted by a downstream collector, otherwise true if all items were collected

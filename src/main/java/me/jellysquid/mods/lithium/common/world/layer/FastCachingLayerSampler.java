@@ -14,7 +14,7 @@ import java.util.Arrays;
  * This is where the main advantage in this implementation comes from: being lossy, the cache does not have to
  * clean up old entries, it does not ever have to reallocate, and the cached value will always be in the first place
  * it checks.
- *
+ * <p>
  * It is important to note however that this is not thread-safe: accessing it from multiple threads can result in wrong
  * values being returned. This implementation works in complement with a patch to the BiomeLayerSampler that initializes
  * the biome layer stack within a thread-local

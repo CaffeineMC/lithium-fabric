@@ -38,7 +38,7 @@ public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterable
     public T add(T entity) {
         for (Map.Entry<EntityClassGroup, ReferenceLinkedOpenHashSet<T>> entityGroupAndSet : this.entitiesByGroup.entrySet()) {
             EntityClassGroup entityGroup = entityGroupAndSet.getKey();
-            if (entityGroup.contains(((Entity)entity).getClass())) {
+            if (entityGroup.contains(((Entity) entity).getClass())) {
                 entityGroupAndSet.getValue().add((entity));
             }
         }
@@ -63,7 +63,7 @@ public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterable
         Collection<T> collection = this.entitiesByGroup.get(type);
 
         if (collection == null) {
-            collection =  this.createAllOfGroupType(type);
+            collection = this.createAllOfGroupType(type);
         }
 
         return Collections.unmodifiableCollection(collection);

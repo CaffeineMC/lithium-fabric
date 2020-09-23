@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @Mixin(AbstractDecorationEntity.class)
-public abstract class AbstractDecorationEntityMixin extends Entity{
+public abstract class AbstractDecorationEntityMixin extends Entity {
     @Shadow
     @Final
     protected static Predicate<Entity> PREDICATE; //entity instanceof AbstractDecorationEntity

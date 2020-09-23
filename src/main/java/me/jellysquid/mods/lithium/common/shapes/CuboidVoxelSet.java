@@ -5,15 +5,16 @@ import net.minecraft.util.shape.VoxelSet;
 
 public class CuboidVoxelSet extends VoxelSet {
     private final int minX, minY, minZ, maxX, maxY, maxZ;
+
     protected CuboidVoxelSet(int xSize, int ySize, int zSize, double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         super(xSize, ySize, zSize);
 
-        this.minX = (int)Math.round(minX * xSize);
-        this.maxX = (int)Math.round(maxX * xSize);
-        this.minY = (int)Math.round(minY * ySize);
-        this.maxY = (int)Math.round(maxY * ySize);
-        this.minZ = (int)Math.round(minZ * zSize);
-        this.maxZ = (int)Math.round(maxZ * zSize);
+        this.minX = (int) Math.round(minX * xSize);
+        this.maxX = (int) Math.round(maxX * xSize);
+        this.minY = (int) Math.round(minY * ySize);
+        this.maxY = (int) Math.round(maxY * ySize);
+        this.minZ = (int) Math.round(minZ * zSize);
+        this.maxZ = (int) Math.round(maxZ * zSize);
     }
 
     @Override

@@ -72,8 +72,8 @@ public class ChunkAwareBlockCollisionSweeper {
 
         this.minX = MathHelper.floor(box.minX - EPSILON);
         this.maxX = MathHelper.floor(box.maxX + EPSILON);
-        this.minY = MathHelper.clamp((int)(box.minY - EPSILON),0,255);
-        this.maxY = MathHelper.clamp((int)(box.maxY + EPSILON),0,255);
+        this.minY = MathHelper.clamp((int) (box.minY - EPSILON), 0, 255);
+        this.maxY = MathHelper.clamp((int) (box.maxY + EPSILON), 0, 255);
         this.minZ = MathHelper.floor(box.minZ - EPSILON);
         this.maxZ = MathHelper.floor(box.maxZ + EPSILON);
         this.collisionPredicate = collisionPredicate;
@@ -117,7 +117,7 @@ public class ChunkAwareBlockCollisionSweeper {
                         this.cachedChunkSection = this.cachedChunk.getSectionArray()[this.chunkY];
                     }
                 }
-            //skip empty chunks and empty chunk sections
+                //skip empty chunks and empty chunk sections
             } while (this.cachedChunk == null || ChunkSection.isEmpty(this.cachedChunkSection));
 
             this.sectionOversizedBlocks = hasChunkSectionOversizedBlocks(this.cachedChunk, this.chunkY);
@@ -137,7 +137,7 @@ public class ChunkAwareBlockCollisionSweeper {
 
             this.cTotalSize = (this.cEndX - this.cStartX + 1) * (cEndY - cStartY + 1) * (this.cEndZ - this.cStartZ + 1);
             //skip completely empty section iterations
-        } while(this.cTotalSize == 0);
+        } while (this.cTotalSize == 0);
         this.cIterated = 0;
 
         return true;
@@ -165,7 +165,7 @@ public class ChunkAwareBlockCollisionSweeper {
      * @return null if no VoxelShape is left in the area, otherwise the next VoxelShape
      */
     private VoxelShape getNextBlockCollision() {
-        while(true) {
+        while (true) {
             if (this.cIterated >= this.cTotalSize) {
                 if (!this.nextSection()) {
                     break;
@@ -199,8 +199,8 @@ public class ChunkAwareBlockCollisionSweeper {
             //of the box that wasn't extended for oversized blocks yet.
             final int edgesHit = this.sectionOversizedBlocks ?
                     (x < this.minX || x > this.maxX ? 1 : 0) +
-                    (y < this.minY || y > this.maxY ? 1 : 0) +
-                    (z < this.minZ || z > this.maxZ ? 1 : 0) : 0;
+                            (y < this.minY || y > this.maxY ? 1 : 0) +
+                            (z < this.minZ || z > this.maxZ ? 1 : 0) : 0;
 
             if (edgesHit == 3) {
                 continue;
@@ -276,12 +276,13 @@ public class ChunkAwareBlockCollisionSweeper {
 
     /**
      * Checks the cached information whether the {@param chunkY} section of the {@param chunk} has oversized blocks.
+     *
      * @return Whether there are any oversized blocks in the chunk section.
      */
     private static boolean hasChunkSectionOversizedBlocks(Chunk chunk, int chunkY) {
         if (OVERSIZED_BLOCK_COUNTING_ENABLED) {
             ChunkSection section = chunk.getSectionArray()[chunkY];
-            return section != null && ((OversizedBlocksCounter)section).hasOversizedBlocks();
+            return section != null && ((OversizedBlocksCounter) section).hasOversizedBlocks();
         }
         return true; //like vanilla, assume that a chunk section has oversized blocks, when the section mixin isn't loaded
     }

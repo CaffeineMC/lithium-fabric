@@ -199,10 +199,11 @@ public abstract class ExplosionMixin {
 
     /**
      * Called for every step made by a ray being cast by an explosion.
+     *
      * @param strength The strength of the ray during this step
-     * @param blockX The x-coordinate of the block the ray is inside of
-     * @param blockY The y-coordinate of the block the ray is inside of
-     * @param blockZ The z-coordinate of the block the ray is inside of
+     * @param blockX   The x-coordinate of the block the ray is inside of
+     * @param blockY   The y-coordinate of the block the ray is inside of
+     * @param blockZ   The z-coordinate of the block the ray is inside of
      * @return The resistance of the current block space to the ray
      */
     private float traverseBlock(float strength, int blockX, int blockY, int blockZ, LongOpenHashSet touched) {

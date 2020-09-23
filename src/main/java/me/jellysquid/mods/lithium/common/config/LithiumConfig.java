@@ -107,9 +107,10 @@ public class LithiumConfig {
 
     /**
      * Defines a Mixin rule which can be configured by users and other mods.
-     * @throws IllegalStateException If a rule with that name already exists
-     * @param mixin The name of the mixin package which will be controlled by this rule
+     *
+     * @param mixin   The name of the mixin package which will be controlled by this rule
      * @param enabled True if the rule will be enabled by default, otherwise false
+     * @throws IllegalStateException If a rule with that name already exists
      */
     private void addMixinRule(String mixin, boolean enabled) {
         String name = getMixinRuleName(mixin);
@@ -240,7 +241,7 @@ public class LithiumConfig {
 
         Properties props = new Properties();
 
-        try (FileInputStream fin = new FileInputStream(file)){
+        try (FileInputStream fin = new FileInputStream(file)) {
             props.load(fin);
         } catch (IOException e) {
             throw new RuntimeException("Could not load config file", e);

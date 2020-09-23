@@ -65,7 +65,7 @@ public abstract class GoalSelectorMixin {
 
         // Stop any goals which are disabled or shouldn't continue executing
         this.stopGoals();
-        
+
         // Update the controls
         this.cleanupControls();
 

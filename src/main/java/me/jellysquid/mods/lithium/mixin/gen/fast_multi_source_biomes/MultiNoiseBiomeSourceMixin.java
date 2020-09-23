@@ -48,7 +48,7 @@ public class MultiNoiseBiomeSourceMixin {
         // [VanillaCopy] MultiNoiseBiomeSource#getBiomeForNoiseGen
 
         // Get the y value for perlin noise sampling. This field is always set to false in vanilla code.
-        int y = threeDimensionalSampling ? biomeY : 0;
+        int y = this.threeDimensionalSampling ? biomeY : 0;
 
         // Calculate the noise point based using 4 perlin noise samplers.
         Biome.MixedNoisePoint mixedNoisePoint = new Biome.MixedNoisePoint(
@@ -62,8 +62,8 @@ public class MultiNoiseBiomeSourceMixin {
         float min = Float.POSITIVE_INFINITY;
 
         // Iterate through the biome points and calculate the distance to the current noise point.
-        for (int i = 0; i < biomePoints.size(); i++) {
-            float distance = biomePoints.get(i).getFirst().calculateDistanceTo(mixedNoisePoint);
+        for (int i = 0; i < this.biomePoints.size(); i++) {
+            float distance = this.biomePoints.get(i).getFirst().calculateDistanceTo(mixedNoisePoint);
 
             // If the distance is less than the recorded minimum, update the minimum and set the current index.
             if (min > distance) {
@@ -73,6 +73,6 @@ public class MultiNoiseBiomeSourceMixin {
         }
 
         // Return the biome with the noise point closest to the evaluated one.
-        return biomePoints.get(idx).getSecond().get() == null ? BuiltinBiomes.THE_VOID : biomePoints.get(idx).getSecond().get();
+        return this.biomePoints.get(idx).getSecond().get() == null ? BuiltinBiomes.THE_VOID : this.biomePoints.get(idx).getSecond().get();
     }
 }
