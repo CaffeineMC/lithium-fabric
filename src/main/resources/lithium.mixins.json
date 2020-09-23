@@ -59,8 +59,6 @@
         "entity.collisions.CollisionViewMixin",
         "entity.collisions.EntityMixin",
         "entity.collisions.EntityViewMixin",
-        "entity.consolidated_fluid_checks.MixinEntity",
-        "entity.consolidated_fluid_checks.MixinLivingEntity",
         "entity.data_tracker.no_locks.DataTrackerMixin",
         "entity.data_tracker.use_arrays.DataTrackerMixin",
         "entity.fast_suffocation_check.MixinEntity",
