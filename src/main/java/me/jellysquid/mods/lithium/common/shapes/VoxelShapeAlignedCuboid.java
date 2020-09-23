@@ -1,8 +1,11 @@
 package me.jellysquid.mods.lithium.common.shapes;
 
+import it.unimi.dsi.fastutil.doubles.DoubleList;
 import net.minecraft.util.math.AxisCycleDirection;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.shape.FractionalDoubleList;
 import net.minecraft.util.shape.VoxelSet;
 import net.minecraft.util.shape.VoxelShape;
 
@@ -23,13 +26,12 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
     protected final int ySegments;
     protected final int zSegments;
 
-    public VoxelShapeAlignedCuboid(VoxelSet voxels, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, int xRes, int yRes, int zRes) {
-        super(voxels, minX, minY, minZ, maxX, maxY, maxZ);
-        //If the VoxelShape doesn't contain any extra collision boxes in vanilla on the given axis (only one segment in total)
-        //We set the segment count to 1 to signal that there are no inside shape segment borders, which is the fast branch in calculatePenetration
-        this.xSegments = xRes <= 1 ? 1 : (1 << xRes);
-        this.ySegments = yRes <= 1 ? 1 : (1 << yRes);
-        this.zSegments = zRes <= 1 ? 1 : (1 << zRes);
+    public VoxelShapeAlignedCuboid(double minX, double minY, double minZ, double maxX, double maxY, double maxZ, int xRes, int yRes, int zRes) {
+        super(new CuboidVoxelSet(1 << xRes, 1 << yRes, 1 << zRes, minX, minY, minZ, maxX, maxY, maxZ), minX, minY, minZ, maxX, maxY, maxZ);
+
+        this.xSegments = 1 << xRes;
+        this.ySegments = 1 << yRes;
+        this.zSegments = 1 << zRes;
     }
 
     /**
@@ -125,5 +127,21 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
                 return maxDist;
             }
         }
+    }
+
+    @Override
+    protected DoubleList getPointPositions(Direction.Axis axis) {
+        return new FractionalDoubleList(axis.choose(this.xSegments, this.ySegments, this.zSegments));
+    }
+
+    @Override
+    protected double getPointPosition(Direction.Axis axis, int index) {
+        return (double)index / (double) axis.choose(this.xSegments, this.ySegments, this.zSegments);
+    }
+
+    @Override
+    protected int getCoordIndex(Direction.Axis axis, double coord) {
+        int i = axis.choose(this.xSegments, this.ySegments, this.zSegments);
+        return MathHelper.clamp(MathHelper.floor(coord * (double)i), -1, i);
     }
 }

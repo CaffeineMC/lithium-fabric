@@ -96,18 +96,8 @@ public abstract class VoxelShapesMixin {
                 (zRes = VoxelShapes.findRequiredBitResolution(box.minZ, box.maxZ)) == -1) {
             //vanilla uses ArrayVoxelShape here without any rounding of the coordinates
             return new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
-        }
-        //vanilla rounds the coordinates to be aligned to the resolution. We just round to 1/8 of a block, which also rounds to 1/4 and 1/2 of a block correctly.
-        else if ((xRes <= 1 || (box.maxX - box.minX) * (1 << xRes) < 1.5D) &&
-                (yRes <= 1 || (box.maxY - box.minY) * (1 << yRes) < 1.5D) &&
-                (zRes <= 1 || (box.maxZ - box.minZ) * (1 << zRes) < 1.5D)) {
-            //here we ensured that the VoxelShape is at most one bit in the BitSet large in vanilla.
-            //Therefore there are no hitboxes inside, as they are only between the space represented by the BitSetVoxelSet entries
-            //Use a VoxelShapeSimpleCube if there is no extra hitbox inside the shape
-            return new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, Math.round(box.minX * 8D) / 8D, Math.round(box.minY * 8D) / 8D, Math.round(box.minZ * 8D) / 8D, Math.round(box.maxX * 8D) / 8D, Math.round(box.maxY * 8D) / 8D, Math.round(box.maxZ * 8D) / 8D);
-        }
-        else { //vanilla would use a SimpleVoxelShape with a BitSetVoxelSet of resolution of xRes, yRes, zRes here, we match its behavior
-            return new VoxelShapeAlignedCuboid(FULL_CUBE_VOXELS,Math.round(box.minX * 8D) / 8D, Math.round(box.minY * 8D) / 8D, Math.round(box.minZ * 8D) / 8D, Math.round(box.maxX * 8D) / 8D, Math.round(box.maxY * 8D) / 8D, Math.round(box.maxZ * 8D) / 8D, xRes, yRes, zRes);
+        } else { //vanilla would use a SimpleVoxelShape with a BitSetVoxelSet of resolution of xRes, yRes, zRes here, we match its behavior
+            return new VoxelShapeAlignedCuboid(Math.round(box.minX * 8D) / 8D, Math.round(box.minY * 8D) / 8D, Math.round(box.minZ * 8D) / 8D, Math.round(box.maxX * 8D) / 8D, Math.round(box.maxY * 8D) / 8D, Math.round(box.maxZ * 8D) / 8D, xRes, yRes, zRes);
         }
     }
 }

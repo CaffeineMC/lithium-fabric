@@ -1,7 +1,10 @@
 package me.jellysquid.mods.lithium.common.shapes;
 
+import it.unimi.dsi.fastutil.doubles.DoubleList;
+import me.jellysquid.mods.lithium.common.shapes.lists.OffsetFractionalDoubleList;
 import net.minecraft.util.math.AxisCycleDirection;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.shape.VoxelSet;
 import net.minecraft.util.shape.VoxelShape;
@@ -125,5 +128,24 @@ public class VoxelShapeAlignedCuboid_Offset extends VoxelShapeAlignedCuboid {
                 return maxDist;
             }
         }
+    }
+
+    @Override
+    protected DoubleList getPointPositions(Direction.Axis axis) {
+        return new OffsetFractionalDoubleList(axis.choose(this.xSegments, this.ySegments, this.zSegments),
+                axis.choose(this.xOffset, this.yOffset, this.zOffset));
+    }
+
+    @Override
+    protected double getPointPosition(Direction.Axis axis, int index) {
+        return axis.choose(this.xOffset, this.yOffset, this.zOffset) +
+                ((double) index / (double) axis.choose(this.xSegments, this.ySegments, this.zSegments));
+    }
+
+    @Override
+    protected int getCoordIndex(Direction.Axis axis, double coord) {
+        coord -= axis.choose(this.xOffset, this.yOffset, this.zOffset);
+        int numSegments = axis.choose(this.xSegments, this.ySegments, this.zSegments);
+        return MathHelper.clamp(MathHelper.floor(coord * (double)numSegments), -1, numSegments);
     }
 }
