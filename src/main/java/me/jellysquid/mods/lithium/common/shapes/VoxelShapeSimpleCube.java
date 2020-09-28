@@ -25,6 +25,7 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeCaster
     static final double EPSILON = 1.0E-7D;
 
     final double minX, minY, minZ, maxX, maxY, maxZ;
+    public final boolean isTiny;
 
     public VoxelShapeSimpleCube(VoxelSet voxels, double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         super(voxels);
@@ -35,6 +36,11 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeCaster
         this.maxX = maxX;
         this.maxY = maxY;
         this.maxZ = maxZ;
+
+        this.isTiny =
+                this.minX + 3 * EPSILON >= this.maxX ||
+                this.minY + 3 * EPSILON >= this.maxY ||
+                this.minZ + 3 * EPSILON >= this.maxZ;
     }
 
     @Override
@@ -146,7 +152,7 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeCaster
     }
 
     @Override
-    protected DoubleList getPointPositions(Direction.Axis axis) {
+    public DoubleList getPointPositions(Direction.Axis axis) {
         switch (axis) {
             case X:
                 return DoubleArrayList.wrap(new double[]{this.minX, this.maxX});
@@ -166,7 +172,7 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeCaster
 
     @Override
     public boolean isEmpty() {
-        return ((this.minX + EPSILON) > this.maxX) || ((this.minY + EPSILON) > this.maxY) || ((this.minZ + EPSILON) > this.maxZ);
+        return (this.minX >= this.maxX) || (this.minY >= this.maxY) || (this.minZ >= this.maxZ);
     }
 
     @Override

@@ -133,7 +133,7 @@ public class VoxelShapeAlignedCuboidOffset extends VoxelShapeAlignedCuboid {
     }
 
     @Override
-    protected DoubleList getPointPositions(Direction.Axis axis) {
+    public DoubleList getPointPositions(Direction.Axis axis) {
         return new OffsetFractionalDoubleList(axis.choose(this.xSegments, this.ySegments, this.zSegments),
                 axis.choose(this.xOffset, this.yOffset, this.zOffset));
     }

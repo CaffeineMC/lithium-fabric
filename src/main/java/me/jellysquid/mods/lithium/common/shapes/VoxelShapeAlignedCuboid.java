@@ -133,7 +133,7 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
     }
 
     @Override
-    protected DoubleList getPointPositions(Direction.Axis axis) {
+    public DoubleList getPointPositions(Direction.Axis axis) {
         return new FractionalDoubleList(axis.choose(this.xSegments, this.ySegments, this.zSegments));
     }
 
