@@ -65,6 +65,7 @@
         "entity.fast_suffocation_check.MixinEntity",
         "entity.gravity_check_block_below.VoxelShapesMixin",
         "entity.replace_entitytype_predicates.AbstractDecorationEntityMixin",
+        "entity.replace_entitytype_predicates.AbstractMinecartEntityMixin",
         "entity.replace_entitytype_predicates.ArmorStandEntityMixin",
         "entity.replace_entitytype_predicates.FormCaravanGoalMixin",
         "entity.replace_entitytype_predicates.ItemFrameEntityMixin",
