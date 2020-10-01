@@ -32,7 +32,7 @@ public interface CollisionViewMixin {
      * @author JellySquid
      */
     @Overwrite
-    default boolean doesNotCollide(Entity entity, Box box, Predicate<Entity> predicate) {
+    default boolean isSpaceEmpty(Entity entity, Box box, Predicate<Entity> predicate) {
         boolean ret = !LithiumEntityCollisions.doesBoxCollideWithBlocks((CollisionView) this, entity, box, BlockCollisionPredicate.ANY);
 
         // If no blocks were collided with, try to check for entity collisions if we can read entities

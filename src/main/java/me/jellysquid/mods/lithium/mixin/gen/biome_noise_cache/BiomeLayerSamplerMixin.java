@@ -25,6 +25,6 @@ public abstract class BiomeLayerSamplerMixin {
      */
     @Redirect(method = "sample", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/biome/layer/util/CachingLayerSampler;sample(II)I"))
     private int sampleThreadLocal(CachingLayerSampler cachingLayerSampler, int i, int j) {
-        return this.tlSampler.get().sample(i,j);
+        return this.tlSampler.get().sample(i, j);
     }
 }

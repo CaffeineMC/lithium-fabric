@@ -9,12 +9,12 @@ import org.spongepowered.asm.mixin.Overwrite;
  * an exception if it occurs. In practice, this never occurs and seems to be a left-over that was added when off-thread
  * chunk generation was being developed and tested. However, a poorly behaved mod could violate the thread-safety
  * contract and cause issues which would not be caught with this patch.
- *
+ * <p>
  * This locking (according to some individuals) can impact performance significantly, though my own testing shows it to
  * have only a small impact (about 5% of the world generation time) in Java 11 on an AMD Piledriver-based system running
  * Linux 5.4. As the locking code is platform (and even implementation) specific, it's hard to make an absolute statement
  * about it. My experience has been that the Java locks tend to perform worse on Windows, which is what most players use.
- *
+ * <p>
  * This is a rather, well, dumb patch, to remove the locking mechanic. It would likely be wiser to implement a faster
  * check against some counter after modification has occurred to see if something was updated beneath our feet, though
  * that would not be guaranteed to catch the issue.

@@ -39,18 +39,19 @@ public class LithiumConfig {
         this.addMixinRule("alloc", true);
         this.addMixinRule("alloc.chunk_random", true);
         this.addMixinRule("alloc.chunk_ticking", true);
+        this.addMixinRule("alloc.composter", true);
         this.addMixinRule("alloc.entity_tracker", true);
         this.addMixinRule("alloc.enum_values", true);
         this.addMixinRule("alloc.world_ticking", true);
 
         this.addMixinRule("block", true);
         this.addMixinRule("block.flatten_states", true);
-        this.addMixinRule("block.piston_shapes", true);
 
         this.addMixinRule("cached_hashcode", true);
 
         this.addMixinRule("chunk", true);
         this.addMixinRule("chunk.count_oversized_blocks", true);
+        this.addMixinRule("chunk.entity_class_groups", true);
         this.addMixinRule("chunk.no_locking", true);
         this.addMixinRule("chunk.palette", true);
         this.addMixinRule("chunk.serialization", true);
@@ -67,7 +68,6 @@ public class LithiumConfig {
         this.addMixinRule("entity.replace_entitytype_predicates", true);
         this.addMixinRule("entity.skip_fire_check", true);
         this.addMixinRule("entity.stream_entity_collisions_lazily", true);
-        this.addMixinRule("entity.consolidated_fluid_checks", false);
 
         this.addMixinRule("gen", true);
         this.addMixinRule("gen.biome_noise_cache", true);
@@ -91,7 +91,7 @@ public class LithiumConfig {
         this.addMixinRule("tag", true);
 
         this.addMixinRule("world", true);
-        this.addMixinRule("world.block_entity_ticking", true);
+        this.addMixinRule("world.block_entity_ticking", false /* TODO: fix remaining issues */);
         this.addMixinRule("world.chunk_access", true);
         this.addMixinRule("world.chunk_inline_block_access", true);
         this.addMixinRule("world.chunk_task_system", true);
@@ -106,9 +106,10 @@ public class LithiumConfig {
 
     /**
      * Defines a Mixin rule which can be configured by users and other mods.
-     * @throws IllegalStateException If a rule with that name already exists
-     * @param mixin The name of the mixin package which will be controlled by this rule
+     *
+     * @param mixin   The name of the mixin package which will be controlled by this rule
      * @param enabled True if the rule will be enabled by default, otherwise false
+     * @throws IllegalStateException If a rule with that name already exists
      */
     private void addMixinRule(String mixin, boolean enabled) {
         String name = getMixinRuleName(mixin);
@@ -239,7 +240,7 @@ public class LithiumConfig {
 
         Properties props = new Properties();
 
-        try (FileInputStream fin = new FileInputStream(file)){
+        try (FileInputStream fin = new FileInputStream(file)) {
             props.load(fin);
         } catch (IOException e) {
             throw new RuntimeException("Could not load config file", e);

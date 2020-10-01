@@ -49,7 +49,7 @@ public class NearbyEntityListenerMulti implements NearbyEntityListener {
     public String toString() {
         StringBuilder sublisteners = new StringBuilder();
         String comma = "";
-        for (NearbyEntityListener listener : listeners) {
+        for (NearbyEntityListener listener : this.listeners) {
             sublisteners.append(comma).append(listener.toString());
             comma = ","; //trick to drop the first comma
         }

@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.world.mob_spawning;
 
 import com.google.common.collect.Maps;
-import me.jellysquid.mods.lithium.common.util.collections.HashedList;
+import me.jellysquid.mods.lithium.common.util.collections.HashedReferenceList;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.world.biome.SpawnSettings;
@@ -36,7 +36,7 @@ public class SpawnSettingsMixin {
         Map<SpawnGroup, List<SpawnSettings.SpawnEntry>> spawns = Maps.newEnumMap(SpawnGroup.class);
 
         for (Map.Entry<SpawnGroup, List<SpawnSettings.SpawnEntry>> entry : this.spawners.entrySet()) {
-            spawns.put(entry.getKey(), HashedList.wrapper(entry.getValue()));
+            spawns.put(entry.getKey(), new HashedReferenceList<>(entry.getValue()));
         }
 
         this.spawners = spawns;

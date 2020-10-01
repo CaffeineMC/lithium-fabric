@@ -33,7 +33,9 @@ public abstract class DataTrackerMixin {
     @Final
     private ReadWriteLock lock;
 
-    /** Mirrors the vanilla backing entries map. Each DataTracker.Entry can be accessed in this array through its ID. **/
+    /**
+     * Mirrors the vanilla backing entries map. Each DataTracker.Entry can be accessed in this array through its ID.
+     **/
     private DataTracker.Entry<?>[] entriesArray = new DataTracker.Entry<?>[DEFAULT_ENTRY_COUNT];
 
     /**

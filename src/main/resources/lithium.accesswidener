@@ -28,3 +28,6 @@ accessible method net/minecraft/world/ChunkPosDistanceLevelPropagator updateLeve
 accessible method net/minecraft/server/world/ChunkTicket isExpired (J)Z
 
 accessible method net/minecraft/util/shape/VoxelShapes findRequiredBitResolution (DD)I
+accessible method net/minecraft/util/shape/FractionalDoubleList <init> (I)V
+
+accessible method net/minecraft/entity/Entity checkWaterState ()V

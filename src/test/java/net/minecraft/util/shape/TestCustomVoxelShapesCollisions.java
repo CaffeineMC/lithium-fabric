@@ -1,11 +1,9 @@
 package net.minecraft.util.shape;
 
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeAlignedCuboid;
-import me.jellysquid.mods.lithium.common.shapes.VoxelShapeAlignedCuboid_Offset;
 import me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes.VoxelShapesMixin;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
-//import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 

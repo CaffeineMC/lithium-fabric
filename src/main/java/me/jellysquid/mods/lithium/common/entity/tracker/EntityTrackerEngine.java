@@ -10,7 +10,9 @@ import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Tracks the entities within a world and provides notifications to listeners when a tracked entity enters or leaves a
@@ -84,13 +86,13 @@ public class EntityTrackerEngine {
 
         if (this.sectionsByEntity.containsKey(listener)) {
 
-            throw new IllegalStateException(errorMessageAlreadyListening(this.sectionsByEntity, listener, ChunkSectionPos.from(x,y,z)));
+            throw new IllegalStateException(errorMessageAlreadyListening(this.sectionsByEntity, listener, ChunkSectionPos.from(x, y, z)));
         }
 
         int yMin = Math.max(0, y - r);
         int yMax = Math.min(y + r, 15);
 
-        List<TrackedEntityList> all = new ArrayList<>((2*r+1) * (yMax - yMin +1) * (2*r+1));
+        List<TrackedEntityList> all = new ArrayList<>((2 * r + 1) * (yMax - yMin + 1) * (2 * r + 1));
 
         for (int x2 = x - r; x2 <= x + r; x2++) {
             for (int y2 = yMin; y2 <= yMax; y2++) {

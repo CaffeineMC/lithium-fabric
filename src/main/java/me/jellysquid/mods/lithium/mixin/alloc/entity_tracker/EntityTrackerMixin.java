@@ -21,7 +21,6 @@ public class EntityTrackerMixin {
     @Final
     private Set<ServerPlayerEntity> playersTracking;
 
-    @SuppressWarnings("InvalidInjectorMethodSignature") // The McDev plugin can't handle non-static classes
     @Inject(method = "<init>", at = @At("RETURN"))
     private void reinit(ThreadedAnvilChunkStorage parent /* non-static class parent */, Entity entity, int maxDistance,
                         int tickInterval, boolean alwaysUpdateVelocity, CallbackInfo ci) {

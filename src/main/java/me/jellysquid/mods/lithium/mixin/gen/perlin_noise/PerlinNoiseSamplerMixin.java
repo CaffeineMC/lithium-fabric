@@ -82,6 +82,7 @@ public class PerlinNoiseSamplerMixin {
      * - Interpolation logic is optimized to remove unnecessary duplication of work between nested lerp calls
      * - Methods are inlined and optimized to reduce the instruction count as much as possible
      * - Math operations are re-organized into vertical array multiplications to help aid the JVM in vectorization
+     *
      * @reason Optimize noise sampling
      * @author JellySquid
      */
@@ -114,35 +115,35 @@ public class PerlinNoiseSamplerMixin {
 
         final byte[] grad = this.gradientTable;
 
-        final double g00x = grad[d00]     * localX1;
+        final double g00x = grad[d00] * localX1;
         final double g00y = grad[d00 + 1] * localY1;
         final double g00z = grad[d00 + 2] * localZ1;
 
-        final double g01x = grad[d01]     * localX2;
+        final double g01x = grad[d01] * localX2;
         final double g01y = grad[d01 + 1] * localY1;
         final double g01z = grad[d01 + 2] * localZ1;
 
-        final double g02x = grad[d02]     * localX1;
+        final double g02x = grad[d02] * localX1;
         final double g02y = grad[d02 + 1] * localY2;
         final double g02z = grad[d02 + 2] * localZ1;
 
-        final double g03x = grad[d03]     * localX2;
+        final double g03x = grad[d03] * localX2;
         final double g03y = grad[d03 + 1] * localY2;
         final double g03z = grad[d03 + 2] * localZ1;
 
-        final double g10x = grad[d10]     * localX1;
+        final double g10x = grad[d10] * localX1;
         final double g10y = grad[d10 + 1] * localY1;
         final double g10z = grad[d10 + 2] * localZ2;
 
-        final double g11x = grad[d11]     * localX2;
+        final double g11x = grad[d11] * localX2;
         final double g11y = grad[d11 + 1] * localY1;
         final double g11z = grad[d11 + 2] * localZ2;
 
-        final double g12x = grad[d12]     * localX1;
+        final double g12x = grad[d12] * localX1;
         final double g12y = grad[d12 + 1] * localY2;
         final double g12z = grad[d12 + 2] * localZ2;
 
-        final double g13x = grad[d13]     * localX2;
+        final double g13x = grad[d13] * localX2;
         final double g13y = grad[d13 + 1] * localY2;
         final double g13z = grad[d13 + 2] * localZ2;
 

@@ -1,8 +1,8 @@
 package me.jellysquid.mods.lithium.mixin.shapes.precompute_shape_arrays;
 
 import it.unimi.dsi.fastutil.doubles.DoubleList;
-import me.jellysquid.mods.lithium.common.shapes.lists.FractionalDoubleList;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.FractionalDoubleList;
 import net.minecraft.util.shape.SimpleVoxelShape;
 import net.minecraft.util.shape.VoxelSet;
 import org.spongepowered.asm.mixin.Mixin;
