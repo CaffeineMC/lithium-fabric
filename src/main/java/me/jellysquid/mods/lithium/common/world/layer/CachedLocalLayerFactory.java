@@ -1,42 +1,50 @@
 package me.jellysquid.mods.lithium.common.world.layer;
 
+import net.minecraft.world.biome.layer.type.InitLayer;
+import net.minecraft.world.biome.layer.type.MergingLayer;
 import net.minecraft.world.biome.layer.type.ParentedLayer;
 import net.minecraft.world.biome.layer.util.LayerFactory;
 import net.minecraft.world.biome.layer.util.LayerSampleContext;
 import net.minecraft.world.biome.layer.util.LayerSampler;
 
-public class CachedLocalLayerFactory<R extends LayerSampler> implements LayerFactory<R> {
-    private final ThreadLocal<R> cached = new ThreadLocal<>();
-
-    private final ParentedLayer layer;
-    private final CloneableContext<R> context;
-    private final LayerFactory<R> parent;
-
-    public CachedLocalLayerFactory(ParentedLayer layer, CloneableContext<R> context, LayerFactory<R> parent) {
-        this.layer = layer;
-        this.context = context;
-        this.parent = parent;
+public final class CachedLocalLayerFactory {
+    public static <R extends LayerSampler> LayerFactory<R> createInit(InitLayer layer, CloneableContext<R> context) {
+        return createMemoized(() -> {
+            LayerSampleContext<R> clonedContext = context.cloneContext();
+            return clonedContext.createSampler((x, z) -> {
+                clonedContext.initSeed(x, z);
+                return layer.sample(clonedContext, x, z);
+            });
+        });
     }
 
-    @Override
-    public R make() {
-        R sampler = this.cached.get();
+    public static <R extends LayerSampler> LayerFactory<R> createParented(ParentedLayer layer, CloneableContext<R> context, LayerFactory<R> parent) {
+        return createMemoized(() -> {
+            LayerSampleContext<R> clonedContext = context.cloneContext();
+            R parentSampler = parent.make();
 
-        if (sampler == null) {
-            this.cached.set(sampler = this.createLocalSampler());
-        }
-
-        return sampler;
+            return clonedContext.createSampler((x, z) -> {
+                clonedContext.initSeed(x, z);
+                return layer.sample(clonedContext, parentSampler, x, z);
+            }, parentSampler);
+        });
     }
 
-    private R createLocalSampler() {
-        LayerSampleContext<R> context = this.context.cloneContext();
-        ParentedLayer layer = CachedLocalLayerFactory.this.layer;
-        R parentSampler = this.parent.make();
+    public static <R extends LayerSampler> LayerFactory<R> createMerging(MergingLayer layer, CloneableContext<R> context, LayerFactory<R> layer1, LayerFactory<R> layer2) {
+        return createMemoized(() -> {
+            LayerSampleContext<R> clonedContext = context.cloneContext();
+            R sampler1 = layer1.make();
+            R sampler2 = layer2.make();
 
-        return context.createSampler((x, z) -> {
-            context.initSeed(x, z);
-            return layer.sample(context, parentSampler, x, z);
-        }, parentSampler);
+            return clonedContext.createSampler((x, z) -> {
+                clonedContext.initSeed(x, z);
+                return layer.sample(clonedContext, sampler1, sampler2, x, z);
+            }, sampler1, sampler2);
+        });
+    }
+
+    private static <R extends LayerSampler> LayerFactory<R> createMemoized(LayerFactory<R> factory) {
+        ThreadLocal<R> threadLocal = ThreadLocal.withInitial(factory::make);
+        return threadLocal::get;
     }
 }

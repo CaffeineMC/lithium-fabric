@@ -70,6 +70,8 @@
         "entity.stream_entity_collisions_lazily.EntityMixin",
         "gen.biome_noise_cache.BiomeLayerSamplerMixin",
         "gen.biome_noise_cache.CachingLayerContextMixin",
+        "gen.biome_noise_cache.InitLayerMixin",
+        "gen.biome_noise_cache.MergingLayerMixin",
         "gen.biome_noise_cache.ParentedLayerMixin",
         "gen.chunk_region.ChunkRegionMixin",
         "gen.fast_layer_sampling.CachingLayerContextMixin",
