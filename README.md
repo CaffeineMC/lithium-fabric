@@ -29,6 +29,16 @@ If you'd like to get help with the mod, check out the latest developments, or be
 the Discord community might be for you! You can join the official server for my mods by clicking
 [here](https://jellysquid.me/discord).
 
+### Support the developers
+
+Lithium is made possible by the following core contributors [and others](https://github.com/jellysquid3/lithium-fabric/graphs/contributors).
+You can help support members of the core team by making a pledge to our Patreon pages below.
+
+|    | Author   | Role   | Links   |
+|----|:---------|:-------|:--------|
+| ![jellysquid3's Avatar](https://avatars3.githubusercontent.com/u/1363084?s=32) | jellysquid3 | Project Lead | [Patreon](https://patreon.com/jellysquid) / [Contributions](https://github.com/jellysquid3/lithium-fabric/commits?author=jellysquid3) |
+| ![2No2Name's Avatar](https://avatars3.githubusercontent.com/u/50278648?s=32) | 2No2Name | Maintainer | [Patreon](https://patreon.com/2No2Name) / [Contributions](https://github.com/jellysquid3/lithium-fabric/commits?author=2No2Name) |
+
 ---
 
 ### What makes Lithium different?
