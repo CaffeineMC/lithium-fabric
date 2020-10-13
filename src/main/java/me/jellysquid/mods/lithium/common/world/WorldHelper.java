@@ -150,4 +150,8 @@ public class WorldHelper {
 
         return localX > 0 && localY > 0 && localZ > 0 && localX < 15 && localY < 15 && localZ < 15;
     }
+
+    public static boolean areAllNeighborsOutOfBounds(BlockPos pos) {
+        return pos.getY() < -1 || pos.getY() > 256;
+    }
 }
