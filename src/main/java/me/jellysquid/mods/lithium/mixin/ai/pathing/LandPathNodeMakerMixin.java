@@ -7,10 +7,10 @@ import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.CollisionView;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkCache;
 import net.minecraft.world.chunk.ChunkSection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -68,27 +68,20 @@ public abstract class LandPathNodeMakerMixin {
 
         ChunkSection section = null;
 
-        int sectionY = y >> 4;
-
-        // All blocks outside world bounds are air blocks. If no neighboring chunk sections in our search radius are
-        // within world bounds, we assume they're all air and that no danger could possibly be contributed. Otherwise,
-        // we know that we need still need to scan some blocks within world bounds.
-        if (sectionY > 16 || sectionY < -1) {
-            return type;
-        }
-
         // Check that all the block's neighbors are within the same chunk column. If so, we can isolate all our block
         // reads to just one chunk and avoid hits against the server chunk manager.
-        if (world instanceof ChunkCache && WorldHelper.areNeighborsWithinSameChunk(pos)) {
-            // This cast is always safe and is necessary to obtain direct references to chunk sections.
-            Chunk chunk = (Chunk) ((ChunkCache) world).getExistingChunk(x >> 4, z >> 4);
+        if (world instanceof CollisionView && WorldHelper.areNeighborsWithinSameChunk(pos)) {
+            // If the y-coordinate is within bounds, we can cache the chunk section. Otherwise, the if statement to check
+            // if the cached chunk section was initialized will early-exit.
+            if (!World.isHeightInvalid(y)) {
+                // This cast is always safe and is necessary to obtain direct references to chunk sections.
+                Chunk chunk = (Chunk) ((CollisionView) world).getExistingChunk(x >> 4, z >> 4);
 
-            // If the chunk is absent, the cached section above will remain null, as there is no chunk section anyways.
-            // An empty chunk or section will never pose any danger sources, which will be caught later.
-            if (chunk != null) {
-                // Clamp the y-section coordinate to the world height. Since we checked earlier that we at least had
-                // some valid neighbors in world bounds, we know that these neighbors must lie in the clamped area.
-                section = chunk.getSectionArray()[MathHelper.clamp(sectionY, 0, 15)];
+                // If the chunk is absent, the cached section above will remain null, as there is no chunk section anyways.
+                // An empty chunk or section will never pose any danger sources, which will be caught later.
+                if (chunk != null) {
+                    section = chunk.getSectionArray()[y >> 4];
+                }
             }
 
             // If we can guarantee that blocks won't be modified while the cache is active, try to see if the chunk
