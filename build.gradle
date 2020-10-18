@@ -1,23 +1,6 @@
 plugins {
     id 'fabric-loom' version '0.4-SNAPSHOT'
-}
-
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
-archivesBaseName = "${project.archives_base_name}-mc${project.minecraft_version}"
-group = project.maven_group
-version = project.mod_version
-
-def build_release = System.getenv("BUILD_RELEASE") == "true"
-def build_id = System.getenv("BUILD_ID")
-
-if (!build_release) {
-    version += "-SNAPSHOT"
-}
-
-if (build_id != null) {
-    version += "+build.${build_id}"
+    id 'maven-publish'
 }
 
 minecraft {
@@ -25,43 +8,78 @@ minecraft {
     refmapName = "mixins.lithium.refmap.json"
 }
 
+allprojects {
+    apply plugin: 'fabric-loom'
+
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+
+    archivesBaseName = "${project.name}-fabric-mc${project.minecraft_version}"
+
+    println(archivesBaseName)
+    group = project.maven_group
+    version = project.mod_version
+
+    def build_release = System.getenv("BUILD_RELEASE") == "true"
+    def build_id = System.getenv("BUILD_ID")
+
+    if (!build_release) {
+        version += "-SNAPSHOT"
+    }
+
+    if (build_id != null) {
+        version += "+build.${build_id}"
+    }
+
+    dependencies {
+        //to change the versions see the gradle.properties file
+        minecraft "com.mojang:minecraft:${project.minecraft_version}"
+        mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+
+        modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
+    }
+
+    processResources {
+        inputs.property "version", project.version
+
+        from(sourceSets.main.resources.srcDirs) {
+            include "fabric.mod.json"
+
+            expand "version": project.version
+        }
+
+        from(sourceSets.main.resources.srcDirs) {
+            exclude "fabric.mod.json"
+        }
+    }
+
+    // ensure that the encoding is set to UTF-8, no matter what the system default is
+    // this fixes some edge cases with special characters not displaying correctly
+    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                artifact(remapJar)
+            }
+        }
+    }
+
+    jar {
+        from "${rootDir}/LICENSE.txt"
+    }
+}
+
 dependencies {
-	//to change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
+    compile project(":lithium-api")
+
+    afterEvaluate {
+        include project(":lithium-api")
+    }
 }
 
-processResources {
-	inputs.property "version", project.version
+remapJar.dependsOn(project(":lithium-api").tasks.remapJar)
 
-	from(sourceSets.main.resources.srcDirs) {
-		include "fabric.mod.json"
-
-		expand "version": project.version
-	}
-
-	from(sourceSets.main.resources.srcDirs) {
-		exclude "fabric.mod.json"
-	}
-}
-
-// ensure that the encoding is set to UTF-8, no matter what the system default is
-// this fixes some edge cases with special characters not displaying correctly
-// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-tasks.withType(JavaCompile) {
-	options.encoding = "UTF-8"
-}
-
-// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-// if it is present.
-// If you remove this task, sources will not be generated.
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = "sources"
-    from sourceSets.main.allSource
-    from "LICENSE"
-}
-
-jar {
-    from "LICENSE"
-}
