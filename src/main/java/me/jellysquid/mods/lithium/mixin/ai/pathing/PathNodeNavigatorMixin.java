@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.ai.pathing;
 
-import me.jellysquid.mods.lithium.common.ai.LandPathNodeCache;
+import me.jellysquid.mods.lithium.common.ai.pathing.PathNodeCache;
 import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.ai.pathing.PathNode;
 import net.minecraft.entity.ai.pathing.PathNodeNavigator;
@@ -17,11 +17,11 @@ import java.util.Map;
 public class PathNodeNavigatorMixin {
     @Inject(method = "findPathToAny(Lnet/minecraft/entity/ai/pathing/PathNode;Ljava/util/Map;FIF)Lnet/minecraft/entity/ai/pathing/Path;", at = @At("HEAD"))
     private void preFindPathToAny(PathNode startNode, Map<TargetPathNode, BlockPos> positions, float followRange, int distance, float rangeMultiplier, CallbackInfoReturnable<Path> cir) {
-        LandPathNodeCache.enableChunkCache();
+        PathNodeCache.enableChunkCache();
     }
 
     @Inject(method = "findPathToAny(Lnet/minecraft/entity/ai/pathing/PathNode;Ljava/util/Map;FIF)Lnet/minecraft/entity/ai/pathing/Path;", at = @At("RETURN"))
     private void postFindPathToAny(PathNode startNode, Map<TargetPathNode, BlockPos> positions, float followRange, int distance, float rangeMultiplier, CallbackInfoReturnable<Path> cir) {
-        LandPathNodeCache.disableChunkCache();
+        PathNodeCache.disableChunkCache();
     }
 }

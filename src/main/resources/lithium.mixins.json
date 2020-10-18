@@ -18,6 +18,8 @@
         "ai.nearby_entity_tracking.goals.LookAtGoalMixin",
         "ai.pathing.ChunkCacheMixin",
         "ai.pathing.LandPathNodeMakerMixin",
+        "ai.pathing.MixinAbstractBlockState",
+        "ai.pathing.MixinBlock",
         "ai.pathing.PathNodeNavigatorMixin",
         "ai.poi.fast_init.PointOfInterestStorageMixin",
         "ai.poi.fast_init.PointOfInterestTypeMixin",

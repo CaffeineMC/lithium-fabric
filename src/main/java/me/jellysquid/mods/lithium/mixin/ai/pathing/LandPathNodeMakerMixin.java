@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.ai.pathing;
 
-import me.jellysquid.mods.lithium.common.ai.LandPathNodeCache;
+import me.jellysquid.mods.lithium.common.ai.pathing.PathNodeCache;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
@@ -30,13 +30,7 @@ public abstract class LandPathNodeMakerMixin {
     @Overwrite
     public static PathNodeType getCommonNodeType(BlockView blockView, BlockPos blockPos) {
         BlockState blockState = blockView.getBlockState(blockPos);
-
-        // Check early if the block is air as it will always be open regardless of other conditions
-        if (blockState.isAir()) {
-            return PathNodeType.OPEN;
-        }
-
-        PathNodeType type = LandPathNodeCache.getCachedNodeType(blockState);
+        PathNodeType type = PathNodeCache.getPathNodeType(blockState);
 
         // If the node type is open, it means that we were unable to determine a more specific type, so we need
         // to check the fallback path.
@@ -87,7 +81,7 @@ public abstract class LandPathNodeMakerMixin {
             // If we can guarantee that blocks won't be modified while the cache is active, try to see if the chunk
             // section is empty or contains any dangerous blocks within the palette. If not, we can assume any checks
             // against this chunk section will always fail, allowing us to fast-exit.
-            if (ChunkSection.isEmpty(section) || LandPathNodeCache.isSectionSafeAsNeighbor(section)) {
+            if (ChunkSection.isEmpty(section) || PathNodeCache.isSectionSafeAsNeighbor(section)) {
                 return type;
             }
         }
@@ -117,7 +111,7 @@ public abstract class LandPathNodeMakerMixin {
                         continue;
                     }
 
-                    PathNodeType neighborType = LandPathNodeCache.getNodeTypeForNeighbor(state);
+                    PathNodeType neighborType = PathNodeCache.getNeighborPathNodeType(state);
 
                     if (neighborType != PathNodeType.OPEN) {
                         return neighborType;
