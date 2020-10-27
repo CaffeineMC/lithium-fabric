@@ -8,8 +8,8 @@ assignees: ''
 ---
 
 ### Expected Behavior
-Replace this text with what you expected to happen.
-_Example: The Piston should extend._
+Replace this text with what you expected to happen. Please confirm that the expected behavior can be observed when lithium is not installed.
+_Example: The Piston should extend. I tested that the piston extends when lithium is not installed._
 
 ### Actual Behavior
 Replace this text with what actually happened.
