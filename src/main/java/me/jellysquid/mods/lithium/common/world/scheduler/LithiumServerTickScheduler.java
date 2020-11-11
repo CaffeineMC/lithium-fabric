@@ -151,7 +151,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
         // [VanillaCopy] ServerTickScheduler#tick
         // In order to fulfill the promise of not breaking vanilla behaviour, we keep the vanilla artifact of
         // tick suppression.
-        int limit = 65565;
+        int limit = 65536;
 
         boolean canTick = true;
         long prevChunk = Long.MIN_VALUE;
