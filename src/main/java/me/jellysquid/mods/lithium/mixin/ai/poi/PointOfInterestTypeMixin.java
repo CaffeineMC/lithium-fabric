@@ -1,8 +1,8 @@
-package me.jellysquid.mods.lithium.mixin.ai.poi.fast_init;
+package me.jellysquid.mods.lithium.mixin.ai.poi;
 
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import me.jellysquid.mods.lithium.common.world.interests.PointOfInterestTypeHelper;
+import me.jellysquid.mods.lithium.common.world.interests.types.PointOfInterestTypeHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.world.poi.PointOfInterestType;
 import org.spongepowered.asm.mixin.Final;

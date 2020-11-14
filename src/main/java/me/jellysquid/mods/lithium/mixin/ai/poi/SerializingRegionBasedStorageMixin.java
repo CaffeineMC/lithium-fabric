@@ -1,12 +1,12 @@
-package me.jellysquid.mods.lithium.mixin.ai.poi.fast_retrieval;
+package me.jellysquid.mods.lithium.mixin.ai.poi;
 
+import com.google.common.collect.AbstractIterator;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import me.jellysquid.mods.lithium.common.util.Collector;
 import me.jellysquid.mods.lithium.common.util.collections.ListeningLong2ObjectOpenHashMap;
-import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageSectionAccess;
+import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageSectionExtended;
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -21,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.File;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -28,7 +29,7 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType") // We don't get a choice, this is Minecraft's doing!
 @Mixin(SerializingRegionBasedStorage.class)
-public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBasedStorageSectionAccess<R> {
+public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBasedStorageSectionExtended<R> {
     @Mutable
     @Shadow
     @Final
@@ -89,24 +90,36 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
                 .filter(Objects::nonNull);
     }
 
+    @SuppressWarnings("MixinInnerClass")
     @Override
-    public boolean collectWithinChunkColumn(int chunkX, int chunkZ, Collector<R> consumer) {
+    public Iterable<R> getInChunkColumn(int chunkX, int chunkZ) {
         BitSet flags = this.getCachedColumnInfo(chunkX, chunkZ);
 
         // No items are present in this column
         if (flags.isEmpty()) {
-            return true;
+            return Collections::emptyIterator;
         }
 
-        for (int chunkY = flags.nextSetBit(0); chunkY >= 0; chunkY = flags.nextSetBit(chunkY + 1)) {
-            R obj = this.loadedElements.get(ChunkSectionPos.asLong(chunkX, chunkY, chunkZ)).orElse(null);
+        return () -> new AbstractIterator<R>() {
+            private int nextBit;
 
-            if (obj != null && !consumer.collect(obj)) {
-                return false;
+            @Override
+            protected R computeNext() {
+                // If the next bit is <0, that means that no remaining set bits exist
+                while (this.nextBit >= 0) {
+                    Optional<R> next = SerializingRegionBasedStorageMixin.this.loadedElements.get(ChunkSectionPos.asLong(chunkX, this.nextBit, chunkZ));
+
+                    // Find and advance to the next set bit
+                    this.nextBit = flags.nextSetBit(this.nextBit + 1);
+
+                    if (next.isPresent()) {
+                        return next.get();
+                    }
+                }
+
+                return this.endOfData();
             }
-        }
-
-        return true;
+        };
     }
 
     private BitSet getCachedColumnInfo(int chunkX, int chunkZ) {
