@@ -65,6 +65,7 @@ public class LithiumConfig {
         this.addMixinRule("entity.data_tracker", true);
         this.addMixinRule("entity.fast_suffocation_check", true);
         this.addMixinRule("entity.gravity_check_block_below", true);
+        this.addMixinRule("entity.inactive_navigations", true);
         this.addMixinRule("entity.replace_entitytype_predicates", true);
         this.addMixinRule("entity.skip_fire_check", true);
         this.addMixinRule("entity.stream_entity_collisions_lazily", true);
