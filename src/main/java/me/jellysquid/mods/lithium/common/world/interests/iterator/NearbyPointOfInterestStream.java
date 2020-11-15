@@ -93,8 +93,9 @@ public class NearbyPointOfInterestStream extends Spliterators.AbstractSpliterato
         }
 
         // Find the next ordered chunk to scan for points
-        for (; this.chunkIndex < this.chunks.size(); this.chunkIndex++) {
+        while (this.chunkIndex < this.chunks.size()) {
             ChunkPos chunkPos = this.chunks.get(this.chunkIndex);
+            this.chunkIndex++;
 
             // Reset the list of sorted points
             this.points.clear();
