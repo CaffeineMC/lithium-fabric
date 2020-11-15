@@ -64,7 +64,7 @@ public class ChunkCacheMixin {
     public BlockState getBlockState(BlockPos pos) {
         int y = pos.getY();
 
-        if (!World.isHeightInvalid(pos.getY())) {
+        if (!World.isOutOfBuildLimitVertically(pos.getY())) {
             int x = pos.getX();
             int z = pos.getZ();
 

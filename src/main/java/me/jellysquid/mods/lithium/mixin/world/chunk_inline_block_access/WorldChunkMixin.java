@@ -36,7 +36,7 @@ public class WorldChunkMixin {
         int y = pos.getY();
         int z = pos.getZ();
 
-        if (!World.isHeightInvalid(y)) {
+        if (!World.isOutOfBuildLimitVertically(y)) {
             ChunkSection section = this.sections[y >> 4];
 
             if (section != EMPTY_SECTION) {
@@ -53,7 +53,7 @@ public class WorldChunkMixin {
      */
     @Overwrite
     public FluidState getFluidState(int x, int y, int z) {
-        if (!World.isHeightInvalid(y)) {
+        if (!World.isOutOfBuildLimitVertically(y)) {
             ChunkSection section = this.sections[y >> 4];
 
             if (section != EMPTY_SECTION) {
