@@ -73,6 +73,7 @@ public class LithiumConfig {
         this.addMixinRule("gen", true);
         this.addMixinRule("gen.biome_noise_cache", true);
         this.addMixinRule("gen.chunk_region", true);
+        this.addMixinRule("gen.fast_island_noise", true);
         this.addMixinRule("gen.fast_layer_sampling", true);
         this.addMixinRule("gen.fast_multi_source_biomes", true);
         this.addMixinRule("gen.fast_noise_interpolation", true);
@@ -99,7 +100,6 @@ public class LithiumConfig {
         this.addMixinRule("world.chunk_tickets", true);
         this.addMixinRule("world.chunk_ticking", true);
         this.addMixinRule("world.explosions", true);
-        this.addMixinRule("world.fast_island_noise", true);
         this.addMixinRule("world.mob_spawning", true);
         this.addMixinRule("world.player_chunk_tick", true);
         this.addMixinRule("world.tick_scheduler", true);

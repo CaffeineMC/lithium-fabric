@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.world.fast_island_noise;
+package me.jellysquid.mods.lithium.mixin.gen.fast_island_noise;
 
 import me.jellysquid.mods.lithium.common.world.noise.SimplexNoiseCache;
 import net.minecraft.util.math.noise.SimplexNoiseSampler;
