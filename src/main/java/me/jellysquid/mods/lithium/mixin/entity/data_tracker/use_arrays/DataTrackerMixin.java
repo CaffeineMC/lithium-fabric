@@ -1,17 +1,17 @@
 package me.jellysquid.mods.lithium.mixin.entity.data_tracker.use_arrays;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -25,6 +25,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 public abstract class DataTrackerMixin {
     private static final int DEFAULT_ENTRY_COUNT = 10, GROW_FACTOR = 8;
 
+    @Mutable
     @Shadow
     @Final
     private Map<Integer, DataTracker.Entry<?>> entries;
@@ -37,6 +38,15 @@ public abstract class DataTrackerMixin {
      * Mirrors the vanilla backing entries map. Each DataTracker.Entry can be accessed in this array through its ID.
      **/
     private DataTracker.Entry<?>[] entriesArray = new DataTracker.Entry<?>[DEFAULT_ENTRY_COUNT];
+
+    /**
+     * Re-initialize the backing entries map with an optimized variant to speed up iteration in packet code and to
+     * save memory.
+     */
+    @Inject(method = "<init>", at = @At(value = "RETURN"))
+    private void reinit(Entity trackedEntity, CallbackInfo ci) {
+        this.entries = new Int2ObjectOpenHashMap<>(this.entries);
+    }
 
     /**
      * We redirect the call to add a tracked data to the internal map so we can add it to our new storage structure. This
