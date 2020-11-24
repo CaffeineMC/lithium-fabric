@@ -36,7 +36,7 @@ public abstract class EntityNavigationMixin implements EntityNavigationExtended 
     )
     private Path updateListeningState(EntityNavigation entityNavigation, BlockPos target, int distance) {
         Path pathTo = this.findPathTo(target, distance);
-        if (this.canListenForBlocks) {
+        if (this.canListenForBlocks && ((pathTo == null) != (this.currentPath == null))) {
             if (pathTo == null) {
                 ((ServerWorldExtended) this.world).setNavigationInactive(this);
             } else {

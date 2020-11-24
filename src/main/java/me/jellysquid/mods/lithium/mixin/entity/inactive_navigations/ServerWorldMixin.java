@@ -3,11 +3,13 @@ package me.jellysquid.mods.lithium.mixin.entity.inactive_navigations;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.EntityNavigationExtended;
 import me.jellysquid.mods.lithium.common.world.ServerWorldExtended;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.pathing.EntityNavigation;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.WorldGenerationProgressListener;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.MutableWorldProperties;
@@ -51,7 +53,8 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
     @Final
     private Set<EntityNavigation> entityNavigations;
 
-    private Set<EntityNavigation> activeEntityNavigations;
+    private ReferenceOpenHashSet<EntityNavigation> activeEntityNavigations;
+    private boolean isIteratingActiveEntityNavigations;
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void init(MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey<World> registryKey, DimensionType dimensionType, WorldGenerationProgressListener worldGenerationProgressListener, ChunkGenerator chunkGenerator, boolean debugWorld, long l, List<Spawner> list, boolean bl, CallbackInfo ci) {
@@ -86,17 +89,34 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
      */
     @Redirect(method = "updateListeners", at = @At(value = "INVOKE", target = "Ljava/util/Set;iterator()Ljava/util/Iterator;"))
     private Iterator<EntityNavigation> getActiveListeners(Set<EntityNavigation> set) {
+        this.isIteratingActiveEntityNavigations = true;
         return this.activeEntityNavigations.iterator();
+    }
+
+    @Inject(method = "updateListeners", at = @At(value = "RETURN"))
+    private void onIterationFinished(BlockPos pos, BlockState oldState, BlockState newState, int flags, CallbackInfo ci) {
+        this.isIteratingActiveEntityNavigations = false;
     }
 
     @Override
     public void setNavigationActive(Object entityNavigation) {
+        this.avoidConcurrentModification();
         this.activeEntityNavigations.add((EntityNavigation) entityNavigation);
     }
 
     @Override
     public void setNavigationInactive(Object entityNavigation) {
+        this.avoidConcurrentModification();
+        //noinspection RedundantCast
         this.activeEntityNavigations.remove((EntityNavigation) entityNavigation);
+    }
+
+    private void avoidConcurrentModification() {
+        if (this.isIteratingActiveEntityNavigations) {
+            //work around concurrent modification problems. This breaks Iterator.remove(), but that is not used.
+            this.activeEntityNavigations = this.activeEntityNavigations.clone();
+            this.isIteratingActiveEntityNavigations = false;
+        }
     }
 
     protected ServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DimensionType dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
