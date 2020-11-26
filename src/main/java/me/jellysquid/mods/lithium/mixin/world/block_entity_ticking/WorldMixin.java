@@ -25,9 +25,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
-@SuppressWarnings("OverwriteModifiers")
 @Mixin(World.class)
 public abstract class WorldMixin implements WorldAccess {
+    @Shadow
+    @Final
+    public boolean isClient;
     @Mutable
     @Shadow
     @Final
@@ -55,12 +57,12 @@ public abstract class WorldMixin implements WorldAccess {
                         Supplier<Profiler> supplier, boolean bl, boolean bl2, long l, CallbackInfo ci) {
         // Replace the fallback collections with our types as well
         // This won't guarantee mod compatibility, but at least it should fail loudly when it does
-        this.blockEntities$lithium = new BlockEntityList(this.blockEntities);
+        this.blockEntities$lithium = new BlockEntityList(this.blockEntities, false);
         this.blockEntities = this.blockEntities$lithium;
 
         this.tickingBlockEntities = new HashedReferenceList<>(this.tickingBlockEntities);
 
-        this.pendingBlockEntities$lithium = new BlockEntityList(this.pendingBlockEntities);
+        this.pendingBlockEntities$lithium = new BlockEntityList(this.pendingBlockEntities, true);
         this.pendingBlockEntities = this.pendingBlockEntities$lithium;
     }
 
@@ -68,9 +70,10 @@ public abstract class WorldMixin implements WorldAccess {
      * @author JellySquid
      * @reason Replace with direct lookup
      */
+    @SuppressWarnings("OverwriteModifiers")
     @Overwrite
-    private BlockEntity getPendingBlockEntity(BlockPos pos) {
-        return this.pendingBlockEntities$lithium.getEntityAtPosition(pos.asLong());
+    public BlockEntity getPendingBlockEntity(BlockPos pos) {
+        return this.pendingBlockEntities$lithium.getFirstNonRemovedBlockEntityAtPosition(pos.asLong());
     }
 
     // We do not want the vanilla code for adding pending block entities to be ran. We'll inject later in
@@ -94,7 +97,8 @@ public abstract class WorldMixin implements WorldAccess {
             }
 
             // Try-add directly to avoid the double map lookup, helps speed things along
-            if (this.blockEntities$lithium.tryAdd(entity)) {
+            if (this.blockEntities$lithium.addIfAbsent(entity)) {
+                //vanilla has an extra updateListeners(...) call on the client here, but the one below should be enough
                 if (entity instanceof Tickable) {
                     this.tickingBlockEntities.add(entity);
                 }
@@ -102,7 +106,8 @@ public abstract class WorldMixin implements WorldAccess {
                 BlockPos pos = entity.getPos();
 
                 // Avoid the double chunk lookup (isLoaded followed by getChunk) by simply inlining getChunk call
-                Chunk chunk = this.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, false);
+                // pass this.isClient instead of false, so the updateListeners call is always executed on the client (like vanilla)
+                Chunk chunk = this.getChunk(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, this.isClient);
 
                 if (chunk != null) {
                     BlockState state = chunk.getBlockState(pos);
@@ -119,7 +124,12 @@ public abstract class WorldMixin implements WorldAccess {
     }
 
     // We don't want this code wasting a ton of CPU time trying to scan through our optimized collection
-    // Instead, we simply skip it since the entity will be replaced in the map internally.
+    // Instead, we simply run the code on those at the same position directly
+    @Redirect(method = "setBlockEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/BlockEntity;setLocation(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V"))
+    private void setLocationAndRemoveAllAtPosition(BlockEntity blockEntity, World world, BlockPos pos) {
+        blockEntity.setLocation(world, pos);
+        this.pendingBlockEntities$lithium.markRemovedAndRemoveAllAtPosition(pos);
+    }
     @Redirect(method = "setBlockEntity", at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
     private <E> Iterator<E> nullifyBlockEntityScanDuringSetBlockEntity(List<E> list) {
         return Collections.emptyIterator();
