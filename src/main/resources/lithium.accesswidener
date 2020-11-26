@@ -31,3 +31,6 @@ accessible method net/minecraft/util/shape/VoxelShapes findRequiredBitResolution
 accessible method net/minecraft/util/shape/FractionalDoubleList <init> (I)V
 
 accessible method net/minecraft/entity/Entity checkWaterState ()V
+
+accessible method net/minecraft/util/shape/VoxelShape getPointPositions (Lnet/minecraft/util/math/Direction$Axis;)Lit/unimi/dsi/fastutil/doubles/DoubleList;
+accessible field net/minecraft/util/shape/VoxelShape voxels Lnet/minecraft/util/shape/VoxelSet;

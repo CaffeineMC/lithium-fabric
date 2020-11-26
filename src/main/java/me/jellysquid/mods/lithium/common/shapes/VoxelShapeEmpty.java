@@ -21,7 +21,7 @@ public class VoxelShapeEmpty extends VoxelShape implements VoxelShapeCaster {
     }
 
     @Override
-    protected DoubleList getPointPositions(Direction.Axis axis) {
+    public DoubleList getPointPositions(Direction.Axis axis) {
         return EMPTY_LIST;
     }
 
