@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.Supplier;
 
 @Mixin(NoiseChunkGenerator.class)
-public class MixinNoiseChunkGenerator {
+public class NoiseChunkGeneratorMixin {
     @Shadow
     @Final
     private SimplexNoiseSampler islandNoise;

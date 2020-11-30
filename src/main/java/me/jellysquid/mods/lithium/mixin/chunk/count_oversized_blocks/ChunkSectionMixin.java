@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
  * @author 2No2Name
  */
 @Mixin(ChunkSection.class)
-public abstract class MixinChunkSection implements ChunkAwareBlockCollisionSweeper.OversizedBlocksCounter {
+public abstract class ChunkSectionMixin implements ChunkAwareBlockCollisionSweeper.OversizedBlocksCounter {
     @Shadow
     public abstract void calculateCounts();
 

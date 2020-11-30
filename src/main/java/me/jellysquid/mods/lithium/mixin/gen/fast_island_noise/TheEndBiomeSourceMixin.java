@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(TheEndBiomeSource.class)
-public class MixinTheEndBiomeSource {
+public class TheEndBiomeSourceMixin {
     @Shadow
     @Final
     private SimplexNoiseSampler noise;

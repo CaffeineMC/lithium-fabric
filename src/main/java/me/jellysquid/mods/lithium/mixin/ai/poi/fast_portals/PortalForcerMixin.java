@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.Optional;
 
 @Mixin(PortalForcer.class)
-public class MixinPortalForcer {
+public class PortalForcerMixin {
     @Shadow
     @Final
     private ServerWorld world;

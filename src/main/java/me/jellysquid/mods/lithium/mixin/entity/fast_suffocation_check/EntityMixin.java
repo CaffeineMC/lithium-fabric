@@ -16,7 +16,7 @@ import java.util.function.BiPredicate;
 import java.util.stream.Stream;
 
 @Mixin(Entity.class)
-public abstract class MixinEntity {
+public abstract class EntityMixin {
     /**
      * @author JellySquid
      * @reason Use optimized block volume iteration, avoid streams

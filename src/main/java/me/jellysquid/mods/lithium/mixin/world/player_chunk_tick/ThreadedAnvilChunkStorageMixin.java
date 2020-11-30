@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ThreadedAnvilChunkStorage.class)
-public abstract class MixinThreadedAnvilChunkStorage {
+public abstract class ThreadedAnvilChunkStorageMixin {
     /**
      * @author JellySquid
      * @reason Defer sending chunks to the player so that we can batch them together
