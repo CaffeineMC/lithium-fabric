@@ -17,31 +17,7 @@ public final class LithiumDoublePairList implements PairList {
     private final DoubleArrayList pairs;
 
     public LithiumDoublePairList(DoubleList aPoints, DoubleList bPoints, boolean flag1, boolean flag2) {
-        double[] araw;
-
-        if (aPoints instanceof DoubleArrayList) {
-            araw = ((DoubleArrayList) aPoints).elements();
-        } else {
-            araw = new double[aPoints.size()];
-
-            for (int i = 0; i < araw.length; i++) {
-                araw[i] = aPoints.getDouble(i);
-            }
-        }
-
-        double[] braw;
-
-        if (bPoints instanceof DoubleArrayList) {
-            braw = ((DoubleArrayList) bPoints).elements();
-        } else {
-            braw = new double[bPoints.size()];
-
-            for (int i = 0; i < braw.length; i++) {
-                braw[i] = bPoints.getDouble(i);
-            }
-        }
-
-        int size = araw.length + braw.length;
+        int size = aPoints.size() + bPoints.size();
 
         this.merged = new double[size];
         this.indicesFirst = new int[size];
@@ -49,7 +25,7 @@ public final class LithiumDoublePairList implements PairList {
 
         this.pairs = DoubleArrayList.wrap(this.merged);
 
-        this.merge(araw, braw, araw.length, braw.length, flag1, flag2);
+        this.merge(getArray(aPoints), getArray(bPoints), aPoints.size(), bPoints.size(), flag1, flag2);
     }
 
     private void merge(double[] aPoints, double[] bPoints, int aSize, int bSize, boolean flag1, boolean flag2) {
@@ -123,5 +99,19 @@ public final class LithiumDoublePairList implements PairList {
     @Override
     public DoubleList getPairs() {
         return this.pairs;
+    }
+
+    private static double[] getArray(DoubleList list) {
+        if (list instanceof DoubleArrayList) {
+            return ((DoubleArrayList) list).elements();
+        }
+
+        double[] points = new double[list.size()];
+
+        for (int i = 0; i < points.length; i++) {
+            points[i] = list.getDouble(i);
+        }
+
+        return points;
     }
 }
