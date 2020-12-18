@@ -23,7 +23,7 @@ public class ChunkHolderMixin {
      * Using Hashsets instead of ArraySets for better worst-case performance
      * The default case of just a few items may be very slightly slower
      */
-    @ModifyVariable(method = "markForBlockUpdate", name = "b",
+    @ModifyVariable(method = "markForBlockUpdate",
             at = @At(value = "FIELD", ordinal = 0,
                     target = "Lnet/minecraft/server/world/ChunkHolder;blockUpdatesBySection:[Lit/unimi/dsi/fastutil/shorts/ShortSet;",
                     shift = At.Shift.BEFORE))
