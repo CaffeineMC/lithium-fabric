@@ -17,12 +17,20 @@ import net.minecraft.world.gen.chunk.ChunkGenerator;
 
 @Mixin(ChunkStatus.class)
 public class ChunkStatusMixin {
+
+    /**
+     * We inject into the lambda in the BIOME status to construct a horizontal biome array if the biome access type is horizontal.
+     * Since the method is a lambda, it's not mapped and the unresolved mixin warning can be ignored.
+     *
+     * @author SuperCoder79
+     */
+    @SuppressWarnings("UnresolvedMixinReference")
     @Inject(method = "method_16570", at = @At("HEAD"), remap = false, cancellable = true)
-    private static void populateBiomes(ServerWorld world, ChunkGenerator generator, List<Chunk> surroundingChunks, Chunk chunk, CallbackInfo info) {
+    private static void populateBiomes(ServerWorld world, ChunkGenerator generator, List<Chunk> surroundingChunks, Chunk chunk, CallbackInfo ci) {
         if (world.getDimension().getBiomeAccessType() instanceof HorizontalVoronoiBiomeAccessType) {
             ((ProtoChunk) chunk).setBiomes(new HorizontalBiomeArray(world.getRegistryManager().get(Registry.BIOME_KEY), chunk.getPos(), generator.getBiomeSource()));
 
-            info.cancel();
+            ci.cancel();
         }
     }
 }

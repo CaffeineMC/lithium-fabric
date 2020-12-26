@@ -8,7 +8,7 @@ import net.minecraft.world.biome.source.BiomeSource;
 
 /**
  * Biome array that samples in the horizontal axis and uses that to fill in the vertical axis, skipping a majority of calls to the biome source.
- * This should only be used when the dimension's biome access type is also horizontal.
+ * This should only be used when the dimension's biome access type is also horizontal, such as in the overworld.
  */
 public class HorizontalBiomeArray extends BiomeArray {
     private static final int HORIZONTAL_SECTION_COUNT = (int)Math.round(Math.log(16.0D) / Math.log(2.0D)) - 2;
