@@ -80,6 +80,7 @@
     "gen.biome_noise_cache.MergingLayerMixin",
     "gen.biome_noise_cache.ParentedLayerMixin",
     "gen.chunk_region.ChunkRegionMixin",
+    "gen.fast_biome_array.ChunkStatusMixin",
     "gen.fast_island_noise.NoiseChunkGeneratorMixin",
     "gen.fast_island_noise.TheEndBiomeSourceMixin",
     "gen.fast_layer_sampling.CachingLayerContextMixin",
