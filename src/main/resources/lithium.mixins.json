@@ -79,6 +79,7 @@
     "gen.biome_noise_cache.InitLayerMixin",
     "gen.biome_noise_cache.MergingLayerMixin",
     "gen.biome_noise_cache.ParentedLayerMixin",
+    "gen.cached_generator_settings.NoiseChunkGeneratorMixin",
     "gen.chunk_region.ChunkRegionMixin",
     "gen.fast_island_noise.NoiseChunkGeneratorMixin",
     "gen.fast_island_noise.TheEndBiomeSourceMixin",
