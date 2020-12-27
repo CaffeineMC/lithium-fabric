@@ -1,11 +1,11 @@
 package me.jellysquid.mods.lithium.mixin.gen.chunk_region;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.fluid.FluidState;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.ChunkRegion;
+import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 @Mixin(ChunkRegion.class)
-public abstract class ChunkRegionMixin {
+public abstract class ChunkRegionMixin implements StructureWorldAccess {
     @Shadow
     @Final
     private ChunkPos lowerCorner;
@@ -33,6 +33,9 @@ public abstract class ChunkRegionMixin {
     // The starting position of this region
     private int minChunkX, minChunkZ;
 
+    /**
+     * @author JellySquid
+     */
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(ServerWorld world, List<Chunk> chunks, CallbackInfo ci) {
         this.minChunkX = this.lowerCorner.x;
@@ -59,11 +62,27 @@ public abstract class ChunkRegionMixin {
     }
 
     /**
-     * @reason Use our block fetch function
-     * @author JellySquid
+     * @reason Use the chunk array for faster access
+     * @author SuperCoder7979, 2No2Name
      */
     @Overwrite
-    public FluidState getFluidState(BlockPos pos) {
-        return this.getBlockState(pos).getFluidState();
+    public Chunk getChunk(int chunkX, int chunkZ) {
+        int x = chunkX - this.minChunkX;
+        int z = chunkZ - this.minChunkZ;
+        int w = this.width;
+
+        if (x >= 0 && z >= 0 && x < w && z < w) {
+            return this.chunksArr[x + z * w];
+        } else {
+            throw new NullPointerException("No chunk exists at " + new ChunkPos(chunkX, chunkZ));
+        }
+    }
+
+    /**
+     * Use our chunk fetch function
+     */
+    public Chunk getChunk(BlockPos pos) {
+        //skip checking chunk.getStatus().isAtLeast(ChunkStatus.EMPTY) here, because it is always true
+        return this.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
     }
 }
