@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 public class ComposterMixin {
 
     @Mixin(targets = "net.minecraft.block.ComposterBlock$ComposterInventory")
-    public static abstract class ComposterBlockComposterInventoryMixin implements SidedInventory {
+    static abstract class ComposterBlockComposterInventoryMixin implements SidedInventory {
         /**
          * @author 2No2Name
          * @reason avoid allocation
@@ -21,7 +21,7 @@ public class ComposterMixin {
     }
 
     @Mixin(targets = "net.minecraft.block.ComposterBlock$DummyInventory")
-    public static abstract class ComposterBlockDummyInventoryMixin implements SidedInventory {
+    static abstract class ComposterBlockDummyInventoryMixin implements SidedInventory {
         /**
          * @author 2No2Name
          * @reason avoid allocation
@@ -33,7 +33,7 @@ public class ComposterMixin {
     }
 
     @Mixin(targets = "net.minecraft.block.ComposterBlock$FullComposterInventory")
-    public static abstract class ComposterBlockFullComposterInventoryMixin implements SidedInventory {
+    static abstract class ComposterBlockFullComposterInventoryMixin implements SidedInventory {
         /**
          * @author 2No2Name
          * @reason avoid allocation
