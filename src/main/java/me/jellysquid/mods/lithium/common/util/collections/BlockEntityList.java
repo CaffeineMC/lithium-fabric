@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.common.util.collections;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.CommandBlockBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.math.BlockPos;
 
@@ -71,7 +72,9 @@ public class BlockEntityList implements List<BlockEntity> {
 
     private boolean addNoDoubleAdd(BlockEntity blockEntity, boolean exceptionOnDoubleAdd) {
         boolean added = this.allBlockEntities.add(blockEntity);
-        if (!added && exceptionOnDoubleAdd) {
+        if (!added && exceptionOnDoubleAdd
+                //Ignore double add when we encounter vanilla's command block double add bug
+                && !( blockEntity instanceof CommandBlockBlockEntity)) {
             this.throwException(blockEntity);
         }
 
