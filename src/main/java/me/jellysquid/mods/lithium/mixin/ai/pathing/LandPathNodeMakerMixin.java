@@ -86,24 +86,31 @@ public abstract class LandPathNodeMakerMixin {
             }
         }
 
-        // Optimal iteration order is YZX
-        for (int y2 = -1; y2 <= 1; ++y2) {
-            for (int z2 = -1; z2 <= 1; ++z2) {
-                for (int x2 = -1; x2 <= 1; ++x2) {
-                    if (x2 == 0 && z2 == 0) {
+        int xStart = x - 1;
+        int yStart = y - 1;
+        int zStart = z - 1;
+
+        int xEnd = x + 1;
+        int yEnd = y + 1;
+        int zEnd = z + 1;
+
+        // Vanilla iteration order is XYZ
+        for (int adjX = xStart; adjX <= xEnd; adjX++) {
+            for (int adjY = yStart; adjY <= yEnd; adjY++) {
+                for (int adjZ = zStart; adjZ <= zEnd; adjZ++) {
+                    // Skip the vertical column of the origin block
+                    if (adjX == x && adjZ == z) {
                         continue;
                     }
-
-                    pos.set(x2 + x, y2 + y, z2 + z);
 
                     BlockState state;
 
                     // If we're not accessing blocks outside a given section, we can greatly accelerate block state
                     // retrieval by calling upon the cached chunk directly.
                     if (section != null) {
-                        state = section.getBlockState(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
+                        state = section.getBlockState(adjX & 15, adjY & 15, adjZ & 15);
                     } else {
-                        state = world.getBlockState(pos);
+                        state = world.getBlockState(pos.set(adjX, adjY, adjZ));
                     }
 
                     // Ensure that the block isn't air first to avoid expensive hash table accesses
