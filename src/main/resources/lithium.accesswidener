@@ -36,3 +36,5 @@ accessible method net/minecraft/util/shape/VoxelShape getPointPositions (Lnet/mi
 accessible field net/minecraft/util/shape/VoxelShape voxels Lnet/minecraft/util/shape/VoxelSet;
 
 accessible method me/jellysquid/mods/lithium/mixin/world/block_entity_ticking/WorldMixin getPendingBlockEntity (Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/entity/BlockEntity
+
+accessible field net/minecraft/util/math/MathHelper SINE_TABLE [F

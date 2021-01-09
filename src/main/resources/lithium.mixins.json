@@ -93,6 +93,7 @@
     "math.fast_util.AxisCycleDirectionMixin$ForwardMixin",
     "math.fast_util.BoxMixin",
     "math.fast_util.DirectionMixin",
+    "math.sine_lut.MixinMathHelper",
     "shapes.blockstate_cache.BlockMixin",
     "shapes.optimized_matching.VoxelShapesMixin",
     "shapes.precompute_shape_arrays.FractionalDoubleListMixin",
