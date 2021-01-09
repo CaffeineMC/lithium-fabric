@@ -48,6 +48,7 @@
     "alloc.world_ticking.ServerWorldMixin",
     "block.flatten_states.AbstractBlockStateMixin",
     "block.flatten_states.FluidStateMixin",
+    "block.hopper.HopperBlockEntityMixin",
     "cached_hashcode.BlockNeighborGroupMixin",
     "chunk.count_oversized_blocks.ChunkSectionMixin",
     "chunk.entity_class_groups.TypeFilterableListMixin",
