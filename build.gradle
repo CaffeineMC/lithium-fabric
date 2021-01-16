@@ -60,14 +60,6 @@ allprojects {
         options.encoding = "UTF-8"
     }
 
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                artifact(remapJar)
-            }
-        }
-    }
-
     jar {
         from "${rootDir}/LICENSE.txt"
     }
@@ -78,6 +70,20 @@ dependencies {
 
     afterEvaluate {
         include project(":lithium-api")
+    }
+}
+
+publishing {
+    publications {
+        main (MavenPublication) {
+            artifactId "lithium"
+            artifact(remapJar)
+        }
+
+        api (MavenPublication) {
+            artifactId "lithium-api"
+            artifact(project(":lithium-api").tasks.remapJar)
+        }
     }
 }
 
