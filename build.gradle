@@ -1,3 +1,5 @@
+import net.fabricmc.loom.task.RemapJarTask
+
 plugins {
     id 'fabric-loom' version '0.5-SNAPSHOT'
     id 'maven-publish'
@@ -8,69 +10,86 @@ minecraft {
     refmapName = "mixins.lithium.refmap.json"
 }
 
-allprojects {
-    apply plugin: 'fabric-loom'
+apply plugin: 'fabric-loom'
 
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
-    archivesBaseName = "${project.name}-fabric-mc${project.minecraft_version}"
+group = project.maven_group
+version = project.mod_version
+archivesBaseName = "${project.name}-mc${project.minecraft_version}"
 
-    println(archivesBaseName)
-    group = project.maven_group
-    version = project.mod_version
+def build_release = System.getenv("BUILD_RELEASE") == "true"
+def build_id = System.getenv("BUILD_ID")
 
-    def build_release = System.getenv("BUILD_RELEASE") == "true"
-    def build_id = System.getenv("BUILD_ID")
+if (!build_release) {
+    version += "-SNAPSHOT"
+}
 
-    if (!build_release) {
-        version += "-SNAPSHOT"
-    }
+if (build_id != null) {
+    version += "+build.${build_id}"
+}
 
-    if (build_id != null) {
-        version += "+build.${build_id}"
-    }
-
-    dependencies {
-        //to change the versions see the gradle.properties file
-        minecraft "com.mojang:minecraft:${project.minecraft_version}"
-        mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-
-        modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
-    }
-
-    processResources {
-        inputs.property "version", project.version
-
-        from(sourceSets.main.resources.srcDirs) {
-            include "fabric.mod.json"
-
-            expand "version": project.version
-        }
-
-        from(sourceSets.main.resources.srcDirs) {
-            exclude "fabric.mod.json"
+sourceSets {
+    api {
+        java {
+            compileClasspath += main.compileClasspath
         }
     }
 
-    // ensure that the encoding is set to UTF-8, no matter what the system default is
-    // this fixes some edge cases with special characters not displaying correctly
-    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-    tasks.withType(JavaCompile) {
-        options.encoding = "UTF-8"
-    }
-
-    jar {
-        from "${rootDir}/LICENSE.txt"
+    main {
+        java {
+            compileClasspath += api.output
+            runtimeClasspath += api.output
+        }
     }
 }
 
 dependencies {
-    compile project(":lithium-api")
+    //to change the versions see the gradle.properties file
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 
-    afterEvaluate {
-        include project(":lithium-api")
+    modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include "fabric.mod.json"
+
+        expand "version": project.version
     }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude "fabric.mod.json"
+    }
+}
+
+// ensure that the encoding is set to UTF-8, no matter what the system default is
+// this fixes some edge cases with special characters not displaying correctly
+// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+// Include the license in all JAR outputs
+tasks.withType(Jar) {
+    from "LICENSE.txt"
+}
+
+task apiJar(type: Jar) {
+    classifier "api-dev"
+
+    from sourceSets.api.output
+}
+
+task remapApiJar(type: RemapJarTask, dependsOn: apiJar) {
+    classifier "api"
+
+    input = apiJar.archiveFile.get().asFile
+    addNestedDependencies = false
 }
 
 publishing {
@@ -82,10 +101,9 @@ publishing {
 
         api (MavenPublication) {
             artifactId "lithium-api"
-            artifact(project(":lithium-api").tasks.remapJar)
+            artifact(remapApiJar)
         }
     }
 }
 
-remapJar.dependsOn(project(":lithium-api").tasks.remapJar)
-
+build.dependsOn remapApiJar

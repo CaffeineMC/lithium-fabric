@@ -9,8 +9,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "lithium"
-
-include "lithium-api"
-project(":lithium-api").projectDir = file("api")
-
+rootProject.name = "lithium-fabric"
