@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.world.interests.types;
+package me.jellysquid.mods.lithium.common.world.interests;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.world.chunk.ChunkSection;
@@ -19,4 +19,5 @@ public class PointOfInterestTypeHelper {
     public static boolean shouldScan(ChunkSection section) {
         return section.hasAny(TYPES::contains);
     }
+
 }
