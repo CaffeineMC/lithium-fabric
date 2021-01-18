@@ -20,8 +20,6 @@ import org.spongepowered.asm.mixin.Shadow;
  */
 @Mixin(BlockPos.class)
 public abstract class BlockPosMixin extends Vec3i {
-    @Shadow
-    public abstract BlockPos toImmutable();
 
     public BlockPosMixin(int x, int y, int z) {
         super(x, y, z);
@@ -44,7 +42,7 @@ public abstract class BlockPosMixin extends Vec3i {
     @Override
     @Overwrite
     public BlockPos up(int distance) {
-        return distance == 0 ? this.toImmutable() : new BlockPos(this.getX(), this.getY() + distance, this.getZ());
+        return new BlockPos(this.getX(), this.getY() + distance, this.getZ());
     }
 
     /**
@@ -64,7 +62,7 @@ public abstract class BlockPosMixin extends Vec3i {
     @Override
     @Overwrite
     public BlockPos down(int distance) {
-        return distance == 0 ? this.toImmutable() : new BlockPos(this.getX(), this.getY() - distance, this.getZ());
+        return new BlockPos(this.getX(), this.getY() - distance, this.getZ());
     }
 
     /**
@@ -82,7 +80,7 @@ public abstract class BlockPosMixin extends Vec3i {
      */
     @Overwrite
     public BlockPos north(int distance) {
-        return distance == 0 ? this.toImmutable() : new BlockPos(this.getX(), this.getY(), this.getZ() - distance);
+        return new BlockPos(this.getX(), this.getY(), this.getZ() - distance);
     }
 
     /**
@@ -100,7 +98,7 @@ public abstract class BlockPosMixin extends Vec3i {
      */
     @Overwrite
     public BlockPos south(int distance) {
-        return distance == 0 ? this.toImmutable() : new BlockPos(this.getX(), this.getY(), this.getZ() + distance);
+        return new BlockPos(this.getX(), this.getY(), this.getZ() + distance);
     }
 
     /**
@@ -118,7 +116,7 @@ public abstract class BlockPosMixin extends Vec3i {
      */
     @Overwrite
     public BlockPos west(int distance) {
-        return distance == 0 ? this.toImmutable() : new BlockPos(this.getX() - distance, this.getY(), this.getZ());
+        return new BlockPos(this.getX() - distance, this.getY(), this.getZ());
     }
 
     /**
@@ -136,6 +134,6 @@ public abstract class BlockPosMixin extends Vec3i {
      */
     @Overwrite
     public BlockPos east(int distance) {
-        return distance == 0 ? this.toImmutable() : new BlockPos(this.getX() + distance, this.getY(), this.getZ());
+        return new BlockPos(this.getX() + distance, this.getY(), this.getZ());
     }
 }
