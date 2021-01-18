@@ -5,6 +5,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 
 /**
  * Inlining the offsets makes a *very small* improvement to the generated machine code, but when paired
@@ -18,7 +19,10 @@ import org.spongepowered.asm.mixin.Overwrite;
  * instruction count, which seems to match what I would expect.
  */
 @Mixin(BlockPos.class)
-public class BlockPosMixin extends Vec3i {
+public abstract class BlockPosMixin extends Vec3i {
+    @Shadow
+    public abstract BlockPos toImmutable();
+
     public BlockPosMixin(int x, int y, int z) {
         super(x, y, z);
     }
@@ -40,7 +44,7 @@ public class BlockPosMixin extends Vec3i {
     @Override
     @Overwrite
     public BlockPos up(int distance) {
-        return distance == 0 ? (BlockPos) (Object) this : new BlockPos(this.getX(), this.getY() + distance, this.getZ());
+        return distance == 0 ? this.toImmutable() : new BlockPos(this.getX(), this.getY() + distance, this.getZ());
     }
 
     /**
@@ -60,7 +64,7 @@ public class BlockPosMixin extends Vec3i {
     @Override
     @Overwrite
     public BlockPos down(int distance) {
-        return distance == 0 ? (BlockPos) (Object) this : new BlockPos(this.getX(), this.getY() - distance, this.getZ());
+        return distance == 0 ? this.toImmutable() : new BlockPos(this.getX(), this.getY() - distance, this.getZ());
     }
 
     /**
@@ -78,7 +82,7 @@ public class BlockPosMixin extends Vec3i {
      */
     @Overwrite
     public BlockPos north(int distance) {
-        return distance == 0 ? (BlockPos) (Object) this : new BlockPos(this.getX(), this.getY(), this.getZ() - distance);
+        return distance == 0 ? this.toImmutable() : new BlockPos(this.getX(), this.getY(), this.getZ() - distance);
     }
 
     /**
@@ -96,7 +100,7 @@ public class BlockPosMixin extends Vec3i {
      */
     @Overwrite
     public BlockPos south(int distance) {
-        return distance == 0 ? (BlockPos) (Object) this : new BlockPos(this.getX(), this.getY(), this.getZ() + distance);
+        return distance == 0 ? this.toImmutable() : new BlockPos(this.getX(), this.getY(), this.getZ() + distance);
     }
 
     /**
@@ -114,7 +118,7 @@ public class BlockPosMixin extends Vec3i {
      */
     @Overwrite
     public BlockPos west(int distance) {
-        return distance == 0 ? (BlockPos) (Object) this : new BlockPos(this.getX() - distance, this.getY(), this.getZ());
+        return distance == 0 ? this.toImmutable() : new BlockPos(this.getX() - distance, this.getY(), this.getZ());
     }
 
     /**
@@ -132,6 +136,6 @@ public class BlockPosMixin extends Vec3i {
      */
     @Overwrite
     public BlockPos east(int distance) {
-        return distance == 0 ? (BlockPos) (Object) this : new BlockPos(this.getX() + distance, this.getY(), this.getZ());
+        return distance == 0 ? this.toImmutable() : new BlockPos(this.getX() + distance, this.getY(), this.getZ());
     }
 }
