@@ -89,6 +89,8 @@
     "gen.features.StructureFeatureMixin",
     "gen.perlin_noise.PerlinNoiseSamplerMixin",
     "gen.voronoi_biomes.VoronoiBiomeAccessTypeMixin",
+    "math.fast_blockpos.BlockPosMixin",
+    "math.fast_blockpos.DirectionMixin",
     "math.fast_util.AxisCycleDirectionMixin$BackwardMixin",
     "math.fast_util.AxisCycleDirectionMixin$ForwardMixin",
     "math.fast_util.BoxMixin",
