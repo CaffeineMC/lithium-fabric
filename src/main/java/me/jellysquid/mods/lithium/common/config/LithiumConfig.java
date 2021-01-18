@@ -230,26 +230,26 @@ public class LithiumConfig {
      * created. The file on disk will then be updated to include any new options.
      */
     public static LithiumConfig load(File file) {
-        if (!file.exists()) {
+        LithiumConfig config = new LithiumConfig();
+
+        if (file.exists()) {
+            Properties props = new Properties();
+
+            try (FileInputStream fin = new FileInputStream(file)) {
+                props.load(fin);
+            } catch (IOException e) {
+                throw new RuntimeException("Could not load config file", e);
+            }
+
+            config.readProperties(props);
+        } else {
             try {
                 writeDefaultConfig(file);
             } catch (IOException e) {
                 LOGGER.warn("Could not write default configuration file", e);
             }
-
-            return new LithiumConfig();
         }
 
-        Properties props = new Properties();
-
-        try (FileInputStream fin = new FileInputStream(file)) {
-            props.load(fin);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not load config file", e);
-        }
-
-        LithiumConfig config = new LithiumConfig();
-        config.readProperties(props);
         config.applyModOverrides();
 
         return config;
