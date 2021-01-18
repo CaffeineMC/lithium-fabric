@@ -15,7 +15,7 @@ public class MixinBlock implements BlockPathingBehavior {
     }
 
     @Override
-    public PathNodeType getNeighborPathNodeType(BlockState state) {
+    public PathNodeType getPathNodeTypeAsNeighbor(BlockState state) {
         return PathNodeDefaults.getNeighborNodeType(state);
     }
 }

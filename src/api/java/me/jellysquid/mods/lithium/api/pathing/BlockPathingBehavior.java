@@ -10,6 +10,8 @@ import net.minecraft.world.BlockView;
  * Provides the ability for mods to specify what {@link PathNodeType} their block uses for path-finding. This exists
  * because Lithium replaces a large amount of entity path-finding logic, which can cause other mods which mixin to
  * this code to fail or explode into other issues.
+ *
+ * This interface should be added to your {@link net.minecraft.block.Block} type to replace the default implementation.
  */
 public interface BlockPathingBehavior {
     /**
@@ -39,5 +41,5 @@ public interface BlockPathingBehavior {
      * @return The path node type for the given block state when this block is being searched as a
      *         neighbor of another path node
      */
-    PathNodeType getNeighborPathNodeType(BlockState state);
+    PathNodeType getPathNodeTypeAsNeighbor(BlockState state);
 }

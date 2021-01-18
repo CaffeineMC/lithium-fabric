@@ -24,7 +24,7 @@ public abstract class MixinAbstractBlockState implements BlockStatePathingCache 
         BlockPathingBehavior behavior = (BlockPathingBehavior) this.getBlock();
 
         this.pathNodeType = Validate.notNull(behavior.getPathNodeType(state));
-        this.pathNodeTypeNeighbor = Validate.notNull(behavior.getNeighborPathNodeType(state));
+        this.pathNodeTypeNeighbor = Validate.notNull(behavior.getPathNodeTypeAsNeighbor(state));
     }
 
     @Override
