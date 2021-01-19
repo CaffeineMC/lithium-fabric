@@ -97,6 +97,7 @@
     "math.fast_util.DirectionMixin",
     "math.sine_lut.MixinMathHelper",
     "shapes.blockstate_cache.BlockMixin",
+    "shapes.lazy_shape_context.ShapeContextMixin",
     "shapes.optimized_matching.VoxelShapesMixin",
     "shapes.precompute_shape_arrays.FractionalDoubleListMixin",
     "shapes.precompute_shape_arrays.SimpleVoxelShapeMixin",

@@ -87,6 +87,7 @@ public class LithiumConfig {
 
         this.addMixinRule("shapes", true);
         this.addMixinRule("shapes.blockstate_cache", true);
+        this.addMixinRule("shapes.lazy_shape_context", true);
         this.addMixinRule("shapes.precompute_shape_arrays", true);
         this.addMixinRule("shapes.shape_merging", true);
         this.addMixinRule("shapes.specialized_shapes", true);
