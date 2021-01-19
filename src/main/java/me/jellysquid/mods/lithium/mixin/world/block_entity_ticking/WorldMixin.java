@@ -72,7 +72,7 @@ public abstract class WorldMixin implements WorldAccess {
      */
     @SuppressWarnings("OverwriteModifiers")
     @Overwrite
-    public BlockEntity getPendingBlockEntity(BlockPos pos) {
+    private BlockEntity getPendingBlockEntity(BlockPos pos) {
         return this.pendingBlockEntities$lithium.getFirstNonRemovedBlockEntityAtPosition(pos.asLong());
     }
 

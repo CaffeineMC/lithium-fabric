@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 public class MixinMathHelper {
     /**
      * @author jellysquid3
+     * @reason use an optimized implementation
      */
     @Overwrite
     public static float sin(float f) {
@@ -17,6 +18,7 @@ public class MixinMathHelper {
 
     /**
      * @author jellysquid3
+     * @reason use an optimized implementation
      */
     @Overwrite
     public static float cos(float f) {
