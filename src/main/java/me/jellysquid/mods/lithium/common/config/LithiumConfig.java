@@ -46,6 +46,7 @@ public class LithiumConfig {
 
         this.addMixinRule("block", true);
         this.addMixinRule("block.flatten_states", true);
+        this.addMixinRule("block.moving_block_shapes", true);
 
         this.addMixinRule("cached_hashcode", true);
 

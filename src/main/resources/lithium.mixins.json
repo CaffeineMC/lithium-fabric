@@ -48,6 +48,8 @@
     "alloc.world_ticking.ServerWorldMixin",
     "block.flatten_states.AbstractBlockStateMixin",
     "block.flatten_states.FluidStateMixin",
+    "block.moving_block_shapes.PistonBlockEntityMixin",
+    "block.moving_block_shapes.VoxelShapeMixin",
     "cached_hashcode.BlockNeighborGroupMixin",
     "chunk.count_oversized_blocks.ChunkSectionMixin",
     "chunk.entity_class_groups.TypeFilterableListMixin",
