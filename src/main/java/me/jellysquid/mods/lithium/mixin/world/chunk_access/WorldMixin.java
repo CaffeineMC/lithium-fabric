@@ -44,7 +44,7 @@ public abstract class WorldMixin implements WorldAccess {
     }
 
     @Override
-    public BlockView getExistingChunk(int chunkX, int chunkZ) {
+    public BlockView getChunkAsView(int chunkX, int chunkZ) {
         return this.getChunkLithium(chunkX, chunkZ, ChunkStatus.FULL, false);
     }
 

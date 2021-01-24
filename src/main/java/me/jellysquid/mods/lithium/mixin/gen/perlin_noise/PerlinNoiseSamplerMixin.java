@@ -42,7 +42,7 @@ public class PerlinNoiseSamplerMixin {
             int hash = this.permutations[i & 255] & 15;
 
             for (int j = 0; j < 3; j++) {
-                this.gradientTable[(i * GRADIENT_STRIDE) + j] = (byte) SimplexNoiseSampler.gradients[hash][j];
+                this.gradientTable[(i * GRADIENT_STRIDE) + j] = (byte) SimplexNoiseSampler.GRADIENTS[hash][j];
             }
         }
     }

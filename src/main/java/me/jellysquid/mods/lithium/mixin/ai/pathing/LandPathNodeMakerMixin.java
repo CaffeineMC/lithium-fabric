@@ -69,7 +69,7 @@ public abstract class LandPathNodeMakerMixin {
             // if the cached chunk section was initialized will early-exit.
             if (!World.isOutOfBuildLimitVertically(y)) {
                 // This cast is always safe and is necessary to obtain direct references to chunk sections.
-                Chunk chunk = (Chunk) ((CollisionView) world).getExistingChunk(x >> 4, z >> 4);
+                Chunk chunk = (Chunk) ((CollisionView) world).getChunkAsView(x >> 4, z >> 4);
 
                 // If the chunk is absent, the cached section above will remain null, as there is no chunk section anyways.
                 // An empty chunk or section will never pose any danger sources, which will be caught later.

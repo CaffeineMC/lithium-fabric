@@ -69,7 +69,7 @@ public class BlockCollisionSweeper {
         final int y = cuboidIt.getY();
         final int z = cuboidIt.getZ();
 
-        final BlockView chunk = this.view.getExistingChunk(x >> 4, z >> 4);
+        final BlockView chunk = this.view.getChunkAsView(x >> 4, z >> 4);
 
         if (chunk == null) {
             return true;
