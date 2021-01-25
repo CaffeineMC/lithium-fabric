@@ -42,7 +42,7 @@ public abstract class ScaleLayerMixin {
             return ctx.choose(tl, bl);
         }
 
-        // move `choose` into above if-statement: maintain rng parity
+        // Move `choose` into above if-statement: maintain rng parity
         ((CachingLayerContextExtended) ctx).skipInt();
 
         if (iz == 0) {
@@ -50,7 +50,7 @@ public abstract class ScaleLayerMixin {
             return ctx.choose(tl, tr);
         }
 
-        // move `choose` into above if-statement: maintain rng parity
+        // Move `choose` into above if-statement: maintain rng parity
         ((CachingLayerContextExtended) ctx).skipInt();
 
         int bl = parent.sample(this.transformX(x), this.transformZ(z + 1));

@@ -30,9 +30,12 @@ public abstract class EntityNavigationMixin implements EntityNavigationExtended 
     @Shadow
     public abstract Path findPathTo(BlockPos target, int distance);
 
-    @Redirect(method = "recalculatePath",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/entity/ai/pathing/EntityNavigation;findPathTo(Lnet/minecraft/util/math/BlockPos;I)Lnet/minecraft/entity/ai/pathing/Path;")
+    @Redirect(
+            method = "recalculatePath",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/ai/pathing/EntityNavigation;findPathTo(Lnet/minecraft/util/math/BlockPos;I)Lnet/minecraft/entity/ai/pathing/Path;"
+            )
     )
     private Path updateListeningState(EntityNavigation entityNavigation, BlockPos target, int distance) {
         Path pathTo = this.findPathTo(target, distance);
@@ -66,8 +69,8 @@ public abstract class EntityNavigationMixin implements EntityNavigationExtended 
 
     @Override
     public void setRegisteredToWorld(boolean isRegistered) {
-        //Drowneds are problematic. Their EntityNavigations do not register properly.
-        //We make sure to not register them, when vanilla doesn't register them.
+        // Drowneds are problematic. Their EntityNavigations do not register properly.
+        // We make sure to not register them, when vanilla doesn't register them.
         this.canListenForBlocks = isRegistered;
     }
 }

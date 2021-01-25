@@ -27,8 +27,8 @@ public class SimpleVoxelShapeMixin {
     }
 
     /**
-     * @reason Use the cached array.
      * @author JellySquid
+     * @reason Use the cached array
      */
     @Overwrite
     public DoubleList getPointPositions(Direction.Axis axis) {

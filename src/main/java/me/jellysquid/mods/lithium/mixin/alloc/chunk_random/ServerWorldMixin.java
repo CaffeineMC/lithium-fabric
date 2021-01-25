@@ -19,7 +19,13 @@ public abstract class ServerWorldMixin {
     /**
      * @reason Avoid allocating BlockPos every invocation through using our allocation-free variant
      */
-    @Redirect(method = "tickChunk(Lnet/minecraft/world/chunk/WorldChunk;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;getRandomPosInChunk(IIII)Lnet/minecraft/util/math/BlockPos;"))
+    @Redirect(
+            method = "tickChunk(Lnet/minecraft/world/chunk/WorldChunk;I)V",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/world/ServerWorld;getRandomPosInChunk(IIII)Lnet/minecraft/util/math/BlockPos;"
+            )
+    )
     private BlockPos redirectTickGetRandomPosInChunk(ServerWorld serverWorld, int x, int y, int z, int mask) {
         ((ChunkRandomSource) serverWorld).getRandomPosInChunk(x, y, z, mask, this.randomPosInChunkCachedPos);
 
@@ -29,7 +35,13 @@ public abstract class ServerWorldMixin {
     /**
      * @reason Ensure an immutable block position is passed on block tick
      */
-    @Redirect(method = "tickChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;randomTick(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V"))
+    @Redirect(
+            method = "tickChunk",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/block/BlockState;randomTick(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V"
+            )
+    )
     private void redirectBlockStateTick(BlockState blockState, ServerWorld world, BlockPos pos, Random rand) {
         blockState.randomTick(world, pos.toImmutable(), rand);
     }
@@ -37,7 +49,13 @@ public abstract class ServerWorldMixin {
     /**
      * @reason Ensure an immutable block position is passed on fluid tick
      */
-    @Redirect(method = "tickChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/fluid/FluidState;onRandomTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V"))
+    @Redirect(
+            method = "tickChunk",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/fluid/FluidState;onRandomTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V"
+            )
+    )
     private void redirectFluidStateTick(FluidState fluidState, World world, BlockPos pos, Random rand) {
         fluidState.onRandomTick(world, pos.toImmutable(), rand);
     }

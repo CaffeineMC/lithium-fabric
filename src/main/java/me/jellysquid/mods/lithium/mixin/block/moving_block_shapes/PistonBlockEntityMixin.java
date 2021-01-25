@@ -38,10 +38,16 @@ public abstract class PistonBlockEntityMixin {
      * Avoid calling {@link VoxelShapes#union(VoxelShape, VoxelShape)} whenever possible - use precomputed merged piston head + base shapes and
      * cache the results for all union calls with an empty shape as first argument. (these are all other cases)
      */
-    @Inject(method = "getCollisionShape",
-            at = @At(value = "INVOKE", shift = At.Shift.BEFORE,
-                    target = "Lnet/minecraft/util/math/Direction;getOffsetX()I"
-            ), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
+    @Inject(
+            method = "getCollisionShape",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/util/math/Direction;getOffsetX()I",
+                    shift = At.Shift.BEFORE
+            ),
+            locals = LocalCapture.CAPTURE_FAILHARD,
+            cancellable = true
+    )
     private void skipVoxelShapeUnion(BlockView world, BlockPos pos, CallbackInfoReturnable<VoxelShape> cir, VoxelShape voxelShape2, BlockState blockState2, float f) {
         if (this.extending || !this.source) {
             //here voxelShape2.isEmpty() is guaranteed, vanilla code would call union() which calls simplify()

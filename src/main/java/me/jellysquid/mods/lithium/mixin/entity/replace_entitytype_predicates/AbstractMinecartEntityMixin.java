@@ -13,7 +13,13 @@ import java.util.List;
 
 @Mixin(AbstractMinecartEntity.class)
 public class AbstractMinecartEntityMixin {
-    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getOtherEntities(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;)Ljava/util/List;"))
+    @Redirect(
+            method = "tick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/World;getOtherEntities(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;)Ljava/util/List;"
+            )
+    )
     private List<Entity> getOtherAbstractMinecarts(World world, Entity except, Box box) {
         return WorldHelper.getEntitiesOfClass(world, except, AbstractMinecartEntity.class, box);
     }

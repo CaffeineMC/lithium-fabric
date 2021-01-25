@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 public interface ShapeContextMixin {
     /**
      * @author 2No2Name
-     * @reason be faster
+     * @reason Be faster
      */
     @Overwrite
     static ShapeContext of(Entity entity) {

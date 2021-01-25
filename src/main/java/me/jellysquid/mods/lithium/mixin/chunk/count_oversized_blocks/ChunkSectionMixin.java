@@ -32,7 +32,13 @@ public abstract class ChunkSectionMixin implements ChunkAwareBlockCollisionSweep
     @Unique
     private short oversizedBlockCount;
 
-    @Redirect(method = "calculateCounts", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/PalettedContainer;count(Lnet/minecraft/world/chunk/PalettedContainer$CountConsumer;)V"))
+    @Redirect(
+            method = "calculateCounts",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/chunk/PalettedContainer;count(Lnet/minecraft/world/chunk/PalettedContainer$CountConsumer;)V"
+            )
+    )
     private void addToOversizedBlockCount(PalettedContainer<BlockState> palettedContainer, PalettedContainer.CountConsumer<BlockState> consumer) {
         palettedContainer.count((state, count) -> {
             consumer.accept(state, count);
@@ -47,14 +53,32 @@ public abstract class ChunkSectionMixin implements ChunkAwareBlockCollisionSweep
         this.oversizedBlockCount = 0;
     }
 
-    @Inject(method = "setBlockState(IIILnet/minecraft/block/BlockState;Z)Lnet/minecraft/block/BlockState;", at = @At(ordinal = 0, value = "INVOKE", target = "Lnet/minecraft/block/BlockState;hasRandomTicks()Z", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
+    @Inject(
+            method = "setBlockState(IIILnet/minecraft/block/BlockState;Z)Lnet/minecraft/block/BlockState;",
+            at = @At(
+                    ordinal = 0,
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/block/BlockState;hasRandomTicks()Z",
+                    shift = At.Shift.BEFORE
+            ),
+            locals = LocalCapture.CAPTURE_FAILHARD
+    )
     private void decrOversizedBlockCount(int x, int y, int z, BlockState state, boolean lock, CallbackInfoReturnable<BlockState> cir, BlockState blockState2, FluidState fluidState, FluidState fluidState2) {
         if (blockState2.exceedsCube()) {
             --this.oversizedBlockCount;
         }
     }
 
-    @Inject(method = "setBlockState(IIILnet/minecraft/block/BlockState;Z)Lnet/minecraft/block/BlockState;", at = @At(ordinal = 1, value = "INVOKE", target = "Lnet/minecraft/block/BlockState;hasRandomTicks()Z", shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
+    @Inject(
+            method = "setBlockState(IIILnet/minecraft/block/BlockState;Z)Lnet/minecraft/block/BlockState;",
+            at = @At(
+                    ordinal = 1,
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/block/BlockState;hasRandomTicks()Z",
+                    shift = At.Shift.BEFORE
+            ),
+            locals = LocalCapture.CAPTURE_FAILHARD
+    )
     private void incrOversizedBlockCount(int x, int y, int z, BlockState state, boolean lock, CallbackInfoReturnable<BlockState> cir) {
         if (state.exceedsCube()) {
             ++this.oversizedBlockCount;
