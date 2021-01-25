@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import me.jellysquid.mods.lithium.common.util.Pos.ChunkCoord;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.nbt.CompoundTag;
@@ -26,7 +27,7 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
         this.clazz = clazz;
         this.self = self;
         this.rangeSq = range * range;
-        this.rangeC = Math.max((MathHelper.ceil(range) + 15) >> 4, 1);
+        this.rangeC = Math.max(ChunkCoord.fromBlockSize((MathHelper.ceil(range) + 15)), 1);
     }
 
     @Override

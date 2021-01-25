@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.world.player_chunk_tick;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
@@ -76,8 +77,8 @@ public abstract class ThreadedAnvilChunkStorageMixin {
     }
 
     private void sendChunks(ChunkSectionPos oldPos, ServerPlayerEntity player) {
-        int newCenterX = MathHelper.floor(player.getX()) >> 4;
-        int newCenterZ = MathHelper.floor(player.getZ()) >> 4;
+        int newCenterX = Pos.ChunkCoord.fromBlockCoord(MathHelper.floor(player.getX()));
+        int newCenterZ = Pos.ChunkCoord.fromBlockCoord(MathHelper.floor(player.getZ()));
 
         int oldCenterX = oldPos.getSectionX();
         int oldCenterZ = oldPos.getSectionZ();

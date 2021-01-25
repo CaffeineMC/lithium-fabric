@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.common.entity.movement;
 
 import me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeCaster;
+import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
@@ -49,7 +50,7 @@ public class ChunkAwareBlockCollisionSweeper {
     private final int minX, minY, minZ, maxX, maxY, maxZ;
 
     //variables prefixed with c refer to the iteration of the currently cached chunk section
-    private int chunkX, chunkY, chunkZ;
+    private int chunkX, chunkYIndex, chunkZ;
     private int cStartX, cStartZ;
     private int cEndX, cEndZ;
     private int cX, cY, cZ;
@@ -72,14 +73,14 @@ public class ChunkAwareBlockCollisionSweeper {
 
         this.minX = MathHelper.floor(box.minX - EPSILON);
         this.maxX = MathHelper.floor(box.maxX + EPSILON);
-        this.minY = MathHelper.clamp((int) (box.minY - EPSILON), 0, 255);
-        this.maxY = MathHelper.clamp((int) (box.maxY + EPSILON), 0, 255);
+        this.minY = MathHelper.clamp((int) (box.minY - EPSILON), Pos.BlockCoord.getMinY(this.view), Pos.BlockCoord.getMaxYInclusive(this.view));
+        this.maxY = MathHelper.clamp((int) (box.maxY + EPSILON), Pos.BlockCoord.getMinY(this.view), Pos.BlockCoord.getMaxYInclusive(this.view));
         this.minZ = MathHelper.floor(box.minZ - EPSILON);
         this.maxZ = MathHelper.floor(box.maxZ + EPSILON);
         this.collisionPredicate = collisionPredicate;
 
-        this.chunkX = (this.minX - 1) >> 4;
-        this.chunkZ = (this.minZ - 1) >> 4;
+        this.chunkX = Pos.ChunkCoord.fromBlockCoord(expandMin(this.minX));
+        this.chunkZ = Pos.ChunkCoord.fromBlockCoord(expandMin(this.minZ));
 
         this.cIterated = 0;
         this.cTotalSize = 0;
@@ -93,20 +94,27 @@ public class ChunkAwareBlockCollisionSweeper {
             do {
                 //find the coordinates of the next section inside the area expanded by 1 block on all sides
                 //note: this.minX, maxX etc are not expanded, so there are lots of +1 and -1 around.
-                if (this.cachedChunk != null && this.chunkY < 15 && this.chunkY < ((this.maxY + 1) >> 4)) {
-                    this.chunkY++;
-                    this.cachedChunkSection = this.cachedChunk.getSectionArray()[this.cachedChunk.getSectionIndexFromSection(this.chunkY)];
+                if (
+                        this.cachedChunk != null &&
+                        this.chunkYIndex < Pos.SectionYIndex.getMaxYSectionIndexInclusive(this.view) &&
+                        this.chunkYIndex < Pos.SectionYIndex.fromBlockCoord(this.view,expandMax(this.maxY))
+                ) {
+                    this.chunkYIndex++;
+                    this.cachedChunkSection = this.cachedChunk.getSectionArray()[this.chunkYIndex];
                 } else {
-                    //todo remove clamp
-                    this.chunkY = MathHelper.clamp((this.minY - 1) >> 4, 0, 15);
+                    this.chunkYIndex = MathHelper.clamp(
+                            Pos.SectionYIndex.fromBlockCoord(this.view, expandMin(this.minY)),
+                            Pos.SectionYIndex.getMinYSectionIndex(this.view),
+                            Pos.SectionYIndex.getMaxYSectionIndexInclusive(this.view)
+                    );
 
-                    if ((this.chunkX < ((this.maxX + 1) >> 4))) {
+                    if ((this.chunkX < Pos.ChunkCoord.fromBlockCoord(expandMax(this.maxX)))) {
                         //first initialization takes this branch
                         this.chunkX++;
                     } else {
-                        this.chunkX = (this.minX - 1) >> 4;
+                        this.chunkX = Pos.ChunkCoord.fromBlockCoord(expandMin(this.minX));
 
-                        if (this.chunkZ < ((this.maxZ + 1) >> 4)) {
+                        if (this.chunkZ < Pos.ChunkCoord.fromBlockCoord(expandMax(this.maxZ))) {
                             this.chunkZ++;
                         } else {
                             return false; //no more sections to iterate
@@ -115,23 +123,23 @@ public class ChunkAwareBlockCollisionSweeper {
                     //Casting to Chunk is not checked, together with other mods this could cause a ClassCastException
                     this.cachedChunk = (Chunk) this.view.getChunkAsView(this.chunkX, this.chunkZ);
                     if (this.cachedChunk != null) {
-                        this.cachedChunkSection = this.cachedChunk.getSectionArray()[this.chunkY];
+                        this.cachedChunkSection = this.cachedChunk.getSectionArray()[this.chunkYIndex];
                     }
                 }
                 //skip empty chunks and empty chunk sections
             } while (this.cachedChunk == null || ChunkSection.isEmpty(this.cachedChunkSection));
 
-            this.sectionOversizedBlocks = hasChunkSectionOversizedBlocks(this.cachedChunk, this.chunkY);
+            this.sectionOversizedBlocks = hasChunkSectionOversizedBlocks(this.cachedChunk, this.chunkYIndex);
 
             int sizeExtension = this.sectionOversizedBlocks ? 1 : 0;
 
-            this.cEndX = Math.min(this.maxX + sizeExtension, 15 + (this.chunkX << 4));
-            int cEndY = Math.min(this.maxY + sizeExtension, 15 + (this.chunkY << 4));
-            this.cEndZ = Math.min(this.maxZ + sizeExtension, 15 + (this.chunkZ << 4));
+            this.cEndX = Math.min(this.maxX + sizeExtension, Pos.BlockCoord.getMaxInSectionCoord(this.chunkX));
+            int cEndY = Math.min(this.maxY + sizeExtension, Pos.BlockCoord.getMaxYInSectionIndex(this.view, this.chunkYIndex));
+            this.cEndZ = Math.min(this.maxZ + sizeExtension, Pos.BlockCoord.getMaxInSectionCoord(this.chunkZ));
 
-            this.cStartX = Math.max(this.minX - sizeExtension, this.chunkX << 4);
-            int cStartY = Math.max(this.minY - sizeExtension, this.chunkY << 4);
-            this.cStartZ = Math.max(this.minZ - sizeExtension, this.chunkZ << 4);
+            this.cStartX = Math.max(this.minX - sizeExtension, Pos.BlockCoord.getMinInSectionCoord(this.chunkX));
+            int cStartY = Math.max(this.minY - sizeExtension, Pos.BlockCoord.getMinYInSectionIndex(this.view, chunkYIndex));
+            this.cStartZ = Math.max(this.minZ - sizeExtension, Pos.BlockCoord.getMinInSectionCoord(this.chunkZ));
             this.cX = this.cStartX;
             this.cY = cStartY;
             this.cZ = this.cStartZ;
@@ -273,6 +281,13 @@ public class ChunkAwareBlockCollisionSweeper {
         }
 
         return null;
+    }
+
+    private static int expandMin(int coord) {
+        return coord - 1;
+    }
+    private static int expandMax(int coord) {
+        return coord + 1;
     }
 
     /**

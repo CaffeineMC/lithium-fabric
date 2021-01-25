@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.ai.pathing;
 
 import me.jellysquid.mods.lithium.common.ai.pathing.PathNodeCache;
+import me.jellysquid.mods.lithium.common.util.Pos;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
@@ -69,12 +70,12 @@ public abstract class LandPathNodeMakerMixin {
             // if the cached chunk section was initialized will early-exit.
             if (!world.isOutOfHeightLimit(y)) { //todo use cached values for height limit
                 // This cast is always safe and is necessary to obtain direct references to chunk sections.
-                Chunk chunk = (Chunk) ((CollisionView) world).getChunkAsView(x >> 4, z >> 4);
+                Chunk chunk = (Chunk) ((CollisionView) world).getChunkAsView(Pos.ChunkCoord.fromBlockCoord(x), Pos.ChunkCoord.fromBlockCoord(z));
 
                 // If the chunk is absent, the cached section above will remain null, as there is no chunk section anyways.
                 // An empty chunk or section will never pose any danger sources, which will be caught later.
                 if (chunk != null) {
-                    section = chunk.getSectionArray()[y >> 4];
+                    section = chunk.getSectionArray()[Pos.SectionYIndex.fromBlockCoord(world, y)];
                 }
             }
 

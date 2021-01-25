@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.world.chunk_access;
 
+import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.Chunk;
@@ -25,7 +26,7 @@ public abstract class WorldMixin implements WorldAccess {
 
     @Override
     public Chunk getChunk(BlockPos pos) {
-        return this.getChunkLithium(pos.getX() >> 4, pos.getZ() >> 4, ChunkStatus.FULL, true);
+        return this.getChunkLithium(Pos.ChunkCoord.fromBlockCoord(pos.getX()), Pos.ChunkCoord.fromBlockCoord(pos.getZ()), ChunkStatus.FULL, true);
     }
 
     /**

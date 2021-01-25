@@ -85,7 +85,7 @@ public class EntityTrackerEngine {
         }
 
         if (this.sectionsByEntity.containsKey(listener)) {
-
+            //todo 1.17 y value fix
             throw new IllegalStateException(errorMessageAlreadyListening(this.sectionsByEntity, listener, ChunkSectionPos.from(x, y, z)));
         }
 

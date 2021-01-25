@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.mixin.world.explosions;
 
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -222,8 +223,8 @@ public abstract class ExplosionMixin {
         }
 
 
-        int chunkX = blockX >> 4;
-        int chunkZ = blockZ >> 4;
+        int chunkX = Pos.ChunkCoord.fromBlockCoord(blockX);
+        int chunkZ = Pos.ChunkCoord.fromBlockCoord(blockZ);
 
         // Avoid calling into the chunk manager as much as possible through managing chunks locally
         if (this.prevChunkX != chunkX || this.prevChunkZ != chunkZ) {
@@ -245,7 +246,7 @@ public abstract class ExplosionMixin {
             if (chunk != null) {
                 // We operate directly on chunk sections to avoid interacting with BlockPos and to squeeze out as much
                 // performance as possible here
-                ChunkSection section = chunk.getSectionArray()[blockY >> 4];
+                ChunkSection section = chunk.getSectionArray()[Pos.SectionYIndex.fromBlockCoord(chunk, blockY)];
 
                 // If the section doesn't exist or it's empty, assume that the block is air
                 if (section != null && !section.isEmpty()) {

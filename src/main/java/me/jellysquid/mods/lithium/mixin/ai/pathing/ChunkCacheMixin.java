@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.ai.pathing;
 
+import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.fluid.FluidState;
@@ -49,8 +50,8 @@ public abstract class ChunkCacheMixin implements BlockView {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(World world, BlockPos minPos, BlockPos maxPos, CallbackInfo ci) {
-        this.xLen = 1 + (maxPos.getX() >> 4) - (minPos.getX() >> 4);
-        this.zLen = 1 + (maxPos.getZ() >> 4) - (minPos.getZ() >> 4);
+        this.xLen = 1 + (Pos.ChunkCoord.fromBlockCoord(maxPos.getX())) - (Pos.ChunkCoord.fromBlockCoord(minPos.getX()));
+        this.zLen = 1 + (Pos.ChunkCoord.fromBlockCoord(maxPos.getZ())) - (Pos.ChunkCoord.fromBlockCoord(minPos.getZ()));
 
         this.chunksFlat = new Chunk[this.xLen * this.zLen];
 
@@ -72,15 +73,15 @@ public abstract class ChunkCacheMixin implements BlockView {
             int x = pos.getX();
             int z = pos.getZ();
 
-            int chunkX = (x >> 4) - this.minX;
-            int chunkZ = (z >> 4) - this.minZ;
+            int chunkX = (Pos.ChunkCoord.fromBlockCoord(x)) - this.minX;
+            int chunkZ = (Pos.ChunkCoord.fromBlockCoord(z)) - this.minZ;
 
             if (chunkX >= 0 && chunkX < this.xLen && chunkZ >= 0 && chunkZ < this.zLen) {
                 Chunk chunk = this.chunksFlat[(chunkX * this.zLen) + chunkZ];
 
                 // Avoid going through Chunk#getBlockState
                 if (chunk != null) {
-                    ChunkSection section = chunk.getSectionArray()[y >> 4];
+                    ChunkSection section = chunk.getSectionArray()[Pos.SectionYIndex.fromBlockCoord(this, y)];
 
                     if (section != null) {
                         return section.getBlockState(x & 15, y & 15, z & 15);

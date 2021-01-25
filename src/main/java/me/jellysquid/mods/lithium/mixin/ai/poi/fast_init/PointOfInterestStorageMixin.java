@@ -36,6 +36,8 @@ public abstract class PointOfInterestStorageMixin extends SerializingRegionBased
      */
     @Overwrite
     public void initForPalette(ChunkPos chunkPos_1, ChunkSection section) {
+        //todo 1.17: this might be the wrong chunk section pos in worlds with 0 !=minY. But 20w05b vanilla also does this!
+        //might not be problematic, as the coord translation does not have any effect after yLocal=y&15
         ChunkSectionPos sectionPos = ChunkSectionPos.from(chunkPos_1, section.getYOffset() >> 4);
 
         PointOfInterestSet set = this.get(sectionPos.asLong()).orElse(null);

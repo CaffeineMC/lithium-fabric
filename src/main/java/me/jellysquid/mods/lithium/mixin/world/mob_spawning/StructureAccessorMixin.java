@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.mixin.world.mob_spawning;
 
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureStart;
 import net.minecraft.util.math.BlockPos;
@@ -28,7 +29,7 @@ public abstract class StructureAccessorMixin {
      */
     @Overwrite
     public StructureStart<?> getStructureAt(BlockPos blockPos, boolean fine, StructureFeature<?> feature) {
-        Chunk originChunk = this.world.getChunk(blockPos.getX() >> 4, blockPos.getZ() >> 4, ChunkStatus.STRUCTURE_REFERENCES);
+        Chunk originChunk = this.world.getChunk(Pos.ChunkCoord.fromBlockCoord(blockPos.getX()), Pos.ChunkCoord.fromBlockCoord(blockPos.getZ()), ChunkStatus.STRUCTURE_REFERENCES);
 
         LongSet references = originChunk.getStructureReferences(feature);
         LongIterator iterator = references.iterator();
