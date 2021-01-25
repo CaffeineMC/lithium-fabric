@@ -29,7 +29,9 @@ public abstract class ItemFrameEntityMixin extends AbstractDecorationEntity {
     )
     private List<Entity> getAbstractDecorationEntities(World world, Entity excluded, Box box, Predicate<? super Entity> predicate) {
         if (predicate == PREDICATE) {
-            return WorldHelper.getEntitiesOfClass(world, excluded, AbstractDecorationEntity.class, box);
+            //noinspection unchecked,rawtypes
+            return (List) world.getEntitiesByClass(AbstractDecorationEntity.class, box, entity -> entity != excluded);
+
         }
 
         return world.getOtherEntities(excluded, box, predicate);

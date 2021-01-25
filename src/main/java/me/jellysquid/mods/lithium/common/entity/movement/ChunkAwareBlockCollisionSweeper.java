@@ -95,8 +95,9 @@ public class ChunkAwareBlockCollisionSweeper {
                 //note: this.minX, maxX etc are not expanded, so there are lots of +1 and -1 around.
                 if (this.cachedChunk != null && this.chunkY < 15 && this.chunkY < ((this.maxY + 1) >> 4)) {
                     this.chunkY++;
-                    this.cachedChunkSection = this.cachedChunk.getSectionArray()[this.chunkY];
+                    this.cachedChunkSection = this.cachedChunk.getSectionArray()[this.cachedChunk.getSectionIndexFromSection(this.chunkY)];
                 } else {
+                    //todo remove clamp
                     this.chunkY = MathHelper.clamp((this.minY - 1) >> 4, 0, 15);
 
                     if ((this.chunkX < ((this.maxX + 1) >> 4))) {

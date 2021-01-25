@@ -19,6 +19,7 @@ public class NoiseChunkGeneratorMixin {
      * This method is called for every block in the chunk so this will save a lot of registry lookups.
      *
      * @author SuperCoder79
+     * @reason avoid registry lookup
      */
     @Overwrite
     public int getSeaLevel() {

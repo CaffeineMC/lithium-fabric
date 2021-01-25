@@ -5,7 +5,9 @@ import net.minecraft.block.Blocks;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Final;
@@ -14,7 +16,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(value = WorldChunk.class, priority = 500)
-public class WorldChunkMixin {
+public abstract class WorldChunkMixin implements Chunk {
     private static final BlockState DEFAULT_BLOCK_STATE = Blocks.AIR.getDefaultState();
     private static final FluidState DEFAULT_FLUID_STATE = Fluids.EMPTY.getDefaultState();
 
@@ -36,7 +38,7 @@ public class WorldChunkMixin {
         int y = pos.getY();
         int z = pos.getZ();
 
-        if (!World.isOutOfBuildLimitVertically(y)) {
+        if (!this.isOutOfHeightLimit(y)) {
             ChunkSection section = this.sections[y >> 4];
 
             if (section != EMPTY_SECTION) {
@@ -53,7 +55,7 @@ public class WorldChunkMixin {
      */
     @Overwrite
     public FluidState getFluidState(int x, int y, int z) {
-        if (!World.isOutOfBuildLimitVertically(y)) {
+        if (!this.isOutOfHeightLimit(y)) {
             ChunkSection section = this.sections[y >> 4];
 
             if (section != EMPTY_SECTION) {

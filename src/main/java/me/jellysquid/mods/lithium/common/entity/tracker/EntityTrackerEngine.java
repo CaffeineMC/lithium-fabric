@@ -137,7 +137,7 @@ public class EntityTrackerEngine {
         BlockBox before = new BlockBox(aX - radius, aY - radius, aZ - radius, aX + radius, aY + radius, aZ + radius);
         BlockBox after = new BlockBox(aX - radius, aY - radius, aZ - radius, bX + radius, bY + radius, bZ + radius);
 
-        BlockBox merged = new BlockBox(before);
+        BlockBox merged = new BlockBox(before.minX, before.minY, before.minZ, before.maxX, before.maxY, before.maxZ);
         merged.encompass(after);
 
         BlockPos.Mutable pos = new BlockPos.Mutable();

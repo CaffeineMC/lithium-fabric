@@ -9,8 +9,6 @@
   "mixins": [
     "ai.goal.GoalSelectorMixin",
     "ai.nearby_entity_tracking.LivingEntityMixin",
-    "ai.nearby_entity_tracking.ServerWorldMixin",
-    "ai.nearby_entity_tracking.WorldChunkMixin",
     "ai.nearby_entity_tracking.WorldMixin",
     "ai.nearby_entity_tracking.goals.FleeEntityGoalMixin",
     "ai.nearby_entity_tracking.goals.LookAtGoalMixin",
@@ -65,6 +63,7 @@
     "entity.data_tracker.use_arrays.DataTrackerMixin",
     "entity.fast_suffocation_check.EntityMixin",
     "entity.gravity_check_block_below.VoxelShapesMixin",
+    "entity.inactive_navigations.EntityLoaderMixin",
     "entity.inactive_navigations.EntityNavigationMixin",
     "entity.inactive_navigations.ServerWorldMixin",
     "entity.replace_entitytype_predicates.AbstractDecorationEntityMixin",

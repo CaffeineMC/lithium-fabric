@@ -212,7 +212,7 @@ public abstract class ExplosionMixin {
         BlockPos pos = this.cachedPos.set(blockX, blockY, blockZ);
 
         // Early-exit if the y-coordinate is out of bounds.
-        if (World.isOutOfBuildLimitVertically(blockY)) {
+        if (this.world.isOutOfHeightLimit(blockY)) {
             Optional<Float> blastResistance = this.behavior.getBlastResistance((Explosion) (Object) this, this.world, pos, Blocks.AIR.getDefaultState(), Fluids.EMPTY.getDefaultState());
             //noinspection OptionalIsPresent
             if (blastResistance.isPresent()) {

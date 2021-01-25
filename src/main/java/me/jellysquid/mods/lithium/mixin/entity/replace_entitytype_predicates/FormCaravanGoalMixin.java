@@ -4,6 +4,7 @@ import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.goal.FormCaravanGoal;
 import net.minecraft.entity.passive.LlamaEntity;
+import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,7 +23,7 @@ public class FormCaravanGoalMixin {
                     target = "Lnet/minecraft/world/World;getOtherEntities(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"
             )
     )
-    private List<Entity> getLlamasForCaravan(World world, Entity excluded, Box box, Predicate<? super Entity> predicate) {
-        return WorldHelper.getEntitiesOfClass(world, excluded, LlamaEntity.class, box);
+    private List<LlamaEntity> getLlamasForCaravan(World world, Entity excluded, Box box, Predicate<? super Entity> predicate) {
+        return world.getEntitiesByClass(LlamaEntity.class, box, entity -> entity != excluded);
     }
 }

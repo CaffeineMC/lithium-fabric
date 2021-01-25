@@ -48,7 +48,7 @@ public abstract class VoxelShapesMixin {
         // [VanillaCopy] The FULL_CUBE and UNBOUNDED shape is initialized with a single 1x1x1 voxel as neither will
         // contain multiple inner cuboids.
         FULL_CUBE_VOXELS = new BitSetVoxelSet(1, 1, 1);
-        FULL_CUBE_VOXELS.set(0, 0, 0, true, true);
+        FULL_CUBE_VOXELS.set(0, 0, 0);
 
         // Used in some rare cases to indicate a shape which encompasses the entire world (such as a moving world border)
         UNBOUNDED = new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY,

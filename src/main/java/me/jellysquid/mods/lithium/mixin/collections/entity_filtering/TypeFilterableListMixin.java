@@ -59,13 +59,4 @@ public class TypeFilterableListMixin<T> {
 
         return list;
     }
-
-    /**
-     * @author JellySquid
-     * @reason Do not copy the list every call to provide immutability, instead wrap with an unmodifiable type
-     */
-    @Overwrite
-    public List<T> method_29903() {
-        return Collections.unmodifiableList(this.allElements);
-    }
 }

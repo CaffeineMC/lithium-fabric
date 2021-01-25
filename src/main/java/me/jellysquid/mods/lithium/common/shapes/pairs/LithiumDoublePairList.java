@@ -97,6 +97,11 @@ public final class LithiumDoublePairList implements PairList {
     }
 
     @Override
+    public int size() {
+        return this.pairs.size();
+    }
+
+    @Override
     public DoubleList getPairs() {
         return this.pairs;
     }

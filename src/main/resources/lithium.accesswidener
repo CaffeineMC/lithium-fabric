@@ -13,6 +13,11 @@ accessible field net/minecraft/util/math/noise/SimplexNoiseSampler gradients [[I
 accessible field net/minecraft/util/shape/VoxelShape voxels Lnet/minecraft/util/shape/VoxelSet;
 accessible field net/minecraft/world/biome/layer/util/CachingLayerSampler operator Lnet/minecraft/world/biome/layer/util/LayerOperator;
 
+extendable class net/minecraft/world/biome/layer/util/CachingLayerSampler
+accessible field net/minecraft/world/biome/layer/util/CachingLayerSampler operator Lnet/minecraft/world/biome/layer/util/LayerOperator;
+
+accessible field net/minecraft/util/math/noise/SimplexNoiseSampler GRADIENTS [[I
+
 accessible method net/minecraft/entity/ai/brain/task/Task shouldKeepRunning (Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/LivingEntity;J)Z
 accessible method net/minecraft/fluid/Fluid isEmpty ()Z
 accessible method net/minecraft/server/world/ChunkHolder combineSavingFuture (Ljava/util/concurrent/CompletableFuture;)V
@@ -23,3 +28,9 @@ accessible method net/minecraft/util/shape/VoxelShape <init> (Lnet/minecraft/uti
 accessible method net/minecraft/util/shape/VoxelShapes findRequiredBitResolution (DD)I
 
 extendable class net/minecraft/world/biome/layer/util/CachingLayerSampler
+accessible method me/jellysquid/mods/lithium/mixin/world/block_entity_ticking/WorldMixin getPendingBlockEntity (Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/entity/BlockEntity
+
+accessible field net/minecraft/util/math/MathHelper SINE_TABLE [F
+
+accessible class net/minecraft/server/world/ServerWorld$EntityLoader
+accessible method net/minecraft/world/World isInvalidVertically (I)Z

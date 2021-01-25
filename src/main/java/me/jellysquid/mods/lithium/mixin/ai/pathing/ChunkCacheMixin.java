@@ -4,6 +4,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkCache;
@@ -22,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * code.
  */
 @Mixin(ChunkCache.class)
-public class ChunkCacheMixin {
+public abstract class ChunkCacheMixin implements BlockView {
     private static final BlockState DEFAULT_BLOCK = Blocks.AIR.getDefaultState();
 
     @Shadow
@@ -37,6 +38,9 @@ public class ChunkCacheMixin {
     @Final
     protected int minZ;
 
+    @Shadow
+    @Final
+    protected World world;
     // A 1D view of the chunks available to this cache
     private Chunk[] chunksFlat;
 
@@ -64,7 +68,7 @@ public class ChunkCacheMixin {
     public BlockState getBlockState(BlockPos pos) {
         int y = pos.getY();
 
-        if (!World.isOutOfBuildLimitVertically(pos.getY())) {
+        if (!this.isOutOfHeightLimit(pos.getY())) { //todo use cached values for height limit
             int x = pos.getX();
             int z = pos.getZ();
 
