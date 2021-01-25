@@ -5,6 +5,9 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.ShulkerEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
+import net.minecraft.util.crash.CrashException;
+import net.minecraft.util.crash.CrashReport;
+import net.minecraft.util.crash.CrashReportSection;
 
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -96,6 +99,15 @@ public class EntityClassGroup {
                 return true;
             } catch (NoSuchMethodException e) {
                 clazz = clazz.getSuperclass();
+            } catch (Throwable e) {
+                final String crashedClass = clazz.getName();
+                CrashReport crashReport = CrashReport.create(e, "Lithium EntityClassGroup analysis");
+                CrashReportSection crashReportSection = crashReport.addElement(e.getClass().toString() + " when getting declared methods.");
+                crashReportSection.add("Analyzed class", crashedClass);
+                crashReportSection.add("Analyzed method name", methodName);
+                crashReportSection.add("Analyzed method args", methodArgs);
+
+                throw new CrashException(crashReport);
             }
         }
         return false;
