@@ -27,7 +27,13 @@ public class FleeEntityGoalMixin<T extends LivingEntity> {
         ((NearbyEntityListenerProvider) mob).getListener().addListener(this.tracker);
     }
 
-    @Redirect(method = "canStart", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getClosestEntityIncludingUngeneratedChunks(Ljava/lang/Class;Lnet/minecraft/entity/ai/TargetPredicate;Lnet/minecraft/entity/LivingEntity;DDDLnet/minecraft/util/math/Box;)Lnet/minecraft/entity/LivingEntity;"))
+    @Redirect(
+            method = "canStart",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/World;getClosestEntityIncludingUngeneratedChunks(Ljava/lang/Class;Lnet/minecraft/entity/ai/TargetPredicate;Lnet/minecraft/entity/LivingEntity;DDDLnet/minecraft/util/math/Box;)Lnet/minecraft/entity/LivingEntity;"
+            )
+    )
     private T redirectGetNearestEntity(World world, Class<? extends T> entityClass, TargetPredicate targetPredicate, LivingEntity entity, double x, double y, double z, Box box) {
         return this.tracker.getClosestEntity(box, targetPredicate);
     }

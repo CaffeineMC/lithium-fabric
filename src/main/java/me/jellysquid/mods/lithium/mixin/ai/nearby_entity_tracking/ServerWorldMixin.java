@@ -20,7 +20,13 @@ public class ServerWorldMixin {
     /**
      * Notify the entity tracker when an entity is removed from the world.
      */
-    @Redirect(method = "unloadEntities", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;"))
+    @Redirect(
+            method = "unloadEntities",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Ljava/util/Iterator;next()Ljava/lang/Object;"
+            )
+    )
     private Object onEntityRemoved(Iterator<Entity> iterator) {
         Entity entity = iterator.next();
         if (!(entity instanceof LivingEntity)) {

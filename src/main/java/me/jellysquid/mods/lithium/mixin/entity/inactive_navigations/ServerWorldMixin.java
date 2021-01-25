@@ -62,7 +62,13 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
         this.activeEntityNavigations = new ReferenceOpenHashSet<>();
     }
 
-    @Redirect(method = "loadEntityUnchecked", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/mob/MobEntity;getNavigation()Lnet/minecraft/entity/ai/pathing/EntityNavigation;"))
+    @Redirect(
+            method = "loadEntityUnchecked",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/mob/MobEntity;getNavigation()Lnet/minecraft/entity/ai/pathing/EntityNavigation;"
+            )
+    )
     private EntityNavigation startListeningOnEntityLoad(MobEntity mobEntity) {
         EntityNavigation navigation = mobEntity.getNavigation();
         ((EntityNavigationExtended)navigation).setRegisteredToWorld(true);
@@ -72,7 +78,13 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
         return navigation;
     }
 
-    @Redirect(method = "unloadEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/mob/MobEntity;getNavigation()Lnet/minecraft/entity/ai/pathing/EntityNavigation;"))
+    @Redirect(
+            method = "unloadEntity",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/mob/MobEntity;getNavigation()Lnet/minecraft/entity/ai/pathing/EntityNavigation;"
+            )
+    )
     private EntityNavigation stopListeningOnEntityUnload(MobEntity mobEntity) {
         EntityNavigation navigation = mobEntity.getNavigation();
         ((EntityNavigationExtended)navigation).setRegisteredToWorld(false);
@@ -87,7 +99,13 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
      * never react to the update.
      * With thousands of non-pathfinding mobs in the world, this can be a relevant difference.
      */
-    @Redirect(method = "updateListeners", at = @At(value = "INVOKE", target = "Ljava/util/Set;iterator()Ljava/util/Iterator;"))
+    @Redirect(
+            method = "updateListeners",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Ljava/util/Set;iterator()Ljava/util/Iterator;"
+            )
+    )
     private Iterator<EntityNavigation> getActiveListeners(Set<EntityNavigation> set) {
         this.isIteratingActiveEntityNavigations = true;
         return this.activeEntityNavigations.iterator();

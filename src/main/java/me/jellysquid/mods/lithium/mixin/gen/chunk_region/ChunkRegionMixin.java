@@ -82,7 +82,7 @@ public abstract class ChunkRegionMixin implements StructureWorldAccess {
      * Use our chunk fetch function
      */
     public Chunk getChunk(BlockPos pos) {
-        //skip checking chunk.getStatus().isAtLeast(ChunkStatus.EMPTY) here, because it is always true
+        // Skip checking chunk.getStatus().isAtLeast(ChunkStatus.EMPTY) here, because it is always true
         return this.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
     }
 }

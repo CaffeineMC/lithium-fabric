@@ -19,7 +19,8 @@ public class ServerWorldMixin {
     @Final
     private Int2ObjectMap<Entity> entitiesById;
 
-    @Redirect(method = "tick",
+    @Redirect(
+            method = "tick",
             slice = @Slice(
                     from = @At(value = "INVOKE", target = "Lnet/minecraft/entity/boss/dragon/EnderDragonFight;tick()V"),
                     to = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;loadEntityUnchecked(Lnet/minecraft/entity/Entity;)V")
@@ -28,7 +29,8 @@ public class ServerWorldMixin {
                     remap = false,
                     value = "INVOKE",
                     target = "Lit/unimi/dsi/fastutil/objects/ObjectSet;iterator()Lit/unimi/dsi/fastutil/objects/ObjectIterator;"
-            ))
+            )
+    )
     private ObjectIterator<Int2ObjectMap.Entry<Entity>> iterator(ObjectSet<Int2ObjectMap.Entry<Entity>> set) {
         // Avoids allocating a new Map entry object for every iterated value
         return Int2ObjectMaps.fastIterator(this.entitiesById);

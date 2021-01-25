@@ -32,7 +32,7 @@ public class CachingLayerContextMixin implements CloneableContext<CachingLayerSa
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(int cacheCapacity, long seed, long salt, CallbackInfo ci) {
-        // we don't use this cache
+        // We don't use this cache
         this.cache = null;
     }
 

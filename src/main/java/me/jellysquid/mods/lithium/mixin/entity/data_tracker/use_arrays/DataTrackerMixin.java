@@ -53,7 +53,13 @@ public abstract class DataTrackerMixin {
      * should only ever occur during entity initialization. Type-erasure is a bit of a pain here since we must redirect
      * a calls to the generic Map interface.
      */
-    @Redirect(method = "addTrackedData", at = @At(value = "INVOKE", target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"))
+    @Redirect(
+            method = "addTrackedData",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"
+            )
+    )
     private Object onAddTrackedDataInsertMap(Map<Class<? extends Entity>, Integer> map, /* Integer */ Object keyRaw, /* DataTracker.Entry<?> */ Object valueRaw) {
         int k = (int) keyRaw;
         DataTracker.Entry<?> v = (DataTracker.Entry<?>) valueRaw;

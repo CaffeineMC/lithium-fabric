@@ -78,7 +78,14 @@ public abstract class WorldMixin implements WorldAccess {
 
     // We do not want the vanilla code for adding pending block entities to be ran. We'll inject later in
     // postBlockEntityTick to use our optimized implementation.
-    @Redirect(method = "tickBlockEntities", at = @At(value = "FIELD", target = "Lnet/minecraft/world/World;pendingBlockEntities:Ljava/util/List;", ordinal = 0))
+    @Redirect(
+            method = "tickBlockEntities",
+            at = @At(
+                    value = "FIELD",
+                    target = "Lnet/minecraft/world/World;pendingBlockEntities:Ljava/util/List;",
+                    ordinal = 0
+            )
+    )
     private List<?> nullifyPendingBlockEntityListDuringTick(World world) {
         return Collections.emptyList();
     }
@@ -125,12 +132,25 @@ public abstract class WorldMixin implements WorldAccess {
 
     // We don't want this code wasting a ton of CPU time trying to scan through our optimized collection
     // Instead, we simply run the code on those at the same position directly
-    @Redirect(method = "setBlockEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/BlockEntity;setLocation(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V"))
+    @Redirect(
+            method = "setBlockEntity",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/block/entity/BlockEntity;setLocation(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V"
+            )
+    )
     private void setLocationAndRemoveAllAtPosition(BlockEntity blockEntity, World world, BlockPos pos) {
         blockEntity.setLocation(world, pos);
         this.pendingBlockEntities$lithium.markRemovedAndRemoveAllAtPosition(pos);
     }
-    @Redirect(method = "setBlockEntity", at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
+
+    @Redirect(
+            method = "setBlockEntity",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Ljava/util/List;iterator()Ljava/util/Iterator;"
+            )
+    )
     private <E> Iterator<E> nullifyBlockEntityScanDuringSetBlockEntity(List<E> list) {
         return Collections.emptyIterator();
     }

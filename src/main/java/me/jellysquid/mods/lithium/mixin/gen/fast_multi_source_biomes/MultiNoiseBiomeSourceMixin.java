@@ -56,7 +56,8 @@ public class MultiNoiseBiomeSourceMixin {
                 (float) this.humidityNoise.sample(biomeX, y, biomeZ),
                 (float) this.altitudeNoise.sample(biomeX, y, biomeZ),
                 (float) this.weirdnessNoise.sample(biomeX, y, biomeZ),
-                0.0F);
+                0.0F
+        );
 
         int idx = -1;
         float min = Float.POSITIVE_INFINITY;

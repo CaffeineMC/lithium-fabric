@@ -10,7 +10,13 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public class PistonBlockMixin {
     private static final Direction[] DIRECTIONS = Direction.values();
 
-    @Redirect(method = "shouldExtend", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Direction;values()[Lnet/minecraft/util/math/Direction;"))
+    @Redirect(
+            method = "shouldExtend",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/util/math/Direction;values()[Lnet/minecraft/util/math/Direction;"
+            )
+    )
     private Direction[] redirectShouldExtendDirectionValues() {
         return DIRECTIONS;
     }

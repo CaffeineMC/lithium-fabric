@@ -16,7 +16,14 @@ import java.util.function.BooleanSupplier;
 public class ServerChunkManagerMixin {
     private final ArrayList<ChunkHolder> cachedChunkList = new ArrayList<>();
 
-    @Redirect(method = "tickChunks", at = @At(remap = false, value = "INVOKE", target = "Lcom/google/common/collect/Lists;newArrayList(Ljava/lang/Iterable;)Ljava/util/ArrayList;"))
+    @Redirect(
+            method = "tickChunks",
+            at = @At(
+                    remap = false,
+                    value = "INVOKE",
+                    target = "Lcom/google/common/collect/Lists;newArrayList(Ljava/lang/Iterable;)Ljava/util/ArrayList;"
+            )
+    )
     private ArrayList<ChunkHolder> redirectChunksListClone(Iterable<? extends ChunkHolder> elements) {
         ArrayList<ChunkHolder> list = this.cachedChunkList;
         list.clear(); // Ensure the list is empty before re-using it

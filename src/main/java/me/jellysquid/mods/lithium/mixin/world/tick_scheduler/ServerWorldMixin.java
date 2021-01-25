@@ -18,7 +18,13 @@ public abstract class ServerWorldMixin {
     /**
      * Redirects the creation of the vanilla server tick scheduler with our own. This only happens once per world load.
      */
-    @Redirect(method = "<init>", at = @At(value = "NEW", target = "net/minecraft/server/world/ServerTickScheduler"))
+    @Redirect(
+            method = "<init>",
+            at = @At(
+                    value = "NEW",
+                    target = "net/minecraft/server/world/ServerTickScheduler"
+            )
+    )
     private <T> ServerTickScheduler<T> redirectServerTickSchedulerCtor(ServerWorld world, Predicate<T> invalidPredicate, Function<T, Identifier> idToName, Consumer<ScheduledTick<T>> tickConsumer) {
         return new LithiumServerTickScheduler<>(world, invalidPredicate, idToName, tickConsumer);
     }
