@@ -1,40 +1,25 @@
 accessWidener v1 named
 
-accessible method net/minecraft/util/shape/VoxelShape <init> (Lnet/minecraft/util/shape/VoxelSet;)V
-accessible method net/minecraft/entity/ai/brain/task/Task shouldKeepRunning (Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/LivingEntity;J)Z
-
-accessible class net/minecraft/block/AbstractBlock$AbstractBlockState$ShapeCache
-accessible class net/minecraft/util/shape/PairList
-
-accessible class net/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager
-accessible method net/minecraft/server/world/ChunkTicketManager method_20800 (J)Z
-
-accessible method net/minecraft/fluid/Fluid isEmpty ()Z
-
-accessible class net/minecraft/world/chunk/PaletteResizeListener
+accessible class net/minecraft/server/world/ChunkTicketManager$TicketDistanceLevelPropagator
 accessible class net/minecraft/server/world/ServerChunkManager$MainThreadExecutor
-accessible method net/minecraft/server/world/ChunkHolder combineSavingFuture (Ljava/util/concurrent/CompletableFuture;)V
-
 accessible class net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker
-accessible field net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker entity Lnet/minecraft/entity/Entity;
+accessible class net/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager
+accessible class net/minecraft/util/shape/PairList
+accessible class net/minecraft/world/chunk/PaletteResizeListener
 
-extendable class net/minecraft/world/biome/layer/util/CachingLayerSampler
+accessible field net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker entity Lnet/minecraft/entity/Entity;
+accessible field net/minecraft/util/math/MathHelper SINE_TABLE [F
+accessible field net/minecraft/util/math/noise/SimplexNoiseSampler gradients [[I
+accessible field net/minecraft/util/shape/VoxelShape voxels Lnet/minecraft/util/shape/VoxelSet;
 accessible field net/minecraft/world/biome/layer/util/CachingLayerSampler operator Lnet/minecraft/world/biome/layer/util/LayerOperator;
 
-accessible field net/minecraft/util/math/noise/SimplexNoiseSampler gradients [[I
-
-accessible class net/minecraft/server/world/ChunkTicketManager$TicketDistanceLevelPropagator
-accessible method net/minecraft/world/ChunkPosDistanceLevelPropagator updateLevel (JIZ)V
+accessible method net/minecraft/entity/ai/brain/task/Task shouldKeepRunning (Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/LivingEntity;J)Z
+accessible method net/minecraft/fluid/Fluid isEmpty ()Z
+accessible method net/minecraft/server/world/ChunkHolder combineSavingFuture (Ljava/util/concurrent/CompletableFuture;)V
 accessible method net/minecraft/server/world/ChunkTicket isExpired (J)Z
-
-accessible method net/minecraft/util/shape/VoxelShapes findRequiredBitResolution (DD)I
 accessible method net/minecraft/util/shape/FractionalDoubleList <init> (I)V
-
-accessible method net/minecraft/entity/Entity checkWaterState ()V
-
 accessible method net/minecraft/util/shape/VoxelShape getPointPositions (Lnet/minecraft/util/math/Direction$Axis;)Lit/unimi/dsi/fastutil/doubles/DoubleList;
-accessible field net/minecraft/util/shape/VoxelShape voxels Lnet/minecraft/util/shape/VoxelSet;
+accessible method net/minecraft/util/shape/VoxelShape <init> (Lnet/minecraft/util/shape/VoxelSet;)V
+accessible method net/minecraft/util/shape/VoxelShapes findRequiredBitResolution (DD)I
 
-accessible method me/jellysquid/mods/lithium/mixin/world/block_entity_ticking/WorldMixin getPendingBlockEntity (Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/entity/BlockEntity
-
-accessible field net/minecraft/util/math/MathHelper SINE_TABLE [F
+extendable class net/minecraft/world/biome/layer/util/CachingLayerSampler
