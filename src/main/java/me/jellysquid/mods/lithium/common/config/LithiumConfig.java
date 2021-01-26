@@ -31,8 +31,11 @@ public class LithiumConfig {
         this.addMixinRule("ai", true);
         this.addMixinRule("ai.goal", true);
         this.addMixinRule("ai.nearby_entity_tracking", true);
+        this.addMixinRule("ai.nearby_entity_tracking.goals", true);
         this.addMixinRule("ai.pathing", true);
         this.addMixinRule("ai.poi", true);
+        this.addMixinRule("ai.poi.fast_init", true);
+        this.addMixinRule("ai.poi.fast_retrieval", true);
         this.addMixinRule("ai.raid", true);
         this.addMixinRule("ai.task", true);
 
@@ -65,6 +68,8 @@ public class LithiumConfig {
         this.addMixinRule("entity.block_cache", true);
         this.addMixinRule("entity.collisions", true);
         this.addMixinRule("entity.data_tracker", true);
+        this.addMixinRule("entity.data_tracker.no_locks", true);
+        this.addMixinRule("entity.data_tracker.use_arrays", true);
         this.addMixinRule("entity.fast_suffocation_check", true);
         this.addMixinRule("entity.gravity_check_block_below", true);
         this.addMixinRule("entity.inactive_navigations", true);
@@ -85,11 +90,14 @@ public class LithiumConfig {
         this.addMixinRule("gen.voronoi_biomes", true);
 
         this.addMixinRule("math", true);
+        this.addMixinRule("math.fast_blockpos", true);
         this.addMixinRule("math.fast_util", true);
+        this.addMixinRule("math.sine_lut", true);
 
         this.addMixinRule("shapes", true);
         this.addMixinRule("shapes.blockstate_cache", true);
         this.addMixinRule("shapes.lazy_shape_context", true);
+        this.addMixinRule("shapes.optimized_matching", true);
         this.addMixinRule("shapes.precompute_shape_arrays", true);
         this.addMixinRule("shapes.shape_merging", true);
         this.addMixinRule("shapes.specialized_shapes", true);
