@@ -147,9 +147,9 @@ public abstract class ExplosionMixin {
     private void performRayCast(Random random, double vecX, double vecY, double vecZ, LongOpenHashSet touched) {
         double dist = Math.sqrt((vecX * vecX) + (vecY * vecY) + (vecZ * vecZ));
 
-        double normX = vecX / dist;
-        double normY = vecY / dist;
-        double normZ = vecZ / dist;
+        double normX = (vecX / dist) * 0.3D;
+        double normY = (vecY / dist) * 0.3D;
+        double normZ = (vecZ / dist) * 0.3D;
 
         float strength = this.power * (0.7F + (random.nextFloat() * 0.6F));
 
@@ -191,9 +191,9 @@ public abstract class ExplosionMixin {
             // Apply a constant fall-off
             strength -= 0.22500001F;
 
-            stepX += normX * 0.3D;
-            stepY += normY * 0.3D;
-            stepZ += normZ * 0.3D;
+            stepX += normX;
+            stepY += normY;
+            stepZ += normZ;
         }
     }
 
@@ -212,6 +212,7 @@ public abstract class ExplosionMixin {
         // Early-exit if the y-coordinate is out of bounds.
         if (World.isOutOfBuildLimitVertically(blockY)) {
             Optional<Float> blastResistance = this.behavior.getBlastResistance((Explosion) (Object) this, this.world, pos, Blocks.AIR.getDefaultState(), Fluids.EMPTY.getDefaultState());
+            //noinspection OptionalIsPresent
             if (blastResistance.isPresent()) {
                 return (blastResistance.get() + 0.3F) * 0.3F;
             }
