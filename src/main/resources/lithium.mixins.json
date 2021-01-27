@@ -60,7 +60,6 @@
     "chunk.serialization.PackedIntegerArrayMixin",
     "chunk.serialization.PalettedContainerMixin",
     "collections.entity_filtering.TypeFilterableListMixin",
-    "entity.block_cache.LivingEntityMixin",
     "entity.collisions.CollisionViewMixin",
     "entity.collisions.EntityMixin",
     "entity.collisions.EntityViewMixin",
