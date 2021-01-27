@@ -45,6 +45,7 @@ public class LithiumConfig {
         this.addMixinRule("alloc.composter", true);
         this.addMixinRule("alloc.entity_tracker", true);
         this.addMixinRule("alloc.enum_values", true);
+        this.addMixinRule("alloc.explosion_behavior", true);
         this.addMixinRule("alloc.world_ticking", true);
 
         this.addMixinRule("block", true);
