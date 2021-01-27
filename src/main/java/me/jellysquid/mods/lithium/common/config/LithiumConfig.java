@@ -74,6 +74,7 @@ public class LithiumConfig {
         this.addMixinRule("gen", true);
         this.addMixinRule("gen.biome_noise_cache", true);
         this.addMixinRule("gen.chunk_region", true);
+        this.addMixinRule("gen.fast_biome_array", true);
         this.addMixinRule("gen.fast_island_noise", true);
         this.addMixinRule("gen.fast_layer_sampling", true);
         this.addMixinRule("gen.fast_multi_source_biomes", true);
