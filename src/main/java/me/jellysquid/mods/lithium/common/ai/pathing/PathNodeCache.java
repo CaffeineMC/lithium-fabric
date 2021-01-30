@@ -2,6 +2,9 @@ package me.jellysquid.mods.lithium.common.ai.pathing;
 
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanOpenHashMap;
+import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
+import me.jellysquid.mods.lithium.common.block.FlagHolder;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.world.chunk.ChunkSection;
@@ -58,7 +61,7 @@ public class PathNodeCache {
         return ((BlockStatePathingCache) state).getPathNodeType();
     }
 
-    public static PathNodeType getNeighborPathNodeType(BlockState state) {
+    public static PathNodeType getNeighborPathNodeType(AbstractBlock.AbstractBlockState state) {
         return ((BlockStatePathingCache) state).getNeighborPathNodeType();
     }
 
@@ -74,6 +77,10 @@ public class PathNodeCache {
         // Empty sections can never contribute a danger
         if (ChunkSection.isEmpty(section)) {
             return true;
+        }
+
+        if (BlockStateFlags.ENABLED) {
+            return ((FlagHolder) section).getFlag(BlockStateFlags.PATH_NOT_OPEN);
         }
 
         // If the caching code path is disabled, the section must be assumed to potentially contain dangers

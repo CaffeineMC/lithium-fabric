@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.chunk.count_oversized_blocks;
+package me.jellysquid.mods.lithium.mixin.block.flags;
 
 import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
 import me.jellysquid.mods.lithium.common.block.Flag;
