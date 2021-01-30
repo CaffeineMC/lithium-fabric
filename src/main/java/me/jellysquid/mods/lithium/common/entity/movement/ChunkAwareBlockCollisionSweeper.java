@@ -1,5 +1,7 @@
 package me.jellysquid.mods.lithium.common.entity.movement;
 
+import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
+import me.jellysquid.mods.lithium.common.block.SectionFlagHolder;
 import me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeCaster;
 import me.jellysquid.mods.lithium.common.util.Pos;
@@ -24,7 +26,6 @@ import static me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions.E
  * section keeping track of the amount of oversized blocks inside the number of iterations can often be reduced.
  */
 public class ChunkAwareBlockCollisionSweeper {
-    private static final boolean OVERSIZED_BLOCK_COUNTING_ENABLED = OversizedBlocksCounter.class.isAssignableFrom(ChunkSection.class);
 
     private final BlockPos.Mutable pos = new BlockPos.Mutable();
 
@@ -296,14 +297,10 @@ public class ChunkAwareBlockCollisionSweeper {
      * @return Whether there are any oversized blocks in the chunk section.
      */
     private static boolean hasChunkSectionOversizedBlocks(Chunk chunk, int chunkY) {
-        if (OVERSIZED_BLOCK_COUNTING_ENABLED) {
+        if (BlockStateFlags.ENABLED) {
             ChunkSection section = chunk.getSectionArray()[chunkY];
-            return section != null && ((OversizedBlocksCounter) section).hasOversizedBlocks();
+            return section != null && ((SectionFlagHolder) section).getFlag(BlockStateFlags.OVERSIZED_SHAPE);
         }
         return true; //like vanilla, assume that a chunk section has oversized blocks, when the section mixin isn't loaded
-    }
-
-    public interface OversizedBlocksCounter {
-        boolean hasOversizedBlocks();
     }
 }

@@ -1,14 +1,12 @@
 package me.jellysquid.mods.lithium.common.entity;
 
 import it.unimi.dsi.fastutil.objects.Reference2ByteOpenHashMap;
+import me.jellysquid.mods.lithium.common.reflection.ReflectionUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.mob.ShulkerEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
-import net.minecraft.util.crash.CrashException;
-import net.minecraft.util.crash.CrashReport;
-import net.minecraft.util.crash.CrashReportSection;
 
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -28,7 +26,7 @@ public class EntityClassGroup {
     static {
         String remapped_method_30949 = FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_1297", "method_30949", "(Lnet/minecraft/class_1297;)Z");
         MINECART_BOAT_LIKE_COLLISION = new EntityClassGroup(
-                (Class<?> entityClass) -> isMethodFromSuperclassOverwritten(entityClass, Entity.class, remapped_method_30949, Entity.class));
+                (Class<?> entityClass) -> ReflectionUtil.isMethodFromSuperclassOverwritten(entityClass, Entity.class, remapped_method_30949, Entity.class));
 
         //sanity check: in case intermediary mappings changed, we fail
         if ((!MINECART_BOAT_LIKE_COLLISION.contains(MinecartEntity.class))) {
@@ -84,34 +82,13 @@ public class EntityClassGroup {
         return contains == 1;
     }
 
-    public static boolean isMethodFromSuperclassOverwritten(Class<?> clazz, Class<?> superclass, String methodName, Class<?>... methodArgs) {
-        while (clazz != null && clazz != superclass && superclass.isAssignableFrom(clazz)) {
-            try {
-                clazz.getDeclaredMethod(methodName, methodArgs);
-                return true;
-            } catch (NoSuchMethodException e) {
-                clazz = clazz.getSuperclass();
-            } catch (Throwable e) {
-                final String crashedClass = clazz.getName();
-                CrashReport crashReport = CrashReport.create(e, "Lithium EntityClassGroup analysis");
-                CrashReportSection crashReportSection = crashReport.addElement(e.getClass().toString() + " when getting declared methods.");
-                crashReportSection.add("Analyzed class", crashedClass);
-                crashReportSection.add("Analyzed method name", methodName);
-                crashReportSection.add("Analyzed method args", methodArgs);
-
-                throw new CrashException(crashReport);
-            }
-        }
-        return false;
-    }
-
     public static class NoDragonClassGroup extends EntityClassGroup {
         public static final NoDragonClassGroup BOAT_SHULKER_LIKE_COLLISION; //aka entities that other entities will do block-like collisions with when moving
 
         static {
             String remapped_method_30948 = FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_1297", "method_30948", "()Z");
             BOAT_SHULKER_LIKE_COLLISION = new NoDragonClassGroup(
-                    (Class<?> entityClass) -> isMethodFromSuperclassOverwritten(entityClass, Entity.class, remapped_method_30948));
+                    (Class<?> entityClass) -> ReflectionUtil.isMethodFromSuperclassOverwritten(entityClass, Entity.class, remapped_method_30948));
 
             if ((!BOAT_SHULKER_LIKE_COLLISION.contains(ShulkerEntity.class))) {
                 throw new AssertionError();

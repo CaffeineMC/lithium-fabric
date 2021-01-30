@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractBlock.AbstractBlockState.class)
-public abstract class MixinAbstractBlockState implements BlockStatePathingCache {
+public abstract class AbstractBlockStateMixin implements BlockStatePathingCache {
     private PathNodeType pathNodeType = PathNodeType.OPEN;
     private PathNodeType pathNodeTypeNeighbor = PathNodeType.OPEN;
 
