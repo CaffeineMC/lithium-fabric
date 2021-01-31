@@ -4,18 +4,12 @@ import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.enchantment.ProtectionEnchantment;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
@@ -24,15 +18,18 @@ import net.minecraft.world.explosion.ExplosionBehavior;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
+/**
+ * Optimizations for Explosions: Reduce allocations and getChunk/getBlockState calls
+ * Original implementation by
+ * @author Jellyquid
+ * Slight performance and mod compatibility improvements by
+ * @author 2No2Name
+ */
 @Mixin(Explosion.class)
 public abstract class ExplosionMixin {
     @Shadow
@@ -57,27 +54,10 @@ public abstract class ExplosionMixin {
 
     @Shadow
     @Final
-    private Entity entity;
-
-    @Shadow
-    @Final
-    private List<BlockPos> affectedBlocks;
-
-    @Shadow
-    public abstract DamageSource getDamageSource();
-
-    @Shadow
-    public static float getExposure(Vec3d self, Entity entity) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Shadow
-    @Final
-    private Map<PlayerEntity, Vec3d> affectedPlayers;
-
-    @Shadow
-    @Final
     private ExplosionBehavior behavior;
+    @Shadow
+    @Final
+    private boolean createFire;
     // The cached mutable block position used during block traversal.
     private final BlockPos.Mutable cachedPos = new BlockPos.Mutable();
 
@@ -89,39 +69,63 @@ public abstract class ExplosionMixin {
     private Chunk prevChunk;
 
     /**
-     * @reason Optimizations for explosions
+     * Whether the explosion cares about air blocks. If false, air blocks do not have to be added to the set of destroyed blocks.
+     * Skipping air blocks reduces the number of BlockPos allocations, shuffling and getBlockState calls in {@link Explosion#affectWorld(boolean)}
+     */
+    private boolean explodeAirBlocks;
+
+    @Inject(
+            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/damage/DamageSource;Lnet/minecraft/world/explosion/ExplosionBehavior;DDDFZLnet/minecraft/world/explosion/Explosion$DestructionType;)V",
+            at = @At("TAIL")
+    )
+    private void init(World world, Entity entity, DamageSource damageSource, ExplosionBehavior explosionBehavior, double d, double e, double f, float g, boolean bl, Explosion.DestructionType destructionType, CallbackInfo ci) {
+        this.explodeAirBlocks = this.createFire; // air blocks are only relevant for the explosion when fire should be created inside them
+    }
+
+    @Redirect(
+            method = "collectBlocksAndDamageEntities",
+            at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Sets;newHashSet()Ljava/util/HashSet;")
+    )
+    public HashSet<BlockPos> skipNewHashSet() {
+        return null;
+    }
+
+    @ModifyConstant(
+            method = "collectBlocksAndDamageEntities",
+            constant = @Constant(intValue = 16, ordinal = 1)
+    )
+    public int skipLoop(int prevValue) {
+        return 0;
+    }
+
+    /**
      * @author JellySquid
      */
-    @Inject(method = "collectBlocksAndDamageEntities", at = @At("HEAD"), cancellable = true)
-    public void collectBlocksAndDamageEntities(CallbackInfo ci) {
-        // We don't want to use an Overwrite here as it can conflict with other mods modifying this code path and will
-        // crash the game. This *will* cause issues with other mods which transform this method, but it shouldn't break
-        // anything critical.
-        // TODO: Implement patch hints
-        ci.cancel();
-
+    @Redirect(method = "collectBlocksAndDamageEntities",
+            at = @At(value = "INVOKE", target = "Ljava/util/List;addAll(Ljava/util/Collection;)Z"))
+    public boolean collectBlocks(List<BlockPos> affectedBlocks, Collection<BlockPos> collection) {
         // Using integer encoding for the block positions provides a massive speedup and prevents us from needing to
         // allocate a block position for every step we make along each ray, eliminating essentially all the memory
         // allocations of this function. The overhead of packing block positions into integer format is negligible
         // compared to a memory allocation and associated overhead of hashing real objects in a set.
-        final LongOpenHashSet touched = new LongOpenHashSet(6 * 6 * 6);
+        final LongOpenHashSet touched = new LongOpenHashSet(0);
 
         final Random random = this.world.random;
 
         // Explosions work by casting many rays through the world from the origin of the explosion
         for (int rayX = 0; rayX < 16; ++rayX) {
             boolean xPlane = rayX == 0 || rayX == 15;
+            double vecX = (((float) rayX / 15.0F) * 2.0F) - 1.0F;
 
             for (int rayY = 0; rayY < 16; ++rayY) {
                 boolean yPlane = rayY == 0 || rayY == 15;
+                double vecY = (((float) rayY / 15.0F) * 2.0F) - 1.0F;
 
                 for (int rayZ = 0; rayZ < 16; ++rayZ) {
                     boolean zPlane = rayZ == 0 || rayZ == 15;
 
                     // We only fire rays from the surface of our origin volume
                     if (xPlane || yPlane || zPlane) {
-                        double vecX = (((float) rayX / 15.0F) * 2.0F) - 1.0F;
-                        double vecY = (((float) rayY / 15.0F) * 2.0F) - 1.0F;
                         double vecZ = (((float) rayZ / 15.0F) * 2.0F) - 1.0F;
 
                         this.performRayCast(random, vecX, vecY, vecZ, touched);
@@ -133,23 +137,21 @@ public abstract class ExplosionMixin {
         // We can now iterate back over the set of positions we modified and re-build BlockPos objects from them
         // This will only allocate as many objects as there are in the set, where otherwise we would allocate them
         // each step of a every ray.
-        List<BlockPos> affectedBlocks = this.affectedBlocks;
-
         LongIterator it = touched.iterator();
 
+        boolean added = false;
         while (it.hasNext()) {
-            affectedBlocks.add(BlockPos.fromLong(it.nextLong()));
+            added |= affectedBlocks.add(BlockPos.fromLong(it.nextLong()));
         }
-
-        this.damageEntities();
+        return added;
     }
 
     private void performRayCast(Random random, double vecX, double vecY, double vecZ, LongOpenHashSet touched) {
         double dist = Math.sqrt((vecX * vecX) + (vecY * vecY) + (vecZ * vecZ));
 
-        double normX = vecX / dist;
-        double normY = vecY / dist;
-        double normZ = vecZ / dist;
+        double normX = (vecX / dist) * 0.3D;
+        double normY = (vecY / dist) * 0.3D;
+        double normZ = (vecZ / dist) * 0.3D;
 
         float strength = this.power * (0.7F + (random.nextFloat() * 0.6F));
 
@@ -191,9 +193,9 @@ public abstract class ExplosionMixin {
             // Apply a constant fall-off
             strength -= 0.22500001F;
 
-            stepX += normX * 0.3D;
-            stepY += normY * 0.3D;
-            stepZ += normZ * 0.3D;
+            stepX += normX;
+            stepY += normY;
+            stepZ += normZ;
         }
     }
 
@@ -212,6 +214,7 @@ public abstract class ExplosionMixin {
         // Early-exit if the y-coordinate is out of bounds.
         if (World.isOutOfBuildLimitVertically(blockY)) {
             Optional<Float> blastResistance = this.behavior.getBlastResistance((Explosion) (Object) this, this.world, pos, Blocks.AIR.getDefaultState(), Fluids.EMPTY.getDefaultState());
+            //noinspection OptionalIsPresent
             if (blastResistance.isPresent()) {
                 return (blastResistance.get() + 0.3F) * 0.3F;
             }
@@ -272,7 +275,7 @@ public abstract class ExplosionMixin {
         // Check if this ray is still strong enough to break blocks, and if so, add this position to the set
         // of positions to destroy
         float reducedStrength = strength - totalResistance;
-        if (reducedStrength > 0.0F) {
+        if (reducedStrength > 0.0F && (this.explodeAirBlocks || !blockState.isAir())) {
             if (this.behavior.canDestroyBlock((Explosion) (Object) this, this.world, pos, blockState, reducedStrength)) {
                 touched.add(pos.asLong());
             }
@@ -281,68 +284,4 @@ public abstract class ExplosionMixin {
         return totalResistance;
     }
 
-    // [VanillaCopy] Explosion#collectBlocksAndDamageEntities()
-    private void damageEntities() {
-        float range = this.power * 2.0F;
-
-        int minX = MathHelper.floor(this.x - (double) range - 1.0D);
-        int maxX = MathHelper.floor(this.x + (double) range + 1.0D);
-        int minY = MathHelper.floor(this.y - (double) range - 1.0D);
-        int maxY = MathHelper.floor(this.y + (double) range + 1.0D);
-        int minZ = MathHelper.floor(this.z - (double) range - 1.0D);
-        int maxZ = MathHelper.floor(this.z + (double) range + 1.0D);
-
-        List<Entity> entities = this.world.getOtherEntities(this.entity, new Box(minX, minY, minZ, maxX, maxY, maxZ));
-
-        Vec3d selfPos = new Vec3d(this.x, this.y, this.z);
-
-        for (Entity entity : entities) {
-            if (entity.isImmuneToExplosion()) {
-                continue;
-            }
-
-            double damageScale = MathHelper.sqrt(entity.squaredDistanceTo(selfPos)) / range;
-
-            if (damageScale > 1.0D) {
-                continue;
-            }
-
-            double distXSq = entity.getX() - this.x;
-            // [VanillaCopy] In the 1.16 snapshots Mojang added this distinction between TNT and other entities in the explosion code to
-            // fix the the increased eye height affecting explosions. The eye height increase was an attempt to fix rendering of tnt on soulsand.
-            double distYSq = (entity instanceof TntEntity ? entity.getY() : entity.getEyeY()) - this.y;
-            double distZSq = entity.getZ() - this.z;
-
-            double dist = MathHelper.sqrt((distXSq * distXSq) + (distYSq * distYSq) + (distZSq * distZSq));
-
-            if (dist == 0.0D) {
-                continue;
-            }
-
-            distXSq = distXSq / dist;
-            distYSq = distYSq / dist;
-            distZSq = distZSq / dist;
-
-            double exposure = getExposure(selfPos, entity);
-            double damage = (1.0D - damageScale) * exposure;
-
-            entity.damage(this.getDamageSource(), (int) (((((damage * damage) + damage) / 2.0D) * 7.0D * (double) range) + 1.0D));
-
-            double knockback = damage;
-
-            if (entity instanceof LivingEntity) {
-                knockback = ProtectionEnchantment.transformExplosionKnockback((LivingEntity) entity, damage);
-            }
-
-            entity.setVelocity(entity.getVelocity().add(distXSq * knockback, distYSq * knockback, distZSq * knockback));
-
-            if (entity instanceof PlayerEntity) {
-                PlayerEntity player = (PlayerEntity) entity;
-
-                if (!player.isSpectator() && (!player.isCreative() || !player.abilities.flying)) {
-                    this.affectedPlayers.put(player, new Vec3d(distXSq * damage, distYSq * damage, distZSq * damage));
-                }
-            }
-        }
-    }
 }
