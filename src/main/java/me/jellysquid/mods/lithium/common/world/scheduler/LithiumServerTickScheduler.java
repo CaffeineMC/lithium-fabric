@@ -100,7 +100,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     @Override
     public List<ScheduledTick<T>> getScheduledTicksInChunk(ChunkPos chunkPos, boolean mutates, boolean getStaleTicks) {
         BlockBox box = new BlockBox(chunkPos.getStartX() - 2, 0, chunkPos.getStartZ() - 2,
-                chunkPos.getEndX() + 2, chunkPos.getEndZ() + 2, 256);
+                chunkPos.getEndX() + 2, 256, chunkPos.getEndZ() + 2);
 
         return this.getScheduledTicks(box, mutates, getStaleTicks);
     }
