@@ -41,7 +41,7 @@ public class EntityShapeContextMixin {
 
     @ModifyConstant(
             method = "<init>(Lnet/minecraft/entity/Entity;)V",
-            constant = @Constant(classValue = LivingEntity.class, ordinal = 2, log = true)
+            constant = @Constant(classValue = LivingEntity.class, ordinal = 2)
     )
     private static boolean redirectInstanceOf2(Object obj, Class<?> clazz) {
         return false;
