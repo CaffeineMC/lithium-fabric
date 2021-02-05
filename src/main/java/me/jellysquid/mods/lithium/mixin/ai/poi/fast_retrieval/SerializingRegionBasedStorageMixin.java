@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import me.jellysquid.mods.lithium.common.util.Collector;
+import me.jellysquid.mods.lithium.common.util.Pos;
 import me.jellysquid.mods.lithium.common.util.collections.ListeningLong2ObjectOpenHashMap;
 import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageSectionAccess;
 import net.minecraft.datafixer.DataFixTypes;
@@ -41,6 +42,10 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
     @Shadow
     protected abstract void loadDataAt(ChunkPos pos);
 
+    @Shadow
+    @Final
+    protected HeightLimitView world;
+
     private Long2ObjectOpenHashMap<BitSet> columns;
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -55,10 +60,10 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
     }
 
     private void onEntryAdded(long key, Optional<R> value) {
-        int y = ChunkSectionPos.unpackY(key);
+        int y = Pos.SectionYIndex.fromSectionCoord(this.world, ChunkSectionPos.unpackY(key));
 
         // We only care about items belonging to a valid sub-chunk
-        if (y < 0 || y >= 16) {
+        if (y < 0 || y >= Pos.SectionYIndex.getNumYSections(this.world)) {
             return;
         }
 
@@ -70,7 +75,7 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
         BitSet flags = this.columns.get(pos);
 
         if (flags == null) {
-            this.columns.put(pos, flags = new BitSet(16));
+            this.columns.put(pos, flags = new BitSet(Pos.SectionYIndex.getNumYSections(this.world)));
         }
 
         flags.set(y, value.isPresent());
@@ -86,6 +91,7 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
         }
 
         return flags.stream()
+                .map(chunkYIndex -> Pos.SectionYCoord.fromSectionIndex(this.world, chunkYIndex))
                 .mapToObj((chunkY) -> this.loadedElements.get(ChunkSectionPos.asLong(chunkX, chunkY, chunkZ)).orElse(null))
                 .filter(Objects::nonNull);
     }
@@ -98,9 +104,8 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
         if (flags.isEmpty()) {
             return true;
         }
-
         for (int chunkY = flags.nextSetBit(0); chunkY >= 0; chunkY = flags.nextSetBit(chunkY + 1)) {
-            R obj = this.loadedElements.get(ChunkSectionPos.asLong(chunkX, chunkY, chunkZ)).orElse(null);
+            R obj = this.loadedElements.get(ChunkSectionPos.asLong(chunkX, Pos.SectionYCoord.fromSectionIndex(this.world, chunkY), chunkZ)).orElse(null);
 
             if (obj != null && !consumer.collect(obj)) {
                 return false;
