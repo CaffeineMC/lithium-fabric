@@ -1,7 +1,9 @@
 package me.jellysquid.mods.lithium.common.util.collections;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 
 import java.util.*;
 
@@ -102,15 +104,17 @@ public class HashedReferenceList<T> implements List<T> {
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        for (Object obj : c) {
-            this.trackReferenceRemoved(obj);
+        if (this.size() >= 2 && c.size() > 4 && c instanceof List) {
+            //HashReferenceList uses reference equality, so using ReferenceOpenHashSet is fine
+            c = new ReferenceOpenHashSet<>(c);
         }
-
+        this.counter.keySet().removeAll(c);
         return this.list.removeAll(c);
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
+        this.counter.keySet().retainAll(c);
         return this.list.retainAll(c);
     }
 
