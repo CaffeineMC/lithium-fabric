@@ -85,7 +85,7 @@ public abstract class ExplosionMixin {
 
     @Redirect(
             method = "collectBlocksAndDamageEntities",
-            at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Sets;newHashSet()Ljava/util/HashSet;")
+            at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Sets;newHashSet()Ljava/util/HashSet;", remap = false)
     )
     public HashSet<BlockPos> skipNewHashSet() {
         return null;

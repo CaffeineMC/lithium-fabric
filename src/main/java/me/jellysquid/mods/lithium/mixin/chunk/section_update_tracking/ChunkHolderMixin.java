@@ -32,7 +32,7 @@ public class ChunkHolderMixin {
                     shift = At.Shift.BEFORE
             )
     )
-    private byte createShortHashSet(byte b) {
+    private int createShortHashSet(int b) {
         if (blockUpdatesBySection[b] == null) {
             this.pendingBlockUpdates = true;
             this.blockUpdatesBySection[b] = new ShortOpenHashSet();

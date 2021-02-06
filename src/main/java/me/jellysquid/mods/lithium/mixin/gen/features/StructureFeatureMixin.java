@@ -32,7 +32,7 @@ public class StructureFeatureMixin {
             method = "locateStructure",
             slice = @Slice(
                     from = @At(value = "FIELD", opcode = Opcodes.GETSTATIC, target = "Lnet/minecraft/world/chunk/ChunkStatus;STRUCTURE_STARTS:Lnet/minecraft/world/chunk/ChunkStatus;", ordinal = 0),
-                    to = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/Chunk;getPos()Lnet/minecraft/util/math/ChunkPos;", ordinal = 0)
+                    to = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/ChunkSectionPos;from(Lnet/minecraft/world/chunk/Chunk;)Lnet/minecraft/util/math/ChunkSectionPos;", ordinal = 0)
             ),
             at = @At(
                     value = "INVOKE",
@@ -51,34 +51,34 @@ public class StructureFeatureMixin {
     }
 
     /**
-     * @reason Can't avoid the call to Chunk.getPos(), and now the chunk might be null.
-     * Send a new (0,0) ChunkPos if so. It won't be used anyway.
+     * @reason Can't avoid the call to ChunkSectionPos.from(Chunk), and now the chunk might be null.
+     * Send null if so. It won't be used anyway.
      * @author MrGrim
      */
     @Redirect(
             method = "locateStructure",
             slice = @Slice(
                     from = @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldView;getChunk(IILnet/minecraft/world/chunk/ChunkStatus;)Lnet/minecraft/world/chunk/Chunk;", ordinal = 0),
-                    to = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/ChunkSectionPos;from(Lnet/minecraft/util/math/ChunkPos;I)Lnet/minecraft/util/math/ChunkSectionPos;", ordinal = 0)
+                    to = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/ChunkSectionPos;from(Lnet/minecraft/world/chunk/Chunk;)Lnet/minecraft/util/math/ChunkSectionPos;", ordinal = 0)
             ),
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/Chunk;getPos()Lnet/minecraft/util/math/ChunkPos;", ordinal = 0
+                    target = "Lnet/minecraft/util/math/ChunkSectionPos;from(Lnet/minecraft/world/chunk/Chunk;)Lnet/minecraft/util/math/ChunkSectionPos;", ordinal = 0
             )
     )
-    private ChunkPos checkForNull(Chunk chunk) {
-        return chunk == null ? new ChunkPos(0, 0) : chunk.getPos();
+    private ChunkSectionPos checkForNull(Chunk chunk) {
+        return chunk == null ? null : ChunkSectionPos.from(chunk);
     }
 
     /**
-     * @reason Return null here if the chunk is null. This will bypass the following if statement
+     * @reason Return null here if the chunk section pos is null. This will bypass the following if statement
      * allowing the search to continue.
      * @author MrGrim
      */
     @Redirect(
             method = "locateStructure",
             slice = @Slice(
-                    from = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/ChunkSectionPos;from(Lnet/minecraft/util/math/ChunkPos;I)Lnet/minecraft/util/math/ChunkSectionPos;", ordinal = 0),
+                    from = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/ChunkSectionPos;from(Lnet/minecraft/world/chunk/Chunk;)Lnet/minecraft/util/math/ChunkSectionPos;", ordinal = 0),
                     to = @At(value = "INVOKE", target = "Lnet/minecraft/structure/StructureStart;hasChildren()Z", ordinal = 0)
             ),
             at = @At(
@@ -87,7 +87,7 @@ public class StructureFeatureMixin {
                     ordinal = 0
             )
     )
-    private StructureStart<?> checkChunkBeforeGetStructureStart(StructureAccessor structureAccessor, ChunkSectionPos sectionPos, StructureFeature<?> thisStructure, StructureHolder chunk) {
-        return chunk == null ? null : structureAccessor.getStructureStart(sectionPos, thisStructure, chunk);
+    private StructureStart<?> checkChunkBeforeGetStructureStart(StructureAccessor structureAccessor, ChunkSectionPos pos, StructureFeature<?> feature, StructureHolder holder) {
+        return pos == null ? null : structureAccessor.getStructureStart(pos, feature, holder);
     }
 }

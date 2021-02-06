@@ -7,25 +7,35 @@ import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.Item;
-import net.minecraft.item.Items;
+import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 
 @Mixin(EntityShapeContext.class)
 public class EntityShapeContextMixin {
-    @Mutable
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     @Shadow
     @Final
-    private Item heldItem;
-    @Mutable
-    @Shadow
-    @Final
-    private Predicate<Fluid> field_24425;
+    private Optional<Entity> entity;
 
-    private Entity lithium_entity;
+    @Mutable
+    @Shadow
+    @Final
+    private ItemStack heldItem;
+
+    @Mutable
+    @Shadow
+    @Final
+    private Predicate<Fluid> walkOnFluidPredicate;
+
+    @Mutable
+    @Shadow
+    @Final
+    private ItemStack boots;
 
     /**
      * Mixin the instanceof to always return false to avoid the expensive inventory access.
@@ -47,18 +57,26 @@ public class EntityShapeContextMixin {
         return false;
     }
 
+    @ModifyConstant(
+            method = "<init>(Lnet/minecraft/entity/Entity;)V",
+            constant = @Constant(classValue = LivingEntity.class, ordinal = 4)
+    )
+    private static boolean redirectInstanceOf3(Object obj, Class<?> clazz) {
+        return false;
+    }
+
     @Inject(
             method = "<init>(Lnet/minecraft/entity/Entity;)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/block/EntityShapeContext;<init>(ZDLnet/minecraft/item/Item;Ljava/util/function/Predicate;)V",
+                    target = "Lnet/minecraft/block/EntityShapeContext;<init>(ZDLnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;Ljava/util/function/Predicate;Ljava/util/Optional;)V",
                     shift = At.Shift.AFTER
             )
     )
     private void initFields(Entity entity, CallbackInfo ci) {
         this.heldItem = null;
-        this.field_24425 = null;
-        this.lithium_entity = entity;
+        this.walkOnFluidPredicate = null;
+        this.boots = null;
     }
 
     /**
@@ -68,17 +86,18 @@ public class EntityShapeContextMixin {
     @Overwrite
     public boolean isHolding(Item item) {
         if (this.heldItem == null) {
-            this.heldItem = this.lithium_entity instanceof LivingEntity ? ((LivingEntity)this.lithium_entity).getMainHandStack().getItem() : Items.AIR;
+            this.heldItem = this.entity.isPresent() && this.entity.get() instanceof LivingEntity ? ((LivingEntity)this.entity.get()).getMainHandStack() : ItemStack.EMPTY;
         }
-        return this.heldItem == item;
+        return this.heldItem.isOf(item);
     }
+
 
     /**
      * @author 2No2Name
      * @reason allow skipping unused lambda allocation
      */
     @Overwrite
-    public boolean method_27866(FluidState aboveState, FlowableFluid fluid) {
-        return this.lithium_entity instanceof LivingEntity && ((LivingEntity) this.lithium_entity).canWalkOnFluid(fluid) && !aboveState.getFluid().matchesType(fluid);
+    public boolean canWalkOnFluid(FluidState aboveState, FlowableFluid fluid) {
+        return this.entity.isPresent() && this.entity.get() instanceof LivingEntity && ((LivingEntity) this.entity.get()).canWalkOnFluid(fluid) && !aboveState.getFluid().matchesType(fluid);
     }
 }
