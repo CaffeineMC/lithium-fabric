@@ -6,8 +6,6 @@
   "injectors": {
     "defaultRequire": 1
   },
-  "client": [
-  ],
   "mixins": [
     "ai.goal.GoalSelectorMixin",
     "ai.nearby_entity_tracking.LivingEntityMixin",
