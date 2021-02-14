@@ -14,8 +14,11 @@ Provide information on how to reproduce this game crash. This step is critical f
 2. Use a Lever to activate the Redstone Repeater
 3. The game crashes
 
+Please mention why you think Lithium may be the cause of the crash. If possible, please confirm that the crash does not happen when Lithium is not installed.
+
 ### Crash Report File
 Please upload your crash report as a file to [GitHub Gist](https://gist.github.com/) and replace this text with a link to the uploaded report.
 
 ### Additional Information
 Provide any additional information or context which may be relevant to the issue. If you have none to add, you can remove this section.
+
