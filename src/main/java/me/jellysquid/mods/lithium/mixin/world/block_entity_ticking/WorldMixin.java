@@ -27,6 +27,10 @@ import java.util.function.Supplier;
 
 @Mixin(World.class)
 public abstract class WorldMixin implements WorldAccess {
+    @Mutable
+    @Shadow
+    @Final
+    protected List<BlockEntity> unloadedBlockEntities;
     @Shadow
     @Final
     public boolean isClient;
@@ -35,7 +39,6 @@ public abstract class WorldMixin implements WorldAccess {
     @Final
     public List<BlockEntity> blockEntities;
 
-    @Mutable
     @Shadow
     @Final
     public List<BlockEntity> tickingBlockEntities;
@@ -60,7 +63,7 @@ public abstract class WorldMixin implements WorldAccess {
         this.blockEntities$lithium = new BlockEntityList(this.blockEntities, false);
         this.blockEntities = this.blockEntities$lithium;
 
-        this.tickingBlockEntities = new HashedReferenceList<>(this.tickingBlockEntities);
+        this.unloadedBlockEntities = new HashedReferenceList<>(this.unloadedBlockEntities);
 
         this.pendingBlockEntities$lithium = new BlockEntityList(this.pendingBlockEntities, true);
         this.pendingBlockEntities = this.pendingBlockEntities$lithium;
