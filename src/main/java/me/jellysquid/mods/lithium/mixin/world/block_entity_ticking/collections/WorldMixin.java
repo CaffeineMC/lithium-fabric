@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking;
+package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.collections;
 
 import me.jellysquid.mods.lithium.common.util.collections.BlockEntityList;
 import me.jellysquid.mods.lithium.common.util.collections.HashedReferenceList;
