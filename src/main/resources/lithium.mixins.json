@@ -107,6 +107,8 @@
     "shapes.specialized_shapes.VoxelShapesMixin",
     "tag.SetTagMixin",
     "world.block_entity_ticking.collections.WorldMixin",
+    "world.block_entity_ticking.support_cache.BlockEntityMixin",
+    "world.block_entity_ticking.support_cache.WorldMixin",
     "world.chunk_access.ChunkHolderMixin",
     "world.chunk_access.ServerChunkManagerMixin",
     "world.chunk_access.WorldMixin",
