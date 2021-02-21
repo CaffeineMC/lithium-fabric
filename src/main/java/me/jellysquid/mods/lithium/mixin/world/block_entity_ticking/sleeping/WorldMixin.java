@@ -1,7 +1,8 @@
 package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping;
 
-import me.jellysquid.mods.lithium.common.util.collections.FilterableLinkedHashSetList;
+import me.jellysquid.mods.lithium.common.util.collections.MaskedTickingBlockEntityList;
 import me.jellysquid.mods.lithium.common.world.blockentity.BlockEntitySleepTracker;
+import me.jellysquid.mods.lithium.common.world.blockentity.SleepingBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.RegistryKey;
@@ -27,26 +28,29 @@ import java.util.function.Supplier;
  * @author 2No2Name
  */
 @Mixin(World.class)
-public class WorldMixin implements BlockEntitySleepTracker {
+public abstract class WorldMixin implements BlockEntitySleepTracker {
 
     @Mutable
     @Shadow
     @Final
     public List<BlockEntity> tickingBlockEntities;
 
-    private FilterableLinkedHashSetList<BlockEntity> tickingBlockEntities$lithium;
+    @Shadow
+    public abstract boolean isClient();
+
+    private MaskedTickingBlockEntityList<BlockEntity> tickingBlockEntities$lithium;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void reinit(MutableWorldProperties properties, RegistryKey<World> registryKey, DimensionType dimensionType,
                         Supplier<Profiler> supplier, boolean bl, boolean bl2, long l, CallbackInfo ci) {
-        this.tickingBlockEntities$lithium = new FilterableLinkedHashSetList<>(this.tickingBlockEntities);
+        this.tickingBlockEntities$lithium = new MaskedTickingBlockEntityList<>(this.tickingBlockEntities, blockEntity -> ((SleepingBlockEntity) blockEntity).canTickOnSide(this.isClient()));
         this.tickingBlockEntities = tickingBlockEntities$lithium;
     }
 
     @Redirect(method = "tickBlockEntities", at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
     private Iterator<BlockEntity> getAwakeBlockEntities(List<BlockEntity> list) {
-        if (list == this.tickingBlockEntities && list instanceof FilterableLinkedHashSetList) {
-            return ((FilterableLinkedHashSetList<BlockEntity>)list).filteredIterator();
+        if (list == this.tickingBlockEntities && list instanceof MaskedTickingBlockEntityList) {
+            return ((MaskedTickingBlockEntityList<BlockEntity>) list).filteredIterator();
         }
         return list.iterator();
     }

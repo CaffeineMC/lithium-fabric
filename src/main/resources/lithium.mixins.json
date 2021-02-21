@@ -111,6 +111,7 @@
     "world.block_entity_ticking.sleeping.AbstractFurnaceBlockEntityMixin",
     "world.block_entity_ticking.sleeping.BeehiveBlockEntityMixin",
     "world.block_entity_ticking.sleeping.BellBlockEntityMixin",
+    "world.block_entity_ticking.sleeping.BlockEntityMixin",
     "world.block_entity_ticking.sleeping.BrewingStandBlockEntityMixin",
     "world.block_entity_ticking.sleeping.CampfireBlockEntityMixin",
     "world.block_entity_ticking.sleeping.ChestBlockEntityMixin",
