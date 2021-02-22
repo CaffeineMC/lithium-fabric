@@ -28,6 +28,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -54,12 +55,15 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
     private Set<EntityNavigation> entityNavigations;
 
     private ReferenceOpenHashSet<EntityNavigation> activeEntityNavigations;
+    private ArrayList<EntityNavigation> activeEntityNavigationUpdates;
     private boolean isIteratingActiveEntityNavigations;
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void init(MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey<World> registryKey, DimensionType dimensionType, WorldGenerationProgressListener worldGenerationProgressListener, ChunkGenerator chunkGenerator, boolean debugWorld, long l, List<Spawner> list, boolean bl, CallbackInfo ci) {
         this.entityNavigations = new ReferenceOpenHashSet<>(this.entityNavigations);
         this.activeEntityNavigations = new ReferenceOpenHashSet<>();
+        this.activeEntityNavigationUpdates = new ArrayList<>();
+        this.isIteratingActiveEntityNavigations = false;
     }
 
     @Redirect(
@@ -71,7 +75,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
     )
     private EntityNavigation startListeningOnEntityLoad(MobEntity mobEntity) {
         EntityNavigation navigation = mobEntity.getNavigation();
-        ((EntityNavigationExtended)navigation).setRegisteredToWorld(true);
+        ((EntityNavigationExtended) navigation).setRegisteredToWorld(true);
         if (navigation.getCurrentPath() != null) {
             this.activeEntityNavigations.add(navigation);
         }
@@ -82,16 +86,14 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
             method = "unloadEntity",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/mob/MobEntity;getNavigation()Lnet/minecraft/entity/ai/pathing/EntityNavigation;"
+                    target = "Ljava/util/Set;remove(Ljava/lang/Object;)Z"
             )
     )
-    private EntityNavigation stopListeningOnEntityUnload(MobEntity mobEntity) {
-        EntityNavigation navigation = mobEntity.getNavigation();
-        ((EntityNavigationExtended)navigation).setRegisteredToWorld(false);
-        if (navigation.getCurrentPath() != null) {
-            this.activeEntityNavigations.remove(navigation);
-        }
-        return navigation;
+    private boolean stopListeningOnEntityUnload(Set<EntityNavigation> set, Object navigation) {
+        EntityNavigation entityNavigation = (EntityNavigation) navigation;
+        ((EntityNavigationExtended) entityNavigation).setRegisteredToWorld(false);
+        this.activeEntityNavigations.remove(entityNavigation);
+        return set.remove(entityNavigation);
     }
 
     /**
@@ -114,26 +116,40 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
     @Inject(method = "updateListeners", at = @At(value = "RETURN"))
     private void onIterationFinished(BlockPos pos, BlockState oldState, BlockState newState, int flags, CallbackInfo ci) {
         this.isIteratingActiveEntityNavigations = false;
+        if (!this.activeEntityNavigationUpdates.isEmpty()) {
+            this.applyActiveEntityNavigationUpdates();
+        }
+    }
+
+    private void applyActiveEntityNavigationUpdates() {
+        ArrayList<EntityNavigation> entityNavigationsUpdates = this.activeEntityNavigationUpdates;
+        for (int i = entityNavigationsUpdates.size() - 1; i >= 0; i--) {
+            EntityNavigation entityNavigation = entityNavigationsUpdates.remove(i);
+            if (entityNavigation.getCurrentPath() != null && ((EntityNavigationExtended) entityNavigation).isRegisteredToWorld()) {
+                this.activeEntityNavigations.add(entityNavigation);
+            } else {
+                this.activeEntityNavigations.remove(entityNavigation);
+            }
+        }
     }
 
     @Override
     public void setNavigationActive(Object entityNavigation) {
-        this.avoidConcurrentModification();
-        this.activeEntityNavigations.add((EntityNavigation) entityNavigation);
+        EntityNavigation entityNavigation1 = (EntityNavigation) entityNavigation;
+        if (!this.isIteratingActiveEntityNavigations) {
+            this.activeEntityNavigations.add(entityNavigation1);
+        } else {
+            this.activeEntityNavigationUpdates.add(entityNavigation1);
+        }
     }
 
     @Override
     public void setNavigationInactive(Object entityNavigation) {
-        this.avoidConcurrentModification();
-        //noinspection RedundantCast
-        this.activeEntityNavigations.remove((EntityNavigation) entityNavigation);
-    }
-
-    private void avoidConcurrentModification() {
-        if (this.isIteratingActiveEntityNavigations) {
-            //work around concurrent modification problems. This breaks Iterator.remove(), but that is not used.
-            this.activeEntityNavigations = this.activeEntityNavigations.clone();
-            this.isIteratingActiveEntityNavigations = false;
+        EntityNavigation entityNavigation1 = (EntityNavigation) entityNavigation;
+        if (!this.isIteratingActiveEntityNavigations) {
+            this.activeEntityNavigations.remove(entityNavigation1);
+        } else {
+            this.activeEntityNavigationUpdates.add(entityNavigation1);
         }
     }
 
@@ -148,7 +164,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
     public boolean isConsistent() {
         int i = 0;
         for (EntityNavigation entityNavigation : this.entityNavigations) {
-            if ((entityNavigation.getCurrentPath() == null) == this.activeEntityNavigations.contains(entityNavigation)) {
+            if ((entityNavigation.getCurrentPath() != null && ((EntityNavigationExtended) entityNavigation).isRegisteredToWorld()) != this.activeEntityNavigations.contains(entityNavigation)) {
                 return false;
             }
             if (entityNavigation.getCurrentPath() != null) {
