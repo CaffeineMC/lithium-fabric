@@ -92,9 +92,9 @@ public class MaskedTickingBlockEntityList<T> implements List<T> {
 
     private void compact() {
         int targetSize = this.size();
-        BitSet all = new BitSet();
         int newIndex = this.firstRemovedIndex - 1;
-        int lastVisible = -1;
+        int lastVisible = this.filteredElementsMask.previousSetBit(newIndex);
+
 
         for (int i = newIndex + 1; i < this.allElements.size(); i++) {
             T t = this.allElements.get(i);
@@ -107,7 +107,6 @@ public class MaskedTickingBlockEntityList<T> implements List<T> {
             //i is guaranteed to not be smaller than newIndex, therefore we can write to the same collections
 
             this.allElements.set(newIndex, t);
-            all.set(newIndex);
             this.allElements2Index.put(t, newIndex);
             this.filteredElementsMask.set(newIndex, visible);
 
@@ -129,7 +128,7 @@ public class MaskedTickingBlockEntityList<T> implements List<T> {
 
         this.filteredSuccessor.removeElements(targetSize + 1, this.filteredSuccessor.size());
         this.allElements.removeElements(targetSize, this.allElements.size());
-        this.filteredElementsMask.and(all);
+        this.filteredElementsMask.clear(targetSize, this.filteredElementsMask.size());
 
         this.filteredSuccessor.trim(targetSize * 4);
         this.allElements.trim(targetSize * 4);
