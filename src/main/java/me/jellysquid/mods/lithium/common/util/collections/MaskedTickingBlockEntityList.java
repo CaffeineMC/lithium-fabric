@@ -18,7 +18,6 @@ public class MaskedTickingBlockEntityList<T> implements List<T> {
     private final IntArrayList filteredSuccessor;
     private final BitSet filteredElementsMask;
 
-    private int removedCount;
     private int firstRemovedIndex;
 
     //Visualization of the internal datastructures
@@ -122,8 +121,7 @@ public class MaskedTickingBlockEntityList<T> implements List<T> {
             throw new IllegalStateException("Compaction ended up with incorrect size: Should be: " + targetSize + " but is: " + (newIndex + 1));
         }
 
-        this.filteredSuccessor.set(targetSize, -1); //-1 means this was the last element
-        this.removedCount = 0;
+        this.filteredSuccessor.set(lastVisible + 1, -1); //-1 means this was the last element
         this.firstRemovedIndex = Integer.MAX_VALUE;
 
         this.filteredSuccessor.removeElements(targetSize + 1, this.filteredSuccessor.size());
@@ -163,12 +161,12 @@ public class MaskedTickingBlockEntityList<T> implements List<T> {
 
     @Override
     public int size() {
-        return this.allElements.size() - this.removedCount;
+        return this.allElements2Index.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return (this.allElements.size() - this.removedCount) == 0;
+        return this.size() == 0;
     }
 
     @Override
@@ -196,10 +194,10 @@ public class MaskedTickingBlockEntityList<T> implements List<T> {
 
     @Override
     public boolean add(T t) {
-        int size = this.allElements.size();
-
+        int arraySize = this.allElements.size();
+        int invalidEntries = arraySize - this.size();
         //Compaction is done during the add operation as it is guaranteed to not happen during iteration
-        if ((size > 2048 && this.removedCount > (size >> 1)) || size >= Integer.MAX_VALUE - 1 && this.removedCount != 0) {
+        if ((arraySize > 2048 && invalidEntries > (arraySize >> 1)) || arraySize >= Integer.MAX_VALUE - 1 && invalidEntries != 0) {
             this.compact();
         }
 
@@ -227,7 +225,6 @@ public class MaskedTickingBlockEntityList<T> implements List<T> {
         }
         this.setEntryVisible(index, false);
         this.allElements.set(index, null);
-        this.removedCount++;
         this.firstRemovedIndex = Math.min(this.firstRemovedIndex, index);
         return true;
     }
@@ -272,7 +269,6 @@ public class MaskedTickingBlockEntityList<T> implements List<T> {
         this.allElements.clear();
         this.filteredSuccessor.clear();
         this.filteredElementsMask.clear();
-        this.removedCount = 0;
         this.firstRemovedIndex = Integer.MAX_VALUE;
         this.filteredSuccessor.add(-1);
     }
