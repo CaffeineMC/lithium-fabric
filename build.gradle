@@ -45,12 +45,21 @@ sourceSets {
     }
 }
 
+repositories {
+    allprojects {
+        repositories {
+            maven { url 'https://jitpack.io' }
+        }
+    }
+}
+
 dependencies {
     //to change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 
     modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation 'com.github.2No2Name:McTester:v0.2.0'
 }
 
 processResources {
