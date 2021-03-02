@@ -73,8 +73,8 @@ public class ChunkAwareBlockCollisionSweeper {
 
         this.minX = MathHelper.floor(box.minX - EPSILON);
         this.maxX = MathHelper.floor(box.maxX + EPSILON);
-        this.minY = MathHelper.clamp((int) (box.minY - EPSILON), Pos.BlockCoord.getMinY(this.view), Pos.BlockCoord.getMaxYInclusive(this.view));
-        this.maxY = MathHelper.clamp((int) (box.maxY + EPSILON), Pos.BlockCoord.getMinY(this.view), Pos.BlockCoord.getMaxYInclusive(this.view));
+        this.minY = MathHelper.clamp(MathHelper.floor(box.minY - EPSILON), Pos.BlockCoord.getMinY(this.view), Pos.BlockCoord.getMaxYInclusive(this.view));
+        this.maxY = MathHelper.clamp(MathHelper.floor(box.maxY + EPSILON), Pos.BlockCoord.getMinY(this.view), Pos.BlockCoord.getMaxYInclusive(this.view));
         this.minZ = MathHelper.floor(box.minZ - EPSILON);
         this.maxZ = MathHelper.floor(box.maxZ + EPSILON);
         this.collisionPredicate = collisionPredicate;
