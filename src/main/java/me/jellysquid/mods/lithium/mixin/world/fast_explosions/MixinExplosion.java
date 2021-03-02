@@ -10,14 +10,16 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -231,7 +233,7 @@ public abstract class MixinExplosion {
                 blockState = section.getBlockState(blockX & 15, blockY & 15, blockZ & 15);
 
                 // If the block state is air, it cannot have fluid or any kind of resistance, so just leave
-                if (blockState.getBlock() != Blocks.AIR) {
+                if (!blockState.isAir()) {
                     // Rather than query the fluid state from the container as we just did with the block state, we can
                     // simply ask the block state we retrieved what fluid it has. This is exactly what the call would
                     // do anyways, except that it would have to retrieve the block state a second time, adding overhead.
