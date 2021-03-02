@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.chunk.palette;
 
 import me.jellysquid.mods.lithium.common.world.chunk.LithiumHashPalette;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.collection.IdList;
 import net.minecraft.util.collection.PackedIntegerArray;
 import net.minecraft.util.math.MathHelper;
@@ -35,11 +35,11 @@ public abstract class PalettedContainerMixin<T> {
 
     @Shadow
     @Final
-    private Function<CompoundTag, T> elementDeserializer;
+    private Function<NbtCompound, T> elementDeserializer;
 
     @Shadow
     @Final
-    private Function<T, CompoundTag> elementSerializer;
+    private Function<T, NbtCompound> elementSerializer;
 
     @Shadow
     @Final

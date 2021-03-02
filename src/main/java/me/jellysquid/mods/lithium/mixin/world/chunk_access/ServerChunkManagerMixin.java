@@ -184,7 +184,7 @@ public abstract class ServerChunkManagerMixin {
                 CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> mergedFuture = this.threadedAnvilChunkStorage.getChunk(holder, status);
 
                 // Add this future to the chunk holder so subsequent calls will see it
-                holder.combineSavingFuture(mergedFuture);
+                holder.combineSavingFuture(mergedFuture, "schedule chunk status");
                 ((ChunkHolderExtended) holder).setFutureForStatus(status.getIndex(), mergedFuture);
 
                 loadFuture = mergedFuture;

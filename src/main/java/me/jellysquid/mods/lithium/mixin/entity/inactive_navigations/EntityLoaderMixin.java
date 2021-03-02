@@ -8,13 +8,12 @@ import net.minecraft.server.world.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Set;
 
-@Mixin(ServerWorld.EntityLoader.class)
+@Mixin(ServerWorld.ServerEntityHandler.class)
 public class EntityLoaderMixin {
 
     private ServerWorld outer;
@@ -24,7 +23,7 @@ public class EntityLoaderMixin {
         this.outer = outer;
     }
 
-    @Redirect(method = "onLoadEntity", at = @At(value = "INVOKE", target = "Ljava/util/Set;add(Ljava/lang/Object;)Z"))
+    @Redirect(method = "startTracking", at = @At(value = "INVOKE", target = "Ljava/util/Set;add(Ljava/lang/Object;)Z"))
     private boolean startListeningOnEntityLoad(Set<MobEntity> set, Object mobEntityObj) {
         MobEntity mobEntity = (MobEntity) mobEntityObj;
         EntityNavigation navigation = mobEntity.getNavigation();
@@ -35,7 +34,7 @@ public class EntityLoaderMixin {
         return set.add(mobEntity);
     }
 
-    @Redirect(method = "onUnloadEntity", at = @At(value = "INVOKE", target = "Ljava/util/Set;remove(Ljava/lang/Object;)Z"))
+    @Redirect(method = "stopTracking", at = @At(value = "INVOKE", target = "Ljava/util/Set;remove(Ljava/lang/Object;)Z"))
     private boolean stopListeningOnEntityUnload(Set<MobEntity> set, Object mobEntityObj) {
         MobEntity mobEntity = (MobEntity) mobEntityObj;
         EntityNavigation navigation = mobEntity.getNavigation();

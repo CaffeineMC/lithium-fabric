@@ -24,6 +24,6 @@ public abstract class BlockEntityMixin implements SupportCache {
         if (this.supportTestState == cachedState) {
             return this.supportTestResult;
         }
-        return this.supportTestResult = this.getType().supports((this.supportTestState = cachedState).getBlock());
+        return this.supportTestResult = this.getType().supports((this.supportTestState = cachedState));
     }
 }

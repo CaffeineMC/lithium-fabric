@@ -72,7 +72,7 @@ public class LithiumConfig {
         this.addMixinRule("entity.data_tracker.use_arrays", true);
         this.addMixinRule("entity.fast_suffocation_check", true);
         this.addMixinRule("entity.gravity_check_block_below", true);
-        this.addMixinRule("entity.inactive_navigations", true);
+        this.addMixinRule("entity.inactive_navigations", false); //may be non vanilla due to migration to MobEntity in 1.17
         this.addMixinRule("entity.replace_entitytype_predicates", true);
         this.addMixinRule("entity.skip_fire_check", true);
         this.addMixinRule("entity.stream_entity_collisions_lazily", true);
@@ -106,7 +106,7 @@ public class LithiumConfig {
 
         this.addMixinRule("world", true);
         this.addMixinRule("world.block_entity_ticking", true);
-        this.addMixinRule("world.block_entity_ticking.collections", true);
+        this.addMixinRule("world.block_entity_ticking.collections", false); // incompatible due to the 1.17 changes
         this.addMixinRule("world.block_entity_ticking.should_tick_cache", true);
         this.addMixinRule("world.block_entity_ticking.sleeping", true);
         this.addMixinRule("world.block_entity_ticking.support_cache", true);

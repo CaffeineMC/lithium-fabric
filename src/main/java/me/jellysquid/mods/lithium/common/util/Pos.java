@@ -7,16 +7,16 @@ public class Pos {
 
     public static class BlockCoord {
         public static int getYSize(HeightLimitView view) {
-            return view.getSectionCount();
+            return view.getHeight();
         }
         public static int getMinY(HeightLimitView view) {
-            return view.getBottomSectionLimit();
+            return view.getBottomY();
         }
         public static int getMaxYInclusive(HeightLimitView view) {
-            return view.getTopHeightLimit() - 1;
+            return view.getTopY() - 1;
         }
         public static int getMaxYExclusive(HeightLimitView view) {
-            return view.getTopHeightLimit();
+            return view.getTopY();
         }
 
         public static int getMaxInSectionCoord(int sectionCoord) {
@@ -48,16 +48,16 @@ public class Pos {
 
     public static class SectionYCoord {
         public static int getNumYSections(HeightLimitView view) {
-            return view.getSections();
+            return view.countVerticalSections();
         }
         public static int getMinYSection(HeightLimitView view) {
-            return view.getMinimumSection();
+            return view.getBottomSectionCoord();
         }
         public static int getMaxYSectionInclusive(HeightLimitView view) {
-            return view.getTopSectionLimit() - 1;
+            return view.getTopSectionCoord() - 1;
         }
         public static int getMaxYSectionExclusive(HeightLimitView view) {
-            return view.getTopSectionLimit();
+            return view.getTopSectionCoord();
         }
 
         public static int fromSectionIndex(HeightLimitView view, int sectionCoord) {
@@ -70,16 +70,16 @@ public class Pos {
 
     public static class SectionYIndex {
         public static int getNumYSections(HeightLimitView view) {
-            return view.getSections();
+            return view.countVerticalSections();
         }
         public static int getMinYSectionIndex(HeightLimitView view) {
             return 0;
         }
         public static int getMaxYSectionIndexInclusive(HeightLimitView view) {
-            return view.getSections() - 1;
+            return view.countVerticalSections() - 1;
         }
         public static int getMaxYSectionIndexExclusive(HeightLimitView view) {
-            return view.getSections();
+            return view.countVerticalSections();
         }
 
 

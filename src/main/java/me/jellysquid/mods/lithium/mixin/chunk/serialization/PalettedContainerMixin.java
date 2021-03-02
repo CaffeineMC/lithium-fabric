@@ -2,8 +2,8 @@ package me.jellysquid.mods.lithium.mixin.chunk.serialization;
 
 import me.jellysquid.mods.lithium.common.world.chunk.CompactingPackedIntegerArray;
 import me.jellysquid.mods.lithium.common.world.chunk.LithiumHashPalette;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.util.collection.IdList;
 import net.minecraft.util.collection.PackedIntegerArray;
 import net.minecraft.util.math.MathHelper;
@@ -50,11 +50,11 @@ public abstract class PalettedContainerMixin<T> {
 
     @Shadow
     @Final
-    private Function<CompoundTag, T> elementDeserializer;
+    private Function<NbtCompound, T> elementDeserializer;
 
     @Shadow
     @Final
-    private Function<T, CompoundTag> elementSerializer;
+    private Function<T, NbtCompound> elementSerializer;
 
     @Shadow
     protected PackedIntegerArray data;
@@ -74,7 +74,7 @@ public abstract class PalettedContainerMixin<T> {
      * @author JellySquid
      */
     @Overwrite
-    public void write(CompoundTag rootTag, String paletteKey, String dataKey) {
+    public void write(NbtCompound rootTag, String paletteKey, String dataKey) {
         this.lock();
 
         // The palette that will be serialized
@@ -115,7 +115,7 @@ public abstract class PalettedContainerMixin<T> {
             }
         }
 
-        ListTag paletteTag = new ListTag();
+        NbtList paletteTag = new NbtList();
         palette.toTag(paletteTag);
 
         rootTag.put(paletteKey, paletteTag);

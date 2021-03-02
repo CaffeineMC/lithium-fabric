@@ -2,7 +2,7 @@ package me.jellysquid.mods.lithium.mixin.alloc.entity_tracker;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.entity.Entity;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.EntityTrackingListener;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,12 +19,13 @@ public class EntityTrackerMixin {
     @Mutable
     @Shadow
     @Final
-    private Set<ServerPlayerEntity> playersTracking;
+    private Set<EntityTrackingListener> listeners;
+
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void reinit(ThreadedAnvilChunkStorage parent /* non-static class parent */, Entity entity, int maxDistance,
                         int tickInterval, boolean alwaysUpdateVelocity, CallbackInfo ci) {
         // Uses less memory, and will cache the returned iterator
-        this.playersTracking = new ObjectOpenHashSet<>(this.playersTracking);
+        this.listeners = new ObjectOpenHashSet<>(this.listeners);
     }
 }

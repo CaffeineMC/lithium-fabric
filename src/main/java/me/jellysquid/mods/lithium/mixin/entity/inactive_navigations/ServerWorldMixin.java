@@ -52,48 +52,18 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
     @Mutable
     @Shadow
     @Final
-    private Set<EntityNavigation> entityNavigations;
+    private Set<MobEntity> loadedMobs;
 
-    private ReferenceOpenHashSet<EntityNavigation> activeEntityNavigations;
-    private ArrayList<EntityNavigation> activeEntityNavigationUpdates;
+    private ReferenceOpenHashSet<MobEntity> activeMobEntities;
+    private ArrayList<MobEntity> activeMobEntitiesUpdates;
     private boolean isIteratingActiveEntityNavigations;
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void init(MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey<World> registryKey, DimensionType dimensionType, WorldGenerationProgressListener worldGenerationProgressListener, ChunkGenerator chunkGenerator, boolean debugWorld, long l, List<Spawner> list, boolean bl, CallbackInfo ci) {
-        this.entityNavigations = new ReferenceOpenHashSet<>(this.entityNavigations);
-        this.activeEntityNavigations = new ReferenceOpenHashSet<>();
-        this.activeEntityNavigationUpdates = new ArrayList<>();
+        this.loadedMobs = new ReferenceOpenHashSet<>(this.loadedMobs);
+        this.activeMobEntities = new ReferenceOpenHashSet<>();
+        this.activeMobEntitiesUpdates = new ArrayList<>();
         this.isIteratingActiveEntityNavigations = false;
-    }
-
-    @Redirect(
-            method = "loadEntityUnchecked",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/entity/mob/MobEntity;getNavigation()Lnet/minecraft/entity/ai/pathing/EntityNavigation;"
-            )
-    )
-    private EntityNavigation startListeningOnEntityLoad(MobEntity mobEntity) {
-        EntityNavigation navigation = mobEntity.getNavigation();
-        ((EntityNavigationExtended) navigation).setRegisteredToWorld(true);
-        if (navigation.getCurrentPath() != null) {
-            this.activeEntityNavigations.add(navigation);
-        }
-        return navigation;
-    }
-
-    @Redirect(
-            method = "unloadEntity",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Ljava/util/Set;remove(Ljava/lang/Object;)Z"
-            )
-    )
-    private boolean stopListeningOnEntityUnload(Set<EntityNavigation> set, Object navigation) {
-        EntityNavigation entityNavigation = (EntityNavigation) navigation;
-        ((EntityNavigationExtended) entityNavigation).setRegisteredToWorld(false);
-        this.activeEntityNavigations.remove(entityNavigation);
-        return set.remove(entityNavigation);
     }
 
     /**
@@ -108,48 +78,47 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
                     target = "Ljava/util/Set;iterator()Ljava/util/Iterator;"
             )
     )
-    private Iterator<EntityNavigation> getActiveListeners(Set<EntityNavigation> set) {
+    private Iterator<MobEntity> getActiveListeners(Set<MobEntity> set) {
         this.isIteratingActiveEntityNavigations = true;
-        return this.activeEntityNavigations.iterator();
+        return this.activeMobEntities.iterator();
     }
 
     @Inject(method = "updateListeners", at = @At(value = "RETURN"))
     private void onIterationFinished(BlockPos pos, BlockState oldState, BlockState newState, int flags, CallbackInfo ci) {
         this.isIteratingActiveEntityNavigations = false;
-        if (!this.activeEntityNavigationUpdates.isEmpty()) {
+        if (!this.activeMobEntitiesUpdates.isEmpty()) {
             this.applyActiveEntityNavigationUpdates();
         }
     }
 
     private void applyActiveEntityNavigationUpdates() {
-        ArrayList<EntityNavigation> entityNavigationsUpdates = this.activeEntityNavigationUpdates;
-        for (int i = entityNavigationsUpdates.size() - 1; i >= 0; i--) {
-            EntityNavigation entityNavigation = entityNavigationsUpdates.remove(i);
+        ArrayList<MobEntity> mobEntitiesUpdates = this.activeMobEntitiesUpdates;
+        for (int i = mobEntitiesUpdates.size() - 1; i >= 0; i--) {
+            MobEntity mobEntity = mobEntitiesUpdates.remove(i);
+            EntityNavigation entityNavigation = mobEntity.getNavigation();
             if (entityNavigation.getCurrentPath() != null && ((EntityNavigationExtended) entityNavigation).isRegisteredToWorld()) {
-                this.activeEntityNavigations.add(entityNavigation);
+                this.activeMobEntities.add(mobEntity);
             } else {
-                this.activeEntityNavigations.remove(entityNavigation);
+                this.activeMobEntities.remove(mobEntity);
             }
         }
     }
 
     @Override
-    public void setNavigationActive(Object entityNavigation) {
-        EntityNavigation entityNavigation1 = (EntityNavigation) entityNavigation;
+    public void setNavigationActive(MobEntity mobEntity) {
         if (!this.isIteratingActiveEntityNavigations) {
-            this.activeEntityNavigations.add(entityNavigation1);
+            this.activeMobEntities.add(mobEntity);
         } else {
-            this.activeEntityNavigationUpdates.add(entityNavigation1);
+            this.activeMobEntitiesUpdates.add(mobEntity);
         }
     }
 
     @Override
-    public void setNavigationInactive(Object entityNavigation) {
-        EntityNavigation entityNavigation1 = (EntityNavigation) entityNavigation;
+    public void setNavigationInactive(MobEntity mobEntity) {
         if (!this.isIteratingActiveEntityNavigations) {
-            this.activeEntityNavigations.remove(entityNavigation1);
+            this.activeMobEntities.remove(mobEntity);
         } else {
-            this.activeEntityNavigationUpdates.add(entityNavigation1);
+            this.activeMobEntitiesUpdates.add(mobEntity);
         }
     }
 
@@ -163,14 +132,15 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
      */
     public boolean isConsistent() {
         int i = 0;
-        for (EntityNavigation entityNavigation : this.entityNavigations) {
-            if ((entityNavigation.getCurrentPath() != null && ((EntityNavigationExtended) entityNavigation).isRegisteredToWorld()) != this.activeEntityNavigations.contains(entityNavigation)) {
+        for (MobEntity mobEntity : this.loadedMobs) {
+            EntityNavigation entityNavigation = mobEntity.getNavigation();
+            if ((entityNavigation.getCurrentPath() != null && ((EntityNavigationExtended) entityNavigation).isRegisteredToWorld()) != this.activeMobEntities.contains(entityNavigation)) {
                 return false;
             }
             if (entityNavigation.getCurrentPath() != null) {
                 i++;
             }
         }
-        return this.activeEntityNavigations.size() == i;
+        return this.activeMobEntities.size() == i;
     }
 }
