@@ -31,12 +31,14 @@ public abstract class ServerEntityManagerMixin<T extends EntityLike> {
     )
     private void onAddEntity(T entity, boolean existing, CallbackInfoReturnable<Boolean> cir) {
         NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) entity).getListener();
-        listener.forEachChunkInRangeChange(
-                this.cache,
-                null,
-                ChunkSectionPos.from(entity.getBlockPos()),
-                EntityTrackerEngine.enteredRangeConsumer,
-                null
-        );
+        if (listener != null) {
+            listener.forEachChunkInRangeChange(
+                    this.cache,
+                    null,
+                    ChunkSectionPos.from(entity.getBlockPos()),
+                    EntityTrackerEngine.enteredRangeConsumer,
+                    null
+            );
+        }
     }
 }

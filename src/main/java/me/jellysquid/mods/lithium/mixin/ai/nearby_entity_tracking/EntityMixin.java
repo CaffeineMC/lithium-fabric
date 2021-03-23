@@ -1,15 +1,11 @@
 package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 
+import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListener;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerMulti;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerProvider;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * Extends the base living entity class to provide a {@link NearbyEntityListenerMulti} which will handle the
@@ -17,18 +13,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(Entity.class)
 public class EntityMixin implements NearbyEntityListenerProvider {
-    private NearbyEntityListenerMulti tracker;
+    private NearbyEntityListenerMulti tracker = null;
 
-    /**
-     * Initialize the entity listener.
-     */
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(EntityType<? extends LivingEntity> type, World world, CallbackInfo ci) {
-        this.tracker = new NearbyEntityListenerMulti();
+    @Override
+    @Nullable
+    public NearbyEntityListenerMulti getListener() {
+        return this.tracker;
     }
 
     @Override
-    public NearbyEntityListenerMulti getListener() {
-        return this.tracker;
+    public void addListener(NearbyEntityListener listener) {
+        if (this.tracker == null) {
+            this.tracker = new NearbyEntityListenerMulti();
+        }
+        this.tracker.addListener(listener);
     }
 }

@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking.goals;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerProvider;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityTracker;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.LookAtEntityGoal;
@@ -24,7 +25,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @Mixin(LookAtEntityGoal.class)
-public class LookAtGoalMixin {
+public class LookAtEntityGoalMixin {
     @Shadow
     @Final
     protected MobEntity mob;
@@ -37,7 +38,7 @@ public class LookAtGoalMixin {
     private void init(MobEntity mob, Class<? extends LivingEntity> targetType, float range, float chance, CallbackInfo ci) {
         this.tracker = new NearbyEntityTracker<>(targetType, mob, new Vec3i(MathHelper.ceil(this.range), 3, MathHelper.ceil(this.range)));
 
-        ((NearbyEntityListenerProvider) mob).getListener().addListener(this.tracker);
+        ((NearbyEntityListenerProvider) mob).addListener(this.tracker);
     }
 
     @Redirect(

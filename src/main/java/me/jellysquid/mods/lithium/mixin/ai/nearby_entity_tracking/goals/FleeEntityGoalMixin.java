@@ -36,7 +36,7 @@ public class FleeEntityGoalMixin<T extends LivingEntity> {
     private void init(PathAwareEntity mob, Class<T> fleeFromType, Predicate<LivingEntity> predicate, float distance, double slowSpeed, double fastSpeed, Predicate<LivingEntity> predicate2, CallbackInfo ci) {
         this.tracker = new NearbyEntityTracker<>(fleeFromType, mob, new Vec3i(MathHelper.ceil(this.fleeDistance), 3, MathHelper.ceil(this.fleeDistance)));
 
-        ((NearbyEntityListenerProvider) mob).getListener().addListener(this.tracker);
+        ((NearbyEntityListenerProvider) mob).addListener(this.tracker);
     }
 
     @Redirect(

@@ -56,14 +56,16 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> implements E
     )
     private void onUpdateEntityPosition(CallbackInfo ci, BlockPos blockPos, long newPos, EntityTrackingStatus entityTrackingStatus, EntityTrackingSection<T> entityTrackingSection) {
         NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) entity).getListener();
-        //noinspection unchecked
-        listener.forEachChunkInRangeChange(
-                ((ServerEntityManagerAccessor<T>) this.manager).getCache(),
-                ChunkSectionPos.from(this.sectionPos),
-                ChunkSectionPos.from(newPos),
-                EntityTrackerEngine.enteredRangeConsumer,
-                EntityTrackerEngine.leftRangeConsumer
-        );
+        if (listener != null)
+        {
+            listener.forEachChunkInRangeChange(
+                    ((ServerEntityManagerAccessor) this.manager).getCache(),
+                    ChunkSectionPos.from(this.sectionPos),
+                    ChunkSectionPos.from(newPos),
+                    EntityTrackerEngine.enteredRangeConsumer,
+                    EntityTrackerEngine.leftRangeConsumer
+            );
+        }
     }
 
     @Inject(
@@ -74,14 +76,16 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> implements E
     )
     private void onRemoveEntity(Entity.RemovalReason reason, CallbackInfo ci) {
         NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) entity).getListener();
-        //noinspection unchecked
-        listener.forEachChunkInRangeChange(
-                ((ServerEntityManagerAccessor<T>) this.manager).getCache(),
-                ChunkSectionPos.from(this.sectionPos),
-                null,
-                null,
-                EntityTrackerEngine.leftRangeConsumer
-        );
+        if (listener != null)
+        {
+            listener.forEachChunkInRangeChange(
+                    ((ServerEntityManagerAccessor) this.manager).getCache(),
+                    ChunkSectionPos.from(this.sectionPos),
+                    null,
+                    null,
+                    EntityTrackerEngine.leftRangeConsumer
+            );
+        }
     }
 
     @Override
