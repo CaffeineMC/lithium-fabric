@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking.goals;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerProvider;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityTracker;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.FleeEntityGoal;
@@ -34,7 +35,10 @@ public class FleeEntityGoalMixin<T extends LivingEntity> {
 
     @Inject(method = "<init>(Lnet/minecraft/entity/mob/PathAwareEntity;Ljava/lang/Class;Ljava/util/function/Predicate;FDDLjava/util/function/Predicate;)V", at = @At("RETURN"))
     private void init(PathAwareEntity mob, Class<T> fleeFromType, Predicate<LivingEntity> predicate, float distance, double slowSpeed, double fastSpeed, Predicate<LivingEntity> predicate2, CallbackInfo ci) {
-        this.tracker = new NearbyEntityTracker<>(fleeFromType, mob, new Vec3i(MathHelper.ceil(this.fleeDistance), 3, MathHelper.ceil(this.fleeDistance)));
+        EntityDimensions dimensions = this.mob.getType().getDimensions();
+        double adjustedRange = dimensions.width * 0.5D + this.fleeDistance + 2D;
+        int horizontalRange = MathHelper.ceil(adjustedRange);
+        this.tracker = new NearbyEntityTracker<>(fleeFromType, mob, new Vec3i(horizontalRange, MathHelper.ceil(dimensions.height + 3 + 2), horizontalRange));
 
         ((NearbyEntityListenerProvider) mob).addListener(this.tracker);
     }
