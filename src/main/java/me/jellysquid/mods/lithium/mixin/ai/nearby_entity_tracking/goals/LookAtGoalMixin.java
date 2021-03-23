@@ -9,6 +9,8 @@ import net.minecraft.entity.ai.goal.LookAtEntityGoal;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,7 +35,7 @@ public class LookAtGoalMixin {
 
     @Inject(method = "<init>(Lnet/minecraft/entity/mob/MobEntity;Ljava/lang/Class;FF)V", at = @At("RETURN"))
     private void init(MobEntity mob, Class<? extends LivingEntity> targetType, float range, float chance, CallbackInfo ci) {
-        this.tracker = new NearbyEntityTracker<>(targetType, mob, range);
+        this.tracker = new NearbyEntityTracker<>(targetType, mob, new Vec3i(MathHelper.ceil(this.range), 3, MathHelper.ceil(this.range)));
 
         ((NearbyEntityListenerProvider) mob).getListener().addListener(this.tracker);
     }

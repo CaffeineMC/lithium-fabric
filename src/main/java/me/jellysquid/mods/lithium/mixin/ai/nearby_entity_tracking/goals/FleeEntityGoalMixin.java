@@ -8,6 +8,8 @@ import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.FleeEntityGoal;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,7 +34,7 @@ public class FleeEntityGoalMixin<T extends LivingEntity> {
 
     @Inject(method = "<init>(Lnet/minecraft/entity/mob/PathAwareEntity;Ljava/lang/Class;Ljava/util/function/Predicate;FDDLjava/util/function/Predicate;)V", at = @At("RETURN"))
     private void init(PathAwareEntity mob, Class<T> fleeFromType, Predicate<LivingEntity> predicate, float distance, double slowSpeed, double fastSpeed, Predicate<LivingEntity> predicate2, CallbackInfo ci) {
-        this.tracker = new NearbyEntityTracker<>(fleeFromType, mob, distance);
+        this.tracker = new NearbyEntityTracker<>(fleeFromType, mob, new Vec3i(MathHelper.ceil(this.fleeDistance), 3, MathHelper.ceil(this.fleeDistance)));
 
         ((NearbyEntityListenerProvider) mob).getListener().addListener(this.tracker);
     }

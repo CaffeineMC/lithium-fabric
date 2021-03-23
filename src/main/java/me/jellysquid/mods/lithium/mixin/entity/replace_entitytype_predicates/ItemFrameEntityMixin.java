@@ -1,6 +1,5 @@
 package me.jellysquid.mods.lithium.mixin.entity.replace_entitytype_predicates;
 
-import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.AbstractDecorationEntity;

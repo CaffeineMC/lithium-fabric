@@ -1,14 +1,16 @@
 package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import me.jellysquid.mods.lithium.common.util.Pos.ChunkCoord;
+import it.unimi.dsi.fastutil.objects.Reference2LongOpenHashMap;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.TargetPredicate;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.Vec3i;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * Maintains a collection of all entities within the range of this listener. This allows AI goals to quickly
@@ -18,41 +20,47 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
     private final Class<T> clazz;
     private final LivingEntity self;
 
-    private final int rangeC;
-    private final float rangeSq;
+    private final Reference2LongOpenHashMap<T> nearbyEntities = new Reference2LongOpenHashMap<>(0);
+    private long counter;
+    private final Vec3i chunkBoxRadius;
 
-    private final Set<T> nearby = new ReferenceOpenHashSet<>();
-
-    public NearbyEntityTracker(Class<T> clazz, LivingEntity self, float range) {
+    public NearbyEntityTracker(Class<T> clazz, LivingEntity self, Vec3i boxRadius) {
         this.clazz = clazz;
         this.self = self;
-        this.rangeSq = range * range;
-        this.rangeC = Math.max(ChunkCoord.fromBlockSize((MathHelper.ceil(range) + 15)), 1);
+        this.chunkBoxRadius = new Vec3i(
+                1 + ChunkSectionPos.getSectionCoord(boxRadius.getX()),
+                1 + ChunkSectionPos.getSectionCoord(boxRadius.getY()),
+                1 + ChunkSectionPos.getSectionCoord(boxRadius.getZ())
+        );
     }
 
     @Override
-    public int getChunkRange() {
-        return this.rangeC;
+    public Class<? extends Entity> getEntityClass() {
+        return this.clazz;
+    }
+
+    @Override
+    public Vec3i getChunkRange() {
+        return this.chunkBoxRadius;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void onEntityEnteredRange(LivingEntity entity) {
+    public void onEntityEnteredRange(Entity entity) {
         if (!this.clazz.isInstance(entity)) {
             return;
         }
 
-        this.nearby.add((T) entity);
+        this.nearbyEntities.put((T) entity, this.counter++);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public void onEntityLeftRange(LivingEntity entity) {
-        if (this.nearby.isEmpty() || !this.clazz.isInstance(entity)) {
+    public void onEntityLeftRange(Entity entity) {
+        if (this.nearbyEntities.isEmpty() || !this.clazz.isInstance(entity)) {
             return;
         }
 
-        this.nearby.remove((T) entity);
+        this.nearbyEntities.removeLong(entity);
     }
 
     /**
@@ -72,24 +80,60 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
         T nearest = null;
         double nearestDistance = Double.POSITIVE_INFINITY;
 
-        for (T entity : this.nearby) {
-            double distance = entity.squaredDistanceTo(x, y, z);
-
-            if (distance < nearestDistance && (box == null || box.intersects(entity.getBoundingBox())) && targetPredicate.test(this.self, entity)) {
-                nearest = entity;
+        for (T entity : this.nearbyEntities.keySet()) {
+            double distance;
+            if (
+                    (box == null || box.intersects(entity.getBoundingBox())) &&
+                    (distance = entity.squaredDistanceTo(x, y, z)) <= nearestDistance &&
+                    targetPredicate.test(this.self, entity)
+            ) {
+                if (distance == nearestDistance) {
+                    nearest = this.getFirst(nearest, entity);
+                } else {
+                    nearest = entity;
+                }
                 nearestDistance = distance;
             }
         }
 
-        if (nearestDistance <= this.rangeSq) {
-            return nearest;
+        return nearest;
+    }
+
+    /**
+     * Gets the Entity that is processed first in vanilla.
+     * @param entity1 one Entity
+     * @param entity2 the other Entity
+     * @return the Entity that is first in vanilla
+     */
+    private T getFirst(T entity1, T entity2) {
+        if (this.getEntityClass() == PlayerEntity.class) {
+            //Get first in player list
+            List<? extends PlayerEntity> players = this.self.getEntityWorld().getPlayers();
+            //noinspection RedundantCast
+            return players.indexOf((PlayerEntity)entity1) < players.indexOf((PlayerEntity)entity2) ? entity1 : entity2;
+        } else {
+            //Get first sorted by chunk section pos as long, then sorted by first added to the chunk section
+            //First added to this tracker and first added to the chunk section is equivalent here, because
+            //this tracker always tracks complete sections and the entities are added in order
+            long pos1 = ChunkSectionPos.toLong(entity1.getBlockPos());
+            long pos2 = ChunkSectionPos.toLong(entity2.getBlockPos());
+            if (pos1 < pos2) {
+                return entity1;
+            } else if (pos2 < pos1) {
+                return entity2;
+            } else {
+                if (this.nearbyEntities.getLong(entity1) < this.nearbyEntities.getLong(entity2)) {
+                    return entity1;
+                } else {
+                    return entity2;
+                }
+            }
         }
 
-        return null;
     }
 
     @Override
     public String toString() {
-        return super.toString() + " for entity class: " + this.clazz.getName() + ", in rangeSq: " + this.rangeSq + ", around entity: " + this.self.toString() + " with NBT: " + this.self.writeNbt(new NbtCompound());
+        return super.toString() + " for entity class: " + this.clazz.getName() + ", around entity: " + this.self.toString() + " with NBT: " + this.self.writeNbt(new NbtCompound());
     }
 }

@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerMulti;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerProvider;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.World;
@@ -14,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * Extends the base living entity class to provide a {@link NearbyEntityListenerMulti} which will handle the
  * child {@link NearbyEntityListenerProvider}s of AI tasks attached to this entity.
  */
-@Mixin(LivingEntity.class)
-public class LivingEntityMixin implements NearbyEntityListenerProvider {
+@Mixin(Entity.class)
+public class EntityMixin implements NearbyEntityListenerProvider {
     private NearbyEntityListenerMulti tracker;
 
     /**

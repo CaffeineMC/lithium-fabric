@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Set;
 
 @Mixin(ServerWorld.ServerEntityHandler.class)
-public class EntityLoaderMixin {
+public class ServerEntityHandlerMixin {
 
     private ServerWorld outer;
 

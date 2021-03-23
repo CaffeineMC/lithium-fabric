@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Vec3i;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +11,13 @@ import java.util.List;
  * order of which each sub-listener will be notified.
  */
 public class NearbyEntityListenerMulti implements NearbyEntityListener {
-    private final List<NearbyEntityListener> listeners = new ArrayList<>();
+    private final List<NearbyEntityListener> listeners = new ArrayList<>(4);
+    private Vec3i range = null;
 
     public void addListener(NearbyEntityListener listener) {
+        if (this.range != null) {
+            throw new IllegalStateException("Cannot add sublisteners after listening range was set!");
+        }
         this.listeners.add(listener);
     }
 
@@ -21,25 +26,36 @@ public class NearbyEntityListenerMulti implements NearbyEntityListener {
     }
 
     @Override
-    public int getChunkRange() {
-        int range = 0;
-
-        for (NearbyEntityListener listener : this.listeners) {
-            range = Math.max(range, listener.getChunkRange());
+    public Vec3i getChunkRange() {
+        Vec3i range = this.range;
+        if (range != null) {
+            return range;
         }
 
-        return range;
+        if (this.listeners.isEmpty()) {
+            return this.range = EMPTY_RANGE;
+        }
+        int xRange = -1, yRange = -1, zRange = -1;
+        for (NearbyEntityListener listener : this.listeners) {
+            Vec3i chunkRange = listener.getChunkRange();
+            xRange = Math.max(chunkRange.getX(), xRange);
+            yRange = Math.max(chunkRange.getY(), yRange);
+            zRange = Math.max(chunkRange.getZ(), zRange);
+        }
+        assert xRange > 0 && yRange > 0 && zRange > 0;
+        range = new Vec3i(xRange, yRange, zRange);
+        return this.range = range;
     }
 
     @Override
-    public void onEntityEnteredRange(LivingEntity entity) {
+    public void onEntityEnteredRange(Entity entity) {
         for (NearbyEntityListener listener : this.listeners) {
             listener.onEntityEnteredRange(entity);
         }
     }
 
     @Override
-    public void onEntityLeftRange(LivingEntity entity) {
+    public void onEntityLeftRange(Entity entity) {
         for (NearbyEntityListener listener : this.listeners) {
             listener.onEntityLeftRange(entity);
         }
