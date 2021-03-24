@@ -86,8 +86,6 @@ default configuration, which includes all stable optimizations by default.
 See [the Wiki page](https://github.com/jellysquid3/lithium-fabric/wiki/Configuration-File) on the configuration file
 format and all available options.
 
----
-
 ### Building from sources
 
 #### Requirements
