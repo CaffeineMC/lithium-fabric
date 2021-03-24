@@ -18,7 +18,9 @@ to the player.
 
 If you do encounter an issue where Lithium deviates from the norm, please don't hesitate to
 [open an issue.](https://github.com/jellysquid3/lithium-fabric/issues) Each patch is carefully checked to ensure
-vanilla parity, but after all, bugs are unavoidable.
+vanilla parity, but after all, bugs are unavoidable. Before opening a new issue, please check using the search tool that your issue has not already been created, and that if
+there is a suitable template for the issue you are opening, that it is filled out entirely. Issues which are duplicates
+or do not contain the necessary information to triage and debug may be closed. 
 
 ### Community
 
@@ -65,7 +67,7 @@ we generally do not recommend this option, and are looking to phase out support 
 ### Bleeding-edge builds
 
 If you are a player who is looking to get your hands on the latest **bleeding-edge builds for testing**, consider
-taking a look at the builds produced through our [GitHub Actions workflow](actions/workflows/gradle.yml). This
+taking a look at the builds produced through our [GitHub Actions workflow](https://github.com/CaffeineMC/lithium-fabric/actions/workflows/gradle.yml). This
 workflow automatically runs every time a change is pushed to the repository, and as such, they will reflect the latest
 state of development.
 
@@ -73,17 +75,6 @@ Bleeding edge builds will often include unfinished code that hasn't been extensi
 incomplete features, bugs, crashes, and all other kinds of weird issues. You **should not use these bleeding edge builds**
 unless you know what you are doing and are comfortable with software debugging. If you report issues using these builds,
 we will expect that this is the case. Caveat emptor.
-
-### Reporting Issues
-
-You can report bugs and crashes by opening an issue on our [issue tracker](https://github.com/jellysquid3/lithium-fabric/issues).
-Before opening a new issue, please check using the search tool that your issue has not already been created, and that if
-there is a suitable template for the issue you are opening, that it is filled out entirely. Issues which are duplicates
-or do not contain the necessary information to triage and debug may be closed. 
-
-Please note that while the issue tracker is open to feature and mod compatibility requests, development
-is primarily focused on improving hardware compatibility and performance, along with finishing any unimplemented features
-necessary for parity with the vanilla renderer.
 
 ### Configuration
 
