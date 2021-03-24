@@ -53,7 +53,7 @@ You can help support members of the core team by making a pledge to our Patreon 
 The latest releases of Lithium are published to our [official Modrinth page](https://modrinth.com/mod/lithium) and [GitHub releases page](https://github.com/jellysquid3/lithium-fabric/releases). Usually, builds will be
 made available on GitHub slightly sooner than other locations.
 
-You will need Fabric Loader 0.10.x or newer installed in your game in order to load Sodium. If you haven't installed Fabric
+You will need Fabric Loader 0.10.x or newer installed in your game in order to load Lithium. If you haven't installed Fabric
 mods before, you can find a variety of community guides for doing so [here](https://fabricmc.net/wiki/install).
 
 #### CurseForge
