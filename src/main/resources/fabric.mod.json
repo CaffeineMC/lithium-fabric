@@ -9,7 +9,8 @@
     ],
     "contact": {
         "homepage": "https://jellysquid.me",
-        "sources": "https://github.com/jellysquid3/lithium"
+        "sources": "https://github.com/CaffeineMC/lithium-fabric",
+        "issues": "https://github.com/CaffeineMC/lithium-fabric/issues"
     },
     "license": "LGPL-3.0-only",
     "icon": "assets/lithium/icon.png",
