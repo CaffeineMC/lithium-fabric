@@ -23,7 +23,7 @@ there is a suitable template for the issue you are opening, that it is filled ou
 or do not contain the necessary information to triage and debug may be closed. 
 
 ### Community
-[![Discord chat](https://img.shields.io/badge/chat%20on-discord-7289DA?logo=discord&logoColor=white)](https://jellysquid.me/discord)
+[![Discord chat](https://img.shields.io/badge/chat%20on-discord-7289DA)](https://jellysquid.me/discord)
 
 We have an [official Discord community](https://jellysquid.me/discord) for all of our projects. By joining, you can:
 - Get installation help and technical support with all of our mods 
@@ -45,17 +45,10 @@ You can help support members of the core team by making a pledge to our Patreon 
 
 ## Installation
 
-### Stable releases
+### Manual installation (recommended)
 
-#### Manual Installation (recommended)
-
-The latest releases of Lithium are published to our [official Modrinth page](https://modrinth.com/mod/lithium) and [GitHub releases page](https://github.com/jellysquid3/lithium-fabric/releases). Usually, builds will be
-made available on GitHub slightly sooner than other locations.
-
-You will need Fabric Loader 0.10.x or newer installed in your game in order to load Lithium. If you haven't installed Fabric
-mods before, you can find a variety of community guides for doing so [here](https://fabricmc.net/wiki/install).
-
-#### CurseForge
+You will need Fabric Loader 0.10.x or newer installed in your game in order to load Sodium. If you haven't installed
+Fabric mods before, you can find a variety of community guides for doing so [here](https://fabricmc.net/wiki/install).
 
 #### Stable releases
 
@@ -69,7 +62,7 @@ Usually, releases will be made available on GitHub slightly sooner than other lo
 
 #### Bleeding-edge builds (unstable)
 
-[![GitHub build status](https://img.shields.io/github/workflow/status/CaffeineMC/lithium-fabric/gradle-ci/1.16.x/dev)](https://github.com/CaffeineMC/sodium-fabric/actions/workflows/gradle.yml)
+[![GitHub build status](https://img.shields.io/github/workflow/status/CaffeineMC/lithium-fabric/gradle-ci/1.16.x/dev)](https://github.com/CaffeineMC/lithium-fabric/actions/workflows/gradle.yml)
 
 If you are a player who is looking to get your hands on the latest **bleeding-edge changes for testing**, consider
 taking a look at the automated builds produced through our [GitHub Actions workflow](https://github.com/CaffeineMC/lithium-fabric/actions/workflows/gradle.yml?query=event%3Apush).
@@ -128,7 +121,7 @@ to ensure that the daemon is torn down after the build is complete. However, sub
 [start more slowly](https://docs.gradle.org/current/userguide/gradle_daemon.html#sec:why_the_daemon) if the Gradle
 daemon is not available to be re-used.
 
-Build artifacts classified with `api` are only for developers trying to compile against Lithium's API.
+Build artifacts ending in `api` are for developers compiling against Lithium's API.
 
 ### Configuration
 
