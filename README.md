@@ -47,7 +47,7 @@ You can help support members of the core team by making a pledge to our Patreon 
 
 ### Manual installation (recommended)
 
-You will need Fabric Loader 0.10.x or newer installed in your game in order to load Sodium. If you haven't installed
+You will need Fabric Loader 0.10.x or newer installed in your game in order to load Lithium. If you haven't installed
 Fabric mods before, you can find a variety of community guides for doing so [here](https://fabricmc.net/wiki/install).
 
 #### Stable releases
