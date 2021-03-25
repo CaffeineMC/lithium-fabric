@@ -1,9 +1,9 @@
 ![Project icon](https://git-assets.jellysquid.me/hotlink-ok/lithium/icon-rounded-128px.png)
 
 # Lithium (for Fabric)
-![GitHub license](https://img.shields.io/github/license/jellysquid3/lithium-fabric.svg)
-![GitHub issues](https://img.shields.io/github/issues/jellysquid3/lithium-fabric.svg)
-![GitHub tag](https://img.shields.io/github/tag/jellysquid3/lithium-fabric.svg)
+![GitHub license](https://img.shields.io/github/license/CaffeineMC/lithium-fabric.svg)
+![GitHub issues](https://img.shields.io/github/issues/CaffeineMC/lithium-fabric.svg)
+![GitHub tag](https://img.shields.io/github/tag/CaffeineMC/lithium-fabric.svg)
 
 Lithium is a free and open-source Minecraft mod which works to optimize many areas of the game in order to provide
 better overall performance. It works on both the **client and server**, and **doesn't require the mod to be installed
@@ -17,7 +17,7 @@ solution for those wanting to speed up their game, and as such, installing Lithi
 to the player.
 
 If you do encounter an issue where Lithium deviates from the norm, please don't hesitate to
-[open an issue.](https://github.com/jellysquid3/lithium-fabric/issues) Each patch is carefully checked to ensure
+[open an issue.](https://github.com/CaffeineMC/lithium-fabric/issues) Each patch is carefully checked to ensure
 vanilla parity, but after all, bugs are unavoidable. Before opening a new issue, please check using the search tool that your issue has not already been created, and that if
 there is a suitable template for the issue you are opening, that it is filled out entirely. Issues which are duplicates
 or do not contain the necessary information to triage and debug may be closed. 
@@ -33,13 +33,13 @@ We have an [official Discord community](https://jellysquid.me/discord) for all o
 
 ### Support the developers
 
-Lithium is made possible by the following core contributors [and others](https://github.com/jellysquid3/lithium-fabric/graphs/contributors).
+Lithium is made possible by the following core contributors [and others](https://github.com/CaffeineMC/lithium-fabric/graphs/contributors).
 You can help support members of the core team by making a pledge to our Patreon pages below.
 
 |    | Author   | Role   | Links   |
 |----|:---------|:-------|:--------|
-| ![jellysquid3's Avatar](https://avatars3.githubusercontent.com/u/1363084?s=32) | jellysquid3 | Project Lead | [Patreon](https://patreon.com/jellysquid) / [Contributions](https://github.com/jellysquid3/lithium-fabric/commits?author=jellysquid3) |
-| ![2No2Name's Avatar](https://avatars3.githubusercontent.com/u/50278648?s=32) | 2No2Name | Maintainer | [Patreon](https://patreon.com/2No2Name) / [Contributions](https://github.com/jellysquid3/lithium-fabric/commits?author=2No2Name) |
+| ![jellysquid3's Avatar](https://avatars3.githubusercontent.com/u/1363084?s=32) | jellysquid3 | Project Lead | [Patreon](https://patreon.com/jellysquid) / [Contributions](https://github.com/CaffeineMC/lithium-fabric/commits?author=jellysquid3) |
+| ![2No2Name's Avatar](https://avatars3.githubusercontent.com/u/50278648?s=32) | 2No2Name | Maintainer | [Patreon](https://patreon.com/2No2Name) / [Contributions](https://github.com/CaffeineMC/lithium-fabric/commits?author=2No2Name) |
 
 ---
 
@@ -130,11 +130,11 @@ configuration override system which allows you to either forcefully disable prob
 patches which are otherwise disabled by default. As such, an empty config file simply means you'd like to use the
 default configuration, which includes all stable optimizations by default. 
 
-See [the Wiki page](https://github.com/jellysquid3/lithium-fabric/wiki/Configuration-File) on the configuration file
+See [the Wiki page](https://github.com/CaffeineMC/lithium-fabric/wiki/Configuration-File) on the configuration file
 format and all available options.
 
 ---
 ### License
 
 Lithium is licensed under GNU LGPLv3, a free and open-source license. For more information, please see the
-[license file](https://github.com/jellysquid3/lithium-fabric/blob/1.16.x/fabric/LICENSE.txt).
+[license file](https://github.com/CaffeineMC/lithium-fabric/blob/1.16.x/fabric/LICENSE.txt).
