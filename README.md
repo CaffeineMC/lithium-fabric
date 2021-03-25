@@ -76,7 +76,7 @@ we will expect that this is the case. Caveat emptor.
 
 ### CurseForge
 
-[![CurseForge downloads](http://cf.way2muchnoise.eu/full_394468_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/lithium)
+[![CurseForge downloads](http://cf.way2muchnoise.eu/full_360438_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/lithium)
 
 If you are using the CurseForge client, you can continue to find downloads through our
 [CurseForge page](https://www.curseforge.com/minecraft/mc-mods/lithium). Unless you are using the CurseForge
