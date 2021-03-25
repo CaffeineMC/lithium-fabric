@@ -3,7 +3,7 @@
 # Lithium (for Fabric)
 ![GitHub license](https://img.shields.io/github/license/CaffeineMC/lithium-fabric.svg)
 ![GitHub issues](https://img.shields.io/github/issues/CaffeineMC/lithium-fabric.svg)
-![GitHub tag](https://img.shields.io/github/tag/CaffeineMC/lithium-fabric.svg)
+![GitHub tag](https://img.shields.io/github/v/tag/CaffeineMC/lithium-fabric.svg)
 
 Lithium is a free and open-source Minecraft mod which works to optimize many areas of the game in order to provide
 better overall performance. It works on both the **client and server**, and **doesn't require the mod to be installed
