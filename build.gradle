@@ -1,7 +1,7 @@
 import net.fabricmc.loom.task.RemapJarTask
 
 plugins {
-    id 'fabric-loom' version '0.6-SNAPSHOT'
+    id 'fabric-loom' version '0.5-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -50,7 +50,7 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
 }
 
 processResources {
