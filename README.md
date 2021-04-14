@@ -137,4 +137,4 @@ format and all available options.
 ### License
 
 Lithium is licensed under GNU LGPLv3, a free and open-source license. For more information, please see the
-[license file](https://github.com/CaffeineMC/lithium-fabric/blob/1.16.x/fabric/LICENSE.txt).
+[license file](LICENSE.txt).
