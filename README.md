@@ -97,12 +97,10 @@ projects. The basic overview is provided here for those familiar.
 
 #### Requirements
 
-- JRE 8 or newer (for running Gradle)
-- JDK 8 (optional)
-  - If you neither have JDK 8 available on your shell's path or installed through a supported package manager (such as
-[SDKMAN](https://sdkman.io)), Gradle will automatically download a suitable toolchain from the [AdoptOpenJDK project](https://adoptopenjdk.net/)
-and use it to compile the project. For more information on what package managers are supported and how you can
-customize this behavior on a system-wide level, please see [Gradle's Toolchain user guide](https://docs.gradle.org/current/userguide/toolchains.html).
+- JDK 8 or newer (for running Gradle)
+  - You can either install this through a package manager such as [Chocolatey](https://chocolatey.org/) on Windows
+    or [SDKMAN!](https://sdkman.io/) on other platforms. If you'd prefer to not use a package manager, you can always
+    grab the installers or packages directly from [AdoptOpenJDK](https://adoptopenjdk.net/).
 - Gradle 6.7 or newer (optional)
   - The [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html#sec:using_wrapper) is provided in
     this repository can be used instead of installing a suitable version of Gradle yourself. However, if you are building
