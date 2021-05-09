@@ -79,7 +79,17 @@ public abstract class ExplosionMixin {
             at = @At("TAIL")
     )
     private void init(World world, Entity entity, DamageSource damageSource, ExplosionBehavior explosionBehavior, double d, double e, double f, float g, boolean bl, Explosion.DestructionType destructionType, CallbackInfo ci) {
-        this.explodeAirBlocks = this.createFire; // air blocks are only relevant for the explosion when fire should be created inside them
+        boolean explodeAir = this.createFire; // air blocks are only relevant for the explosion when fire should be created inside them
+        if (!explodeAir && this.world.getDimension().hasEnderDragonFight()) {
+            float overestimatedExplosionRange = (8 + (int) (6f * this.power));
+            int endPortalX = 0;
+            int endPortalZ = 0;
+            if(overestimatedExplosionRange > Math.abs(this.x - endPortalX) && overestimatedExplosionRange > Math.abs(this.z - endPortalZ)) {
+                explodeAir = true;
+                // exploding air works around accidentally fixing vanilla bug: an explosion cancelling the dragon fight start can destroy the newly placed end portal
+            }
+        }
+        this.explodeAirBlocks = explodeAir;
     }
 
     @Redirect(
