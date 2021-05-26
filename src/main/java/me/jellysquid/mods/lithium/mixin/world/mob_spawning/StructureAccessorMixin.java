@@ -28,7 +28,7 @@ public abstract class StructureAccessorMixin {
      * @author JellySquid
      */
     @Overwrite
-    public StructureStart<?> getStructureAt(BlockPos blockPos, boolean fine, StructureFeature<?> feature) {
+    public StructureStart<?> getStructureAt(BlockPos blockPos, boolean matchChildren, StructureFeature<?> feature) {
         Chunk originChunk = this.world.getChunk(Pos.ChunkCoord.fromBlockCoord(blockPos.getX()), Pos.ChunkCoord.fromBlockCoord(blockPos.getZ()), ChunkStatus.STRUCTURE_REFERENCES);
 
         LongSet references = originChunk.getStructureReferences(feature);
@@ -40,11 +40,11 @@ public abstract class StructureAccessorMixin {
             Chunk chunk = this.world.getChunk(ChunkPos.getPackedX(pos), ChunkPos.getPackedZ(pos), ChunkStatus.STRUCTURE_STARTS);
             StructureStart<?> structure = chunk.getStructureStart(feature);
 
-            if (structure == null || !structure.hasChildren() || !structure.getBoundingBox().contains(blockPos)) {
+            if (structure == null || !structure.hasChildren() || !matchChildren && !structure.setBoundingBoxFromChildren().contains(blockPos)) {
                 continue;
             }
 
-            if (!fine || this.anyPieceContainsPosition(structure, blockPos)) {
+            if (!matchChildren || this.anyPieceContainsPosition(structure, blockPos)) {
                 return structure;
             }
         }

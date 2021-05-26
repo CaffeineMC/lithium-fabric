@@ -19,12 +19,15 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ThreadedAnvilChunkStorage.class)
 public abstract class ThreadedAnvilChunkStorageMixin {
+    @Shadow
+    protected abstract ChunkSectionPos updateWatchedSection(ServerPlayerEntity player);
+
     /**
      * @author JellySquid
      * @reason Defer sending chunks to the player so that we can batch them together
      */
     @Overwrite
-    public void updateCameraPosition(ServerPlayerEntity player) {
+    public void updatePosition(ServerPlayerEntity player) {
         for (ThreadedAnvilChunkStorage.EntityTracker tracker : this.entityTrackers.values()) {
             if (tracker.entity == player) {
                 tracker.updateTrackedStatus(this.world.getPlayers());
@@ -42,7 +45,7 @@ public abstract class ThreadedAnvilChunkStorageMixin {
 
         if (movedSections || isWatchingWorld != doesNotGenerateChunks) {
             // Notify the client that the chunk map origin has changed. This must happen before any chunk payloads are sent.
-            this.method_20726(player);
+            this.updateWatchedSection(player);
 
             if (!isWatchingWorld) {
                 this.ticketManager.handleChunkLeave(oldPos, player);
@@ -162,9 +165,6 @@ public abstract class ThreadedAnvilChunkStorageMixin {
 
     @Shadow
     protected abstract boolean doesNotGenerateChunks(ServerPlayerEntity player);
-
-    @Shadow
-    protected abstract ChunkSectionPos method_20726(ServerPlayerEntity serverPlayerEntity);
 
     @Shadow
     protected abstract ChunkHolder getChunkHolder(long pos);

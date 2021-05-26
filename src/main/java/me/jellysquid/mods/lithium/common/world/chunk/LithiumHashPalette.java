@@ -150,6 +150,11 @@ public class LithiumHashPalette<T> implements Palette<T> {
     }
 
     @Override
+    public int getIndexBits() {
+        return this.size;
+    }
+
+    @Override
     public void readNbt(NbtList list) {
         this.clear();
 

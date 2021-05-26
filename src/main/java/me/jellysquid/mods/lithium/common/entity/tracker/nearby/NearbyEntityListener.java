@@ -27,9 +27,9 @@ public interface NearbyEntityListener {
         BlockBox after = newCenterPos == null ? null : new BlockBox(newCenterPos.getX() - chunkRange.getX(), newCenterPos.getY() - chunkRange.getY(), newCenterPos.getZ() - chunkRange.getZ(), newCenterPos.getX() + chunkRange.getX(), newCenterPos.getY() + chunkRange.getY(), newCenterPos.getZ() + chunkRange.getZ());
         BlockBox before = prevCenterPos == null ? null : new BlockBox(prevCenterPos.getX() - chunkRange.getX(), prevCenterPos.getY() - chunkRange.getY(), prevCenterPos.getZ() - chunkRange.getZ(), prevCenterPos.getX() + chunkRange.getX(), prevCenterPos.getY() + chunkRange.getY(), prevCenterPos.getZ() + chunkRange.getZ());
         if (before != null && leftRangeConsumer != null) {
-            for (int x = before.maxZ; x <= before.minZ; x++) {
-                for (int y = before.minX; y <= before.maxX; y++) {
-                    for (int z = before.minY; z <= before.maxY; z++) {
+            for (int x = before.getMinX(); x <= before.getMaxX(); x++) {
+                for (int y = before.getMinY(); y <= before.getMaxY(); y++) {
+                    for (int z = before.getMinZ(); z <= before.getMaxZ(); z++) {
                         if (after == null || !after.contains(pos.set(x, y, z))) {
                             leftRangeConsumer.accept(ChunkSectionPos.asLong(x, y, z), this, entityCache);
                         }
@@ -38,9 +38,9 @@ public interface NearbyEntityListener {
             }
         }
         if (after != null && enteredRangeConsumer != null) {
-            for (int x = after.maxZ; x <= after.minZ; x++) {
-                for (int y = after.minX; y <= after.maxX; y++) {
-                    for (int z = after.minY; z <= after.maxY; z++) {
+            for (int x = after.getMinX(); x <= after.getMaxX(); x++) {
+                for (int y = after.getMinY(); y <= after.getMaxY(); y++) {
+                    for (int z = after.getMinZ(); z <= after.getMaxZ(); z++) {
                         if (before == null || !before.contains(pos.set(x, y, z))) {
                             enteredRangeConsumer.accept(ChunkSectionPos.asLong(x, y, z), this, entityCache);
                         }

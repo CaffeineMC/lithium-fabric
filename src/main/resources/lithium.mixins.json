@@ -30,8 +30,6 @@
     "ai.raid.RaidMixin",
     "ai.task.CompositeTaskMixin",
     "ai.task.FindInteractionTargetTaskMixin",
-    "ai.task.RunModeMixin$RunOneMixin",
-    "ai.task.RunModeMixin$TryAllMixin",
     "ai.task.TaskMixin",
     "ai.task.WeightedListMixin",
     "alloc.chunk_random.ServerWorldMixin",

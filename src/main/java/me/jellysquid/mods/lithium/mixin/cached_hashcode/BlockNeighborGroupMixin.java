@@ -43,7 +43,7 @@ public class BlockNeighborGroupMixin {
      * @reason Uses the cached hashcode
      * @author JellySquid
      */
-    @Overwrite
+    @Overwrite(remap = false)
     public int hashCode() {
         return this.hash;
     }
