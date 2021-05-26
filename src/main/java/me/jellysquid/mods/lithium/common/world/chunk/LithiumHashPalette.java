@@ -140,10 +140,10 @@ public class LithiumHashPalette<T> implements Palette<T> {
 
     @Override
     public int getPacketSize() {
-        int size = PacketByteBuf.getVarIntSizeBytes(this.size);
+        int size = PacketByteBuf.getVarIntLength(this.size);
 
         for (int i = 0; i < this.size; ++i) {
-            size += PacketByteBuf.getVarIntSizeBytes(this.idList.getRawId(this.getByIndex(i)));
+            size += PacketByteBuf.getVarIntLength(this.idList.getRawId(this.getByIndex(i)));
         }
 
         return size;

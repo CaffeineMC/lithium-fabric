@@ -248,11 +248,11 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     private List<ScheduledTick<T>> collectTicks(BlockBox bounds, boolean remove, Predicate<TickEntry<?>> predicate) {
         List<ScheduledTick<T>> ret = new ArrayList<>();
 
-        int minChunkX = Pos.ChunkCoord.fromBlockCoord(bounds.minX);
-        int maxChunkX = Pos.ChunkCoord.fromBlockCoord(bounds.maxX);
+        int minChunkX = Pos.ChunkCoord.fromBlockCoord(bounds.maxZ);
+        int maxChunkX = Pos.ChunkCoord.fromBlockCoord(bounds.minZ);
 
-        int minChunkZ = Pos.ChunkCoord.fromBlockCoord(bounds.minZ);
-        int maxChunkZ = Pos.ChunkCoord.fromBlockCoord(bounds.maxZ);
+        int minChunkZ = Pos.ChunkCoord.fromBlockCoord(bounds.minY);
+        int maxChunkZ = Pos.ChunkCoord.fromBlockCoord(bounds.maxY);
 
         // Iterate over all chunks encompassed by the block box
         for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
@@ -271,7 +271,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
                     // [VanillaCopy] ServerTickScheduler#transferTickInBounds
                     // The minimum coordinate is include while the maximum coordinate is exclusive
                     // Possibly a bug in vanilla, but we need to match it here.
-                    if (pos.getX() >= bounds.minX && pos.getX() < bounds.maxX && pos.getZ() >= bounds.minZ && pos.getZ() < bounds.maxZ) {
+                    if (pos.getX() >= bounds.maxZ && pos.getX() < bounds.minZ && pos.getZ() >= bounds.minY && pos.getZ() < bounds.maxY) {
                         if (predicate.test(tick)) {
                             ret.add(tick);
                         }

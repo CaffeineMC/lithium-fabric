@@ -27,9 +27,9 @@ public interface NearbyEntityListener {
         BlockBox after = newCenterPos == null ? null : new BlockBox(newCenterPos.getX() - chunkRange.getX(), newCenterPos.getY() - chunkRange.getY(), newCenterPos.getZ() - chunkRange.getZ(), newCenterPos.getX() + chunkRange.getX(), newCenterPos.getY() + chunkRange.getY(), newCenterPos.getZ() + chunkRange.getZ());
         BlockBox before = prevCenterPos == null ? null : new BlockBox(prevCenterPos.getX() - chunkRange.getX(), prevCenterPos.getY() - chunkRange.getY(), prevCenterPos.getZ() - chunkRange.getZ(), prevCenterPos.getX() + chunkRange.getX(), prevCenterPos.getY() + chunkRange.getY(), prevCenterPos.getZ() + chunkRange.getZ());
         if (before != null && leftRangeConsumer != null) {
-            for (int x = before.minX; x <= before.maxX; x++) {
-                for (int y = before.minY; y <= before.maxY; y++) {
-                    for (int z = before.minZ; z <= before.maxZ; z++) {
+            for (int x = before.maxZ; x <= before.minZ; x++) {
+                for (int y = before.minX; y <= before.maxX; y++) {
+                    for (int z = before.minY; z <= before.maxY; z++) {
                         if (after == null || !after.contains(pos.set(x, y, z))) {
                             leftRangeConsumer.accept(ChunkSectionPos.asLong(x, y, z), this, entityCache);
                         }
@@ -38,9 +38,9 @@ public interface NearbyEntityListener {
             }
         }
         if (after != null && enteredRangeConsumer != null) {
-            for (int x = after.minX; x <= after.maxX; x++) {
-                for (int y = after.minY; y <= after.maxY; y++) {
-                    for (int z = after.minZ; z <= after.maxZ; z++) {
+            for (int x = after.maxZ; x <= after.minZ; x++) {
+                for (int y = after.minX; y <= after.maxX; y++) {
+                    for (int z = after.minY; z <= after.maxY; z++) {
                         if (before == null || !before.contains(pos.set(x, y, z))) {
                             enteredRangeConsumer.accept(ChunkSectionPos.asLong(x, y, z), this, entityCache);
                         }

@@ -63,7 +63,7 @@ public class ArrayPrioritizedTaskQueue implements TaskQueue<TaskQueue.Prioritize
 
     @Override
     @Environment(EnvType.CLIENT)
-    public int method_34706() {
+    public int getSize() {
         return this.size.get();
     }
 }

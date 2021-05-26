@@ -27,13 +27,13 @@ public abstract class ThreadedAnvilChunkStorageMixin {
     public void updateCameraPosition(ServerPlayerEntity player) {
         for (ThreadedAnvilChunkStorage.EntityTracker tracker : this.entityTrackers.values()) {
             if (tracker.entity == player) {
-                tracker.updateCameraPosition(this.world.getPlayers());
+                tracker.updateTrackedStatus(this.world.getPlayers());
             } else {
-                tracker.updateCameraPosition(player);
+                tracker.updateTrackedStatus(player);
             }
         }
 
-        ChunkSectionPos oldPos = player.getCameraPosition();
+        ChunkSectionPos oldPos = player.getWatchedSection();
         ChunkSectionPos newPos = ChunkSectionPos.from(player);
 
         boolean isWatchingWorld = this.playerChunkWatchingManager.isWatchDisabled(player);
