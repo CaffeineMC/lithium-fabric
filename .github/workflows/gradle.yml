@@ -17,9 +17,10 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
 
-    - name: run test server
-      timeout-minutes: 5
-      run: ./gradlew runServer
+        #   no automated tests while mctester mod is not available
+        #    - name: run test server
+        #      timeout-minutes: 5
+        #      run: ./gradlew runServer
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v1
