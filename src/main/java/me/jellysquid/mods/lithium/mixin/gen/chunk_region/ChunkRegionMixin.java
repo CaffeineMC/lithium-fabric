@@ -8,6 +8,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkStatus;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -38,7 +39,7 @@ public abstract class ChunkRegionMixin implements StructureWorldAccess {
      * @author JellySquid
      */
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(ServerWorld world, List<Chunk> chunks, CallbackInfo ci) {
+    private void init(ServerWorld world, List<Chunk> chunks, ChunkStatus chunkStatus, int i, CallbackInfo ci) {
         this.minChunkX = this.lowerCorner.x;
         this.minChunkZ = this.lowerCorner.z;
 
