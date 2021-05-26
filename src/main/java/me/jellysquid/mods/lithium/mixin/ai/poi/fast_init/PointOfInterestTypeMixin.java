@@ -1,6 +1,5 @@
 package me.jellysquid.mods.lithium.mixin.ai.poi.fast_init;
 
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import me.jellysquid.mods.lithium.common.world.interests.PointOfInterestTypeHelper;
 import net.minecraft.block.BlockState;
@@ -25,6 +24,6 @@ public class PointOfInterestTypeMixin {
     static {
         BLOCK_STATE_TO_POINT_OF_INTEREST_TYPE = new Reference2ReferenceOpenHashMap<>(BLOCK_STATE_TO_POINT_OF_INTEREST_TYPE);
 
-        PointOfInterestTypeHelper.init(new ObjectArraySet<>(BLOCK_STATE_TO_POINT_OF_INTEREST_TYPE.keySet()));
+        PointOfInterestTypeHelper.init(BLOCK_STATE_TO_POINT_OF_INTEREST_TYPE.keySet());
     }
 }

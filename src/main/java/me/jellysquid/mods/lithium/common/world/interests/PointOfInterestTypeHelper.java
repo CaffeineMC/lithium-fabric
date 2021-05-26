@@ -4,20 +4,22 @@ import net.minecraft.block.BlockState;
 import net.minecraft.world.chunk.ChunkSection;
 
 import java.util.Set;
+import java.util.function.Predicate;
 
 public class PointOfInterestTypeHelper {
-    private static Set<BlockState> TYPES;
+    private static Predicate<BlockState> POI_BLOCKSTATE_PREDICATE;
+
 
     public static void init(Set<BlockState> types) {
-        if (TYPES != null) {
+        if (POI_BLOCKSTATE_PREDICATE != null) {
             throw new IllegalStateException("Already initialized");
         }
 
-        TYPES = types;
+        POI_BLOCKSTATE_PREDICATE = types::contains;
     }
 
     public static boolean shouldScan(ChunkSection section) {
-        return section.hasAny(TYPES::contains);
+        return section.hasAny(POI_BLOCKSTATE_PREDICATE);
     }
 
 }
