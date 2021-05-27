@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngine;
+import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerSection;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityMovementTracker;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListener;
 import net.minecraft.entity.Entity;
@@ -18,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EntityTrackingSection.class)
-public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerEngine.EntityTrackingSectionAccessor {
+public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSection {
     @Shadow
     private EntityTrackingStatus status;
     @Shadow

@@ -1,21 +1,19 @@
 package me.jellysquid.mods.lithium.common.entity.tracker;
 
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListener;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityMovementTracker;
-import me.jellysquid.mods.lithium.common.util.LongObjObjConsumer;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.world.entity.EntityLike;
-import net.minecraft.world.entity.EntityTrackingSection;
-import net.minecraft.world.entity.SectionedEntityCache;
 
 import java.util.List;
 
 /**
+ * Helps to track in which entity sections entities of a certain type moved, appeared or disappeared by providing int
+ * masks for all Entity classes.
  * Helps to track the entities within a world and provide notifications to listeners when a tracked entity enters or leaves a
  * watched area. This removes the necessity to constantly poll the world for nearby entities each tick and generally
- * provides a sizable boost to performance. //todo benchmark in 1.17 again
+ * provides a sizable boost to performance.
+ * //todo benchmark in 1.17 again
  */
 public abstract class EntityTrackerEngine {
     public static final List<Class<?>> MOVEMENT_NOTIFYING_ENTITY_CLASSES;
@@ -29,19 +27,6 @@ public abstract class EntityTrackerEngine {
         CLASS_2_NOTIFY_MASK.defaultReturnValue(-1);
         NUM_MOVEMENT_NOTIFYING_CLASSES = MOVEMENT_NOTIFYING_ENTITY_CLASSES.size();
     }
-
-    public static final LongObjObjConsumer<NearbyEntityListener, SectionedEntityCache<? extends EntityLike>> enteredRangeConsumer =
-            (pos, nearbyEntityListener, entityCache) -> {
-                ((EntityTrackingSectionAccessor) entityCache.getTrackingSection(pos)).addListener(nearbyEntityListener);
-            };
-    public static final LongObjObjConsumer<NearbyEntityListener, SectionedEntityCache<? extends EntityLike>> leftRangeConsumer =
-            (pos, nearbyEntityListener, entityCache) -> {
-                EntityTrackingSection<?> trackingSection = entityCache.getTrackingSection(pos);
-                ((EntityTrackingSectionAccessor) trackingSection).removeListener(nearbyEntityListener);
-                if (trackingSection.isEmpty()) {
-                    entityCache.removeSection(pos);
-                }
-            };
 
     public static int getNotificationMask(Class<? extends EntityLike> entityClass) {
         int notificationMask = CLASS_2_NOTIFY_MASK.getInt(entityClass);
@@ -60,6 +45,7 @@ public abstract class EntityTrackerEngine {
         }
 
         //progress can be lost here, but it can only cost performance
+        //copy on write followed by publication in volatile field guarantees visibility of the final state
         Reference2IntOpenHashMap<Class<? extends EntityLike>> copy = CLASS_2_NOTIFY_MASK.clone();
         copy.put(entityClass, mask);
         CLASS_2_NOTIFY_MASK = copy;
@@ -67,21 +53,4 @@ public abstract class EntityTrackerEngine {
         return mask;
     }
 
-    public interface EntityTrackingSectionAccessor {
-        void addListener(NearbyEntityListener listener);
-
-        void removeListener(NearbyEntityListener listener);
-
-        void addListener(NearbyEntityMovementTracker<?, ?> listener);
-
-        void removeListener(NearbyEntityMovementTracker<?, ?> listener);
-
-        void updateMovementTimestamps(int notificationMask, long time);
-
-        long getMovementTimestamp(int index);
-
-        void setPos(long chunkSectionPos);
-
-        long getPos();
-    }
 }

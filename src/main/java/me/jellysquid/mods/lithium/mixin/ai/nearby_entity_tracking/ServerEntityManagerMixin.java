@@ -1,6 +1,5 @@
 package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 
-import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngine;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerMulti;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerProvider;
 import net.minecraft.server.world.ServerEntityManager;
@@ -18,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class ServerEntityManagerMixin<T extends EntityLike> {
     @Shadow
     @Final
-    private SectionedEntityCache<T> cache;
+    SectionedEntityCache<T> cache;
 
     @SuppressWarnings("UnresolvedMixinReference")
     @Inject(
@@ -35,9 +34,7 @@ public abstract class ServerEntityManagerMixin<T extends EntityLike> {
             listener.forEachChunkInRangeChange(
                     this.cache,
                     null,
-                    ChunkSectionPos.from(entity.getBlockPos()),
-                    EntityTrackerEngine.enteredRangeConsumer,
-                    null
+                    ChunkSectionPos.from(entity.getBlockPos())
             );
         }
     }

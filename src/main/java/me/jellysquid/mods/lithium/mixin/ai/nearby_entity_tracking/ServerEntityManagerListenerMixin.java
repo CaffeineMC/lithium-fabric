@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngine;
+import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerSection;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerMulti;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerProvider;
 import net.minecraft.entity.Entity;
@@ -35,7 +36,7 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
 
     private int notificationMask;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "Lnet/minecraft/server/world/ServerEntityManager$Listener;<init>(Lnet/minecraft/world/entity/EntityLike;JLnet/minecraft/world/entity/EntityTrackingSection;)V", at = @At("RETURN"))
     private void init(ServerEntityManager<?> outer, T entityLike, long l, EntityTrackingSection<T> entityTrackingSection, CallbackInfo ci) {
         this.notificationMask = EntityTrackerEngine.getNotificationMask(this.entity.getClass());
     }
@@ -43,7 +44,7 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
     @Inject(method = "updateEntityPosition()V", at = @At("RETURN"))
     private void updateEntityTrackerEngine(CallbackInfo ci) {
         if (this.notificationMask != 0) {
-            ((EntityTrackerEngine.EntityTrackingSectionAccessor) this.section).updateMovementTimestamps(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
+            ((EntityTrackerSection) this.section).updateMovementTimestamps(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
         }
     }
 
@@ -60,16 +61,15 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
         NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) entity).getListener();
         if (listener != null)
         {
+            //noinspection unchecked
             listener.forEachChunkInRangeChange(
-                    ((ServerEntityManagerAccessor) this.manager).getCache(),
+                    ((ServerEntityManagerAccessor<T>) this.manager).getCache(),
                     ChunkSectionPos.from(this.sectionPos),
-                    ChunkSectionPos.from(newPos),
-                    EntityTrackerEngine.enteredRangeConsumer,
-                    EntityTrackerEngine.leftRangeConsumer
+                    ChunkSectionPos.from(newPos)
             );
         }
         if (this.notificationMask != 0) {
-            ((EntityTrackerEngine.EntityTrackingSectionAccessor) this.section).updateMovementTimestamps(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
+            ((EntityTrackerSection) this.section).updateMovementTimestamps(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
         }
     }
 
@@ -83,16 +83,15 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
         NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) entity).getListener();
         if (listener != null)
         {
+            //noinspection unchecked
             listener.forEachChunkInRangeChange(
-                    ((ServerEntityManagerAccessor) this.manager).getCache(),
+                    ((ServerEntityManagerAccessor<T>) this.manager).getCache(),
                     ChunkSectionPos.from(this.sectionPos),
-                    null,
-                    null,
-                    EntityTrackerEngine.leftRangeConsumer
+                    null
             );
         }
         if (this.notificationMask != 0) {
-            ((EntityTrackerEngine.EntityTrackingSectionAccessor) this.section).updateMovementTimestamps(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
+            ((EntityTrackerSection) this.section).updateMovementTimestamps(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
         }
     }
 }

@@ -2,9 +2,9 @@ package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngine;
+import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerSection;
 import me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking.ServerEntityManagerAccessor;
 import me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking.ServerWorldAccessor;
-import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.Box;
@@ -44,7 +44,7 @@ public class NearbyEntityMovementTracker<T extends EntityLike, S extends T> {
     }
 
     private void updateRegistration(ServerWorld world, boolean register) {
-        ArrayList<EntityTrackingSection<? extends EntityLike>> sortedSections = register ? new ArrayList<>() : null;
+        ArrayList<EntityTrackingSection<T>> sortedSections = register ? new ArrayList<>() : null;
         BooleanArrayList sectionVisible = register ? new BooleanArrayList() : null;
         int minX = ChunkSectionPos.getSectionCoord(this.box.minX - 2.0D);
         int minY = ChunkSectionPos.getSectionCoord(this.box.minY - 2.0D);
@@ -56,8 +56,9 @@ public class NearbyEntityMovementTracker<T extends EntityLike, S extends T> {
         for (int x = minX; x <= maxX; x++) {
             for (int z = minZ; z <= maxZ; z++) {
                 for (int y = minY; y <= maxY; y++) {
-                    EntityTrackingSection<? extends EntityLike> section = ((ServerEntityManagerAccessor) ((ServerWorldAccessor) world).getEntityManager()).getCache().getTrackingSection(ChunkSectionPos.asLong(x, y, z));
-                    EntityTrackerEngine.EntityTrackingSectionAccessor sectionAccess = (EntityTrackerEngine.EntityTrackingSectionAccessor) section;
+                    //noinspection unchecked
+                    EntityTrackingSection<T> section = ((ServerEntityManagerAccessor<T>) ((ServerWorldAccessor) world).getEntityManager()).getCache().getTrackingSection(ChunkSectionPos.asLong(x, y, z));
+                    EntityTrackerSection sectionAccess = (EntityTrackerSection) section;
                     if (register) {
                         sectionAccess.addListener(this);
                         sortedSections.add(section);
@@ -90,14 +91,14 @@ public class NearbyEntityMovementTracker<T extends EntityLike, S extends T> {
      * Register an entity section to this listener, so this listener can look for changes in the section.
      */
     public void onSectionEnteredRange(Object section) {
-        if (section instanceof EntityTrackerEngine.EntityTrackingSectionAccessor newSection) {
+        if (section instanceof EntityTrackerSection newSection) {
             this.setChanged();
             this.sectionVisible[Arrays.binarySearch(this.sortedSections, section)] = true;
         }
     }
 
     public void onSectionLeftRange(Object entityTrackingSection) {
-        if (entityTrackingSection instanceof EntityTrackerEngine.EntityTrackingSectionAccessor section) {
+        if (entityTrackingSection instanceof EntityTrackerSection section) {
             this.setChanged();
             this.sectionVisible[Arrays.binarySearch(this.sortedSections, section)] = false;
         }
@@ -111,7 +112,7 @@ public class NearbyEntityMovementTracker<T extends EntityLike, S extends T> {
     private boolean checkForChanges() {
         //noinspection ForLoopReplaceableByForEach
         for (int i = 0, registeredSectionsSize = this.sortedSections.length; i < registeredSectionsSize; i++) {
-            EntityTrackerEngine.EntityTrackingSectionAccessor trackedEntityList = (EntityTrackerEngine.EntityTrackingSectionAccessor) this.sortedSections[i];
+            EntityTrackerSection trackedEntityList = (EntityTrackerSection) this.sortedSections[i];
             if (trackedEntityList.getMovementTimestamp(this.trackedClass) >= this.lastCheckedTime) {
                 this.setChanged();
                 return true;

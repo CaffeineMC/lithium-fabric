@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ServerEntityManager.class)
-public interface ServerEntityManagerAccessor {
+public interface ServerEntityManagerAccessor<T extends EntityLike> {
     @Accessor
-    SectionedEntityCache<? extends EntityLike> getCache();
+    SectionedEntityCache<T> getCache();
 }

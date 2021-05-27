@@ -1,12 +1,15 @@
 package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
-import me.jellysquid.mods.lithium.common.util.LongObjObjConsumer;
+import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerSection;
 import me.jellysquid.mods.lithium.common.util.tuples.Range6Int;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.world.entity.EntityLike;
+import net.minecraft.world.entity.EntityTrackingSection;
+import net.minecraft.world.entity.SectionedEntityCache;
 
 /**
  * The main interface used to receive events from the
@@ -17,7 +20,7 @@ public interface NearbyEntityListener {
     /**
      * Calls the callbacks for the chunk coordinates that this listener is leaving and entering
      */
-    default <S> void forEachChunkInRangeChange(S entityCache, ChunkSectionPos prevCenterPos, ChunkSectionPos newCenterPos, LongObjObjConsumer<NearbyEntityListener, S> enteredRangeConsumer, LongObjObjConsumer<NearbyEntityListener, S> leftRangeConsumer) {
+    default void forEachChunkInRangeChange(SectionedEntityCache<? extends EntityLike> entityCache, ChunkSectionPos prevCenterPos, ChunkSectionPos newCenterPos) {
         Range6Int chunkRange = this.getChunkRange();
         if (chunkRange == EMPTY_RANGE) {
             return;
@@ -26,23 +29,28 @@ public interface NearbyEntityListener {
 
         BlockBox after = newCenterPos == null ? null : new BlockBox(newCenterPos.getX() - chunkRange.negativeX(), newCenterPos.getY() - chunkRange.negativeY(), newCenterPos.getZ() - chunkRange.negativeZ(), newCenterPos.getX() + chunkRange.positiveX(), newCenterPos.getY() + chunkRange.positiveY(), newCenterPos.getZ() + chunkRange.positiveZ());
         BlockBox before = prevCenterPos == null ? null : new BlockBox(prevCenterPos.getX() - chunkRange.negativeX(), prevCenterPos.getY() - chunkRange.negativeY(), prevCenterPos.getZ() - chunkRange.negativeZ(), prevCenterPos.getX() + chunkRange.positiveX(), prevCenterPos.getY() + chunkRange.positiveY(), prevCenterPos.getZ() + chunkRange.positiveZ());
-        if (before != null && leftRangeConsumer != null) {
+        if (before != null) {
             for (int x = before.getMinX(); x <= before.getMaxX(); x++) {
                 for (int y = before.getMinY(); y <= before.getMaxY(); y++) {
                     for (int z = before.getMinZ(); z <= before.getMaxZ(); z++) {
                         if (after == null || !after.contains(pos.set(x, y, z))) {
-                            leftRangeConsumer.accept(ChunkSectionPos.asLong(x, y, z), this, entityCache);
+                            long sectionPos = ChunkSectionPos.asLong(x, y, z);
+                            EntityTrackingSection<? extends EntityLike> trackingSection = entityCache.getTrackingSection(sectionPos);
+                            ((EntityTrackerSection) trackingSection).removeListener(this);
+                            if (trackingSection.isEmpty()) {
+                                entityCache.removeSection(sectionPos);
+                            }
                         }
                     }
                 }
             }
         }
-        if (after != null && enteredRangeConsumer != null) {
+        if (after != null) {
             for (int x = after.getMinX(); x <= after.getMaxX(); x++) {
                 for (int y = after.getMinY(); y <= after.getMaxY(); y++) {
                     for (int z = after.getMinZ(); z <= after.getMaxZ(); z++) {
                         if (before == null || !before.contains(pos.set(x, y, z))) {
-                            enteredRangeConsumer.accept(ChunkSectionPos.asLong(x, y, z), this, entityCache);
+                            ((EntityTrackerSection) entityCache.getTrackingSection(ChunkSectionPos.asLong(x, y, z))).addListener(this);
                         }
                     }
                 }
