@@ -1,31 +1,31 @@
 package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
 import me.jellysquid.mods.lithium.common.util.LongObjObjConsumer;
+import me.jellysquid.mods.lithium.common.util.tuples.Range6Int;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.Vec3i;
 
 /**
  * The main interface used to receive events from the
  * {@link me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngine} of a world.
  */
 public interface NearbyEntityListener {
-    Vec3i EMPTY_RANGE = new Vec3i(0, 0, 0);
+    Range6Int EMPTY_RANGE = new Range6Int(0, 0, 0, -1, -1, -1);
     /**
      * Calls the callbacks for the chunk coordinates that this listener is leaving and entering
      */
     default <S> void forEachChunkInRangeChange(S entityCache, ChunkSectionPos prevCenterPos, ChunkSectionPos newCenterPos, LongObjObjConsumer<NearbyEntityListener, S> enteredRangeConsumer, LongObjObjConsumer<NearbyEntityListener, S> leftRangeConsumer) {
-        Vec3i chunkRange = this.getChunkRange();
+        Range6Int chunkRange = this.getChunkRange();
         if (chunkRange == EMPTY_RANGE) {
             return;
         }
         BlockPos.Mutable pos = new BlockPos.Mutable();
 
-        BlockBox after = newCenterPos == null ? null : new BlockBox(newCenterPos.getX() - chunkRange.getX(), newCenterPos.getY() - chunkRange.getY(), newCenterPos.getZ() - chunkRange.getZ(), newCenterPos.getX() + chunkRange.getX(), newCenterPos.getY() + chunkRange.getY(), newCenterPos.getZ() + chunkRange.getZ());
-        BlockBox before = prevCenterPos == null ? null : new BlockBox(prevCenterPos.getX() - chunkRange.getX(), prevCenterPos.getY() - chunkRange.getY(), prevCenterPos.getZ() - chunkRange.getZ(), prevCenterPos.getX() + chunkRange.getX(), prevCenterPos.getY() + chunkRange.getY(), prevCenterPos.getZ() + chunkRange.getZ());
+        BlockBox after = newCenterPos == null ? null : new BlockBox(newCenterPos.getX() - chunkRange.negativeX(), newCenterPos.getY() - chunkRange.negativeY(), newCenterPos.getZ() - chunkRange.negativeZ(), newCenterPos.getX() + chunkRange.positiveX(), newCenterPos.getY() + chunkRange.positiveY(), newCenterPos.getZ() + chunkRange.positiveZ());
+        BlockBox before = prevCenterPos == null ? null : new BlockBox(prevCenterPos.getX() - chunkRange.negativeX(), prevCenterPos.getY() - chunkRange.negativeY(), prevCenterPos.getZ() - chunkRange.negativeZ(), prevCenterPos.getX() + chunkRange.positiveX(), prevCenterPos.getY() + chunkRange.positiveY(), prevCenterPos.getZ() + chunkRange.positiveZ());
         if (before != null && leftRangeConsumer != null) {
             for (int x = before.getMinX(); x <= before.getMaxX(); x++) {
                 for (int y = before.getMinY(); y <= before.getMaxY(); y++) {
@@ -49,7 +49,7 @@ public interface NearbyEntityListener {
             }
         }
     }
-    Vec3i getChunkRange();
+    Range6Int getChunkRange();
 
     /**
      * Called by the entity tracker when an entity enters the range of this listener.
@@ -65,21 +65,23 @@ public interface NearbyEntityListener {
         return Entity.class;
     }
 
-    default <T> void onSectionLeftRange(TypeFilterableList<T> collection) {
+    /**
+     * Method to add all entities in the iteration order of the chunk section. This order is relevant and necessary
+     * to keep vanilla parity.
+     * @param <T> the type of the Entities in the collection
+     * @param entityTrackingSection the section the entities are in
+     * @param collection the collection of Entities that entered the range of this listener
+     */
+    default <T> void onSectionEnteredRange(Object entityTrackingSection, TypeFilterableList<T> collection) {
+        for (Entity entity : collection.getAllOfType(this.getEntityClass())) {
+            this.onEntityEnteredRange(entity);
+        }
+    }
+
+    default <T> void onSectionLeftRange(Object entityTrackingSection, TypeFilterableList<T> collection) {
         for (Entity entity : collection.getAllOfType(this.getEntityClass())) {
             this.onEntityLeftRange(entity);
         }
     }
 
-    /**
-     * Method to add all entities in the iteration order of the chunk section. This order is relevant and necessary
-     * to keep vanilla parity.
-     * @param collection the collection of Entities that entered the range of this listener
-     * @param <T> the type of the Entities in the collection
-     */
-    default <T> void onSectionEnteredRange(TypeFilterableList<T> collection) {
-        for (Entity entity : collection.getAllOfType(this.getEntityClass())) {
-            this.onEntityEnteredRange(entity);
-        }
-    }
 }

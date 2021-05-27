@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
+import me.jellysquid.mods.lithium.common.util.tuples.Range6Int;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Vec3i;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class NearbyEntityListenerMulti implements NearbyEntityListener {
     private final List<NearbyEntityListener> listeners = new ArrayList<>(4);
-    private Vec3i range = null;
+    private Range6Int range = null;
 
     public void addListener(NearbyEntityListener listener) {
         if (this.range != null) {
@@ -26,25 +26,34 @@ public class NearbyEntityListenerMulti implements NearbyEntityListener {
     }
 
     @Override
-    public Vec3i getChunkRange() {
-        Vec3i range = this.range;
-        if (range != null) {
-            return range;
+    public Range6Int getChunkRange() {
+        if (this.range != null) {
+            return this.range;
         }
-
+        return calculateRange();
+    }
+    private Range6Int calculateRange() {
         if (this.listeners.isEmpty()) {
             return this.range = EMPTY_RANGE;
         }
-        int xRange = -1, yRange = -1, zRange = -1;
+        int positiveX = -1;
+        int positiveY = -1;
+        int positiveZ = -1;
+        int negativeX = 0;
+        int negativeY = 0;
+        int negativeZ = 0;
+
         for (NearbyEntityListener listener : this.listeners) {
-            Vec3i chunkRange = listener.getChunkRange();
-            xRange = Math.max(chunkRange.getX(), xRange);
-            yRange = Math.max(chunkRange.getY(), yRange);
-            zRange = Math.max(chunkRange.getZ(), zRange);
+            Range6Int chunkRange = listener.getChunkRange();
+            positiveX = Math.max(chunkRange.positiveX(), positiveX);
+            positiveY = Math.max(chunkRange.positiveY(), positiveY);
+            positiveZ = Math.max(chunkRange.positiveZ(), positiveZ);
+            negativeX = Math.max(chunkRange.negativeX(), negativeX);
+            negativeY = Math.max(chunkRange.negativeY(), negativeY);
+            negativeZ = Math.max(chunkRange.negativeZ(), negativeZ);
+
         }
-        assert xRange > 0 && yRange > 0 && zRange > 0;
-        range = new Vec3i(xRange, yRange, zRange);
-        return this.range = range;
+        return this.range = new Range6Int(positiveX, positiveY, positiveZ, negativeX, negativeY, negativeZ);
     }
 
     @Override

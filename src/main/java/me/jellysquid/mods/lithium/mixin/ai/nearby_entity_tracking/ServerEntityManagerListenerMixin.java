@@ -19,8 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(targets = "net/minecraft/server/world/ServerEntityManager$Listener")
-public class ServerEntityManagerListenerMixin<T extends EntityLike> implements EntityTrackerEngine.TrackedEntityWrapper {
-    private static final int SOME_BIG_NUMBER = Integer.MAX_VALUE - 1024; // just some large number smaller than MAX_VALUE
+public class ServerEntityManagerListenerMixin<T extends EntityLike> {
     @Shadow
     private EntityTrackingSection<T> section;
     @Shadow
@@ -34,14 +33,17 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> implements E
     @Shadow
     private long sectionPos;
 
-    private int exactPositionListenersCount = 0;
+    private int notificationMask;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void init(ServerEntityManager<?> outer, T entityLike, long l, EntityTrackingSection<T> entityTrackingSection, CallbackInfo ci) {
+        this.notificationMask = EntityTrackerEngine.getNotificationMask(this.entity.getClass());
+    }
 
     @Inject(method = "updateEntityPosition()V", at = @At("RETURN"))
     private void updateEntityTrackerEngine(CallbackInfo ci) {
-        if (this.exactPositionListenersCount > 0) {
-            if (this.entity instanceof Entity) {
-                ((EntityTrackerEngine.TrackedEntityList) this.section).notifyExactListeners((Entity) this.entity);
-            }
+        if (this.notificationMask != 0) {
+            ((EntityTrackerEngine.EntityTrackingSectionAccessor) this.section).updateMovementTimestamps(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
         }
     }
 
@@ -54,7 +56,7 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> implements E
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private void onUpdateEntityPosition(CallbackInfo ci, BlockPos blockPos, long newPos, EntityTrackingStatus entityTrackingStatus, EntityTrackingSection<T> entityTrackingSection) {
+    private void onAddEntity(CallbackInfo ci, BlockPos blockPos, long newPos, EntityTrackingStatus entityTrackingStatus, EntityTrackingSection<T> entityTrackingSection) {
         NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) entity).getListener();
         if (listener != null)
         {
@@ -65,6 +67,9 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> implements E
                     EntityTrackerEngine.enteredRangeConsumer,
                     EntityTrackerEngine.leftRangeConsumer
             );
+        }
+        if (this.notificationMask != 0) {
+            ((EntityTrackerEngine.EntityTrackingSectionAccessor) this.section).updateMovementTimestamps(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
         }
     }
 
@@ -86,18 +91,8 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> implements E
                     EntityTrackerEngine.leftRangeConsumer
             );
         }
-    }
-
-    @Override
-    public void updateExactPositionTrackedCount(int change) {
-        int count = this.exactPositionListenersCount;
-        if (count > SOME_BIG_NUMBER) {
-            return; //avoid overflow, this entity will be tracked until the end of its lifetime
+        if (this.notificationMask != 0) {
+            ((EntityTrackerEngine.EntityTrackingSectionAccessor) this.section).updateMovementTimestamps(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
         }
-        count += change;
-        if (count < 0) {
-            throw new IllegalStateException("Number of exact position listeners cannot be negative!");
-        }
-        this.exactPositionListenersCount = count;
     }
 }

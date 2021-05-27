@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
 import it.unimi.dsi.fastutil.objects.Reference2LongOpenHashMap;
+import me.jellysquid.mods.lithium.common.util.tuples.Range6Int;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.TargetPredicate;
@@ -22,12 +23,15 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
 
     private final Reference2LongOpenHashMap<T> nearbyEntities = new Reference2LongOpenHashMap<>(0);
     private long counter;
-    private final Vec3i chunkBoxRadius;
+    private final Range6Int chunkBoxRadius;
 
     public NearbyEntityTracker(Class<T> clazz, LivingEntity self, Vec3i boxRadius) {
         this.clazz = clazz;
         this.self = self;
-        this.chunkBoxRadius = new Vec3i(
+        this.chunkBoxRadius = new Range6Int(
+                1 + ChunkSectionPos.getSectionCoord(boxRadius.getX()),
+                1 + ChunkSectionPos.getSectionCoord(boxRadius.getY()),
+                1 + ChunkSectionPos.getSectionCoord(boxRadius.getZ()),
                 1 + ChunkSectionPos.getSectionCoord(boxRadius.getX()),
                 1 + ChunkSectionPos.getSectionCoord(boxRadius.getY()),
                 1 + ChunkSectionPos.getSectionCoord(boxRadius.getZ())
@@ -40,7 +44,7 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
     }
 
     @Override
-    public Vec3i getChunkRange() {
+    public Range6Int getChunkRange() {
         return this.chunkBoxRadius;
     }
 
@@ -109,7 +113,6 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
         if (this.getEntityClass() == PlayerEntity.class) {
             //Get first in player list
             List<? extends PlayerEntity> players = this.self.getEntityWorld().getPlayers();
-            //noinspection RedundantCast
             return players.indexOf((PlayerEntity)entity1) < players.indexOf((PlayerEntity)entity2) ? entity1 : entity2;
         } else {
             //Get first sorted by chunk section pos as long, then sorted by first added to the chunk section
