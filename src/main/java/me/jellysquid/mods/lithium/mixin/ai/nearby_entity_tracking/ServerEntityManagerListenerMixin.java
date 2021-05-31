@@ -36,7 +36,7 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
 
     private int notificationMask;
 
-    @Inject(method = "Lnet/minecraft/server/world/ServerEntityManager$Listener;<init>(Lnet/minecraft/world/entity/EntityLike;JLnet/minecraft/world/entity/EntityTrackingSection;)V", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"))
     private void init(ServerEntityManager<?> outer, T entityLike, long l, EntityTrackingSection<T> entityTrackingSection, CallbackInfo ci) {
         this.notificationMask = EntityTrackerEngine.getNotificationMask(this.entity.getClass());
     }
