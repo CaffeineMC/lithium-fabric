@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngine;
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerSection;
@@ -89,7 +90,7 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
 
     @Inject(method = "isEmpty", at = @At(value = "HEAD"), cancellable = true)
     public void isEmpty(CallbackInfoReturnable<Boolean> cir) {
-        if (!this.nearbyEntityListeners.isEmpty()) {
+        if (!this.nearbyEntityListeners.isEmpty() || !this.movementListeners.isEmpty()) {
             cir.setReturnValue(false);
         }
     }

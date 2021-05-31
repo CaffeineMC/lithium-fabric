@@ -43,10 +43,6 @@ public class TypeFilterableListMixin<T> {
     }
 
     private <S> Collection<T> createAllOfType(Class<S> type) {
-        if (!this.elementType.isAssignableFrom(type)) {
-            throw new IllegalArgumentException("Don't know how to search for " + type);
-        }
-
         List<T> list = new ArrayList<>();
 
         for (T allElement : this.allElements) {

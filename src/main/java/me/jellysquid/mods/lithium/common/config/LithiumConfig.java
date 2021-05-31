@@ -50,6 +50,7 @@ public class LithiumConfig {
 
         this.addMixinRule("block", true);
         this.addMixinRule("block.flatten_states", true);
+        this.addMixinRule("block.hopper", true);
         this.addMixinRule("block.moving_block_shapes", true);
 
         this.addMixinRule("cached_hashcode", true);
@@ -76,6 +77,8 @@ public class LithiumConfig {
         this.addMixinRule("entity.replace_entitytype_predicates", true);
         this.addMixinRule("entity.skip_fire_check", true);
         this.addMixinRule("entity.stream_entity_collisions_lazily", true);
+
+        this.addMixinRule("item", true);
 
         this.addMixinRule("gen", true);
         this.addMixinRule("gen.biome_noise_cache", true);

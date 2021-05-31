@@ -1,0 +1,63 @@
+package me.jellysquid.mods.lithium.mixin.block.hopper;
+
+import me.jellysquid.mods.lithium.common.hopper.UpdateReceiver;
+import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+@Mixin(HopperBlock.class)
+//todo maybe only access existing block entities. creating a blockentity here might be observable
+public abstract class HopperBlockMixin extends BlockWithEntity {
+
+    protected HopperBlockMixin(Settings settings) {
+        super(settings);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public BlockState getStateForNeighborUpdate(BlockState myBlockState, Direction direction, BlockState newState, WorldAccess world, BlockPos myPos, BlockPos posFrom) {
+        //invalidate cache when composters change state
+        if (newState.getBlock() instanceof InventoryProvider) {
+            this.updateHopper(world, myBlockState, myPos, posFrom);
+        }
+        return myBlockState;
+
+    }
+
+    @Inject(method = "neighborUpdate(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V", at = @At(value = "HEAD"))
+    private void updateBlockEntity(BlockState myBlockState, World world, BlockPos myPos, Block block, BlockPos posFrom, boolean moved, CallbackInfo ci) {
+        //invalidate cache when the block is replaced
+        this.updateHopper(world, myBlockState, myPos, posFrom);
+    }
+
+    private void updateHopper(WorldAccess world, BlockState myBlockState, BlockPos myPos, BlockPos posFrom) {
+        Direction facing = myBlockState.get(HopperBlock.FACING);
+        boolean above = posFrom.getY() == myPos.getY() + 1;
+        if (above || posFrom.getX() == myPos.getX() + facing.getOffsetX() && posFrom.getY() == myPos.getY() + facing.getOffsetY() && posFrom.getZ() == myPos.getZ() + facing.getOffsetZ()) {
+            BlockEntity hopper = world.getBlockEntity(myPos);
+            if (hopper instanceof UpdateReceiver updateReceiver) {
+                updateReceiver.onNeighborUpdate(above);
+            }
+        }
+    }
+
+    @Inject(method = "onBlockAdded", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/HopperBlock;updateEnabled(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V", shift = At.Shift.AFTER))
+    private void workAroundVanillaUpdateSuppression(BlockState state, World world, BlockPos pos, BlockState oldState, boolean moved, CallbackInfo ci) {
+        //invalidate caches of nearby hoppers when placing an update suppressed hopper
+        if (world.getBlockState(pos) != state) {
+            for (Direction direction : DIRECTIONS) {
+                BlockEntity hopper = world.getBlockEntity(pos.offset(direction));
+                if (hopper instanceof UpdateReceiver updateReceiver) {
+                    updateReceiver.onNeighborUpdate(direction == Direction.DOWN);
+                }
+            }
+        }
+    }
+}
