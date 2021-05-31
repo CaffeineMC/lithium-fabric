@@ -5,7 +5,6 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectSortedMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import me.jellysquid.mods.lithium.common.util.Pos;
-import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerTickScheduler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -67,7 +66,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     public void tick() {
         this.world.getProfiler().push("cleaning");
 
-        this.selectTicks(this.world.getChunkManager(), this.world.getTime());
+        this.selectTicks(this.world, this.world.getTime());
 
         this.world.getProfiler().swap("executing");
 
@@ -145,7 +144,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     /**
      * Enqueues all scheduled ticks before the specified time and prepares them for execution.
      */
-    public void selectTicks(ServerChunkManager chunkManager, long time) {
+    public void selectTicks(ServerWorld world, long time) {
         // Calculates the maximum key value which includes all ticks scheduled before the specified time
         long headKey = getBucketKey(time + 1, TickPriority.EXTREMELY_HIGH) - 1;
 
@@ -185,7 +184,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
                     // in the same chunk can be updated. This avoids the more expensive check to the chunk manager.
                     if (prevChunk != chunk) {
                         prevChunk = chunk;
-                        canTick = chunkManager.shouldTickBlock(tick.pos);
+                        canTick = this.world.method_37117(tick.pos);
                     }
 
                     // If the tick can be executed right now, then add it to the executing list and decrement our
