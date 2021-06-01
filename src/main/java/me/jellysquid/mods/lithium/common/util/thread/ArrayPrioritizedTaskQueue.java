@@ -1,8 +1,6 @@
 package me.jellysquid.mods.lithium.common.util.thread;
 
 import com.google.common.collect.Queues;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.util.thread.TaskQueue;
 
 import java.util.Queue;
@@ -62,7 +60,6 @@ public class ArrayPrioritizedTaskQueue implements TaskQueue<TaskQueue.Prioritize
     }
 
     @Override
-    @Environment(EnvType.CLIENT)
     public int getSize() {
         return this.size.get();
     }
