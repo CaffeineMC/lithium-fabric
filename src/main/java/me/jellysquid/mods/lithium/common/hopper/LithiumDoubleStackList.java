@@ -3,9 +3,7 @@ package me.jellysquid.mods.lithium.common.hopper;
 import me.jellysquid.mods.lithium.mixin.block.hopper.DoubleInventoryAccessor;
 import net.minecraft.inventory.DoubleInventory;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -20,7 +18,7 @@ public class LithiumDoubleStackList extends LithiumStackList {
     private long signalStrengthChangeCount;
 
     public LithiumDoubleStackList(LithiumStackList first, LithiumStackList second, int maxCountPerStack) {
-        super(null, maxCountPerStack);
+        super(maxCountPerStack);
         this.first = first;
         this.second = second;
     }
