@@ -39,8 +39,14 @@ public abstract class DoubleInventoryMixin implements LithiumInventory {
     }
 
     @Override
+    public int getRemovedCount() {
+        return ((LithiumInventory) this.first).getRemovedCount() +
+                ((LithiumInventory) this.second).getRemovedCount();
+    }
+
+    @Override
     public int getSignalStrength() {
-        return 0;
+        return this.getLithiumStackList().getSignalStrength();
     }
 
     @Override
