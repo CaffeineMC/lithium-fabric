@@ -20,16 +20,7 @@ public class LithiumStackList extends DefaultedList<ItemStack> {
         //noinspection unchecked
         super(((DefaultedListAccessor<ItemStack>)original).getDelegate(), ItemStack.EMPTY);
         this.maxCountPerStack = maxCountPerStack;
-        this.init();
-    }
 
-    public LithiumStackList(int maxCountPerStack) {
-        super(null, ItemStack.EMPTY);
-        this.maxCountPerStack = maxCountPerStack;
-        this.init();
-    }
-
-    public void init() {
         this.cachedSignalStrength = -1;
         this.cachedComparatorUpdatePattern = null;
         this.modCount = 0;
@@ -44,6 +35,12 @@ public class LithiumStackList extends DefaultedList<ItemStack> {
                 ((StorableItemStack) (Object) stack).registerToInventory(this);
             }
         }
+    }
+
+    public LithiumStackList(int maxCountPerStack) {
+        super(null, ItemStack.EMPTY);
+        this.maxCountPerStack = maxCountPerStack;
+        this.cachedSignalStrength = -1;
     }
     public long getModCount() {
         return this.modCount;
