@@ -31,7 +31,7 @@ public abstract class DoubleInventoryMixin implements LithiumInventory {
         if (this.cachedList != null) {
             return this.cachedList;
         }
-        return this.cachedList = new LithiumDoubleStackList(
+        return this.cachedList = LithiumDoubleStackList.getOrCreate(
                 ((LithiumInventory) this.first).getLithiumStackList(),
                 ((LithiumInventory) this.second).getLithiumStackList(),
                 this.getMaxCountPerStack()

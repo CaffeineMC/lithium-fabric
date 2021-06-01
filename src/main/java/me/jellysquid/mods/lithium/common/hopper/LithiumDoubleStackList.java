@@ -23,6 +23,16 @@ public class LithiumDoubleStackList extends LithiumStackList {
         this.second = second;
     }
 
+    public static LithiumStackList getOrCreate(LithiumStackList first, LithiumStackList second, int maxCountPerStack) {
+        LithiumDoubleStackList parentStackList = first.parent;
+        if (parentStackList == null || parentStackList != second.parent) {
+            parentStackList = new LithiumDoubleStackList(first, second, maxCountPerStack);
+            first.parent = parentStackList;
+            second.parent = parentStackList;
+        }
+        return parentStackList;
+    }
+
     @Override
     public long getModCount() {
         return this.first.getModCount() + this.second.getModCount();

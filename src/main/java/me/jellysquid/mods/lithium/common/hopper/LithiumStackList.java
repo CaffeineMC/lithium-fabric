@@ -8,6 +8,8 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.MathHelper;
 
 public class LithiumStackList extends DefaultedList<ItemStack> {
+    LithiumDoubleStackList parent;
+
     protected int cachedSignalStrength;
     private ComparatorUpdatePattern cachedComparatorUpdatePattern;
 
