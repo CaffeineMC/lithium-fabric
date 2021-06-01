@@ -24,7 +24,7 @@ public abstract class HopperBlockMixin extends BlockWithEntity {
     @Override
     public BlockState getStateForNeighborUpdate(BlockState myBlockState, Direction direction, BlockState newState, WorldAccess world, BlockPos myPos, BlockPos posFrom) {
         //invalidate cache when composters change state
-        if (newState.getBlock() instanceof InventoryProvider) {
+        if (!world.isClient() && newState.getBlock() instanceof InventoryProvider) {
             this.updateHopper(world, myBlockState, myPos, posFrom);
         }
         return myBlockState;
@@ -34,7 +34,9 @@ public abstract class HopperBlockMixin extends BlockWithEntity {
     @Inject(method = "neighborUpdate(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V", at = @At(value = "HEAD"))
     private void updateBlockEntity(BlockState myBlockState, World world, BlockPos myPos, Block block, BlockPos posFrom, boolean moved, CallbackInfo ci) {
         //invalidate cache when the block is replaced
-        this.updateHopper(world, myBlockState, myPos, posFrom);
+        if (!world.isClient()) {
+            this.updateHopper(world, myBlockState, myPos, posFrom);
+        }
     }
 
     private void updateHopper(WorldAccess world, BlockState myBlockState, BlockPos myPos, BlockPos posFrom) {
