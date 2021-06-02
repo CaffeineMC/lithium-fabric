@@ -120,13 +120,10 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                     );
             hopperBlockEntity.extractInventoryEntityTracker.register((ServerWorld) world);
         }
-        long modCount = hopperBlockEntity.
-                getLithiumStackList().getModCount();
-        if (hopperBlockEntity.myLastCollectChangeCount == modCount &&
-                hopperBlockEntity.extractInventoryEntityTracker.isUnchanged()) {
+        if (hopperBlockEntity.extractInventoryEntityTracker.isUnchanged()) {
             return null;
         }
-        hopperBlockEntity.myLastCollectChangeCount = modCount;
+        hopperBlockEntity.myLastCollectChangeCount = hopperBlockEntity.getLithiumStackList().getModCount();
 
         List<Inventory> inventoryEntities = hopperBlockEntity.extractInventoryEntityTracker.getEntities();
         if (inventoryEntities.isEmpty()) {
@@ -294,13 +291,10 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                     );
             this.insertInventoryEntityTracker.register((ServerWorld) world);
         }
-        long modCount = this.
-                getLithiumStackList().getModCount();
-        if (this.myLastCollectChangeCount == modCount &&
-                this.insertInventoryEntityTracker.isUnchanged()) {
+        if (this.insertInventoryEntityTracker.isUnchanged()) {
             return null;
         }
-        this.myLastCollectChangeCount = modCount;
+        this.myLastCollectChangeCount = this.getLithiumStackList().getModCount();
 
         List<Inventory> inventoryEntities = this.insertInventoryEntityTracker.getEntities();
         if (inventoryEntities.isEmpty()) {
@@ -433,7 +427,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             hopperBlockEntity.initExtractItemEntityTracker((ServerWorld) world);
         }
         long modCount = hopperBlockEntity.getLithiumStackList().getModCount();
-        if (hopperBlockEntity.myLastCollectChangeCount == modCount &&
+        if ((hopperBlockEntity.extractItemEntityTracker.lastGetEntitiesWasEmpty() || hopperBlockEntity.myLastCollectChangeCount == modCount) &&
                 hopperBlockEntity.extractItemEntityTracker.isUnchanged()) {
             return Collections.emptyList();
         }

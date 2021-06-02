@@ -11,11 +11,16 @@ import java.util.List;
 public class NearbyItemEntityMovementTracker<S extends Entity> extends NearbyEntityMovementTracker<Entity, S> {
     private final Box[] interactionAreaBoxes;
 
+    private boolean wasEmpty;
+
     public NearbyItemEntityMovementTracker(Box encompassingBox, Box[] interactionArea, Class<S> clazz) {
         super(encompassingBox, clazz);
         this.interactionAreaBoxes = interactionArea;
     }
 
+    public boolean lastGetEntitiesWasEmpty() {
+        return this.wasEmpty;
+    }
 
     @Override
     public List<S> getEntities() {
@@ -39,6 +44,7 @@ public class NearbyItemEntityMovementTracker<S extends Entity> extends NearbyEnt
                 }
             }
         }
+        this.wasEmpty = entities.isEmpty();
         return entities;
     }
 }
