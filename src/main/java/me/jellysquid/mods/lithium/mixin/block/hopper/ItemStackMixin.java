@@ -7,20 +7,26 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(ItemStack.class)
-public class ItemStackMixin implements StorableItemStack {
+public abstract class ItemStackMixin implements StorableItemStack {
     @Shadow
     private int count;
+
+    private int mySlot;
+
     @Nullable
     private LithiumStackList myLocation;
 
+    @Shadow
+    public abstract boolean isEmpty();
+
     @Override
-    public void registerToInventory(LithiumStackList itemStacks) {
+    public void registerToInventory(LithiumStackList itemStacks, int mySlot) {
         assert this.myLocation == null;
         this.myLocation = itemStacks;
+        this.mySlot = mySlot;
     }
 
     @Override
@@ -32,7 +38,7 @@ public class ItemStackMixin implements StorableItemStack {
     @ModifyVariable(method = "setCount", at = @At("HEAD"))
     public int updateInventory(int count) {
         if (this.myLocation != null && this.count != count) {
-            this.myLocation.changed();
+            this.myLocation.beforeSlotCountChange(this.mySlot, count);
         }
         return count;
     }

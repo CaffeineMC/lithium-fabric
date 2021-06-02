@@ -39,6 +39,11 @@ public class LithiumDoubleStackList extends LithiumStackList {
     }
 
     @Override
+    public void changedALot() {
+        throw new UnsupportedOperationException("Call changed() on the inventory half only!");
+    }
+
+    @Override
     public void changed() {
         throw new UnsupportedOperationException("Call changed() on the inventory half only!");
     }
@@ -53,7 +58,7 @@ public class LithiumDoubleStackList extends LithiumStackList {
     }
 
     @Override
-    public void add(int value, ItemStack element) {
+    public void add(int slot, ItemStack element) {
         throw new UnsupportedOperationException("Call add(int value, ItemStack element) on the inventory half only!");
     }
 

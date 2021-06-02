@@ -189,6 +189,33 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         return inventory;
     }
 
+    @Redirect(
+            method = "insertAndExtract",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/block/entity/HopperBlockEntity;isFull()Z"
+            )
+    )
+    private static boolean lithiumHopperIsFull(HopperBlockEntity hopperBlockEntity) {
+        //noinspection ConstantConditions
+        LithiumStackList lithiumStackList = ((HopperBlockEntityMixin) (Object) hopperBlockEntity).getLithiumStackList();
+        return lithiumStackList.getFullSlots() == lithiumStackList.size();
+    }
+
+    @Redirect(
+            method = "insertAndExtract",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/block/entity/HopperBlockEntity;isEmpty()Z"
+            )
+    )
+    private static boolean lithiumHopperIsEmpty(HopperBlockEntity hopperBlockEntity) {
+        //noinspection ConstantConditions
+        LithiumStackList lithiumStackList = ((HopperBlockEntityMixin) (Object) hopperBlockEntity).getLithiumStackList();
+        return lithiumStackList.getOccupiedSlots() == 0;
+    }
+
+
     @Redirect(method = "insert", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getOutputInventory(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/inventory/Inventory;"))
     private static Inventory nullify(World world, BlockPos pos, BlockState state) {
         return null;
@@ -219,7 +246,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         }
 
         //todo maybe should check whether the receiving inventory is not full first, like vanilla. However this is a rare shortcut case and increases the work most of the time. worst case is 5x work than with the check
-        boolean insertInventoryWasEmptyHopperNotDisabled = insertInventory instanceof HopperBlockEntityMixin && !((HopperBlockEntityMixin) insertInventory).isDisabled() && insertInventory.isEmpty();
+        boolean insertInventoryWasEmptyHopperNotDisabled = insertInventory instanceof HopperBlockEntityMixin && !((HopperBlockEntityMixin) insertInventory).isDisabled() && hopperBlockEntity.insertInventoryStackList.getOccupiedSlots() == 0;
         Direction fromDirection = state.get(HopperBlock.FACING).getOpposite();
         int size = hopperStackList.size();
         //noinspection ForLoopReplaceableByForEach

@@ -13,10 +13,14 @@ public class LithiumStackList extends DefaultedList<ItemStack> {
     protected int cachedSignalStrength;
     private ComparatorUpdatePattern cachedComparatorUpdatePattern;
 
-    private long modCount;
     final int maxCountPerStack;
 
     private boolean signalStrengthOverride;
+
+    private long modCount;
+    private int occupiedSlots;
+    private int fullSlots;
+
 
     public LithiumStackList(DefaultedList<ItemStack> original, int maxCountPerStack) {
         //noinspection unchecked
@@ -28,13 +32,18 @@ public class LithiumStackList extends DefaultedList<ItemStack> {
         this.modCount = 0;
         this.signalStrengthOverride = false;
 
+        this.occupiedSlots = 0;
+        this.fullSlots = 0;
         int size = this.size();
-        //noinspection ForLoopReplaceableByForEach
         for (int i = 0; i < size; i++) {
             ItemStack stack = this.get(i);
             if (!stack.isEmpty()) {
+                this.occupiedSlots++;
+                if (stack.getMaxCount() <= stack.getCount()) {
+                    this.fullSlots++;
+                }
                 //noinspection ConstantConditions
-                ((StorableItemStack) (Object) stack).registerToInventory(this);
+                ((StorableItemStack) (Object) stack).registerToInventory(this, i);
             }
         }
     }
@@ -48,6 +57,47 @@ public class LithiumStackList extends DefaultedList<ItemStack> {
         return this.modCount;
     }
 
+    public void changedALot() {
+        this.changed();
+
+        //fix the slot mapping of all stacks in the inventory
+        //fix occupied/full slot counters
+        this.occupiedSlots = 0;
+        this.fullSlots = 0;
+        int size = this.size();
+        for (int i = 0; i < size; i++) {
+            ItemStack stack = this.get(i);
+            if (!stack.isEmpty()) {
+                this.occupiedSlots++;
+                if (stack.getMaxCount() <= stack.getCount()) {
+                    this.fullSlots++;
+                }
+                //noinspection ConstantConditions
+                ((StorableItemStack) (Object) stack).unregisterFromInventory(this);
+                //noinspection ConstantConditions
+                ((StorableItemStack) (Object) stack).registerToInventory(this, i);
+            }
+        }
+    }
+
+    public void beforeSlotCountChange(int slot, int newCount) {
+        ItemStack stack = this.get(slot);
+        int count = stack.getCount();
+        if (newCount <= 0) {
+            //noinspection ConstantConditions
+            ((StorableItemStack) (Object) stack).unregisterFromInventory(this);
+        }
+        int maxCount = stack.getMaxCount();
+        this.occupiedSlots -= newCount <= 0 ? 1 : 0;
+        this.fullSlots += (newCount >= maxCount ? 1 : 0) - (count >= maxCount ? 1 : 0);
+
+        this.changed();
+    }
+
+    /**
+     * Method that must be invoked before or after a change of the inventory to update important values. If done too
+     * early or too late, behavior might be incorrect.
+     */
     public void changed() {
         this.cachedSignalStrength = -1;
         this.cachedComparatorUpdatePattern = null;
@@ -56,37 +106,40 @@ public class LithiumStackList extends DefaultedList<ItemStack> {
 
     @Override
     public ItemStack set(int index, ItemStack element) {
-        this.changed();
         ItemStack previous = super.set(index, element);
         if (previous != element) {
             //noinspection ConstantConditions
             ((StorableItemStack) (Object) previous).unregisterFromInventory(this);
             //noinspection ConstantConditions
-            ((StorableItemStack) (Object) element).registerToInventory(this);
+            ((StorableItemStack) (Object) element).registerToInventory(this, index);
+
+            this.occupiedSlots += (previous.isEmpty() ? 1 : 0) - (element.isEmpty() ? 1 : 0);
+            this.fullSlots += (element.getCount() >= element.getMaxCount() ? 1 : 0) - (previous.getCount() >= previous.getMaxCount() ? 1 : 0);
+            this.changed();
         }
+
         return previous;
     }
 
     @Override
-    public void add(int value, ItemStack element) {
-        this.changed();
-        super.add(value, element);
+    public void add(int slot, ItemStack element) {
+        super.add(slot, element);
         //noinspection ConstantConditions
-        ((StorableItemStack) (Object) element).registerToInventory(this);
+        ((StorableItemStack) (Object) element).registerToInventory(this, -1);
+        this.changedALot();
     }
 
     @Override
     public ItemStack remove(int index) {
-        this.changed();
         ItemStack previous = super.remove(index);
         //noinspection ConstantConditions
         ((StorableItemStack) (Object) previous).unregisterFromInventory(this);
+        this.changedALot();
         return previous;
     }
 
     @Override
     public void clear() {
-        this.changed();
         int size = this.size();
         //noinspection ForLoopReplaceableByForEach
         for (int i = 0; i < size; i++) {
@@ -97,6 +150,7 @@ public class LithiumStackList extends DefaultedList<ItemStack> {
             }
         }
         super.clear();
+        this.changedALot();
     }
 
     public boolean hasSignalStrengthOverride() {
@@ -155,5 +209,13 @@ public class LithiumStackList extends DefaultedList<ItemStack> {
             }
             this.cachedComparatorUpdatePattern.apply((BlockEntity) inventory, masterStackList);
         }
+    }
+
+    public int getOccupiedSlots() {
+        return this.occupiedSlots;
+    }
+
+    public int getFullSlots() {
+        return this.fullSlots;
     }
 }
