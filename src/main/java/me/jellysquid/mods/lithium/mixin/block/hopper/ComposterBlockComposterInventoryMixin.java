@@ -15,7 +15,7 @@ public abstract class ComposterBlockComposterInventoryMixin {
      * Fixes composter inventories becoming blocked forever for no reason, which makes them not cacheable.
      */
     @Inject(
-            method = "markDirty",
+            method = "markDirty()V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/block/ComposterBlock$ComposterInventory;removeStack(I)Lnet/minecraft/item/ItemStack;"
