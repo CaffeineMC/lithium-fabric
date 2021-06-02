@@ -48,7 +48,8 @@ public class HopperHelper {
     }
 
     public static boolean tryPlaceSingleItem(Inventory to, ItemStack stack, @Nullable Direction fromDirection) {
-        if (to instanceof SidedInventory toSided && fromDirection != null) {
+        SidedInventory toSided = to instanceof SidedInventory ? ((SidedInventory) to) : null;
+        if (toSided != null && fromDirection != null) {
             int[] slots = toSided.getAvailableSlots(fromDirection);
 
             for(int slotIndex = 0; slotIndex < slots.length && !stack.isEmpty(); ++slotIndex) {
@@ -59,7 +60,7 @@ public class HopperHelper {
         } else {
             int j = to.size();
             for(int slot = 0; slot < j && !stack.isEmpty(); ++slot) {
-                if (tryPlaceSingleItem(to, null, stack, slot, fromDirection)) {
+                if (tryPlaceSingleItem(to, toSided, stack, slot, fromDirection)) {
                     return true; //caller needs to take the item from the original inventory and call to.markDirty()
                 }
             }
