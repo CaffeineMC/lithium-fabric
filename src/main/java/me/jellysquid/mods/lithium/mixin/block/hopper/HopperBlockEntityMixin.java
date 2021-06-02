@@ -335,7 +335,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             this.extractInventory = optimizedInventory;
             LithiumStackList extractInventoryStackList = optimizedInventory.getLithiumStackList();
             this.extractInventoryStackList = extractInventoryStackList;
-            this.extractInventoryChangeCount = extractInventoryStackList.getModCount();
+            this.extractInventoryChangeCount = extractInventoryStackList.getModCount() - 1;
             this.extractInventoryRemovedCount = optimizedInventory.getRemovedCount();
         } else {
             this.extractInventory = null;
