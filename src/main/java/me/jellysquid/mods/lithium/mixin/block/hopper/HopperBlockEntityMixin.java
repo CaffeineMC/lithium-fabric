@@ -26,6 +26,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -491,5 +492,22 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         this.extractInventoryStackList = null;
         this.insertInventoryChangeCount = 0;
         this.extractInventoryChangeCount = 0;
+    }
+
+    /**
+     * @author 2No2Name
+     * @reason avoid stream code
+     */
+    @Overwrite
+    private static boolean isInventoryEmpty(Inventory inv, Direction side) {
+        int[] availableSlots = inv instanceof SidedInventory ? ((SidedInventory) inv).getAvailableSlots(side) : null;
+        int fromSize = availableSlots != null ? availableSlots.length : inv.size();
+        for (int i = 0; i < fromSize; i++) {
+            int fromSlot = availableSlots != null ? availableSlots[i] : i;
+            if (!inv.getStack(i).isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 }
