@@ -64,7 +64,7 @@ public interface LithiumInventory extends Inventory {
      */
     default int getRemovedCountLithium() {
         //Already implemented for BlockEntity and DoubleInventory
-        throw new UnsupportedOperationException();
+        return 0;
     }
 
     /**
