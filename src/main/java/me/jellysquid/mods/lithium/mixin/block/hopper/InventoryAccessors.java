@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.block.hopper;
 
-import me.jellysquid.mods.lithium.common.hopper.LithiumInventory;
+import me.jellysquid.mods.lithium.api.inventory.LithiumInventory;
 import net.minecraft.block.entity.*;
 import net.minecraft.entity.vehicle.StorageMinecartEntity;
 import net.minecraft.item.ItemStack;

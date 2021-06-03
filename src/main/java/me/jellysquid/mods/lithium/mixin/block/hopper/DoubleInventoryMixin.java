@@ -1,7 +1,8 @@
 package me.jellysquid.mods.lithium.mixin.block.hopper;
 
+import me.jellysquid.mods.lithium.api.inventory.LithiumInventory;
+import me.jellysquid.mods.lithium.common.hopper.InventoryHelper;
 import me.jellysquid.mods.lithium.common.hopper.LithiumDoubleStackList;
-import me.jellysquid.mods.lithium.common.hopper.LithiumInventory;
 import me.jellysquid.mods.lithium.common.hopper.LithiumStackList;
 import net.minecraft.inventory.DoubleInventory;
 import net.minecraft.inventory.Inventory;
@@ -27,31 +28,21 @@ public abstract class DoubleInventoryMixin implements LithiumInventory {
     private LithiumStackList cachedList;
 
     @Override
-    public LithiumStackList getLithiumStackList() {
-        if (this.cachedList != null) {
-            return this.cachedList;
-        }
-        return this.cachedList = LithiumDoubleStackList.getOrCreate(
-                ((LithiumInventory) this.first).getLithiumStackList(),
-                ((LithiumInventory) this.second).getLithiumStackList(),
-                this.getMaxCountPerStack()
-        );
-    }
-
-    @Override
-    public int getRemovedCount() {
-        return ((LithiumInventory) this.first).getRemovedCount() +
-                ((LithiumInventory) this.second).getRemovedCount();
-    }
-
-    @Override
-    public int getSignalStrength() {
-        return this.getLithiumStackList().getSignalStrength();
+    public int getRemovedCountLithium() {
+        return ((LithiumInventory) this.first).getRemovedCountLithium() +
+                ((LithiumInventory) this.second).getRemovedCountLithium();
     }
 
     @Override
     public DefaultedList<ItemStack> getInventoryLithium() {
-        throw new UnsupportedOperationException();
+        if (this.cachedList != null) {
+            return this.cachedList;
+        }
+        return this.cachedList = LithiumDoubleStackList.getOrCreate(
+                InventoryHelper.getLithiumStackList((LithiumInventory) this.first),
+                InventoryHelper.getLithiumStackList((LithiumInventory) this.second),
+                this.getMaxCountPerStack()
+        );
     }
 
     @Override

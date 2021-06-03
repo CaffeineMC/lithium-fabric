@@ -1,9 +1,10 @@
 package me.jellysquid.mods.lithium.mixin.block.hopper;
 
+import me.jellysquid.mods.lithium.api.inventory.LithiumInventory;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyInventoryEntityMovementTracker;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyItemEntityMovementTracker;
 import me.jellysquid.mods.lithium.common.hopper.HopperHelper;
-import me.jellysquid.mods.lithium.common.hopper.LithiumInventory;
+import me.jellysquid.mods.lithium.common.hopper.InventoryHelper;
 import me.jellysquid.mods.lithium.common.hopper.LithiumStackList;
 import me.jellysquid.mods.lithium.common.hopper.UpdateReceiver;
 import net.minecraft.block.BlockState;
@@ -123,7 +124,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         if (hopperBlockEntity.extractInventoryEntityTracker.isUnchanged()) {
             return null;
         }
-        hopperBlockEntity.myLastCollectChangeCount = hopperBlockEntity.getLithiumStackList().getModCount();
+        hopperBlockEntity.myLastCollectChangeCount = InventoryHelper.getLithiumStackList(hopperBlockEntity).getModCount();
 
         List<Inventory> inventoryEntities = hopperBlockEntity.extractInventoryEntityTracker.getEntities();
         if (inventoryEntities.isEmpty()) {
@@ -137,53 +138,9 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             //not caching the inventory (hopperBlockEntity.extractBlockInventory == NO_INVENTORY_PRESENT prevents it)
             //make change counting on the entity inventory possible, without caching it as block inventory
             hopperBlockEntity.extractInventory = optimizedInventory;
-            hopperBlockEntity.extractInventoryStackList = optimizedInventory.getLithiumStackList();
+            hopperBlockEntity.extractInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
             hopperBlockEntity.extractInventoryChangeCount = hopperBlockEntity.extractInventoryStackList.getModCount() - 1;
         }
-        return inventory;
-    }
-
-    /**
-     * Makes this hopper remember the given inventory.
-     *
-     * @param insertInventory Block inventory / Blockentity inventory to be remembered
-     */
-    private void cacheInsertInventory(Inventory insertInventory) {
-        assert !(insertInventory instanceof Entity);
-        if (insertInventory instanceof BlockEntity) {
-            this.insertBlockInventory = null;
-        } else {
-            this.insertBlockInventory = insertInventory == null ? NO_INVENTORY_BLOCK_PRESENT : insertInventory;
-        }
-
-        if (insertInventory instanceof LithiumInventory optimizedInventory) {
-            this.insertInventory = optimizedInventory;
-            LithiumStackList insertInventoryStackList = optimizedInventory.getLithiumStackList();
-            this.insertInventoryStackList = insertInventoryStackList;
-            this.insertInventoryChangeCount = insertInventoryStackList.getModCount() - 1;
-            this.insertInventoryRemovedCount = optimizedInventory.getRemovedCount();
-        } else {
-            this.insertInventory = null;
-            this.insertInventoryStackList = null;
-            this.insertInventoryChangeCount = 0;
-            this.insertInventoryRemovedCount = 0;
-        }
-    }
-
-    public Inventory getInsertBlockInventory(World world) {
-        Inventory inventory = this.insertBlockInventory;
-        if (inventory != null) {
-            return inventory == NO_INVENTORY_BLOCK_PRESENT ? null : inventory;
-        }
-        LithiumInventory optimizedInventory;
-        if ((optimizedInventory = this.insertInventory) != null) {
-            if (optimizedInventory.getRemovedCount() == this.insertInventoryRemovedCount) {
-                return optimizedInventory;
-            }
-        }
-        Direction direction = this.getCachedState().get(HopperBlock.FACING);
-        inventory = HopperHelper.vanillaGetBlockInventory(world, this.getPos().offset(direction));
-        this.cacheInsertInventory(inventory);
         return inventory;
     }
 
@@ -196,7 +153,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     )
     private static boolean lithiumHopperIsFull(HopperBlockEntity hopperBlockEntity) {
         //noinspection ConstantConditions
-        LithiumStackList lithiumStackList = ((HopperBlockEntityMixin) (Object) hopperBlockEntity).getLithiumStackList();
+        LithiumStackList lithiumStackList = InventoryHelper.getLithiumStackList(((HopperBlockEntityMixin) (Object) hopperBlockEntity));
         return lithiumStackList.getFullSlots() == lithiumStackList.size();
     }
 
@@ -209,14 +166,8 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     )
     private static boolean lithiumHopperIsEmpty(HopperBlockEntity hopperBlockEntity) {
         //noinspection ConstantConditions
-        LithiumStackList lithiumStackList = ((HopperBlockEntityMixin) (Object) hopperBlockEntity).getLithiumStackList();
+        LithiumStackList lithiumStackList = InventoryHelper.getLithiumStackList(((HopperBlockEntityMixin) (Object) hopperBlockEntity));
         return lithiumStackList.getOccupiedSlots() == 0;
-    }
-
-
-    @Redirect(method = "insert", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getOutputInventory(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/inventory/Inventory;"))
-    private static Inventory nullify(World world, BlockPos pos, BlockState state) {
-        return null;
     }
 
     /**
@@ -235,7 +186,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             return insert(world, pos, state, hopper);
         }
 
-        LithiumStackList hopperStackList = hopperBlockEntity.getLithiumStackList();
+        LithiumStackList hopperStackList = InventoryHelper.getLithiumStackList(hopperBlockEntity);
         if (hopperBlockEntity.insertInventory == insertInventory && hopperStackList.getModCount() == hopperBlockEntity.myLastInsertChangeCount) {
             if (hopperBlockEntity.insertInventoryStackList.getModCount() == hopperBlockEntity.insertInventoryChangeCount) {
 //                ComparatorUpdatePattern.NO_UPDATE.apply(hopperBlockEntity, hopperStackList); //commented because it's a noop, Hoppers do not send useless comparator updates
@@ -273,88 +224,6 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         return false;
     }
 
-    public Inventory getInsertInventory(World world) {
-        Inventory blockInventory = this.getInsertBlockInventory(world);
-        if (blockInventory != null) {
-            return blockInventory;
-        }
-
-        if (this.insertInventoryEntityTracker == null) {
-            assert world instanceof ServerWorld;
-            Direction direction = this.getCachedState().get(HopperBlock.FACING);
-            BlockPos pos = this.pos.offset(direction);
-            this.insertInventoryEntityTracker =
-                    new NearbyInventoryEntityMovementTracker<>(
-                            new Box(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1),
-                            Inventory.class
-                    );
-            this.insertInventoryEntityTracker.register((ServerWorld) world);
-        }
-        if (this.insertInventoryEntityTracker.isUnchanged()) {
-            return null;
-        }
-        this.myLastCollectChangeCount = this.getLithiumStackList().getModCount();
-
-        List<Inventory> inventoryEntities = this.insertInventoryEntityTracker.getEntities();
-        if (inventoryEntities.isEmpty()) {
-            this.insertInventoryEntityTracker.setUnchanged(this.lastTickTime);
-            //only set unchanged when no entity present. this allows shortcutting this case
-            //shortcutting the entity present case requires checking its change counter
-            return null;
-        }
-        Inventory inventory = inventoryEntities.get(world.random.nextInt(inventoryEntities.size()));
-        if (inventory != this.insertInventory && inventory instanceof LithiumInventory optimizedInventory) {
-            //not caching the inventory (this.insertBlockInventory == NO_INVENTORY_PRESENT prevents it)
-            //make change counting on the entity inventory possible, without caching it as block inventory
-            this.insertInventory = optimizedInventory;
-            this.insertInventoryStackList = optimizedInventory.getLithiumStackList();
-            this.insertInventoryChangeCount = this.insertInventoryStackList.getModCount() - 1;
-        }
-        return inventory;
-    }
-
-    /**
-     * Makes this hopper remember the given inventory.
-     *
-     * @param extractInventory Block inventory / Blockentity inventory to be remembered
-     */
-    private void cacheExtractInventory(Inventory extractInventory) {
-        assert !(extractInventory instanceof Entity);
-        if (extractInventory instanceof BlockEntity) {
-            this.extractBlockInventory = null;
-        } else {
-            this.extractBlockInventory = extractInventory == null ? NO_INVENTORY_BLOCK_PRESENT : extractInventory;
-        }
-        if (extractInventory instanceof LithiumInventory optimizedInventory) {
-            this.extractInventory = optimizedInventory;
-            LithiumStackList extractInventoryStackList = optimizedInventory.getLithiumStackList();
-            this.extractInventoryStackList = extractInventoryStackList;
-            this.extractInventoryChangeCount = extractInventoryStackList.getModCount() - 1;
-            this.extractInventoryRemovedCount = optimizedInventory.getRemovedCount();
-        } else {
-            this.extractInventory = null;
-            this.extractInventoryStackList = null;
-            this.extractInventoryChangeCount = 0;
-            this.extractInventoryRemovedCount = 0;
-        }
-    }
-
-    public Inventory getExtractBlockInventory(World world) {
-        Inventory inventory = this.extractBlockInventory;
-        if (inventory != null) {
-            return inventory == NO_INVENTORY_BLOCK_PRESENT ? null : inventory;
-        }
-        LithiumInventory optimizedInventory;
-        if ((optimizedInventory = this.extractInventory) != null) {
-            if (optimizedInventory.getRemovedCount() == this.extractInventoryRemovedCount) {
-                return optimizedInventory;
-            }
-        }
-        inventory = HopperHelper.vanillaGetBlockInventory(world, this.getPos().up());
-        this.cacheExtractInventory(inventory);
-        return inventory;
-    }
-
     /**
      * Inject to replace the extract method with an optimized but equivalent replacement.
      * Uses the vanilla method as fallback for non-optimized Inventories.
@@ -371,7 +240,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             return; //from inventory is not an optimized inventory, vanilla fallback
         }
 
-        LithiumStackList hopperStackList = hopperBlockEntity.getLithiumStackList();
+        LithiumStackList hopperStackList = InventoryHelper.getLithiumStackList(hopperBlockEntity);
         LithiumStackList fromStackList = hopperBlockEntity.extractInventoryStackList;
 
         if (hopperStackList.getModCount() == hopperBlockEntity.myLastExtractChangeCount) {
@@ -417,17 +286,23 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         cir.setReturnValue(false);
     }
 
+
+    @Redirect(method = "insert", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getOutputInventory(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/inventory/Inventory;"))
+    private static Inventory nullify(World world, BlockPos pos, BlockState state) {
+        return null;
+    }
+
     @Redirect(method = "extract(Lnet/minecraft/world/World;Lnet/minecraft/block/entity/Hopper;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getInputItemEntities(Lnet/minecraft/world/World;Lnet/minecraft/block/entity/Hopper;)Ljava/util/List;"))
     private static List<ItemEntity> lithiumGetInputItemEntities(World world, Hopper hopper) {
         if (!(hopper instanceof HopperBlockEntityMixin hopperBlockEntity)) {
             return getInputItemEntities(world, hopper); //optimizations not implemented for hopper minecarts
         }
-        
+
         if (hopperBlockEntity.extractItemEntityTracker == null) {
             assert world instanceof ServerWorld;
             hopperBlockEntity.initExtractItemEntityTracker((ServerWorld) world);
         }
-        long modCount = hopperBlockEntity.getLithiumStackList().getModCount();
+        long modCount = InventoryHelper.getLithiumStackList(hopperBlockEntity).getModCount();
         if ((hopperBlockEntity.extractItemEntityTracker.lastGetEntitiesWasEmpty() || hopperBlockEntity.myLastCollectChangeCount == modCount) &&
                 hopperBlockEntity.extractItemEntityTracker.isUnchanged()) {
             return Collections.emptyList();
@@ -440,7 +315,133 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         // items can be skipped.
         return itemEntities;
     }
-    
+
+    /**
+     * Makes this hopper remember the given inventory.
+     *
+     * @param insertInventory Block inventory / Blockentity inventory to be remembered
+     */
+    private void cacheInsertInventory(Inventory insertInventory) {
+        assert !(insertInventory instanceof Entity);
+        if (insertInventory instanceof BlockEntity) {
+            this.insertBlockInventory = null;
+        } else {
+            this.insertBlockInventory = insertInventory == null ? NO_INVENTORY_BLOCK_PRESENT : insertInventory;
+        }
+
+        if (insertInventory instanceof LithiumInventory optimizedInventory) {
+            this.insertInventory = optimizedInventory;
+            LithiumStackList insertInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
+            this.insertInventoryStackList = insertInventoryStackList;
+            this.insertInventoryChangeCount = insertInventoryStackList.getModCount() - 1;
+            this.insertInventoryRemovedCount = optimizedInventory.getRemovedCountLithium();
+        } else {
+            this.insertInventory = null;
+            this.insertInventoryStackList = null;
+            this.insertInventoryChangeCount = 0;
+            this.insertInventoryRemovedCount = 0;
+        }
+    }
+
+    public Inventory getInsertBlockInventory(World world) {
+        Inventory inventory = this.insertBlockInventory;
+        if (inventory != null) {
+            return inventory == NO_INVENTORY_BLOCK_PRESENT ? null : inventory;
+        }
+        LithiumInventory optimizedInventory;
+        if ((optimizedInventory = this.insertInventory) != null) {
+            if (optimizedInventory.getRemovedCountLithium() == this.insertInventoryRemovedCount) {
+                return optimizedInventory;
+            }
+        }
+        Direction direction = this.getCachedState().get(HopperBlock.FACING);
+        inventory = HopperHelper.vanillaGetBlockInventory(world, this.getPos().offset(direction));
+        this.cacheInsertInventory(inventory);
+        return inventory;
+    }
+
+    public Inventory getInsertInventory(World world) {
+        Inventory blockInventory = this.getInsertBlockInventory(world);
+        if (blockInventory != null) {
+            return blockInventory;
+        }
+
+        if (this.insertInventoryEntityTracker == null) {
+            assert world instanceof ServerWorld;
+            Direction direction = this.getCachedState().get(HopperBlock.FACING);
+            BlockPos pos = this.pos.offset(direction);
+            this.insertInventoryEntityTracker =
+                    new NearbyInventoryEntityMovementTracker<>(
+                            new Box(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1),
+                            Inventory.class
+                    );
+            this.insertInventoryEntityTracker.register((ServerWorld) world);
+        }
+        if (this.insertInventoryEntityTracker.isUnchanged()) {
+            return null;
+        }
+        this.myLastCollectChangeCount = InventoryHelper.getLithiumStackList(this).getModCount();
+
+        List<Inventory> inventoryEntities = this.insertInventoryEntityTracker.getEntities();
+        if (inventoryEntities.isEmpty()) {
+            this.insertInventoryEntityTracker.setUnchanged(this.lastTickTime);
+            //only set unchanged when no entity present. this allows shortcutting this case
+            //shortcutting the entity present case requires checking its change counter
+            return null;
+        }
+        Inventory inventory = inventoryEntities.get(world.random.nextInt(inventoryEntities.size()));
+        if (inventory != this.insertInventory && inventory instanceof LithiumInventory optimizedInventory) {
+            //not caching the inventory (this.insertBlockInventory == NO_INVENTORY_PRESENT prevents it)
+            //make change counting on the entity inventory possible, without caching it as block inventory
+            this.insertInventory = optimizedInventory;
+            this.insertInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
+            this.insertInventoryChangeCount = this.insertInventoryStackList.getModCount() - 1;
+        }
+        return inventory;
+    }
+
+    /**
+     * Makes this hopper remember the given inventory.
+     *
+     * @param extractInventory Block inventory / Blockentity inventory to be remembered
+     */
+    private void cacheExtractInventory(Inventory extractInventory) {
+        assert !(extractInventory instanceof Entity);
+        if (extractInventory instanceof BlockEntity) {
+            this.extractBlockInventory = null;
+        } else {
+            this.extractBlockInventory = extractInventory == null ? NO_INVENTORY_BLOCK_PRESENT : extractInventory;
+        }
+        if (extractInventory instanceof LithiumInventory optimizedInventory) {
+            this.extractInventory = optimizedInventory;
+            LithiumStackList extractInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
+            this.extractInventoryStackList = extractInventoryStackList;
+            this.extractInventoryChangeCount = extractInventoryStackList.getModCount() - 1;
+            this.extractInventoryRemovedCount = optimizedInventory.getRemovedCountLithium();
+        } else {
+            this.extractInventory = null;
+            this.extractInventoryStackList = null;
+            this.extractInventoryChangeCount = 0;
+            this.extractInventoryRemovedCount = 0;
+        }
+    }
+
+    public Inventory getExtractBlockInventory(World world) {
+        Inventory inventory = this.extractBlockInventory;
+        if (inventory != null) {
+            return inventory == NO_INVENTORY_BLOCK_PRESENT ? null : inventory;
+        }
+        LithiumInventory optimizedInventory;
+        if ((optimizedInventory = this.extractInventory) != null) {
+            if (optimizedInventory.getRemovedCountLithium() == this.extractInventoryRemovedCount) {
+                return optimizedInventory;
+            }
+        }
+        inventory = HopperHelper.vanillaGetBlockInventory(world, this.getPos().up());
+        this.cacheExtractInventory(inventory);
+        return inventory;
+    }
+
     private void initExtractItemEntityTracker(ServerWorld serverWorld) {
         List<Box> list = new ArrayList<>();
         Box encompassingBox = null;

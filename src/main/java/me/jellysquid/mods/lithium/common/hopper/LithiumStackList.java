@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.common.hopper;
 
+import me.jellysquid.mods.lithium.api.inventory.LithiumDefaultedList;
 import me.jellysquid.mods.lithium.mixin.block.hopper.DefaultedListAccessor;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventory;
@@ -7,13 +8,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.MathHelper;
 
-public class LithiumStackList extends DefaultedList<ItemStack> {
-    LithiumDoubleStackList parent;
+public class LithiumStackList extends DefaultedList<ItemStack> implements LithiumDefaultedList {
+    final int maxCountPerStack;
 
     protected int cachedSignalStrength;
     private ComparatorUpdatePattern cachedComparatorUpdatePattern;
-
-    final int maxCountPerStack;
 
     private boolean signalStrengthOverride;
 
@@ -21,10 +20,12 @@ public class LithiumStackList extends DefaultedList<ItemStack> {
     private int occupiedSlots;
     private int fullSlots;
 
+    LithiumDoubleStackList parent; //only used for double chests
+    private boolean alwaysChanged; //only used for inventories that can unexpectedly change their behavior
 
     public LithiumStackList(DefaultedList<ItemStack> original, int maxCountPerStack) {
         //noinspection unchecked
-        super(((DefaultedListAccessor<ItemStack>)original).getDelegate(), ItemStack.EMPTY);
+        super(((DefaultedListAccessor<ItemStack>) original).getDelegate(), ItemStack.EMPTY);
         this.maxCountPerStack = maxCountPerStack;
 
         this.cachedSignalStrength = -1;
@@ -54,6 +55,9 @@ public class LithiumStackList extends DefaultedList<ItemStack> {
         this.cachedSignalStrength = -1;
     }
     public long getModCount() {
+        if (this.alwaysChanged) {
+            this.modCount++;
+        }
         return this.modCount;
     }
 
@@ -217,5 +221,15 @@ public class LithiumStackList extends DefaultedList<ItemStack> {
 
     public int getFullSlots() {
         return this.fullSlots;
+    }
+
+    @Override
+    public void setUnstableInteractionConditions() {
+        this.alwaysChanged = true;
+    }
+
+    @Override
+    public void changedInteractionConditions() {
+        this.modCount++;
     }
 }

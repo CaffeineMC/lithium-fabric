@@ -19,7 +19,7 @@ public class BlockEntityMixin implements RemovableBlockEntity {
     }
 
     @Override
-    public int getRemovedCount() {
+    public int getRemovedCountLithium() {
         return this.removedCount;
     }
 
