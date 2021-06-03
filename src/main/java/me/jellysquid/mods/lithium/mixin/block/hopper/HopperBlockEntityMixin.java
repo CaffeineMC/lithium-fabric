@@ -251,9 +251,8 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         for (int i = 0; i < size; ++i) {
             ItemStack transferStack = hopperStackList.get(i);
             if (!transferStack.isEmpty()) {
-                boolean transferSuccess = HopperHelper.tryPlaceSingleItem(insertInventory, transferStack, fromDirection);
+                boolean transferSuccess = HopperHelper.tryMoveSingleItem(insertInventory, transferStack, fromDirection);
                 if (transferSuccess) {
-                    transferStack.decrement(1);
                     if (insertInventoryWasEmptyHopperNotDisabled) {
                         HopperBlockEntityMixin receivingHopper = (HopperBlockEntityMixin) insertInventory;
                         int k = 8;
@@ -392,8 +391,10 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             if (!itemStack.isEmpty() && canExtract(from, itemStack, fromSlot, Direction.DOWN)) {
                 //calling removeStack is necessary due to its side effects (markDirty in LootableContainerBlockEntity)
                 ItemStack takenItem = from.removeStack(fromSlot, 1);
-                boolean transferSuccess = HopperHelper.tryPlaceSingleItem(to, takenItem, null);
+                assert !takenItem.isEmpty();
+                boolean transferSuccess = HopperHelper.tryMoveSingleItem(to, takenItem, null);
                 if (transferSuccess) {
+                    to.markDirty();
                     from.markDirty();
                     cir.setReturnValue(true);
                     return;

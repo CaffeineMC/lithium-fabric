@@ -47,20 +47,20 @@ public class HopperHelper {
         return inventory;
     }
 
-    public static boolean tryPlaceSingleItem(Inventory to, ItemStack stack, @Nullable Direction fromDirection) {
+    public static boolean tryMoveSingleItem(Inventory to, ItemStack stack, @Nullable Direction fromDirection) {
         SidedInventory toSided = to instanceof SidedInventory ? ((SidedInventory) to) : null;
         if (toSided != null && fromDirection != null) {
             int[] slots = toSided.getAvailableSlots(fromDirection);
 
-            for(int slotIndex = 0; slotIndex < slots.length && !stack.isEmpty(); ++slotIndex) {
-                if (tryPlaceSingleItem(to, toSided, stack, slots[slotIndex], fromDirection)) {
+            for(int slotIndex = 0; slotIndex < slots.length; ++slotIndex) {
+                if (tryMoveSingleItem(to, toSided, stack, slots[slotIndex], fromDirection)) {
                     return true; //caller needs to take the item from the original inventory and call to.markDirty()
                 }
             }
         } else {
             int j = to.size();
-            for(int slot = 0; slot < j && !stack.isEmpty(); ++slot) {
-                if (tryPlaceSingleItem(to, toSided, stack, slot, fromDirection)) {
+            for(int slot = 0; slot < j; ++slot) {
+                if (tryMoveSingleItem(to, toSided, stack, slot, fromDirection)) {
                     return true; //caller needs to take the item from the original inventory and call to.markDirty()
                 }
             }
@@ -68,7 +68,7 @@ public class HopperHelper {
         return false;
     }
 
-    public static boolean tryPlaceSingleItem(Inventory to, @Nullable SidedInventory toSided, ItemStack transferStack, int targetSlot, @Nullable Direction fromDirection) {
+    public static boolean tryMoveSingleItem(Inventory to, @Nullable SidedInventory toSided, ItemStack transferStack, int targetSlot, @Nullable Direction fromDirection) {
         ItemStack toStack = to.getStack(targetSlot);
         //Assumption: no mods depend on the the stack size of transferStack in isValid or canInsert, like vanilla doesn't
         if (to.isValid(targetSlot, transferStack) && (toSided == null || toSided.canInsert(targetSlot, transferStack, fromDirection))) {
@@ -76,9 +76,11 @@ public class HopperHelper {
             if (toStack.isEmpty()) {
                 ItemStack copy = transferStack.copy();
                 copy.setCount(1);
+                transferStack.decrement(1);
                 to.setStack(targetSlot, copy);
                 return true; //caller needs to call to.markDirty()
             } else if (toStack.isOf(transferStack.getItem()) && toStack.getMaxCount() > (toCount = toStack.getCount()) && to.getMaxCountPerStack() > toCount && ItemStack.areTagsEqual(toStack, transferStack)) {
+                transferStack.decrement(1);
                 toStack.increment(1);
                 return true; //caller needs to call to.markDirty()
             }
