@@ -38,8 +38,9 @@ public abstract class AbstractBlockStateMixin {
     /**
      * We can't use the ctor as a BlockState will be constructed *before* a Block has fully initialized.
      */
-    @Inject(method = "initShapeCache", at = @At("HEAD"))
+    @Inject(method = "initShapeCache()V", at = @At("HEAD"))
     private void init(CallbackInfo ci) {
+        //noinspection deprecation
         this.fluidStateCache = this.getBlock().getFluidState(this.asBlockState());
         this.isTickable = this.getBlock().hasRandomTicks(this.asBlockState());
     }
@@ -51,6 +52,7 @@ public abstract class AbstractBlockStateMixin {
     @Overwrite
     public FluidState getFluidState() {
         if (this.fluidStateCache == null) {
+            //noinspection deprecation
             this.fluidStateCache = this.getBlock().getFluidState(this.asBlockState());
         }
 

@@ -31,7 +31,7 @@ public class ChunkTaskPrioritySystemMixin {
      * once at world load. No tasks will be enqueued until after the constructor is ran, so we do not need to worry
      * about copying them.
      */
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(Ljava/util/List;Ljava/util/concurrent/Executor;I)V", at = @At("RETURN"))
     private void init(List<MessageListener<?>> listeners, Executor executor, int maxQueues, CallbackInfo ci) {
         this.controlActor = new TaskExecutor<>(new ArrayPrioritizedTaskQueue(4), executor, "sorter");
     }

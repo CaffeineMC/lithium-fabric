@@ -1,22 +1,15 @@
 package me.jellysquid.mods.lithium.common.world;
 
-import com.google.common.collect.Lists;
 import me.jellysquid.mods.lithium.common.entity.EntityClassGroup;
-import me.jellysquid.mods.lithium.common.world.chunk.ClassGroupFilterableList;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EntityView;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkManager;
-import net.minecraft.world.chunk.WorldChunk;
 
 import java.util.List;
 import java.util.function.Predicate;
-
-import static net.minecraft.predicate.entity.EntityPredicates.EXCEPT_SPECTATOR;
 
 public class WorldHelper {
     public interface MixinLoadTest {

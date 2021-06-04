@@ -30,7 +30,7 @@ public class CachingLayerContextMixin implements CloneableContext<CachingLayerSa
     @Mutable
     private Long2IntLinkedOpenHashMap cache;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(IJJ)V", at = @At("RETURN"))
     private void init(int cacheCapacity, long seed, long salt, CallbackInfo ci) {
         // We don't use this cache
         this.cache = null;
@@ -67,6 +67,7 @@ public class CachingLayerContextMixin implements CloneableContext<CachingLayerSa
     public LayerSampleContext<CachingLayerSampler> cloneContext() {
         CachingLayerContext context = new CachingLayerContext(0, 0, 0);
 
+        //noinspection ConstantConditions
         CachingLayerContextMixin access = (CachingLayerContextMixin) (Object) context;
         access.worldSeed = this.worldSeed;
         access.noiseSampler = this.noiseSampler;

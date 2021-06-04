@@ -21,7 +21,7 @@ public abstract class VoxelShapeMixin {
 
     @Shadow
     @Final
-    protected VoxelSet voxels;
+    public VoxelSet voxels;
 
     @Shadow
     public abstract boolean isEmpty();
@@ -30,7 +30,7 @@ public abstract class VoxelShapeMixin {
     protected abstract double getPointPosition(Direction.Axis axis, int index);
 
     @Shadow
-    protected abstract DoubleList getPointPositions(Direction.Axis axis);
+    public abstract DoubleList getPointPositions(Direction.Axis axis);
 
     /**
      * @reason Use optimized implementation which delays searching for coordinates as long as possible

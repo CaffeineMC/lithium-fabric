@@ -19,7 +19,7 @@ public abstract class ServerWorldMixin {
      * Redirects the creation of the vanilla server tick scheduler with our own. This only happens once per world load.
      */
     @Redirect(
-            method = "<init>",
+            method = "<init>(Lnet/minecraft/server/MinecraftServer;Ljava/util/concurrent/Executor;Lnet/minecraft/world/level/storage/LevelStorage$Session;Lnet/minecraft/world/level/ServerWorldProperties;Lnet/minecraft/util/registry/RegistryKey;Lnet/minecraft/world/dimension/DimensionType;Lnet/minecraft/server/WorldGenerationProgressListener;Lnet/minecraft/world/gen/chunk/ChunkGenerator;ZJLjava/util/List;Z)V",
             at = @At(
                     value = "NEW",
                     target = "net/minecraft/server/world/ServerTickScheduler"

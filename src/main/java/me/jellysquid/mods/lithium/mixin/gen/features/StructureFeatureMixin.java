@@ -1,7 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.gen.features;
 
 import net.minecraft.structure.StructureStart;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.StructureHolder;
 import net.minecraft.world.WorldView;
@@ -29,7 +28,7 @@ public class StructureFeatureMixin {
      * @author MrGrim
      */
     @Redirect(
-            method = "locateStructure",
+            method = "locateStructure(Lnet/minecraft/world/WorldView;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/util/math/BlockPos;IZJLnet/minecraft/world/gen/chunk/StructureConfig;)Lnet/minecraft/util/math/BlockPos;",
             slice = @Slice(
                     from = @At(value = "FIELD", opcode = Opcodes.GETSTATIC, target = "Lnet/minecraft/world/chunk/ChunkStatus;STRUCTURE_STARTS:Lnet/minecraft/world/chunk/ChunkStatus;", ordinal = 0),
                     to = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/ChunkSectionPos;from(Lnet/minecraft/world/chunk/Chunk;)Lnet/minecraft/util/math/ChunkSectionPos;", ordinal = 0)
@@ -56,7 +55,7 @@ public class StructureFeatureMixin {
      * @author MrGrim
      */
     @Redirect(
-            method = "locateStructure",
+            method = "locateStructure(Lnet/minecraft/world/WorldView;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/util/math/BlockPos;IZJLnet/minecraft/world/gen/chunk/StructureConfig;)Lnet/minecraft/util/math/BlockPos;",
             slice = @Slice(
                     from = @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldView;getChunk(IILnet/minecraft/world/chunk/ChunkStatus;)Lnet/minecraft/world/chunk/Chunk;", ordinal = 0),
                     to = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/ChunkSectionPos;from(Lnet/minecraft/world/chunk/Chunk;)Lnet/minecraft/util/math/ChunkSectionPos;", ordinal = 0)
@@ -76,7 +75,7 @@ public class StructureFeatureMixin {
      * @author MrGrim
      */
     @Redirect(
-            method = "locateStructure",
+            method = "locateStructure(Lnet/minecraft/world/WorldView;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/util/math/BlockPos;IZJLnet/minecraft/world/gen/chunk/StructureConfig;)Lnet/minecraft/util/math/BlockPos;",
             slice = @Slice(
                     from = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/ChunkSectionPos;from(Lnet/minecraft/world/chunk/Chunk;)Lnet/minecraft/util/math/ChunkSectionPos;", ordinal = 0),
                     to = @At(value = "INVOKE", target = "Lnet/minecraft/structure/StructureStart;hasChildren()Z", ordinal = 0)

@@ -36,7 +36,7 @@ public abstract class ServerWorldMixin {
      * @reason Ensure an immutable block position is passed on block tick
      */
     @Redirect(
-            method = "tickChunk",
+            method = "tickChunk(Lnet/minecraft/world/chunk/WorldChunk;I)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/block/BlockState;randomTick(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V"
@@ -50,7 +50,7 @@ public abstract class ServerWorldMixin {
      * @reason Ensure an immutable block position is passed on fluid tick
      */
     @Redirect(
-            method = "tickChunk",
+            method = "tickChunk(Lnet/minecraft/world/chunk/WorldChunk;I)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/fluid/FluidState;onRandomTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V"

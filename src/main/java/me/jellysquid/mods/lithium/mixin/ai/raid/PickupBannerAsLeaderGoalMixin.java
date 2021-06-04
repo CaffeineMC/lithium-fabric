@@ -13,7 +13,7 @@ public class PickupBannerAsLeaderGoalMixin {
     private static final ItemStack CACHED_OMINOUS_BANNER = Raid.getOminousBanner();
 
     @Redirect(
-            method = "canStart",
+            method = "canStart()Z",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/village/raid/Raid;getOminousBanner()Lnet/minecraft/item/ItemStack;"

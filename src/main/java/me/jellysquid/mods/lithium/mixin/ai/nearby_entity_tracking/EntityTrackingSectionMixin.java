@@ -1,11 +1,10 @@
 package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngine;
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerSection;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityMovementTracker;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListener;
+import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityMovementTracker;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.world.entity.EntityTrackingSection;
@@ -88,14 +87,14 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
     }
 
 
-    @Inject(method = "isEmpty", at = @At(value = "HEAD"), cancellable = true)
+    @Inject(method = "isEmpty()Z", at = @At(value = "HEAD"), cancellable = true)
     public void isEmpty(CallbackInfoReturnable<Boolean> cir) {
         if (!this.nearbyEntityListeners.isEmpty() || !this.movementListeners.isEmpty()) {
             cir.setReturnValue(false);
         }
     }
 
-    @Inject(method = "add", at = @At("RETURN"))
+    @Inject(method = "add(Ljava/lang/Object;)V", at = @At("RETURN"))
     private void onEntityAdded(T entityLike, CallbackInfo ci) {
         if (!this.status.shouldTrack() || this.nearbyEntityListeners.isEmpty()) {
             return;
@@ -107,7 +106,7 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
         }
     }
 
-    @Inject(method = "remove", at = @At("RETURN"))
+    @Inject(method = "remove(Ljava/lang/Object;)Z", at = @At("RETURN"))
     private void onEntityRemoved(T entityLike, CallbackInfoReturnable<Boolean> cir) {
         if (this.status.shouldTrack() && entityLike instanceof Entity entity) {
             for (NearbyEntityListener nearbyEntityListener : this.nearbyEntityListeners) {
@@ -116,7 +115,7 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
         }
     }
 
-    @ModifyVariable(method = "swapStatus", at = @At(value = "HEAD"), argsOnly = true)
+    @ModifyVariable(method = "swapStatus(Lnet/minecraft/world/entity/EntityTrackingStatus;)Lnet/minecraft/world/entity/EntityTrackingStatus;", at = @At(value = "HEAD"), argsOnly = true)
     public EntityTrackingStatus swapStatus(final EntityTrackingStatus newStatus) {
         if (this.status.shouldTrack() != newStatus.shouldTrack()) {
             if (!newStatus.shouldTrack()) {

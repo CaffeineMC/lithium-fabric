@@ -22,7 +22,7 @@ public class DirectBlockEntityTickInvokerMixin<T extends BlockEntity> {
 
     @SuppressWarnings("UnresolvedMixinReference")
     @Redirect(
-            method = "Lnet/minecraft/world/chunk/WorldChunk$DirectBlockEntityTickInvoker;tick()V",
+            method = "tick()V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/chunk/WorldChunk;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"
@@ -37,7 +37,7 @@ public class DirectBlockEntityTickInvokerMixin<T extends BlockEntity> {
     }
 
     @Redirect(
-            method = "Lnet/minecraft/world/chunk/WorldChunk$DirectBlockEntityTickInvoker;tick()V",
+            method = "tick()V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/block/entity/BlockEntityType;supports(Lnet/minecraft/block/BlockState;)Z"

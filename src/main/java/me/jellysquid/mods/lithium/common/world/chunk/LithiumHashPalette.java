@@ -3,8 +3,6 @@ package me.jellysquid.mods.lithium.common.world.chunk;
 import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
@@ -117,7 +115,6 @@ public class LithiumHashPalette<T> implements Palette<T> {
     }
 
     @Override
-    @Environment(EnvType.CLIENT)
     public void fromPacket(PacketByteBuf buf) {
         this.clear();
 

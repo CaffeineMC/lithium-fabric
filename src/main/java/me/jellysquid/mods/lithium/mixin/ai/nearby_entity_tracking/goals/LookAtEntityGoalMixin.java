@@ -45,7 +45,7 @@ public class LookAtEntityGoalMixin {
     }
 
     @Redirect(
-            method = "canStart",
+            method = "canStart()Z",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/World;getClosestEntity(Ljava/util/List;Lnet/minecraft/entity/ai/TargetPredicate;Lnet/minecraft/entity/LivingEntity;DDD)Lnet/minecraft/entity/LivingEntity;"
@@ -55,13 +55,13 @@ public class LookAtEntityGoalMixin {
         return this.tracker.getClosestEntity(this.mob.getBoundingBox().expand(this.range, 3.0D, this.range), targetPredicate);
     }
 
-    @Redirect(method = "canStart", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getEntitiesByClass(Ljava/lang/Class;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"))
+    @Redirect(method = "canStart()Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getEntitiesByClass(Ljava/lang/Class;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"))
     private <R extends Entity> List<R> redirectGetEntities(World world, Class<LivingEntity> entityClass, Box box, Predicate<? super R> predicate) {
         return null;
     }
 
     @Redirect(
-            method = "canStart",
+            method = "canStart()Z",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/World;getClosestPlayer(Lnet/minecraft/entity/ai/TargetPredicate;Lnet/minecraft/entity/LivingEntity;DDD)Lnet/minecraft/entity/player/PlayerEntity;"

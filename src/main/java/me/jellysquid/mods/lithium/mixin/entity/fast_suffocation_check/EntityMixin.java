@@ -22,7 +22,7 @@ public abstract class EntityMixin {
      * @reason Use optimized block volume iteration, avoid streams
      */
     @Redirect(
-            method = "isInsideWall",
+            method = "isInsideWall()Z",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/World;getBlockCollisions(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;Ljava/util/function/BiPredicate;)Ljava/util/stream/Stream;"

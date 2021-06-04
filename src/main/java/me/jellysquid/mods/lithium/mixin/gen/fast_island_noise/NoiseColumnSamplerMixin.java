@@ -24,7 +24,7 @@ public class NoiseColumnSamplerMixin {
 
     private ThreadLocal<SimplexNoiseCache> tlCache;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/world/biome/source/BiomeSource;IIILnet/minecraft/world/gen/chunk/GenerationShapeConfig;Lnet/minecraft/util/math/noise/InterpolatedNoiseSampler;Lnet/minecraft/util/math/noise/SimplexNoiseSampler;Lnet/minecraft/util/math/noise/OctavePerlinNoiseSampler;Lnet/minecraft/world/gen/chunk/WeightSampler;)V", at = @At("RETURN"))
     private void hookConstructor(BiomeSource biomeSource, int horizontalNoiseResolution, int verticalNoiseResolution, int noiseSizeY, GenerationShapeConfig config, InterpolatedNoiseSampler noise, SimplexNoiseSampler islandNoise, OctavePerlinNoiseSampler densityNoise, WeightSampler weightSampler, CallbackInfo ci) {
         this.tlCache = ThreadLocal.withInitial(() -> new SimplexNoiseCache(this.islandNoise));
     }
@@ -33,7 +33,7 @@ public class NoiseColumnSamplerMixin {
      * Use our fast cache instead of vanilla's uncached noise generation.
      */
     @Redirect(
-            method = "sampleNoiseColumn",
+            method = "sampleNoiseColumn([DIILnet/minecraft/world/gen/chunk/GenerationShapeConfig;III)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/biome/source/TheEndBiomeSource;getNoiseAt(Lnet/minecraft/util/math/noise/SimplexNoiseSampler;II)F"

@@ -14,7 +14,6 @@ import java.util.function.Predicate;
  * This implementation is safe to use from multiple threads
  */
 public final class Object2BooleanCacheTable<T> {
-    private final int capacity;
     private final int mask;
 
     private final Node<T>[] nodes;
@@ -23,10 +22,10 @@ public final class Object2BooleanCacheTable<T> {
 
     @SuppressWarnings("unchecked")
     public Object2BooleanCacheTable(int capacity, Predicate<T> operator) {
-        this.capacity = MathHelper.smallestEncompassingPowerOfTwo(capacity);
-        this.mask = this.capacity - 1;
+        int capacity1 = MathHelper.smallestEncompassingPowerOfTwo(capacity);
+        this.mask = capacity1 - 1;
 
-        this.nodes = (Node<T>[]) new Node[this.capacity];
+        this.nodes = (Node<T>[]) new Node[capacity1];
 
         this.operator = operator;
     }

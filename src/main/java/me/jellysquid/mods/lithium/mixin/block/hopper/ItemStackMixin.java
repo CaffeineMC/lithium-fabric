@@ -35,7 +35,7 @@ public abstract class ItemStackMixin implements StorableItemStack {
         this.myLocation = null;
     }
 
-    @ModifyVariable(method = "setCount", at = @At("HEAD"))
+    @ModifyVariable(method = "setCount(I)V", at = @At("HEAD"))
     public int updateInventory(int count) {
         if (this.myLocation != null && this.count != count) {
             this.myLocation.beforeSlotCountChange(this.mySlot, count);

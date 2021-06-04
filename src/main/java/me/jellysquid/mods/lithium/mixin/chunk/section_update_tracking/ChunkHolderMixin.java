@@ -24,7 +24,7 @@ public class ChunkHolderMixin {
      * The default case of just a few items may be very slightly slower
      */
     @ModifyVariable(
-            method = "markForBlockUpdate",
+            method = "markForBlockUpdate(Lnet/minecraft/util/math/BlockPos;)V",
             at = @At(
                     ordinal = 0,
                     value = "FIELD",
@@ -33,7 +33,7 @@ public class ChunkHolderMixin {
             )
     )
     private int createShortHashSet(int b) {
-        if (blockUpdatesBySection[b] == null) {
+        if (this.blockUpdatesBySection[b] == null) {
             this.pendingBlockUpdates = true;
             this.blockUpdatesBySection[b] = new ShortOpenHashSet();
         }

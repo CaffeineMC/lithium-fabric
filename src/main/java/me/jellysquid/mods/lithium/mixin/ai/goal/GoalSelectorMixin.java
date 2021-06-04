@@ -39,7 +39,7 @@ public abstract class GoalSelectorMixin {
     /**
      * Replace the goal set with an optimized collection type which performs better for iteration.
      */
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(Ljava/util/function/Supplier;)V", at = @At("RETURN"))
     private void reinit(Supplier<Profiler> supplier, CallbackInfo ci) {
         this.goals = new ObjectLinkedOpenHashSet<>(this.goals);
     }

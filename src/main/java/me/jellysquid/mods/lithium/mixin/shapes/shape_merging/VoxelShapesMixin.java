@@ -15,7 +15,7 @@ public class VoxelShapesMixin {
      * Replaces the returned list pair with our own optimized type.
      */
     @Inject(
-            method = "createListPair",
+            method = "createListPair(ILit/unimi/dsi/fastutil/doubles/DoubleList;Lit/unimi/dsi/fastutil/doubles/DoubleList;ZZ)Lnet/minecraft/util/shape/PairList;",
             at = @At(
                     shift = At.Shift.BEFORE,
                     value = "NEW",

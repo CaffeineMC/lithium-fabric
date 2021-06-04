@@ -1,10 +1,8 @@
 package me.jellysquid.mods.lithium.mixin.entity.replace_entitytype_predicates;
 
-import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.goal.FormCaravanGoal;
 import net.minecraft.entity.passive.LlamaEntity;
-import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,7 +15,7 @@ import java.util.function.Predicate;
 @Mixin(FormCaravanGoal.class)
 public class FormCaravanGoalMixin {
     @Redirect(
-            method = "canStart",
+            method = "canStart()Z",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/World;getOtherEntities(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"

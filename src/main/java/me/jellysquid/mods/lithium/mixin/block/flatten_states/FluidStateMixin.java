@@ -19,7 +19,7 @@ public abstract class FluidStateMixin {
 
     private boolean isEmptyCache;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/fluid/Fluid;Lcom/google/common/collect/ImmutableMap;Lcom/mojang/serialization/MapCodec;)V", at = @At("RETURN"))
     private void initFluidCache(Fluid fluid, ImmutableMap<Property<?>, Comparable<?>> propertyMap,
                                 MapCodec<FluidState> codec, CallbackInfo ci) {
         this.isEmptyCache = this.getFluid().isEmpty();

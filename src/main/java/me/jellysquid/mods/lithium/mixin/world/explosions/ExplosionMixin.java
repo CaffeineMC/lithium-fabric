@@ -84,7 +84,7 @@ public abstract class ExplosionMixin {
     }
 
     @Redirect(
-            method = "collectBlocksAndDamageEntities",
+            method = "collectBlocksAndDamageEntities()V",
             at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Sets;newHashSet()Ljava/util/HashSet;", remap = false)
     )
     public HashSet<BlockPos> skipNewHashSet() {
@@ -92,7 +92,7 @@ public abstract class ExplosionMixin {
     }
 
     @ModifyConstant(
-            method = "collectBlocksAndDamageEntities",
+            method = "collectBlocksAndDamageEntities()V",
             constant = @Constant(intValue = 16, ordinal = 1)
     )
     public int skipLoop(int prevValue) {
@@ -102,7 +102,7 @@ public abstract class ExplosionMixin {
     /**
      * @author JellySquid
      */
-    @Redirect(method = "collectBlocksAndDamageEntities",
+    @Redirect(method = "collectBlocksAndDamageEntities()V",
             at = @At(value = "INVOKE", target = "Ljava/util/List;addAll(Ljava/util/Collection;)Z"))
     public boolean collectBlocks(List<BlockPos> affectedBlocks, Collection<BlockPos> collection) {
         // Using integer encoding for the block positions provides a massive speedup and prevents us from needing to

@@ -60,7 +60,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
 
     private boolean isIteratingActiveEntityNavigations;
 
-    @Inject(method = "<init>", at = @At("TAIL"))
+    @Inject(method = "<init>(Lnet/minecraft/server/MinecraftServer;Ljava/util/concurrent/Executor;Lnet/minecraft/world/level/storage/LevelStorage$Session;Lnet/minecraft/world/level/ServerWorldProperties;Lnet/minecraft/util/registry/RegistryKey;Lnet/minecraft/world/dimension/DimensionType;Lnet/minecraft/server/WorldGenerationProgressListener;Lnet/minecraft/world/gen/chunk/ChunkGenerator;ZJLjava/util/List;Z)V", at = @At("TAIL"))
     private void init(MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey<World> registryKey, DimensionType dimensionType, WorldGenerationProgressListener worldGenerationProgressListener, ChunkGenerator chunkGenerator, boolean debugWorld, long l, List<Spawner> list, boolean bl, CallbackInfo ci) {
         this.loadedMobs = new ReferenceOpenHashSet<>(this.loadedMobs);
         this.activeNavigations = new ReferenceOpenHashSet<>();
@@ -75,7 +75,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
      * With thousands of non-pathfinding mobs in the world, this can be a relevant difference.
      */
     @Redirect(
-            method = "updateListeners",
+            method = "updateListeners(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;I)V",
             at = @At(
                     value = "INVOKE",
                     target = "Ljava/util/Set;iterator()Ljava/util/Iterator;"
@@ -86,7 +86,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
     }
 
     @Inject(
-            method = "updateListeners",
+            method = "updateListeners(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;I)V",
             at = @At(
                     value = "INVOKE",
                     target = "Ljava/util/Set;iterator()Ljava/util/Iterator;"
@@ -101,7 +101,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
         }
     }
 
-    @Inject(method = "updateListeners", at = @At(value = "RETURN"))
+    @Inject(method = "updateListeners(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;I)V", at = @At(value = "RETURN"))
     private void onIterationFinished(BlockPos pos, BlockState oldState, BlockState newState, int flags, CallbackInfo ci) {
         this.isIteratingActiveEntityNavigations = false;
         if (!this.removedNavigations.isEmpty() || !this.activeNavigationsUpdates.isEmpty()) {

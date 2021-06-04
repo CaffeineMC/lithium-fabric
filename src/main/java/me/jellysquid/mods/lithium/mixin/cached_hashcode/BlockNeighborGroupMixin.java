@@ -30,7 +30,7 @@ public class BlockNeighborGroupMixin {
     /**
      * @reason Initialize the object's hashcode and cache it
      */
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/Direction;)V", at = @At("RETURN"))
     private void generateHash(BlockState blockState_1, BlockState blockState_2, Direction direction_1, CallbackInfo ci) {
         int hash = this.self.hashCode();
         hash = 31 * hash + this.other.hashCode();

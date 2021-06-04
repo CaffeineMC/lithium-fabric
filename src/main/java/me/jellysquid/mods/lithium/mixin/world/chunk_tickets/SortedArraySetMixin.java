@@ -10,10 +10,10 @@ import java.util.function.Predicate;
 @Mixin(SortedArraySet.class)
 public abstract class SortedArraySetMixin<T> implements Collection<T> {
     @Shadow
-    private int size;
+    int size;
 
     @Shadow
-    private T[] elements;
+    T[] elements;
 
     /**
      * Add an optimized implementation of {@link Collection#removeIf(Predicate)} which doesn't attempt to shift

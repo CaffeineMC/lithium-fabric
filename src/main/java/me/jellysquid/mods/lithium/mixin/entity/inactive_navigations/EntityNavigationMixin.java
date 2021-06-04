@@ -29,7 +29,7 @@ public abstract class EntityNavigationMixin {
     protected MobEntity entity;
 
     @Inject(
-            method = "recalculatePath",
+            method = "recalculatePath()V",
             at = @At(
                     value = "INVOKE_ASSIGN",
                     target = "Lnet/minecraft/entity/ai/pathing/EntityNavigation;findPathTo(Lnet/minecraft/util/math/BlockPos;I)Lnet/minecraft/entity/ai/pathing/Path;",
@@ -46,7 +46,7 @@ public abstract class EntityNavigationMixin {
         }
     }
 
-    @Inject(method = "startMovingAlong", at = @At(value = "RETURN"))
+    @Inject(method = "startMovingAlong(Lnet/minecraft/entity/ai/pathing/Path;D)Z", at = @At(value = "RETURN"))
     private void updateListeningState2(Path path, double speed, CallbackInfoReturnable<Boolean> cir) {
         if (((NavigatingEntity) this.entity).isRegisteredToWorld()) {
             if (this.currentPath == null) {
@@ -57,7 +57,7 @@ public abstract class EntityNavigationMixin {
         }
     }
 
-    @Inject(method = "stop", at = @At(value = "RETURN"))
+    @Inject(method = "stop()V", at = @At(value = "RETURN"))
     private void stopListening(CallbackInfo ci) {
         if (((NavigatingEntity) this.entity).isRegisteredToWorld()) {
             ((ServerWorldExtended) this.world).setNavigationInactive(this.entity);

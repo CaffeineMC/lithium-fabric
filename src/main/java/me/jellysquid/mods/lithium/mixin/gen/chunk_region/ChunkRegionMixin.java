@@ -38,7 +38,7 @@ public abstract class ChunkRegionMixin implements StructureWorldAccess {
     /**
      * @author JellySquid
      */
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/server/world/ServerWorld;Ljava/util/List;Lnet/minecraft/world/chunk/ChunkStatus;I)V", at = @At("RETURN"))
     private void init(ServerWorld world, List<Chunk> chunks, ChunkStatus chunkStatus, int i, CallbackInfo ci) {
         this.minChunkX = this.lowerCorner.x;
         this.minChunkZ = this.lowerCorner.z;

@@ -18,12 +18,12 @@ public class ServerEntityHandlerMixin {
 
     private ServerWorld outer;
 
-    @Inject(method = "<init>", at = @At("TAIL"))
+    @Inject(method = "<init>()V", at = @At("TAIL"))
     private void inj(ServerWorld outer, CallbackInfo ci) {
         this.outer = outer;
     }
 
-    @Redirect(method = "startTracking", at = @At(value = "INVOKE", target = "Ljava/util/Set;add(Ljava/lang/Object;)Z"))
+    @Redirect(method = "startTracking(Lnet/minecraft/entity/Entity;)V", at = @At(value = "INVOKE", target = "Ljava/util/Set;add(Ljava/lang/Object;)Z"))
     private boolean startListeningOnEntityLoad(Set<MobEntity> set, Object mobEntityObj) {
         MobEntity mobEntity = (MobEntity) mobEntityObj;
         EntityNavigation navigation = mobEntity.getNavigation();
@@ -34,7 +34,7 @@ public class ServerEntityHandlerMixin {
         return set.add(mobEntity);
     }
 
-    @Redirect(method = "stopTracking", at = @At(value = "INVOKE", target = "Ljava/util/Set;remove(Ljava/lang/Object;)Z"))
+    @Redirect(method = "stopTracking(Lnet/minecraft/entity/Entity;)V", at = @At(value = "INVOKE", target = "Ljava/util/Set;remove(Ljava/lang/Object;)Z"))
     private boolean stopListeningOnEntityUnload(Set<MobEntity> set, Object mobEntityObj) {
         MobEntity mobEntity = (MobEntity) mobEntityObj;
         EntityNavigation navigation = mobEntity.getNavigation();

@@ -17,7 +17,7 @@ public class SimpleVoxelShapeMixin {
 
     private DoubleList[] list;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/util/shape/VoxelSet;)V", at = @At("RETURN"))
     private void onConstructed(VoxelSet voxels, CallbackInfo ci) {
         this.list = new DoubleList[AXIS.length];
 

@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class BiomeLayerSamplerMixin {
     private ThreadLocal<CachingLayerSampler> tlSampler;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/world/biome/layer/util/LayerFactory;)V", at = @At("RETURN"))
     private void init(LayerFactory<CachingLayerSampler> factory, CallbackInfo ci) {
         this.tlSampler = ThreadLocal.withInitial(factory::make);
     }
@@ -25,7 +25,7 @@ public abstract class BiomeLayerSamplerMixin {
      * Original implementation by gegy1000, 2No2Name replaced @Overwrite with @Redirect
      */
     @Redirect(
-            method = "sample",
+            method = "sample(Lnet/minecraft/util/registry/Registry;II)Lnet/minecraft/world/biome/Biome;",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/biome/layer/util/CachingLayerSampler;sample(II)I"

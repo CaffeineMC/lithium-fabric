@@ -22,7 +22,7 @@ public class EntityTrackerMixin {
     private Set<EntityTrackingListener> listeners;
 
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/entity/Entity;IIZ)V", at = @At("RETURN"))
     private void reinit(ThreadedAnvilChunkStorage parent /* non-static class parent */, Entity entity, int maxDistance,
                         int tickInterval, boolean alwaysUpdateVelocity, CallbackInfo ci) {
         // Uses less memory, and will cache the returned iterator

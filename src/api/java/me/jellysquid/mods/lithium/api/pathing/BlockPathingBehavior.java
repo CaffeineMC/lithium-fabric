@@ -25,6 +25,7 @@ public interface BlockPathingBehavior {
      * @param state The block state being examined
      * @return The path node type for the given block state
      */
+    @SuppressWarnings("JavadocReference")
     PathNodeType getPathNodeType(BlockState state);
 
     /**

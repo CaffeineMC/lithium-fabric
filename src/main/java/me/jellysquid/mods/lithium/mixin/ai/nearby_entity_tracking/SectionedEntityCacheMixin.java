@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(SectionedEntityCache.class)
 public class SectionedEntityCacheMixin<T extends EntityLike> {
-    @Inject(method = "addSection", at = @At("RETURN"))
+    @Inject(method = "addSection(J)Lnet/minecraft/world/entity/EntityTrackingSection;", at = @At("RETURN"))
     private void rememberPos(long sectionPos, CallbackInfoReturnable<EntityTrackingSection<T>> cir) {
         ((EntityTrackerSection)cir.getReturnValue()).setPos(sectionPos);
     }

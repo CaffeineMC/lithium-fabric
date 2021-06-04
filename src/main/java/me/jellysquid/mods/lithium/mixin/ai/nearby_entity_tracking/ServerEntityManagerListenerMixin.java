@@ -36,7 +36,7 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
 
     private int notificationMask;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/world/entity/EntityLike;JLnet/minecraft/world/entity/EntityTrackingSection;)V", at = @At("RETURN"))
     private void init(ServerEntityManager<?> outer, T entityLike, long l, EntityTrackingSection<T> entityTrackingSection, CallbackInfo ci) {
         this.notificationMask = EntityTrackerEngine.getNotificationMask(this.entity.getClass());
     }
@@ -58,7 +58,7 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     private void onAddEntity(CallbackInfo ci, BlockPos blockPos, long newPos, EntityTrackingStatus entityTrackingStatus, EntityTrackingSection<T> entityTrackingSection) {
-        NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) entity).getListener();
+        NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) this.entity).getListener();
         if (listener != null)
         {
             //noinspection unchecked
@@ -80,7 +80,7 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
             )
     )
     private void onRemoveEntity(Entity.RemovalReason reason, CallbackInfo ci) {
-        NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) entity).getListener();
+        NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) this.entity).getListener();
         if (listener != null)
         {
             //noinspection unchecked

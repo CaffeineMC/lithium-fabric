@@ -131,7 +131,7 @@ public abstract class PalettedContainerMixin<T> {
      *
      * @author JellySquid
      */
-    @Inject(method = "count", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "count(Lnet/minecraft/world/chunk/PalettedContainer$CountConsumer;)V", at = @At("HEAD"), cancellable = true)
     public void count(PalettedContainer.CountConsumer<T> consumer, CallbackInfo ci) {
         int len = (1 << this.paletteSize);
 

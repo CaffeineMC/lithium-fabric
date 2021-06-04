@@ -50,7 +50,7 @@ public abstract class ChunkCacheMixin implements BlockView {
 
     private int bottomY, topY;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;)V", at = @At("RETURN"))
     private void init(World world, BlockPos minPos, BlockPos maxPos, CallbackInfo ci) {
         this.xLen = 1 + (Pos.ChunkCoord.fromBlockCoord(maxPos.getX())) - (Pos.ChunkCoord.fromBlockCoord(minPos.getX()));
         this.zLen = 1 + (Pos.ChunkCoord.fromBlockCoord(maxPos.getZ())) - (Pos.ChunkCoord.fromBlockCoord(minPos.getZ()));

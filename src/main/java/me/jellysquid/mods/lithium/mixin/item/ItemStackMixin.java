@@ -30,7 +30,7 @@ public abstract class ItemStackMixin {
         return this.empty;
     }
 
-    @Redirect(method = "updateEmptyState", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"))
+    @Redirect(method = "updateEmptyState()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"))
     private boolean isEmptyRecalculate(ItemStack itemStack) {
         return (this.item == null || this.item == Items.AIR || this.count <= 0);
     }

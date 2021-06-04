@@ -1,8 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.chunk.count_oversized_blocks;
 
 import me.jellysquid.mods.lithium.common.entity.movement.ChunkAwareBlockCollisionSweeper;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.network.PacketByteBuf;
@@ -33,7 +31,7 @@ public abstract class ChunkSectionMixin implements ChunkAwareBlockCollisionSweep
     private short oversizedBlockCount;
 
     @Redirect(
-            method = "calculateCounts",
+            method = "calculateCounts()V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/chunk/PalettedContainer;count(Lnet/minecraft/world/chunk/PalettedContainer$CountConsumer;)V"
@@ -48,7 +46,7 @@ public abstract class ChunkSectionMixin implements ChunkAwareBlockCollisionSweep
         });
     }
 
-    @Inject(method = "calculateCounts", at = @At("HEAD"))
+    @Inject(method = "calculateCounts()V", at = @At("HEAD"))
     private void resetOversizedBlockCount(CallbackInfo ci) {
         this.oversizedBlockCount = 0;
     }
@@ -94,8 +92,7 @@ public abstract class ChunkSectionMixin implements ChunkAwareBlockCollisionSweep
      * Initialize oversized block count in the client worlds.
      * This also initializes other values (randomtickable blocks counter), but they are unused in the client worlds.
      */
-    @Environment(EnvType.CLIENT)
-    @Inject(method = "fromPacket", at = @At("RETURN"))
+    @Inject(method = "fromPacket(Lnet/minecraft/network/PacketByteBuf;)V", at = @At("RETURN"))
     private void initCounts(PacketByteBuf packetByteBuf, CallbackInfo ci) {
         this.calculateCounts();
     }

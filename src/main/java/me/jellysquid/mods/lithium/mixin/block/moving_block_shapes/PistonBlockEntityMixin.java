@@ -39,7 +39,7 @@ public abstract class PistonBlockEntityMixin {
      * cache the results for all union calls with an empty shape as first argument. (these are all other cases)
      */
     @Inject(
-            method = "getCollisionShape",
+            method = "getCollisionShape(Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/util/shape/VoxelShape;",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/util/math/Direction;getOffsetX()I",

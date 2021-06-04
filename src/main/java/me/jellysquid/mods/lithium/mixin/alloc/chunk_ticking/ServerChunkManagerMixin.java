@@ -17,7 +17,7 @@ public class ServerChunkManagerMixin {
     private final ArrayList<ChunkHolder> cachedChunkList = new ArrayList<>();
 
     @Redirect(
-            method = "tickChunks",
+            method = "tickChunks()V",
             at = @At(
                     remap = false,
                     value = "INVOKE",

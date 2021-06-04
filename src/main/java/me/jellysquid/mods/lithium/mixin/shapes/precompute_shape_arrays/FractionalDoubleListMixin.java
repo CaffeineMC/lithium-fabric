@@ -17,7 +17,7 @@ public class FractionalDoubleListMixin {
 
     private double scale;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(I)V", at = @At("RETURN"))
     public void initScale(int sectionCount, CallbackInfo ci) {
         this.scale = 1.0D / this.sectionCount;
     }

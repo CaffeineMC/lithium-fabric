@@ -40,7 +40,7 @@ public abstract class DataTrackerMixin {
      * a calls to the generic Map interface.
      */
     @Redirect(
-            method = "addTrackedData",
+            method = "addTrackedData(Lnet/minecraft/entity/data/TrackedData;Ljava/lang/Object;)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;put(ILjava/lang/Object;)Ljava/lang/Object;",

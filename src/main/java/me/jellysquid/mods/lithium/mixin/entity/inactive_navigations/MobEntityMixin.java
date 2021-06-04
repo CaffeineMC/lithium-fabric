@@ -39,7 +39,7 @@ public abstract class MobEntityMixin extends Entity implements NavigatingEntity 
         return this.registeredNavigation;
     }
 
-    @Inject(method = "startRiding", at = @At("RETURN"))
+    @Inject(method = "startRiding(Lnet/minecraft/entity/Entity;Z)Z", at = @At("RETURN"))
     private void onNavigationReplacement(Entity entity, boolean force, CallbackInfoReturnable<Boolean> cir) {
         this.updateNavigationRegistration();
     }

@@ -29,7 +29,7 @@ public abstract class DataTrackerMixin {
     @Final
     private ReadWriteLock lock;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/entity/Entity;)V", at = @At("RETURN"))
     private void init(Entity entity, CallbackInfo ci) {
         this.lock = new NullReadWriteLock();
     }

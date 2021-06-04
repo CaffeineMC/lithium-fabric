@@ -14,7 +14,7 @@ import java.util.List;
 public class AbstractMinecartEntityMixin {
 
     @Redirect(
-            method = "tick",
+            method = "tick()V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/World;getOtherEntities(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;)Ljava/util/List;"

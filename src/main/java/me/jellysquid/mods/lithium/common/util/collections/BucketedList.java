@@ -2,11 +2,10 @@ package me.jellysquid.mods.lithium.common.util.collections;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 
 public class BucketedList<T> extends AbstractList<T> {
-    ArrayList<T>[] buckets;
+    final ArrayList<T>[] buckets;
     private int size;
 
     public BucketedList(int numBuckets) {
@@ -42,7 +41,7 @@ public class BucketedList<T> extends AbstractList<T> {
             public T next() {
                 if (this.bucketList == null || this.bucketList.size() <= this.index) {
                     this.bucketIndex++;
-                    this.bucketList = BucketedList.this.buckets[bucketIndex];
+                    this.bucketList = BucketedList.this.buckets[this.bucketIndex];
                     this.index = 0;
                     return this.next();
                 }

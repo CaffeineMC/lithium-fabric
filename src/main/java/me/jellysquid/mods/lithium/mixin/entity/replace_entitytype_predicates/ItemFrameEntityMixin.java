@@ -20,7 +20,7 @@ public abstract class ItemFrameEntityMixin extends AbstractDecorationEntity {
     }
 
     @Redirect(
-            method = "canStayAttached",
+            method = "canStayAttached()Z",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/World;getOtherEntities(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"

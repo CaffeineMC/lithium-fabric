@@ -7,6 +7,7 @@ import me.jellysquid.mods.lithium.common.util.Pos;
 import me.jellysquid.mods.lithium.common.world.interests.PointOfInterestCollectors;
 import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageSectionAccess;
 import net.minecraft.datafixer.DataFixTypes;
+import net.minecraft.util.annotation.Debug;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.HeightLimitView;
@@ -34,6 +35,7 @@ public abstract class PointOfInterestStorageMixin extends SerializingRegionBased
      * @reason Retrieve all points of interest in one operation
      * @author JellySquid
      */
+    @Debug
     @SuppressWarnings("unchecked")
     @Overwrite
     public Stream<PointOfInterest> getInChunk(Predicate<PointOfInterestType> predicate, ChunkPos pos, PointOfInterestStorage.OccupationStatus status) {

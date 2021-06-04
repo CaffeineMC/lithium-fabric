@@ -101,23 +101,23 @@ public class TestCustomVoxelShapesCollisions {
 
     public void testShapeBehaviorEquality(VoxelShape[] pair) {
         for (Direction.Axis axis : AXES) {
-            for (double maxDist : distances) {
-                for (Box box : boxes) {
+            for (double maxDist : this.distances) {
+                for (Box box : this.boxes) {
                     double resultVanilla = pair[0].calculateMaxDistance(axis, box, maxDist);
                     double resultModded = pair[1].calculateMaxDistance(axis, box, maxDist);
                     int collided = 0;
                     if (resultVanilla == maxDist) {
-                        noCollision++;
+                        this.noCollision++;
                     } else {
-                        collision++;
+                        this.collision++;
                         collided = 1;
                     }
                     if (pair[0].getBoundingBox().intersects(box)) {
-                        intersects++;
-                        intersectsCollision += collided;
+                        this.intersects++;
+                        this.intersectsCollision += collided;
                     }
                     if (pair[1] instanceof VoxelShapeAlignedCuboid) {
-                        withCollisionBoxesInside++;
+                        this.withCollisionBoxesInside++;
                     }
 
                     if (resultModded != resultVanilla) {
@@ -129,7 +129,7 @@ public class TestCustomVoxelShapesCollisions {
 //                            if (resultVanilla != resultVanilla2)
 //                                repeat = false;
 //                        }
-                        throw new IllegalStateException(String.format("RNG seed: %s, different results for: %s, %s in calculateMaxDistance with arguments axis: %s, box: %s, maxDist: %s, result vanilla: %s, result modded: %s", randomSeed, pair[0], pair[1], axis, box, maxDist, resultVanilla, resultModded));
+                        throw new IllegalStateException(String.format("RNG seed: %s, different results for: %s, %s in calculateMaxDistance with arguments axis: %s, box: %s, maxDist: %s, result vanilla: %s, result modded: %s", this.randomSeed, pair[0], pair[1], axis, box, maxDist, resultVanilla, resultModded));
                     }
                 }
             }

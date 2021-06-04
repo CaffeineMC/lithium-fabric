@@ -13,7 +13,7 @@ public class BlockEntityMixin implements RemovableBlockEntity {
     //the count is used by caches to realize the blockentity might have changed position or otherwise
     private int removedCount;
 
-    @Inject(method = "markRemoved", at = @At("HEAD"))
+    @Inject(method = "markRemoved()V", at = @At("HEAD"))
     private void increaseRemovedCount(CallbackInfo ci) {
         this.increaseRemoveCounter();
     }

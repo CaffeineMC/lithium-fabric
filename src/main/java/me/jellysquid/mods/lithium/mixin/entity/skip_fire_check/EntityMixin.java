@@ -20,7 +20,7 @@ public abstract class EntityMixin {
     protected abstract int getBurningDuration();
 
     @Redirect(
-            method = "move",
+            method = "move(Lnet/minecraft/entity/MovementType;Lnet/minecraft/util/math/Vec3d;)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/World;getStatesInBoxIfLoaded(Lnet/minecraft/util/math/Box;)Ljava/util/stream/Stream;"

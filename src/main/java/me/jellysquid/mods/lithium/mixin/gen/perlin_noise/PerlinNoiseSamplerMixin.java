@@ -32,7 +32,7 @@ public abstract class PerlinNoiseSamplerMixin {
     @Final
     private byte[] permutations;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/world/gen/WorldGenRandom;)V", at = @At("RETURN"))
     private void reinit(WorldGenRandom random, CallbackInfo ci) {
         for (int i = 0; i < 256; i++) {
             int hash = this.permutations[i & 255] & 15;

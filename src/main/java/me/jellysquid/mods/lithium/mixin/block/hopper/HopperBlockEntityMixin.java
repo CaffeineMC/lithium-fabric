@@ -145,7 +145,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     }
 
     @Redirect(
-            method = "insertAndExtract",
+            method = "insertAndExtract(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/entity/HopperBlockEntity;Ljava/util/function/BooleanSupplier;)Z",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/block/entity/HopperBlockEntity;isFull()Z"
@@ -158,7 +158,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     }
 
     @Redirect(
-            method = "insertAndExtract",
+            method = "insertAndExtract(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/entity/HopperBlockEntity;Ljava/util/function/BooleanSupplier;)Z",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/block/entity/HopperBlockEntity;isEmpty()Z"
@@ -176,7 +176,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
      * @reason Adding the inventory caching into the static method using mixins seems to be unfeasible without temporarily storing state in static fields.
      */
     @SuppressWarnings("JavadocReference")
-    @Redirect(method = "insertAndExtract", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;insert(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/inventory/Inventory;)Z"))
+    @Redirect(method = "insertAndExtract(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/entity/HopperBlockEntity;Ljava/util/function/BooleanSupplier;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;insert(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/inventory/Inventory;)Z"))
     private static boolean lithiumInsert(World world, BlockPos pos, BlockState state, Inventory hopper) {
         HopperBlockEntityMixin hopperBlockEntity = (HopperBlockEntityMixin) hopper;
         Inventory insertInventory = hopperBlockEntity.getInsertInventory(world);
@@ -287,7 +287,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     }
 
 
-    @Redirect(method = "insert", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getOutputInventory(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/inventory/Inventory;"))
+    @Redirect(method = "insert(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/inventory/Inventory;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getOutputInventory(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/inventory/Inventory;"))
     private static Inventory nullify(World world, BlockPos pos, BlockState state) {
         return null;
     }
@@ -460,7 +460,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                         list.toArray(new Box[0]),
                         ItemEntity.class
                 );
-        this.extractItemEntityTracker.register((ServerWorld) world);
+        this.extractItemEntityTracker.register((ServerWorld) this.world);
     }
 
     @Override

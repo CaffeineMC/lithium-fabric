@@ -150,7 +150,7 @@ public abstract class ThreadedAnvilChunkStorageMixin {
 
     @Shadow
     @Final
-    private ServerWorld world;
+    ServerWorld world;
 
     @Shadow
     @Final
@@ -161,7 +161,7 @@ public abstract class ThreadedAnvilChunkStorageMixin {
     private ThreadedAnvilChunkStorage.TicketManager ticketManager;
 
     @Shadow
-    private int watchDistance;
+    int watchDistance;
 
     @Shadow
     protected abstract boolean doesNotGenerateChunks(ServerPlayerEntity player);

@@ -20,7 +20,7 @@ public abstract class ChunkTicketManagerMixin {
 
     @Shadow
     @Final
-    private Long2ObjectOpenHashMap<SortedArraySet<ChunkTicket<?>>> ticketsByPosition;
+    Long2ObjectOpenHashMap<SortedArraySet<ChunkTicket<?>>> ticketsByPosition;
 
     @Shadow
     @Final

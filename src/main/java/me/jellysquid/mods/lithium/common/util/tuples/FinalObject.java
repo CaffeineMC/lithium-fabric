@@ -15,6 +15,6 @@ public class FinalObject<T> {
     }
 
     public T getValue() {
-        return value;
+        return this.value;
     }
 }

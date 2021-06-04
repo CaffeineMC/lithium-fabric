@@ -18,12 +18,12 @@ public abstract class BlockEntityMixin implements SupportCache {
 
     private boolean supportTestResult;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/block/entity/BlockEntityType;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V", at = @At("RETURN"))
     private void initSupportCache(BlockEntityType<?> type, BlockPos pos, BlockState cachedState, CallbackInfo ci) {
         this.supportTestResult = this.getType().supports(cachedState);
     }
 
-    @Inject(method = "setCachedState", at = @At("RETURN"))
+    @Inject(method = "setCachedState(Lnet/minecraft/block/BlockState;)V", at = @At("RETURN"))
     private void updateSupportCache(BlockState cachedState, CallbackInfo ci) {
         this.supportTestResult = this.getType().supports(cachedState);
     }

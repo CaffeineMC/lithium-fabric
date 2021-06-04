@@ -34,7 +34,7 @@ public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterable
     /**
      * Update our collections
      */
-    @ModifyVariable(method = "add", at = @At("HEAD"), argsOnly = true)
+    @ModifyVariable(method = "add(Ljava/lang/Object;)Z", at = @At("HEAD"), argsOnly = true)
     public T add(T entity) {
         for (Map.Entry<EntityClassGroup, ReferenceLinkedOpenHashSet<T>> entityGroupAndSet : this.entitiesByGroup.entrySet()) {
             EntityClassGroup entityGroup = entityGroupAndSet.getKey();
@@ -48,9 +48,10 @@ public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterable
     /**
      * Update our collections
      */
-    @ModifyVariable(method = "remove", at = @At("HEAD"), argsOnly = true)
+    @ModifyVariable(method = "remove(Ljava/lang/Object;)Z", at = @At("HEAD"), argsOnly = true)
     public Object remove(Object o) {
         for (Map.Entry<EntityClassGroup, ReferenceLinkedOpenHashSet<T>> entityGroupAndSet : this.entitiesByGroup.entrySet()) {
+            //noinspection SuspiciousMethodCalls
             entityGroupAndSet.getValue().remove(o);
         }
         return o;

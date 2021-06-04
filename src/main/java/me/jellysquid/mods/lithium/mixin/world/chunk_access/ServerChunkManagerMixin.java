@@ -54,14 +54,14 @@ public abstract class ServerChunkManagerMixin {
     protected abstract ChunkHolder getChunkHolder(long pos);
 
     @Shadow
-    protected abstract boolean tick();
+    @Final
+    Thread serverThread;
 
     @Shadow
     protected abstract boolean isMissingForLevel(ChunkHolder holder, int maxLevel);
 
     @Shadow
-    @Final
-    private Thread serverThread;
+    abstract boolean tick();
     private long time;
 
     @Inject(method = "tick()Z", at = @At("HEAD"))
@@ -250,7 +250,7 @@ public abstract class ServerChunkManagerMixin {
     /**
      * Reset our own caches whenever vanilla does the same
      */
-    @Inject(method = "initChunkCaches", at = @At("HEAD"))
+    @Inject(method = "initChunkCaches()V", at = @At("HEAD"))
     private void onCachesCleared(CallbackInfo ci) {
         Arrays.fill(this.cacheKeys, Long.MAX_VALUE);
         Arrays.fill(this.cacheChunks, null);

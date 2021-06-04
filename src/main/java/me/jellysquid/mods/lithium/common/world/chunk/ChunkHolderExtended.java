@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture;
 
 public interface ChunkHolderExtended {
     /**
-     * @return The existing future for the status at ordiinal {@param index} or null if none exists
+     * @return The existing future for the status at ordinal {@param index} or null if none exists
      */
     CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> getFutureByStatus(int index);
 

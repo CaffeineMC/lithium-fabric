@@ -1,9 +1,9 @@
 package me.jellysquid.mods.lithium.common.util.collections;
 
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -55,7 +55,7 @@ public class HashedReferenceList<T> implements List<T> {
 
     @SuppressWarnings("SuspiciousToArrayCall")
     @Override
-    public <T1> T1[] toArray(T1[] a) {
+    public <T1> T1[] toArray(T1 @NotNull [] a) {
         return this.list.toArray(a);
     }
 
@@ -103,7 +103,7 @@ public class HashedReferenceList<T> implements List<T> {
     }
 
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(@NotNull Collection<?> c) {
         if (this.size() >= 2 && c.size() > 4 && c instanceof List) {
             //HashReferenceList uses reference equality, so using ReferenceOpenHashSet is fine
             c = new ReferenceOpenHashSet<>(c);
@@ -113,7 +113,7 @@ public class HashedReferenceList<T> implements List<T> {
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(@NotNull Collection<?> c) {
         this.counter.keySet().retainAll(c);
         return this.list.retainAll(c);
     }
@@ -179,7 +179,7 @@ public class HashedReferenceList<T> implements List<T> {
 
     @Override
     public ListIterator<T> listIterator(int index) {
-        return new ListIterator<T>() {
+        return new ListIterator<>() {
             private final ListIterator<T> inner = HashedReferenceList.this.list.listIterator(index);
 
             @Override

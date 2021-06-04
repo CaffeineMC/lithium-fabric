@@ -11,7 +11,7 @@ public class PistonBlockMixin {
     private static final Direction[] DIRECTIONS = Direction.values();
 
     @Redirect(
-            method = "shouldExtend",
+            method = "shouldExtend(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction;)Z",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/util/math/Direction;values()[Lnet/minecraft/util/math/Direction;"
