@@ -87,9 +87,8 @@ public class LithiumConfig {
         this.addMixinRule("gen.fast_island_noise", true);
         this.addMixinRule("gen.fast_layer_sampling", true);
         this.addMixinRule("gen.fast_multi_source_biomes", true);
-        this.addMixinRule("gen.fast_noise_interpolation", true);
         this.addMixinRule("gen.features", true);
-        this.addMixinRule("gen.perlin_noise", false); //todo fix for 1.17
+        this.addMixinRule("gen.perlin_noise", true);
         this.addMixinRule("gen.voronoi_biomes", true);
 
         this.addMixinRule("math", true);
