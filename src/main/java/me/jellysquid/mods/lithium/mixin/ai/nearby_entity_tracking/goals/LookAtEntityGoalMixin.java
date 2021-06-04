@@ -34,8 +34,8 @@ public class LookAtEntityGoalMixin {
     protected float range;
     private NearbyEntityTracker<? extends LivingEntity> tracker;
 
-    @Inject(method = "<init>(Lnet/minecraft/entity/mob/MobEntity;Ljava/lang/Class;FF)V", at = @At("RETURN"))
-    private void init(MobEntity mob, Class<? extends LivingEntity> targetType, float range, float chance, CallbackInfo ci) {
+    @Inject(method = "<init>(Lnet/minecraft/entity/mob/MobEntity;Ljava/lang/Class;FFZ)V", at = @At("RETURN"))
+    private void init(MobEntity mob, Class<? extends LivingEntity> targetType, float range, float chance, boolean b, CallbackInfo ci) {
         EntityDimensions dimensions = this.mob.getType().getDimensions();
         double adjustedRange = dimensions.width * 0.5D + this.range + 2D;
         int horizontalRange = MathHelper.ceil(adjustedRange);
