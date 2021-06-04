@@ -4,26 +4,32 @@ import me.jellysquid.mods.lithium.common.world.blockentity.SupportCache;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BlockEntity.class)
 public abstract class BlockEntityMixin implements SupportCache {
     @Shadow
-    public abstract BlockState getCachedState();
-
-    @Shadow
     public abstract BlockEntityType<?> getType();
 
-    private BlockState supportTestState;
     private boolean supportTestResult;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void initSupportCache(BlockEntityType<?> type, BlockPos pos, BlockState cachedState, CallbackInfo ci) {
+        this.supportTestResult = this.getType().supports(cachedState);
+    }
+
+    @Inject(method = "setCachedState", at = @At("RETURN"))
+    private void updateSupportCache(BlockState cachedState, CallbackInfo ci) {
+        this.supportTestResult = this.getType().supports(cachedState);
+    }
 
     @Override
     public boolean isSupported() {
-        BlockState cachedState = this.getCachedState();
-        if (this.supportTestState == cachedState) {
-            return this.supportTestResult;
-        }
-        return this.supportTestResult = this.getType().supports((this.supportTestState = cachedState));
+        return this.supportTestResult;
     }
 }
