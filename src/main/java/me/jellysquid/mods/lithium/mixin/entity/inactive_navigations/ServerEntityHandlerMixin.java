@@ -18,7 +18,7 @@ public class ServerEntityHandlerMixin {
 
     private ServerWorld outer;
 
-    @Inject(method = "<init>()V", at = @At("TAIL"))
+    @Inject(method = "<init>", at = @At("TAIL"))
     private void inj(ServerWorld outer, CallbackInfo ci) {
         this.outer = outer;
     }

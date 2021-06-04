@@ -88,7 +88,7 @@ public abstract class PerlinNoiseSamplerMixin {
      * @author JellySquid
      */
     @Overwrite
-    public double sample(int sectionX, int sectionY, int sectionZ, double localX1, double localY1, double localZ1, double unmappedVar) {
+    private double sample(int sectionX, int sectionY, int sectionZ, double localX1, double localY1, double localZ1, double unmappedVar) {
         final byte[] perm = this.permutations;
 
         final int i = (perm[sectionX & 255] & 255) + sectionY;

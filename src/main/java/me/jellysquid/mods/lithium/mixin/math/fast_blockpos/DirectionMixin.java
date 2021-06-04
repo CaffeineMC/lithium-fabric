@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class DirectionMixin {
     private int offsetX, offsetY, offsetZ;
 
-    @Inject(method = "<init>(IIILjava/lang/String;Lnet/minecraft/util/math/Direction$AxisDirection;Lnet/minecraft/util/math/Direction$Axis;Lnet/minecraft/util/math/Vec3i;)V", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"))
     private void reinit(String enumName, int ordinal, int id, int idOpposite, int idHorizontal, String name, Direction.AxisDirection direction, Direction.Axis axis, Vec3i vector, CallbackInfo ci) {
         this.offsetX = vector.getX();
         this.offsetY = vector.getY();
