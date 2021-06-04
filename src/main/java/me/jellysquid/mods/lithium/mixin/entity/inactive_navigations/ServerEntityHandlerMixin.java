@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.entity.inactive_navigations;
 
-import me.jellysquid.mods.lithium.common.entity.EntityNavigationExtended;
+import me.jellysquid.mods.lithium.common.entity.NavigatingEntity;
 import me.jellysquid.mods.lithium.common.world.ServerWorldExtended;
 import net.minecraft.entity.ai.pathing.EntityNavigation;
 import net.minecraft.entity.mob.MobEntity;
@@ -27,7 +27,7 @@ public class ServerEntityHandlerMixin {
     private boolean startListeningOnEntityLoad(Set<MobEntity> set, Object mobEntityObj) {
         MobEntity mobEntity = (MobEntity) mobEntityObj;
         EntityNavigation navigation = mobEntity.getNavigation();
-        ((EntityNavigationExtended) navigation).setRegisteredToWorld(true);
+        ((NavigatingEntity) mobEntity).setRegisteredToWorld(navigation);
         if (navigation.getCurrentPath() != null) {
             ((ServerWorldExtended) this.outer).setNavigationActive(mobEntity);
         }
@@ -38,7 +38,7 @@ public class ServerEntityHandlerMixin {
     private boolean stopListeningOnEntityUnload(Set<MobEntity> set, Object mobEntityObj) {
         MobEntity mobEntity = (MobEntity) mobEntityObj;
         EntityNavigation navigation = mobEntity.getNavigation();
-        ((EntityNavigationExtended) navigation).setRegisteredToWorld(false);
+        ((NavigatingEntity) mobEntity).setRegisteredToWorld(null);
         if (navigation.getCurrentPath() != null) {
             ((ServerWorldExtended) this.outer).setNavigationInactive(mobEntity);
         }

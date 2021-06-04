@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.entity.inactive_navigations;
 
-import me.jellysquid.mods.lithium.common.entity.EntityNavigationExtended;
+import me.jellysquid.mods.lithium.common.entity.NavigatingEntity;
 import me.jellysquid.mods.lithium.common.world.ServerWorldExtended;
 import net.minecraft.entity.ai.pathing.EntityNavigation;
 import net.minecraft.entity.ai.pathing.Path;
@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EntityNavigation.class)
-public abstract class EntityNavigationMixin implements EntityNavigationExtended {
+public abstract class EntityNavigationMixin {
 
     @Shadow
     @Final
@@ -27,7 +27,6 @@ public abstract class EntityNavigationMixin implements EntityNavigationExtended 
     @Shadow
     @Final
     protected MobEntity entity;
-    private boolean canListenForBlocks = false;
 
     @Inject(
             method = "recalculatePath",
@@ -38,7 +37,7 @@ public abstract class EntityNavigationMixin implements EntityNavigationExtended 
             )
     )
     private void updateListeningState(CallbackInfo ci) {
-        if (this.canListenForBlocks) {
+        if (((NavigatingEntity) this.entity).isRegisteredToWorld()) {
             if (this.currentPath == null) {
                 ((ServerWorldExtended) this.world).setNavigationInactive(this.entity);
             } else {
@@ -49,7 +48,7 @@ public abstract class EntityNavigationMixin implements EntityNavigationExtended 
 
     @Inject(method = "startMovingAlong", at = @At(value = "RETURN"))
     private void updateListeningState2(Path path, double speed, CallbackInfoReturnable<Boolean> cir) {
-        if (this.canListenForBlocks) {
+        if (((NavigatingEntity) this.entity).isRegisteredToWorld()) {
             if (this.currentPath == null) {
                 ((ServerWorldExtended) this.world).setNavigationInactive(this.entity);
             } else {
@@ -60,20 +59,8 @@ public abstract class EntityNavigationMixin implements EntityNavigationExtended 
 
     @Inject(method = "stop", at = @At(value = "RETURN"))
     private void stopListening(CallbackInfo ci) {
-        if (this.canListenForBlocks) {
+        if (((NavigatingEntity) this.entity).isRegisteredToWorld()) {
             ((ServerWorldExtended) this.world).setNavigationInactive(this.entity);
         }
-    }
-
-    @Override
-    public void setRegisteredToWorld(boolean isRegistered) {
-        // Drowneds are problematic. Their EntityNavigations do not register properly.
-        // We make sure to not register them, when vanilla doesn't register them.
-        this.canListenForBlocks = isRegistered;
-    }
-
-    @Override
-    public boolean isRegisteredToWorld() {
-        return this.canListenForBlocks;
     }
 }

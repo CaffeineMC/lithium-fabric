@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.entity.inactive_navigations;
 
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import me.jellysquid.mods.lithium.common.entity.EntityNavigationExtended;
+import me.jellysquid.mods.lithium.common.entity.NavigatingEntity;
 import me.jellysquid.mods.lithium.common.world.ServerWorldExtended;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.pathing.EntityNavigation;
@@ -28,41 +28,44 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 /**
  * This patch is supposed to reduce the cost of setblockstate calls that change the collision shape of a block.
- * In vanilla, changing the collision shape of a block will notify *ALL* EntityNavigations in the world.
+ * In vanilla, changing the collision shape of a block will notify *ALL* MobEntities in the world.
+ * Instead, we track which EntityNavigation is going to be used by a MobEntity and
+ * call the update code on the navigation directly.
  * As EntityNavigations only care about these changes when they actually have a currentPath, we skip the iteration
- * of many navigations. For that optimization we need to keep track of which navigations have a path and which do not.
- *
- * Another possible optimization for the future: If we can somehow find a maximum range that a navigation listens for,
- * we can partition the set by region/chunk/etc. to be able to only iterate over nearby EntityNavigations. In vanilla
- * however, that limit calculation includes the entity position, which can change by a lot very quickly in rare cases.
- * For this optimization we would need to add detection code for very far entity movements. Therefore we don't implement
- * this yet.
+ * of many EntityNavigations. For that optimization we need to track whether navigations have a path.
+ * <p>
+ * Another possible optimization for the future: By using the entity section registration tracking of 1.17,
+ * we can partition the active navigation set by region/chunk/etc. to be able to iterate over nearby EntityNavigations.
+ * In vanilla the limit calculation includes the path length entity position, which can change very often and force us
+ * to update the registration very often, which could cost a lot of performance.
+ * As the number of block changes is generally way higher than the number of mobs pathfinding, the update code would
+ * need to be triggered by the mobs pathfinding.
  */
 @Mixin(ServerWorld.class)
 public abstract class ServerWorldMixin extends World implements ServerWorldExtended {
     @Mutable
     @Shadow
     @Final
-    private Set<MobEntity> loadedMobs;
+    Set<MobEntity> loadedMobs;
 
-    private ReferenceOpenHashSet<MobEntity> activeMobEntities;
-    private ArrayList<MobEntity> activeMobEntitiesUpdates;
+    private ReferenceOpenHashSet<EntityNavigation> activeNavigations;
+    private ArrayList<MobEntity> activeNavigationsUpdates;
+    private ArrayList<EntityNavigation> removedNavigations;
+
     private boolean isIteratingActiveEntityNavigations;
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void init(MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey<World> registryKey, DimensionType dimensionType, WorldGenerationProgressListener worldGenerationProgressListener, ChunkGenerator chunkGenerator, boolean debugWorld, long l, List<Spawner> list, boolean bl, CallbackInfo ci) {
         this.loadedMobs = new ReferenceOpenHashSet<>(this.loadedMobs);
-        this.activeMobEntities = new ReferenceOpenHashSet<>();
-        this.activeMobEntitiesUpdates = new ArrayList<>();
+        this.activeNavigations = new ReferenceOpenHashSet<>();
+        this.activeNavigationsUpdates = new ArrayList<>();
+        this.removedNavigations = new ArrayList<>();
         this.isIteratingActiveEntityNavigations = false;
     }
 
@@ -79,27 +82,47 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
             )
     )
     private Iterator<MobEntity> getActiveListeners(Set<MobEntity> set) {
+        return Collections.emptyIterator();
+    }
+
+    @Inject(
+            method = "updateListeners",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Ljava/util/Set;iterator()Ljava/util/Iterator;"
+            )
+    )
+    private void getActiveListeners(BlockPos pos, BlockState oldState, BlockState newState, int flags, CallbackInfo ci) {
         this.isIteratingActiveEntityNavigations = true;
-        return this.activeMobEntities.iterator();
+        for (EntityNavigation entityNavigation : this.activeNavigations) {
+            if (!entityNavigation.shouldRecalculatePath()) {
+                entityNavigation.onBlockChanged(pos);
+            }
+        }
     }
 
     @Inject(method = "updateListeners", at = @At(value = "RETURN"))
     private void onIterationFinished(BlockPos pos, BlockState oldState, BlockState newState, int flags, CallbackInfo ci) {
         this.isIteratingActiveEntityNavigations = false;
-        if (!this.activeMobEntitiesUpdates.isEmpty()) {
+        if (!this.removedNavigations.isEmpty() || !this.activeNavigationsUpdates.isEmpty()) {
             this.applyActiveEntityNavigationUpdates();
         }
     }
 
     private void applyActiveEntityNavigationUpdates() {
-        ArrayList<MobEntity> mobEntitiesUpdates = this.activeMobEntitiesUpdates;
-        for (int i = mobEntitiesUpdates.size() - 1; i >= 0; i--) {
-            MobEntity mobEntity = mobEntitiesUpdates.remove(i);
-            EntityNavigation entityNavigation = mobEntity.getNavigation();
-            if (entityNavigation.getCurrentPath() != null && ((EntityNavigationExtended) entityNavigation).isRegisteredToWorld()) {
-                this.activeMobEntities.add(mobEntity);
+        ArrayList<EntityNavigation> removedNavigations = this.removedNavigations;
+        for (int i = removedNavigations.size() - 1; i >= 0; i--) {
+            EntityNavigation remove = removedNavigations.remove(i);
+            this.activeNavigations.remove(remove);
+        }
+        ArrayList<MobEntity> navigationUpdates = this.activeNavigationsUpdates;
+        for (int i = navigationUpdates.size() - 1; i >= 0; i--) {
+            MobEntity mobEntity = navigationUpdates.remove(i);
+            EntityNavigation entityNavigation = ((NavigatingEntity) mobEntity).getRegisteredNavigation();
+            if (entityNavigation.getCurrentPath() != null && ((NavigatingEntity) mobEntity).isRegisteredToWorld()) {
+                this.activeNavigations.add(entityNavigation);
             } else {
-                this.activeMobEntities.remove(mobEntity);
+                this.activeNavigations.remove(entityNavigation);
             }
         }
     }
@@ -107,18 +130,18 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
     @Override
     public void setNavigationActive(MobEntity mobEntity) {
         if (!this.isIteratingActiveEntityNavigations) {
-            this.activeMobEntities.add(mobEntity);
+            this.activeNavigations.add(((NavigatingEntity) mobEntity).getRegisteredNavigation());
         } else {
-            this.activeMobEntitiesUpdates.add(mobEntity);
+            this.activeNavigationsUpdates.add(mobEntity);
         }
     }
 
     @Override
     public void setNavigationInactive(MobEntity mobEntity) {
         if (!this.isIteratingActiveEntityNavigations) {
-            this.activeMobEntities.remove(mobEntity);
+            this.activeNavigations.remove(((NavigatingEntity) mobEntity).getRegisteredNavigation());
         } else {
-            this.activeMobEntitiesUpdates.add(mobEntity);
+            this.removedNavigations.add(((NavigatingEntity) mobEntity).getRegisteredNavigation());
         }
     }
 
@@ -130,17 +153,18 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
      * Debug function
      * @return whether the activeEntityNavigation set is in the correct state
      */
+    @SuppressWarnings("unused")
     public boolean isConsistent() {
         int i = 0;
         for (MobEntity mobEntity : this.loadedMobs) {
             EntityNavigation entityNavigation = mobEntity.getNavigation();
-            if ((entityNavigation.getCurrentPath() != null && ((EntityNavigationExtended) entityNavigation).isRegisteredToWorld()) != this.activeMobEntities.contains(entityNavigation)) {
+            if ((entityNavigation.getCurrentPath() != null && ((NavigatingEntity) mobEntity).isRegisteredToWorld()) != this.activeNavigations.contains(entityNavigation)) {
                 return false;
             }
             if (entityNavigation.getCurrentPath() != null) {
                 i++;
             }
         }
-        return this.activeMobEntities.size() == i;
+        return this.activeNavigations.size() == i;
     }
 }
