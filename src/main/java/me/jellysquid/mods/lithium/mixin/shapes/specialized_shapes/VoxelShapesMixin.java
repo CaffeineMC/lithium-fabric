@@ -80,6 +80,7 @@ public abstract class VoxelShapesMixin {
      * @author JellySquid, 2No2Name
      */
     @Overwrite
+    //todo adapt to 1.17 changes
     public static VoxelShape cuboid(Box box) {
         int xRes;
         int yRes;

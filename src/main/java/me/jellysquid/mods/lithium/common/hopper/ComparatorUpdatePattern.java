@@ -21,7 +21,6 @@ import net.minecraft.block.entity.BlockEntity;
  * @author 2No2Name
  */
 public enum ComparatorUpdatePattern {
-//    NO_COMPARATOR_PRESENT, //inventory with no comparators reading from it, would need quite a lot of block update cache invalidation
     NO_UPDATE {
     //example: empty inventory, inventory that does not send comparator updates on hopper pull attempt
 

@@ -55,6 +55,7 @@ public abstract class HopperBlockMixin extends BlockWithEntity {
         //invalidate caches of nearby hoppers when placing an update suppressed hopper
         if (world.getBlockState(pos) != state) {
             for (Direction direction : DIRECTIONS) {
+                //todo do not create a new blockentity here!
                 BlockEntity hopper = world.getBlockEntity(pos.offset(direction));
                 if (hopper instanceof UpdateReceiver updateReceiver) {
                     updateReceiver.onNeighborUpdate(direction == Direction.DOWN);

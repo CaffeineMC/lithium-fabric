@@ -48,6 +48,8 @@ public abstract class ChunkCacheMixin implements BlockView {
     // The x/z length of this cache
     private int xLen, zLen;
 
+    private int bottomY, topY;
+
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(World world, BlockPos minPos, BlockPos maxPos, CallbackInfo ci) {
         this.xLen = 1 + (Pos.ChunkCoord.fromBlockCoord(maxPos.getX())) - (Pos.ChunkCoord.fromBlockCoord(minPos.getX()));
@@ -59,6 +61,9 @@ public abstract class ChunkCacheMixin implements BlockView {
         for (int x = 0; x < this.xLen; x++) {
             System.arraycopy(this.chunks[x], 0, this.chunksFlat, x * this.zLen, this.zLen);
         }
+
+        this.bottomY = this.getBottomY();
+        this.topY = this.getTopY();
     }
 
     /**
@@ -69,7 +74,7 @@ public abstract class ChunkCacheMixin implements BlockView {
     public BlockState getBlockState(BlockPos pos) {
         int y = pos.getY();
 
-        if (!this.isOutOfHeightLimit(pos.getY())) { //todo use cached values for height limit
+        if (!(y < this.bottomY || y >= this.topY)) {
             int x = pos.getX();
             int z = pos.getZ();
 
