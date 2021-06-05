@@ -75,17 +75,22 @@ public abstract class ExplosionMixin {
      */
     private boolean explodeAirBlocks;
 
+    private int minY, maxY;
+
     @Inject(
             method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/damage/DamageSource;Lnet/minecraft/world/explosion/ExplosionBehavior;DDDFZLnet/minecraft/world/explosion/Explosion$DestructionType;)V",
             at = @At("TAIL")
     )
     private void init(World world, Entity entity, DamageSource damageSource, ExplosionBehavior explosionBehavior, double d, double e, double f, float g, boolean bl, Explosion.DestructionType destructionType, CallbackInfo ci) {
+        this.minY = this.world.getBottomY();
+        this.maxY = this.world.getTopY();
+
         boolean explodeAir = this.createFire; // air blocks are only relevant for the explosion when fire should be created inside them
         if (!explodeAir && this.world.getDimension().hasEnderDragonFight()) {
             float overestimatedExplosionRange = (8 + (int) (6f * this.power));
             int endPortalX = 0;
             int endPortalZ = 0;
-            if(overestimatedExplosionRange > Math.abs(this.x - endPortalX) && overestimatedExplosionRange > Math.abs(this.z - endPortalZ)) {
+            if (overestimatedExplosionRange > Math.abs(this.x - endPortalX) && overestimatedExplosionRange > Math.abs(this.z - endPortalZ)) {
                 explodeAir = true;
                 // exploding air works around accidentally fixing vanilla bug: an explosion cancelling the dragon fight start can destroy the newly placed end portal
             }
@@ -176,6 +181,9 @@ public abstract class ExplosionMixin {
 
         float prevResistance = 0.0F;
 
+        int boundMinY = this.minY;
+        int boundMaxY = this.maxY;
+
         // Step through the ray until it is finally stopped
         while (strength > 0.0F) {
             int blockX = MathHelper.floor(stepX);
@@ -189,6 +197,9 @@ public abstract class ExplosionMixin {
             // aliasing and sampling, which is unacceptable for our purposes. As a band-aid, we can simply re-use the
             // previous result and get a decent boost.
             if (prevX != blockX || prevY != blockY || prevZ != blockZ) {
+                if (blockY < boundMinY || blockY >= boundMaxY || blockX < -30000000 || blockZ < -30000000 || blockX >= 30000000 || blockZ >= 30000000) {
+                    return;
+                }
                 resistance = this.traverseBlock(strength, blockX, blockY, blockZ, touched);
 
                 prevX = blockX;
