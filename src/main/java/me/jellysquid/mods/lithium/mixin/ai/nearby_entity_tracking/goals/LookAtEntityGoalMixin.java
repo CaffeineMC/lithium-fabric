@@ -52,7 +52,7 @@ public class LookAtEntityGoalMixin {
             )
     )
     private LivingEntity redirectGetNearestEntity(World world, List<LivingEntity> entityList, TargetPredicate targetPredicate, LivingEntity entity, double x, double y, double z) {
-        return this.tracker.getClosestEntity(this.mob.getBoundingBox().expand(this.range, 3.0D, this.range), targetPredicate);
+        return this.tracker.getClosestEntity(this.mob.getBoundingBox().expand(this.range, 3.0D, this.range), targetPredicate, x, y, z);
     }
 
     @Redirect(method = "canStart()Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getEntitiesByClass(Ljava/lang/Class;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"))
@@ -68,6 +68,6 @@ public class LookAtEntityGoalMixin {
             )
     )
     private PlayerEntity redirectGetClosestPlayer(World world, TargetPredicate targetPredicate, LivingEntity entity, double x, double y, double z) {
-        return (PlayerEntity) this.tracker.getClosestEntity(null, targetPredicate);
+        return (PlayerEntity) this.tracker.getClosestEntity(null, targetPredicate, x, y, z);
     }
 }

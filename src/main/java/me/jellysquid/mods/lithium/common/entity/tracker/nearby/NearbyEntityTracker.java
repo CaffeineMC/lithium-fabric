@@ -74,13 +74,12 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
      *
      * @param box             the box the entities have to intersect
      * @param targetPredicate predicate the entity has to meet
+     * @param x
+     * @param y
+     * @param z
      * @return the closest Entity that meets all requirements (distance, box intersection, predicate, type T)
      */
-    public T getClosestEntity(Box box, TargetPredicate targetPredicate) {
-        double x = this.self.getX();
-        double y = this.self.getY();
-        double z = this.self.getZ();
-
+    public T getClosestEntity(Box box, TargetPredicate targetPredicate, double x, double y, double z) {
         T nearest = null;
         double nearestDistance = Double.POSITIVE_INFINITY;
 
@@ -88,8 +87,8 @@ public class NearbyEntityTracker<T extends LivingEntity> implements NearbyEntity
             double distance;
             if (
                     (box == null || box.intersects(entity.getBoundingBox())) &&
-                    (distance = entity.squaredDistanceTo(x, y, z)) <= nearestDistance &&
-                    targetPredicate.test(this.self, entity)
+                            (distance = entity.squaredDistanceTo(x, y, z)) <= nearestDistance &&
+                            targetPredicate.test(this.self, entity)
             ) {
                 if (distance == nearestDistance) {
                     nearest = this.getFirst(nearest, entity);

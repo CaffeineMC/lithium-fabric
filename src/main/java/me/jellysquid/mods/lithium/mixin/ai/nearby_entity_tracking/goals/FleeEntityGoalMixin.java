@@ -51,7 +51,7 @@ public class FleeEntityGoalMixin<T extends LivingEntity> {
             )
     )
     private T redirectGetNearestEntity(World world, List<? extends T> entityList, TargetPredicate targetPredicate, LivingEntity entity, double x, double y, double z) {
-        return this.tracker.getClosestEntity(this.mob.getBoundingBox().expand(this.fleeDistance, 3.0D, this.fleeDistance), targetPredicate);
+        return this.tracker.getClosestEntity(this.mob.getBoundingBox().expand(this.fleeDistance, 3.0D, this.fleeDistance), targetPredicate, x, y, z);
     }
 
     @Redirect(method = "canStart()Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getEntitiesByClass(Ljava/lang/Class;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"))
