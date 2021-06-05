@@ -10,6 +10,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.entity.EntityLike;
 import net.minecraft.world.entity.EntityTrackingSection;
+import net.minecraft.world.entity.SectionedEntityCache;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,9 @@ public abstract class NearbyEntityMovementTracker<E extends EntityLike, S> {
     }
 
     private void updateRegistration(ServerWorld world, boolean register) {
+        //noinspection unchecked
+        SectionedEntityCache<E> cache = ((ServerEntityManagerAccessor<E>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
+
         ArrayList<EntityTrackingSection<E>> sortedSections = register ? new ArrayList<>() : null;
         BooleanArrayList sectionVisible = register ? new BooleanArrayList() : null;
         int minX = ChunkSectionPos.getSectionCoord(this.enclosingBox.minX - 2.0D);
@@ -60,15 +64,14 @@ public abstract class NearbyEntityMovementTracker<E extends EntityLike, S> {
         for (int x = minX; x <= maxX; x++) {
             for (int z = minZ; z <= maxZ; z++) {
                 for (int y = minY; y <= maxY; y++) {
-                    //noinspection unchecked
-                    EntityTrackingSection<E> section = ((ServerEntityManagerAccessor<E>) ((ServerWorldAccessor) world).getEntityManager()).getCache().getTrackingSection(ChunkSectionPos.asLong(x, y, z));
+                    EntityTrackingSection<E> section = cache.getTrackingSection(ChunkSectionPos.asLong(x, y, z));
                     EntityTrackerSection sectionAccess = (EntityTrackerSection) section;
                     if (register) {
                         sectionAccess.addListener(this);
                         sortedSections.add(section);
                         sectionVisible.add(section.getStatus().shouldTrack());
                     } else {
-                        sectionAccess.removeListener(this);
+                        sectionAccess.removeListener(cache, this);
                     }
                 }
             }

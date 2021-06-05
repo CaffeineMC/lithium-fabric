@@ -9,6 +9,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.world.entity.EntityTrackingSection;
 import net.minecraft.world.entity.EntityTrackingStatus;
+import net.minecraft.world.entity.SectionedEntityCache;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,6 +27,9 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
     @Final
     private TypeFilterableList<T> collection;
 
+    @Shadow
+    public abstract boolean isEmpty();
+
     private final ReferenceOpenHashSet<NearbyEntityListener> nearbyEntityListeners = new ReferenceOpenHashSet<>(0);
     private final ReferenceOpenHashSet<NearbyEntityMovementTracker<?, ?>> movementListeners = new ReferenceOpenHashSet<>(0);
     private final long[] lastEntityMovementByType = new long[EntityTrackerEngine.NUM_MOVEMENT_NOTIFYING_CLASSES];
@@ -40,10 +44,13 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
     }
 
     @Override
-    public void removeListener(NearbyEntityListener listener) {
+    public void removeListener(SectionedEntityCache<?> sectionedEntityCache, NearbyEntityListener listener) {
         this.nearbyEntityListeners.remove(listener);
         if (this.status.shouldTrack()) {
             listener.onSectionLeftRange(this, this.collection);
+        }
+        if (this.isEmpty()) {
+            sectionedEntityCache.removeSection(this.pos);
         }
     }
 
@@ -56,10 +63,13 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
     }
 
     @Override
-    public void removeListener(NearbyEntityMovementTracker<?, ?> listener) {
+    public void removeListener(SectionedEntityCache<?> sectionedEntityCache, NearbyEntityMovementTracker<?, ?> listener) {
         this.movementListeners.remove(listener);
         if (this.status.shouldTrack()) {
             listener.onSectionLeftRange(this);
+        }
+        if (this.isEmpty()) {
+            sectionedEntityCache.removeSection(this.pos);
         }
     }
 

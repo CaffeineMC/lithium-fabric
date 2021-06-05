@@ -36,7 +36,7 @@ public interface NearbyEntityListener {
                         if (after == null || !after.contains(pos.set(x, y, z))) {
                             long sectionPos = ChunkSectionPos.asLong(x, y, z);
                             EntityTrackingSection<? extends EntityLike> trackingSection = entityCache.getTrackingSection(sectionPos);
-                            ((EntityTrackerSection) trackingSection).removeListener(this);
+                            ((EntityTrackerSection) trackingSection).removeListener(entityCache, this);
                             if (trackingSection.isEmpty()) {
                                 entityCache.removeSection(sectionPos);
                             }
