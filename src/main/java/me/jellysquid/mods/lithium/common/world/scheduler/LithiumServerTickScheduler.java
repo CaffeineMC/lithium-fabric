@@ -99,8 +99,8 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
 
     @Override
     public List<ScheduledTick<T>> getScheduledTicksInChunk(ChunkPos chunkPos, boolean mutates, boolean getStaleTicks) {
-        BlockBox box = new BlockBox(chunkPos.getStartX() - 2, 0, chunkPos.getStartZ() - 2,
-                chunkPos.getEndX() + 2, 256, chunkPos.getEndZ() + 2);
+        //[VanillaCopy] bug chunk steals ticks from neighboring chunk on unload + does so only in the negative direction
+        BlockBox box = new BlockBox(chunkPos.getStartX() - 2, Integer.MIN_VALUE, chunkPos.getStartZ() - 2, chunkPos.getStartX() + 16, Integer.MAX_VALUE, chunkPos.getStartZ() + 16);
 
         return this.getScheduledTicks(box, mutates, getStaleTicks);
     }
