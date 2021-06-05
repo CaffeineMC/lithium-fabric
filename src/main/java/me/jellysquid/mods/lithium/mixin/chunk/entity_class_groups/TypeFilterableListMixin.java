@@ -3,7 +3,6 @@ package me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.EntityClassGroup;
-import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import me.jellysquid.mods.lithium.common.world.chunk.ClassGroupFilterableList;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.collection.TypeFilterableList;
@@ -22,7 +21,7 @@ import java.util.Map;
  * Patches {@link TypeFilterableList} to allow grouping entities by arbitrary groups of classes instead of one class only.
  */
 @Mixin(TypeFilterableList.class)
-public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterableList<T>, WorldHelper.MixinLoadTest {
+public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterableList<T> {
 
     @Shadow
     @Final

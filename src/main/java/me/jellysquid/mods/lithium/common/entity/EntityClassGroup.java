@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.common.entity;
 import it.unimi.dsi.fastutil.objects.Reference2ByteOpenHashMap;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.mob.ShulkerEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.util.crash.CrashException;
@@ -22,14 +23,9 @@ import java.util.logging.Logger;
  * @author 2No2Name
  */
 public class EntityClassGroup {
-    public static final EntityClassGroup BOAT_SHULKER_LIKE_COLLISION; //aka entities that other entities will do block-like collisions with when moving
     public static final EntityClassGroup MINECART_BOAT_LIKE_COLLISION; //aka entities that will attempt to collide with all other entities when moving
 
     static {
-        String remapped_method_30948 = FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_1297", "method_30948", "()Z");
-        BOAT_SHULKER_LIKE_COLLISION = new EntityClassGroup(
-                (Class<?> entityClass) -> isMethodFromSuperclassOverwritten(entityClass, Entity.class, remapped_method_30948));
-
         String remapped_method_30949 = FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_1297", "method_30949", "(Lnet/minecraft/class_1297;)Z");
         MINECART_BOAT_LIKE_COLLISION = new EntityClassGroup(
                 (Class<?> entityClass) -> isMethodFromSuperclassOverwritten(entityClass, Entity.class, remapped_method_30949, Entity.class));
@@ -38,14 +34,10 @@ public class EntityClassGroup {
         if ((!MINECART_BOAT_LIKE_COLLISION.contains(MinecartEntity.class))) {
             throw new AssertionError();
         }
-        if ((!BOAT_SHULKER_LIKE_COLLISION.contains(ShulkerEntity.class))) {
-            throw new AssertionError();
-        }
         if ((MINECART_BOAT_LIKE_COLLISION.contains(ShulkerEntity.class))) {
             //should not throw an Error here, because another mod *could* add the method to ShulkerEntity. Wwarning when this sanity check fails.
             Logger.getLogger("Lithium EntityClassGroup").warning("Either chunk.entity_class_groups is broken or something else gave Shulkers the minecart-like collision behavior.");
         }
-        BOAT_SHULKER_LIKE_COLLISION.clear();
         MINECART_BOAT_LIKE_COLLISION.clear();
     }
 
@@ -71,7 +63,7 @@ public class EntityClassGroup {
         }
     }
 
-    private boolean testAndAddClass(Class<?> entityClass) {
+    boolean testAndAddClass(Class<?> entityClass) {
         byte contains;
         //synchronizing here to avoid multiple threads replacing the map at the same time, and therefore possibly undoing progress
         //it could also be fixed by using an AtomicReference's CAS, but we are writing very rarely (less than 150 times for the total game runtime in vanilla)
@@ -111,5 +103,27 @@ public class EntityClassGroup {
             }
         }
         return false;
+    }
+
+    public static class NoDragonClassGroup extends EntityClassGroup {
+        public static final NoDragonClassGroup BOAT_SHULKER_LIKE_COLLISION; //aka entities that other entities will do block-like collisions with when moving
+
+        static {
+            String remapped_method_30948 = FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_1297", "method_30948", "()Z");
+            BOAT_SHULKER_LIKE_COLLISION = new NoDragonClassGroup(
+                    (Class<?> entityClass) -> isMethodFromSuperclassOverwritten(entityClass, Entity.class, remapped_method_30948));
+
+            if ((!BOAT_SHULKER_LIKE_COLLISION.contains(ShulkerEntity.class))) {
+                throw new AssertionError();
+            }
+            BOAT_SHULKER_LIKE_COLLISION.clear();
+        }
+
+        public NoDragonClassGroup(Predicate<Class<?>> classFitEvaluator) {
+            super(classFitEvaluator);
+            if (classFitEvaluator.test(EnderDragonEntity.class)) {
+                throw new IllegalArgumentException("EntityClassGroupNoDragon cannot be initialized: Class fit evaluator must exclude EnderDragonEntity!");
+            }
+        }
     }
 }

@@ -108,10 +108,10 @@ public class LithiumEntityCollisions {
             public boolean computeNext(Consumer<? super VoxelShape> consumer) {
                 if (this.it == null) {
                     /*
-                     * In case entity's class is overriding method_30949, all types of entities may be (=> are assumed to be) required.
-                     * Otherwise only get entities that override method_30948 are required, as other entities cannot collide.
+                     * In case entity's class is overriding Entity#collidesWith(Entity), all types of entities may be (=> are assumed to be) required.
+                     * Otherwise only get entities that override Entity#isCollidable() are required, as other entities cannot collide.
                      */
-                    this.it = WorldHelper.getEntitiesWithCollisionBoxForEntity(view, box, entity).iterator();
+                    this.it = WorldHelper.getEntitiesForCollision(view, box, entity);
                 }
 
                 while (this.it.hasNext()) {
@@ -122,10 +122,10 @@ public class LithiumEntityCollisions {
                     }
 
                     /*
-                     * {@link Entity#method_30948} returns false by default, designed to be overridden by
+                     * {@link Entity#isCollidable()} returns false by default, designed to be overridden by
                      * entities whose collisions should be "hard" (boats and shulkers, for now).
                      *
-                     * {@link Entity#method_30949} only allows hard collisions if the calling entity is not riding
+                     * {@link Entity#collidesWith(Entity)} only allows hard collisions if the calling entity is not riding
                      * otherEntity as a vehicle.
                      */
                     if (entity == null) {
