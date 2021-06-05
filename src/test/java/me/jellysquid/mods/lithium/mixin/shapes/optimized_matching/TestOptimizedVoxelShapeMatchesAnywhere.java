@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import static me.jellysquid.mods.lithium.common.shapes.VoxelShapeMatchesAnywhere.cuboidMatchesAnywhere;
-import static me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes.VoxelShapesMixin.cuboid;
+import static me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes.VoxelShapesMixin.cuboidUnchecked;
 import static net.minecraft.block.Block.createCuboidShape;
 
 /**
@@ -172,6 +172,10 @@ public class TestOptimizedVoxelShapeMatchesAnywhere {
             return new VoxelShapeVoxelShapePair(cuboid(b), cuboid(a), function);
         }
         return new VoxelShapeVoxelShapePair(cuboid(a), cuboid(b), function);
+    }
+
+    private static VoxelShape cuboid(Box box) {
+        return cuboidUnchecked(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
     }
 
 

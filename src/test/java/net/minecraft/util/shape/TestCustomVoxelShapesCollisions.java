@@ -1,11 +1,12 @@
 package net.minecraft.util.shape;
 
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeAlignedCuboid;
-import me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes.VoxelShapesMixin;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 
 import java.util.Random;
+
+import static me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes.VoxelShapesMixin.cuboidUnchecked;
 
 /**
  * Test for the specialized shapes / custom voxel shape implementation.
@@ -137,6 +138,10 @@ public class TestCustomVoxelShapesCollisions {
     }
 
     public static VoxelShape[] getVanillaModdedVoxelShapePair(Box box) {
-        return new VoxelShape[]{VoxelShapes.cuboid(box), VoxelShapesMixin.cuboid(box)};
+        return new VoxelShape[]{VoxelShapes.cuboid(box), cuboid(box)};
+    }
+
+    private static VoxelShape cuboid(Box box) {
+        return cuboidUnchecked(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
     }
 }
