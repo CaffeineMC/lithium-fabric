@@ -3,7 +3,6 @@ package me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeAlignedCuboid;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeEmpty;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeSimpleCube;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.shape.BitSetVoxelSet;
 import net.minecraft.util.shape.VoxelSet;
 import net.minecraft.util.shape.VoxelShape;
@@ -80,8 +79,11 @@ public abstract class VoxelShapesMixin {
      * @author JellySquid, 2No2Name
      */
     @Overwrite
-    //todo adapt to 1.17 changes
-    public static VoxelShape cuboid(Box box) {
+    public static VoxelShape cuboidUnchecked(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        if (maxX - minX < 1.0E-7D || maxY - minY < 1.0E-7D || maxZ - minZ < 1.0E-7D) {
+            return EMPTY;
+        }
+
         int xRes;
         int yRes;
         int zRes;
@@ -92,15 +94,18 @@ public abstract class VoxelShapesMixin {
         //If the VoxelShape cannot be represented by a BitSet with 3 bit resolution on any axis (BitSetVoxelSet),
         //a shape without boxes inside will be used in vanilla (ArrayVoxelShape with only 2 PointPositions on each axis)
 
-        if ((xRes = VoxelShapes.findRequiredBitResolution(box.minX, box.maxX)) == -1 ||
-                (yRes = VoxelShapes.findRequiredBitResolution(box.minY, box.maxY)) == -1 ||
-                (zRes = VoxelShapes.findRequiredBitResolution(box.minZ, box.maxZ)) == -1) {
+        if ((xRes = VoxelShapes.findRequiredBitResolution(minX, maxX)) < 0 ||
+                (yRes = VoxelShapes.findRequiredBitResolution(minY, maxY)) < 0 ||
+                (zRes = VoxelShapes.findRequiredBitResolution(minZ, maxZ)) < 0) {
             //vanilla uses ArrayVoxelShape here without any rounding of the coordinates
-            return new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
+            return new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, minX, minY, minZ, maxX, maxY, maxZ);
         } else {
+            if (xRes == 0 && yRes == 0 && zRes == 0) {
+                return FULL_CUBE;
+            }
             // vanilla would use a SimpleVoxelShape with a BitSetVoxelSet of resolution of xRes, yRes, zRes here, we match its behavior
-            return new VoxelShapeAlignedCuboid(Math.round(box.minX * 8D) / 8D, Math.round(box.minY * 8D) / 8D, Math.round(box.minZ * 8D) / 8D,
-                    Math.round(box.maxX * 8D) / 8D, Math.round(box.maxY * 8D) / 8D, Math.round(box.maxZ * 8D) / 8D, xRes, yRes, zRes);
+            return new VoxelShapeAlignedCuboid(Math.round(minX * 8D) / 8D, Math.round(minY * 8D) / 8D, Math.round(minZ * 8D) / 8D,
+                    Math.round(maxX * 8D) / 8D, Math.round(maxY * 8D) / 8D, Math.round(maxZ * 8D) / 8D, xRes, yRes, zRes);
         }
     }
 }

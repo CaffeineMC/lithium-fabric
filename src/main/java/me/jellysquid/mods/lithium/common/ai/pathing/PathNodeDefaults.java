@@ -35,8 +35,12 @@ public class PathNodeDefaults {
         Block block = state.getBlock();
         Material material = state.getMaterial();
 
-        if (state.isIn(BlockTags.TRAPDOORS) || state.isOf(Blocks.LILY_PAD)) {
+        if (state.isIn(BlockTags.TRAPDOORS) || state.isOf(Blocks.LILY_PAD) || state.isOf(Blocks.BIG_DRIPLEAF)) {
             return PathNodeType.TRAPDOOR;
+        }
+
+        if (state.isOf(Blocks.POWDER_SNOW)) {
+            return PathNodeType.POWDER_SNOW;
         }
 
         if (state.isOf(Blocks.CACTUS)) {
@@ -53,6 +57,11 @@ public class PathNodeDefaults {
 
         if (state.isOf(Blocks.COCOA)) {
             return PathNodeType.COCOA;
+        }
+
+        FluidState fluidState = state.getFluidState();
+        if (fluidState.isIn(FluidTags.LAVA)) {
+            return PathNodeType.LAVA;
         }
 
         if (isFireDangerSource(state)) {
@@ -83,19 +92,14 @@ public class PathNodeDefaults {
             return PathNodeType.FENCE;
         }
 
-        // Retrieve the fluid state from the block state to avoid a second lookup
-        FluidState fluid = state.getFluidState();
-
-        if (fluid.isIn(FluidTags.WATER)) {
+        if (fluidState.isIn(FluidTags.WATER)) {
             return PathNodeType.WATER;
-        } else if (fluid.isIn(FluidTags.LAVA)) {
-            return PathNodeType.LAVA;
         }
 
         return PathNodeType.OPEN;
     }
 
     private static boolean isFireDangerSource(BlockState blockState) {
-        return blockState.isIn(BlockTags.FIRE) || blockState.isOf(Blocks.LAVA) || blockState.isOf(Blocks.MAGMA_BLOCK) || CampfireBlock.isLitCampfire(blockState);
+        return blockState.isIn(BlockTags.FIRE) || blockState.isOf(Blocks.LAVA) || blockState.isOf(Blocks.MAGMA_BLOCK) || CampfireBlock.isLitCampfire(blockState) || blockState.isOf(Blocks.LAVA_CAULDRON);
     }
 }

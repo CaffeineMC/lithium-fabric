@@ -7,6 +7,7 @@ import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.EntityTracking
 import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.ServerEntityManagerAccessor;
 import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.ServerWorldAccessor;
 import net.minecraft.entity.Entity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -36,16 +37,16 @@ public class WorldHelper {
      * @return iterator of entities with collision boxes
      */
     public static Iterator<Entity> getEntitiesForCollision(EntityView entityView, Box box, Entity collidingEntity) {
-        if (CUSTOM_TYPE_FILTERABLE_LIST_DISABLED || collidingEntity != null && EntityClassGroup.MINECART_BOAT_LIKE_COLLISION.contains(collidingEntity.getClass()) || !(entityView instanceof World)) {
+        if (CUSTOM_TYPE_FILTERABLE_LIST_DISABLED || !(entityView instanceof ServerWorld) || collidingEntity != null && EntityClassGroup.MINECART_BOAT_LIKE_COLLISION.contains(collidingEntity.getClass()) || !(entityView instanceof World)) {
             //use vanilla code in case the shortcut is not applicable
             // due to the reference entity implementing special collision or the mixin being disabled in the config
             return entityView.getOtherEntities(collidingEntity, box).iterator();
         } else {
-            return iterateEntitiesOfClassGroup((World) entityView, collidingEntity, EntityClassGroup.NoDragonClassGroup.BOAT_SHULKER_LIKE_COLLISION, box);
+            return iterateEntitiesOfClassGroup((ServerWorld) entityView, collidingEntity, EntityClassGroup.NoDragonClassGroup.BOAT_SHULKER_LIKE_COLLISION, box);
         }
     }
 
-    public static Iterator<Entity> iterateEntitiesOfClassGroup(World world, Entity collidingEntity, EntityClassGroup.NoDragonClassGroup entityClassGroup, Box box) {
+    public static Iterator<Entity> iterateEntitiesOfClassGroup(ServerWorld world, Entity collidingEntity, EntityClassGroup.NoDragonClassGroup entityClassGroup, Box box) {
         world.getProfiler().visit("getEntities");
         //noinspection unchecked
         SectionedEntityCache<Entity> cache = ((ServerEntityManagerAccessor<Entity>) ((ServerWorldAccessor) world).getEntityManager()).getCache();

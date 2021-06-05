@@ -30,7 +30,6 @@ import java.util.concurrent.CompletableFuture;
  * - Lambdas are replaced where possible to use simple if-else logic, avoiding allocations and variable captures.
  * - The chunk retrieval logic does not try to begin executing other tasks while blocked unless the future isn't
  * already complete.
- * - The fallback "wrong-thread" handler is removed as no code makes use of it.
  * <p>
  * There are also some organizational and differences which help the JVM to better optimize code here, most of which
  * are documented.

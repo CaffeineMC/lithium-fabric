@@ -34,7 +34,7 @@ public abstract class LandPathNodeMakerMixin {
 
         // If the node type is open, it means that we were unable to determine a more specific type, so we need
         // to check the fallback path.
-        if (type == PathNodeType.OPEN) {
+        if (type == PathNodeType.OPEN || type == PathNodeType.WATER) {
             // This is only ever called in vanilla after all other possibilities are exhausted, but before fluid checks
             // It should be safe to perform it last in actuality and take advantage of the cache for fluid types as well
             // since fluids will always pass this check.
@@ -43,7 +43,7 @@ public abstract class LandPathNodeMakerMixin {
             }
 
             // All checks succeed, this path node really is open!
-            return PathNodeType.OPEN;
+            return type;
         }
 
         // Return the cached value since we found an obstacle earlier

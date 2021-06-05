@@ -61,7 +61,8 @@ public abstract class GoalSelectorMixin {
      * has been disabled, the controls are no longer available or have been reassigned, etc.)
      */
     private void updateGoalStates() {
-        this.profiler.get().push("goalUpdate");
+        Profiler profiler = this.profiler.get();
+        profiler.push("goalCleanup");
 
         // Stop any goals which are disabled or shouldn't continue executing
         this.stopGoals();
@@ -69,10 +70,12 @@ public abstract class GoalSelectorMixin {
         // Update the controls
         this.cleanupControls();
 
+        profiler.swap("goalUpdate");
+
         // Try to start new goals where possible
         this.startGoals();
 
-        this.profiler.get().pop();
+        profiler.pop();
     }
 
     /**
@@ -113,12 +116,17 @@ public abstract class GoalSelectorMixin {
     private void startGoals() {
         for (PrioritizedGoal goal : this.goals) {
             // Filter out goals which are already running or can't be started
-            if (goal.isRunning() || !goal.canStart()) {
+            if (goal.isRunning()) {
                 continue;
             }
 
             // Check if the goal's controls are available or can be replaced
             if (!this.areGoalControlsAvailable(goal)) {
+                continue;
+            }
+
+            //canStart has side effects, so do not reorder it before the previous tests
+            if (!goal.canStart()) {
                 continue;
             }
 
