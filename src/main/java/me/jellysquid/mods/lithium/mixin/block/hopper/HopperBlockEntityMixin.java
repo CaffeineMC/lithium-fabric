@@ -16,6 +16,7 @@ import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.vehicle.HopperMinecartEntity;
+import net.minecraft.inventory.DoubleInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.inventory.SimpleInventory;
@@ -323,7 +324,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
      */
     private void cacheInsertInventory(Inventory insertInventory) {
         assert !(insertInventory instanceof Entity);
-        if (insertInventory instanceof BlockEntity) {
+        if (insertInventory instanceof BlockEntity || insertInventory instanceof DoubleInventory) {
             this.insertBlockInventory = null;
         } else {
             this.insertBlockInventory = insertInventory == null ? NO_INVENTORY_BLOCK_PRESENT : insertInventory;
@@ -407,7 +408,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
      */
     private void cacheExtractInventory(Inventory extractInventory) {
         assert !(extractInventory instanceof Entity);
-        if (extractInventory instanceof BlockEntity) {
+        if (extractInventory instanceof BlockEntity || insertInventory instanceof DoubleInventory) {
             this.extractBlockInventory = null;
         } else {
             this.extractBlockInventory = extractInventory == null ? NO_INVENTORY_BLOCK_PRESENT : extractInventory;
