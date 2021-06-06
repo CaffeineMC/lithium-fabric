@@ -1,6 +1,5 @@
 package me.jellysquid.mods.lithium.common.world;
 
-import com.google.common.collect.AbstractIterator;
 import me.jellysquid.mods.lithium.common.entity.EntityClassGroup;
 import me.jellysquid.mods.lithium.common.world.chunk.ClassGroupFilterableList;
 import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.EntityTrackingSectionAccessor;
@@ -13,12 +12,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.EntityView;
-import net.minecraft.world.World;
 import net.minecraft.world.entity.EntityTrackingSection;
 import net.minecraft.world.entity.SectionedEntityCache;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.List;
 
 public class WorldHelper {
     public static final boolean CUSTOM_TYPE_FILTERABLE_LIST_DISABLED = !ClassGroupFilterableList.class.isAssignableFrom(TypeFilterableList.class);
@@ -36,84 +35,54 @@ public class WorldHelper {
      * @param collidingEntity the entity that is searching for the colliding entities
      * @return iterator of entities with collision boxes
      */
-    public static Iterator<Entity> getEntitiesForCollision(EntityView entityView, Box box, Entity collidingEntity) {
-        if (CUSTOM_TYPE_FILTERABLE_LIST_DISABLED || !(entityView instanceof ServerWorld) || collidingEntity != null && EntityClassGroup.MINECART_BOAT_LIKE_COLLISION.contains(collidingEntity.getClass()) || !(entityView instanceof World)) {
+    public static List<Entity> getEntitiesForCollision(EntityView entityView, Box box, Entity collidingEntity) {
+        if (CUSTOM_TYPE_FILTERABLE_LIST_DISABLED || !(entityView instanceof ServerWorld) || collidingEntity != null && EntityClassGroup.MINECART_BOAT_LIKE_COLLISION.contains(collidingEntity.getClass())) {
             //use vanilla code in case the shortcut is not applicable
             // due to the reference entity implementing special collision or the mixin being disabled in the config
-            return entityView.getOtherEntities(collidingEntity, box).iterator();
+            return entityView.getOtherEntities(collidingEntity, box);
         } else {
-            return iterateEntitiesOfClassGroup((ServerWorld) entityView, collidingEntity, EntityClassGroup.NoDragonClassGroup.BOAT_SHULKER_LIKE_COLLISION, box);
+            return getEntitiesOfClassGroup((ServerWorld) entityView, collidingEntity, EntityClassGroup.NoDragonClassGroup.BOAT_SHULKER_LIKE_COLLISION, box);
         }
     }
 
-    public static Iterator<Entity> iterateEntitiesOfClassGroup(ServerWorld world, Entity collidingEntity, EntityClassGroup.NoDragonClassGroup entityClassGroup, Box box) {
+    public static List<Entity> getEntitiesOfClassGroup(ServerWorld world, Entity collidingEntity, EntityClassGroup.NoDragonClassGroup entityClassGroup, Box box) {
         world.getProfiler().visit("getEntities");
         //noinspection unchecked
         SectionedEntityCache<Entity> cache = ((ServerEntityManagerAccessor<Entity>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
-        return new AbstractIterator<>() {
-            final SectionedEntityCache<Entity> sectionedEntityCache = cache;
-            final Box location = box;
-            final EntityClassGroup.NoDragonClassGroup type = entityClassGroup;
-            final Entity except = collidingEntity;
-
-            final int minX = ChunkSectionPos.getSectionCoord(this.location.minX - 2.0D);
-            final int minY = ChunkSectionPos.getSectionCoord(this.location.minY - 2.0D);
-            final int minZ = ChunkSectionPos.getSectionCoord(this.location.minZ - 2.0D);
-            final int maxX = ChunkSectionPos.getSectionCoord(this.location.maxX + 2.0D);
-            final int maxY = ChunkSectionPos.getSectionCoord(this.location.maxY + 2.0D);
-            final int maxZ = ChunkSectionPos.getSectionCoord(this.location.maxZ + 2.0D);
-
-            int sectionX = minX, sectionZ = minZ, sectionY = minY;
-
-
-            Iterator<Entity> currentSectionIterator = nextSection();
-
-            @Override
-            protected Entity computeNext() {
-                Iterator<Entity> currentSectionIterator = this.currentSectionIterator;
-                while (currentSectionIterator != null) {
-                    while (currentSectionIterator.hasNext()) {
-                        Entity entity = currentSectionIterator.next();
-                        if (entity.getBoundingBox().intersects(this.location) && !entity.isSpectator() && entity != this.except) {
-                            //skip the dragon piece check without issues by only allowing only EntityClassGroup.NoDragonClassGroup as type
-                            return entity;
-                        }
-                    }
-                    this.currentSectionIterator = currentSectionIterator = this.nextSection();
-                }
-                return this.endOfData();
-            }
-
-            private Iterator<Entity> nextSection() {
-                while (this.sectionX <= this.maxX) {
-                    while (this.sectionZ <= this.maxZ) {
-                        while (this.sectionY <= this.maxY) {
-                            EntityTrackingSection<Entity> section = this.sectionedEntityCache.findTrackingSection(ChunkSectionPos.asLong(this.sectionX, this.sectionY, this.sectionZ));
-                            this.sectionY++;
-                            if (section != null) {
-                                //noinspection unchecked
-                                TypeFilterableList<Entity> allEntities = ((EntityTrackingSectionAccessor<Entity>) section).getCollection();
-                                if (!allEntities.isEmpty()) {
-                                    //noinspection unchecked
-                                    Collection<Entity> entitiesOfType = ((ClassGroupFilterableList<Entity>) allEntities).getAllOfGroupType(this.type);
-                                    if (!entitiesOfType.isEmpty()) {
-                                        return entitiesOfType.iterator();
+        final int minX = ChunkSectionPos.getSectionCoord(box.minX - 2.0D);
+        final int minY = ChunkSectionPos.getSectionCoord(box.minY - 2.0D);
+        final int minZ = ChunkSectionPos.getSectionCoord(box.minZ - 2.0D);
+        final int maxX = ChunkSectionPos.getSectionCoord(box.maxX + 2.0D);
+        final int maxY = ChunkSectionPos.getSectionCoord(box.maxY + 2.0D);
+        final int maxZ = ChunkSectionPos.getSectionCoord(box.maxZ + 2.0D);
+        ArrayList<Entity> entities = new ArrayList<>();
+        //vanilla iteration order in SectionedEntityCache is xzy
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                for (int y = minY; y <= maxY; y++) {
+                    EntityTrackingSection<Entity> section = cache.findTrackingSection(ChunkSectionPos.asLong(x, y, z));
+                    if (section != null) {
+                        //noinspection unchecked
+                        TypeFilterableList<Entity> allEntities = ((EntityTrackingSectionAccessor<Entity>) section).getCollection();
+                        if (!allEntities.isEmpty()) {
+                            //noinspection unchecked
+                            Collection<Entity> entitiesOfType = ((ClassGroupFilterableList<Entity>) allEntities).getAllOfGroupType(entityClassGroup);
+                            if (!entitiesOfType.isEmpty()) {
+                                for (Entity entity : entitiesOfType) {
+                                    if (entity.getBoundingBox().intersects(box) && !entity.isSpectator() && entity != collidingEntity) {
+                                        //skip the dragon piece check without issues by only allowing only EntityClassGroup.NoDragonClassGroup as type
+                                        entities.add(entity);
                                     }
                                 }
                             }
                         }
-                        this.sectionZ++;
-                        this.sectionY = this.minY;
                     }
-                    this.sectionX++;
-                    this.sectionZ = this.minZ;
+
                 }
-
-                return null;
             }
-        };
+        }
+        return entities;
     }
-
 
     public static boolean areNeighborsWithinSameChunk(BlockPos pos) {
         int localX = pos.getX() & 15;
