@@ -46,7 +46,6 @@ public class LithiumConfig {
         this.addMixinRule("alloc.entity_tracker", true);
         this.addMixinRule("alloc.enum_values", true);
         this.addMixinRule("alloc.explosion_behavior", true);
-        this.addMixinRule("alloc.world_ticking", true);
 
         this.addMixinRule("block", true);
         this.addMixinRule("block.flatten_states", true);
@@ -78,8 +77,6 @@ public class LithiumConfig {
         this.addMixinRule("entity.skip_fire_check", true);
         this.addMixinRule("entity.stream_entity_collisions_lazily", true);
 
-        this.addMixinRule("item", true);
-
         this.addMixinRule("gen", true);
         this.addMixinRule("gen.biome_noise_cache", true);
         this.addMixinRule("gen.cached_generator_settings", true);
@@ -90,6 +87,8 @@ public class LithiumConfig {
         this.addMixinRule("gen.features", true);
         this.addMixinRule("gen.perlin_noise", true);
         this.addMixinRule("gen.voronoi_biomes", true);
+
+        this.addMixinRule("item", true);
 
         this.addMixinRule("math", true);
         this.addMixinRule("math.fast_blockpos", true);
@@ -108,9 +107,6 @@ public class LithiumConfig {
 
         this.addMixinRule("world", true);
         this.addMixinRule("world.block_entity_ticking", true);
-        this.addMixinRule("world.block_entity_ticking.collections", false); // incompatible due to the 1.17 changes
-        this.addMixinRule("world.block_entity_ticking.should_tick_cache", true);
-        this.addMixinRule("world.block_entity_ticking.sleeping", true);
         this.addMixinRule("world.block_entity_ticking.support_cache", true);
         this.addMixinRule("world.chunk_access", true);
         this.addMixinRule("world.chunk_inline_block_access", true);
