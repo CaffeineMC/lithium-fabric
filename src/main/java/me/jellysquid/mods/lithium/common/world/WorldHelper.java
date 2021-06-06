@@ -7,10 +7,7 @@ import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.EntityTracking
 import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.ServerEntityManagerAccessor;
 import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.ServerWorldAccessor;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.boss.dragon.EnderDragonEntity;
-import net.minecraft.entity.boss.dragon.EnderDragonPart;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.TypeFilter;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -19,27 +16,12 @@ import net.minecraft.world.EntityView;
 import net.minecraft.world.World;
 import net.minecraft.world.entity.EntityTrackingSection;
 import net.minecraft.world.entity.SectionedEntityCache;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.function.Predicate;
 
 public class WorldHelper {
     public static final boolean CUSTOM_TYPE_FILTERABLE_LIST_DISABLED = !ClassGroupFilterableList.class.isAssignableFrom(TypeFilterableList.class);
-
-    public static final TypeFilter<Entity, Entity> UNFILTERED = new TypeFilter<>() {
-        @Nullable
-        @Override
-        public Entity downcast(Entity obj) {
-            return obj;
-        }
-
-        @Override
-        public Class<? extends Entity> getBaseClass() {
-            return Entity.class;
-        }
-    };
 
     /**
      * Partial [VanillaCopy]
@@ -60,11 +42,12 @@ public class WorldHelper {
             // due to the reference entity implementing special collision or the mixin being disabled in the config
             return entityView.getOtherEntities(collidingEntity, box).iterator();
         } else {
-            return iterateEntitiesOfClassGroupExceptSpectator((ServerWorld) entityView, collidingEntity, EntityClassGroup.NoDragonClassGroup.BOAT_SHULKER_LIKE_COLLISION, box);
+            return iterateEntitiesOfClassGroup((ServerWorld) entityView, collidingEntity, EntityClassGroup.NoDragonClassGroup.BOAT_SHULKER_LIKE_COLLISION, box);
         }
     }
 
-    public static Iterator<Entity> iterateEntitiesOfClassGroupExceptSpectator(ServerWorld world, Entity collidingEntity, EntityClassGroup.NoDragonClassGroup entityClassGroup, Box box) {
+    public static Iterator<Entity> iterateEntitiesOfClassGroup(ServerWorld world, Entity collidingEntity, EntityClassGroup.NoDragonClassGroup entityClassGroup, Box box) {
+        world.getProfiler().visit("getEntities");
         //noinspection unchecked
         SectionedEntityCache<Entity> cache = ((ServerEntityManagerAccessor<Entity>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
         return new AbstractIterator<>() {
@@ -80,7 +63,7 @@ public class WorldHelper {
             final int maxY = ChunkSectionPos.getSectionCoord(this.location.maxY + 2.0D);
             final int maxZ = ChunkSectionPos.getSectionCoord(this.location.maxZ + 2.0D);
 
-            int sectionX = this.minX, sectionZ = this.minZ, sectionY = this.minY;
+            int sectionX = minX, sectionZ = minZ, sectionY = minY;
 
 
             Iterator<Entity> currentSectionIterator = nextSection();
@@ -113,159 +96,6 @@ public class WorldHelper {
                                 if (!allEntities.isEmpty()) {
                                     //noinspection unchecked
                                     Collection<Entity> entitiesOfType = ((ClassGroupFilterableList<Entity>) allEntities).getAllOfGroupType(this.type);
-                                    if (!entitiesOfType.isEmpty()) {
-                                        return entitiesOfType.iterator();
-                                    }
-                                }
-                            }
-                        }
-                        this.sectionZ++;
-                        this.sectionY = this.minY;
-                    }
-                    this.sectionX++;
-                    this.sectionZ = this.minZ;
-                }
-
-                return null;
-            }
-        };
-    }
-
-    public static <T extends Entity> Iterator<T> iterateEntitiesOfTypeFilter(SectionedEntityCache<Entity> cache, TypeFilter<Entity, T> filter, Box box, Predicate<? super T> predicate, Entity skip) {
-        if (filter.getBaseClass().isAssignableFrom(EnderDragonEntity.class)) {
-            return iterateEntitiesOfTypeFilterHandleDragon(cache, filter, box, predicate, skip);
-        }
-        return new AbstractIterator<>() {
-            final SectionedEntityCache<Entity> sectionedEntityCache = cache;
-            final Box location = box;
-            final TypeFilter<Entity, T> type = filter;
-            final Predicate<? super T> entityPredicate = predicate;
-            final Entity except = skip;
-
-            final int minX = ChunkSectionPos.getSectionCoord(this.location.minX - 2.0D);
-            final int minY = ChunkSectionPos.getSectionCoord(this.location.minY - 2.0D);
-            final int minZ = ChunkSectionPos.getSectionCoord(this.location.minZ - 2.0D);
-            final int maxX = ChunkSectionPos.getSectionCoord(this.location.maxX + 2.0D);
-            final int maxY = ChunkSectionPos.getSectionCoord(this.location.maxY + 2.0D);
-            final int maxZ = ChunkSectionPos.getSectionCoord(this.location.maxZ + 2.0D);
-
-            int sectionX = this.minX, sectionZ = this.minZ, sectionY = this.minY;
-
-
-            Iterator<? extends Entity> currentSectionIterator;
-
-            @Override
-            protected T computeNext() {
-                Iterator<? extends Entity> currentSectionIterator = this.currentSectionIterator;
-                TypeFilter<Entity, T> type = this.type;
-                while (true) {
-                    while (currentSectionIterator != null && currentSectionIterator.hasNext()) {
-                        T entity = type.downcast(currentSectionIterator.next());
-                        if (entity != null && entity != this.except && entity.getBoundingBox().intersects(this.location) && this.entityPredicate.test(entity)) {
-                            //skip the dragon piece check without issues by only allowing only filters without dragon as type
-                            return entity;
-                        }
-                    }
-                    this.currentSectionIterator = currentSectionIterator = this.nextSection();
-                    if (currentSectionIterator == null) {
-                        return this.endOfData();
-                    }
-                }
-            }
-
-            private Iterator<? extends Entity> nextSection() {
-                while (this.sectionX <= this.maxX) {
-                    while (this.sectionZ <= this.maxZ) {
-                        while (this.sectionY <= this.maxY) {
-                            EntityTrackingSection<Entity> section = this.sectionedEntityCache.findTrackingSection(ChunkSectionPos.asLong(this.sectionX, this.sectionY, this.sectionZ));
-                            this.sectionY++;
-                            if (section != null) {
-                                //noinspection unchecked
-                                TypeFilterableList<Entity> allEntities = ((EntityTrackingSectionAccessor<Entity>) section).getCollection();
-                                if (!allEntities.isEmpty()) {
-                                    Collection<? extends Entity> entitiesOfType = allEntities.getAllOfType(this.type.getBaseClass());
-                                    if (!entitiesOfType.isEmpty()) {
-                                        return entitiesOfType.iterator();
-                                    }
-                                }
-                            }
-                        }
-                        this.sectionZ++;
-                        this.sectionY = this.minY;
-                    }
-                    this.sectionX++;
-                    this.sectionZ = this.minZ;
-                }
-
-                return null;
-            }
-        };
-    }
-
-    public static <T extends Entity> Iterator<T> iterateEntitiesOfTypeFilterHandleDragon(SectionedEntityCache<Entity> cache, TypeFilter<Entity, T> filter, Box box, Predicate<? super T> predicate, Entity skip) {
-        return new AbstractIterator<>() {
-            final SectionedEntityCache<Entity> sectionedEntityCache = cache;
-            final Box location = box;
-            final TypeFilter<Entity, T> type = filter;
-            final Predicate<? super T> entityPredicate = predicate;
-            final Entity except = skip;
-            final int minX = ChunkSectionPos.getSectionCoord(this.location.minX - 2.0D);
-            final int minY = ChunkSectionPos.getSectionCoord(this.location.minY - 2.0D);
-            final int minZ = ChunkSectionPos.getSectionCoord(this.location.minZ - 2.0D);
-            final int maxX = ChunkSectionPos.getSectionCoord(this.location.maxX + 2.0D);
-            final int maxY = ChunkSectionPos.getSectionCoord(this.location.maxY + 2.0D);
-            final int maxZ = ChunkSectionPos.getSectionCoord(this.location.maxZ + 2.0D);
-            EnderDragonPart[] currDragonParts;
-            int currPartsIndex;
-            int sectionX = this.minX, sectionZ = this.minZ, sectionY = this.minY;
-
-
-            Iterator<? extends Entity> currentSectionIterator;
-
-            @Override
-            protected T computeNext() {
-                Iterator<? extends Entity> currentSectionIterator = this.currentSectionIterator;
-                TypeFilter<Entity, T> type = this.type;
-                while (true) {
-                    while (this.currDragonParts != null) {
-                        EnderDragonPart enderDragonPart = this.currDragonParts[this.currPartsIndex++];
-                        if (this.currPartsIndex >= this.currDragonParts.length) {
-                            this.currDragonParts = null;
-                        }
-                        T entity = type.downcast(enderDragonPart);
-                        if (entity != null && entity != this.except && this.entityPredicate.test(entity)) {
-                            return entity;
-                        }
-                    }
-                    while (currentSectionIterator != null && currentSectionIterator.hasNext()) {
-                        T entity = type.downcast(currentSectionIterator.next());
-                        if (entity != null && entity != this.except && entity.getBoundingBox().intersects(this.location) && this.entityPredicate.test(entity)) {
-                            //handle the dragon pieces in the same order as vanilla
-                            if (entity instanceof EnderDragonEntity) {
-                                this.currDragonParts = ((EnderDragonEntity) entity).getBodyParts();
-                                this.currPartsIndex = 0;
-                            }
-                            return entity;
-                        }
-                    }
-                    this.currentSectionIterator = currentSectionIterator = this.nextSection();
-                    if (currentSectionIterator == null) {
-                        return this.endOfData();
-                    }
-                }
-            }
-
-            private Iterator<? extends Entity> nextSection() {
-                while (this.sectionX <= this.maxX) {
-                    while (this.sectionZ <= this.maxZ) {
-                        while (this.sectionY <= this.maxY) {
-                            EntityTrackingSection<Entity> section = this.sectionedEntityCache.findTrackingSection(ChunkSectionPos.asLong(this.sectionX, this.sectionY, this.sectionZ));
-                            this.sectionY++;
-                            if (section != null) {
-                                //noinspection unchecked
-                                TypeFilterableList<Entity> allEntities = ((EntityTrackingSectionAccessor<Entity>) section).getCollection();
-                                if (!allEntities.isEmpty()) {
-                                    Collection<? extends Entity> entitiesOfType = allEntities.getAllOfType(this.type.getBaseClass());
                                     if (!entitiesOfType.isEmpty()) {
                                         return entitiesOfType.iterator();
                                     }

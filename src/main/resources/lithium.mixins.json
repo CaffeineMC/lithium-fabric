@@ -87,8 +87,6 @@
     "entity.collisions.EntityViewMixin",
     "entity.data_tracker.no_locks.DataTrackerMixin",
     "entity.data_tracker.use_arrays.DataTrackerMixin",
-    "entity.fast_retrieval.SimpleEntityLookupAccessor",
-    "entity.fast_retrieval.WorldMixin",
     "entity.fast_suffocation_check.EntityMixin",
     "entity.gravity_check_block_below.VoxelShapesMixin",
     "entity.inactive_navigations.DrownedEntityLeaveWaterGoalMixin",
