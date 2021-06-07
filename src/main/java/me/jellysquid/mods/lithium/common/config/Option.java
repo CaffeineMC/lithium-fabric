@@ -1,5 +1,9 @@
 package me.jellysquid.mods.lithium.common.config;
 
+import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
+import org.apache.logging.log4j.Logger;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -8,6 +12,7 @@ import java.util.Set;
 public class Option {
     private final String name;
 
+    private Object2BooleanLinkedOpenHashMap<Option> dependencies;
     private Set<String> modDefined = null;
     private boolean enabled;
     private boolean userDefined;
@@ -59,5 +64,25 @@ public class Option {
 
     public Collection<String> getDefiningMods() {
         return this.modDefined != null ? Collections.unmodifiableCollection(this.modDefined) : Collections.emptyList();
+    }
+
+    public void addDependency(Option dependencyOption, boolean requiredValue) {
+        if (this.dependencies == null) {
+            this.dependencies = new Object2BooleanLinkedOpenHashMap<>(1);
+        }
+        this.dependencies.put(dependencyOption, requiredValue);
+    }
+
+    public void disableIfDependenciesNotMet(Logger logger) {
+        if (this.dependencies != null && this.isEnabled()) {
+            for (Object2BooleanMap.Entry<Option> dependency : this.dependencies.object2BooleanEntrySet()) {
+                Option option = dependency.getKey();
+                boolean requiredValue = dependency.getBooleanValue();
+                if (option.isEnabled() != requiredValue) {
+                    this.enabled = false;
+                    logger.warn("Option '{}' requires '{}={}' but found '{}'. Setting '{}={}'.", this.name, option.name, requiredValue, option.isEnabled(), this.name, this.enabled);
+                }
+            }
+        }
     }
 }

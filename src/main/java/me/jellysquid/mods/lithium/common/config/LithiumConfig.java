@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.common.config;
 
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.CustomValue;
@@ -12,6 +13,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Documentation of these options: https://github.com/jellysquid3/lithium-fabric/wiki/Configuration-File
@@ -23,6 +25,7 @@ public class LithiumConfig {
     private static final String JSON_KEY_LITHIUM_OPTIONS = "lithium:options";
 
     private final Map<String, Option> options = new HashMap<>();
+    private final Set<Option> optionsWithDependencies = new ObjectLinkedOpenHashSet<>();
 
     private LithiumConfig() {
         // Defines the default rules which can be configured by the user or other mods.
@@ -117,7 +120,67 @@ public class LithiumConfig {
         this.addMixinRule("world.mob_spawning", true);
         this.addMixinRule("world.player_chunk_tick", true);
         this.addMixinRule("world.tick_scheduler", true);
+
+        this.addRuleDependency("block.hopper", "ai.nearby_entity_tracking", true);
     }
+
+    /**
+     * Loads the configuration file from the specified location. If it does not exist, a new configuration file will be
+     * created. The file on disk will then be updated to include any new options.
+     */
+    public static LithiumConfig load(File file) {
+        LithiumConfig config = new LithiumConfig();
+
+        if (file.exists()) {
+            Properties props = new Properties();
+
+            try (FileInputStream fin = new FileInputStream(file)) {
+                props.load(fin);
+            } catch (IOException e) {
+                throw new RuntimeException("Could not load config file", e);
+            }
+
+            config.readProperties(props);
+        } else {
+            try {
+                writeDefaultConfig(file);
+            } catch (IOException e) {
+                LOGGER.warn("Could not write default configuration file", e);
+            }
+        }
+
+        config.applyModOverrides();
+        config.applyDependencies();
+
+        return config;
+    }
+
+    /**
+     * Defines a dependency between two registered mixin rules. If a dependency is not satisfied, the mixin will
+     * be disabled.
+     *
+     * @param rule          the mixin rule that requires another rule to be set to a given value
+     * @param dependency    the mixin rule the given rule depends on
+     * @param requiredValue the required value of the dependency
+     */
+    @SuppressWarnings("SameParameterValue")
+    private void addRuleDependency(String rule, String dependency, boolean requiredValue) {
+        String ruleOptionName = getMixinRuleName(rule);
+        Option option = this.options.get(ruleOptionName);
+        if (option == null) {
+            LOGGER.error("Option {} for dependency '{} depends on {}={}' not found. Skipping.", rule, rule, dependency, requiredValue);
+            return;
+        }
+        String dependencyOptionName = getMixinRuleName(dependency);
+        Option dependencyOption = this.options.get(dependencyOptionName);
+        if (dependencyOption == null) {
+            LOGGER.error("Option {} for dependency '{} depends on {}={}' not found. Skipping.", dependency, rule, dependency, requiredValue);
+            return;
+        }
+        option.addDependency(dependencyOption, requiredValue);
+        this.optionsWithDependencies.add(option);
+    }
+
 
     /**
      * Defines a Mixin rule which can be configured by users and other mods.
@@ -239,33 +302,12 @@ public class LithiumConfig {
     }
 
     /**
-     * Loads the configuration file from the specified location. If it does not exist, a new configuration file will be
-     * created. The file on disk will then be updated to include any new options.
+     * Tests all dependencies and disables options when their dependencies are not met.
      */
-    public static LithiumConfig load(File file) {
-        LithiumConfig config = new LithiumConfig();
-
-        if (file.exists()) {
-            Properties props = new Properties();
-
-            try (FileInputStream fin = new FileInputStream(file)) {
-                props.load(fin);
-            } catch (IOException e) {
-                throw new RuntimeException("Could not load config file", e);
-            }
-
-            config.readProperties(props);
-        } else {
-            try {
-                writeDefaultConfig(file);
-            } catch (IOException e) {
-                LOGGER.warn("Could not write default configuration file", e);
-            }
+    private void applyDependencies() {
+        for (Option optionWithDependency : this.optionsWithDependencies) {
+            optionWithDependency.disableIfDependenciesNotMet(LOGGER);
         }
-
-        config.applyModOverrides();
-
-        return config;
     }
 
     private static void writeDefaultConfig(File file) throws IOException {
