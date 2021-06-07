@@ -174,17 +174,18 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     /**
      * Effectively overwrites {@link HopperBlockEntity#insert(World, BlockPos, BlockState, Inventory)} (only usage redirect)
      * [VanillaCopy] general hopper insert logic, modified for optimizations
+     *
      * @reason Adding the inventory caching into the static method using mixins seems to be unfeasible without temporarily storing state in static fields.
      */
     @SuppressWarnings("JavadocReference")
     @Redirect(method = "insertAndExtract(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/entity/HopperBlockEntity;Ljava/util/function/BooleanSupplier;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;insert(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/inventory/Inventory;)Z"))
-    private static boolean lithiumInsert(World world, BlockPos pos, BlockState state, Inventory hopper) {
+    private static boolean lithiumInsert(World world, BlockPos pos, BlockState hopperState, Inventory hopper) {
         HopperBlockEntityMixin hopperBlockEntity = (HopperBlockEntityMixin) hopper;
-        Inventory insertInventory = hopperBlockEntity.getInsertInventory(world);
+        Inventory insertInventory = hopperBlockEntity.getInsertInventory(world, hopperState);
         if (insertInventory == null) {
             //call the vanilla code, but with target inventory nullify (mixin above) to allow other mods inject features
             //e.g. carpet mod allows hoppers to insert items into wool blocks
-            return insert(world, pos, state, hopper);
+            return insert(world, pos, hopperState, hopper);
         }
 
         LithiumStackList hopperStackList = InventoryHelper.getLithiumStackList(hopperBlockEntity);
@@ -197,7 +198,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
 
         //todo maybe should check whether the receiving inventory is not full first, like vanilla. However this is a rare shortcut case and increases the work most of the time. worst case is 5x work than with the check
         boolean insertInventoryWasEmptyHopperNotDisabled = insertInventory instanceof HopperBlockEntityMixin && !((HopperBlockEntityMixin) insertInventory).isDisabled() && hopperBlockEntity.insertInventoryStackList.getOccupiedSlots() == 0;
-        Direction fromDirection = state.get(HopperBlock.FACING).getOpposite();
+        Direction fromDirection = hopperState.get(HopperBlock.FACING).getOpposite();
         int size = hopperStackList.size();
         //noinspection ForLoopReplaceableByForEach
         for (int i = 0; i < size; ++i) {
@@ -344,7 +345,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         }
     }
 
-    public Inventory getInsertBlockInventory(World world) {
+    public Inventory getInsertBlockInventory(World world, BlockState hopperState) {
         Inventory inventory = this.insertBlockInventory;
         if (inventory != null) {
             return inventory == NO_INVENTORY_BLOCK_PRESENT ? null : inventory;
@@ -355,21 +356,21 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                 return optimizedInventory;
             }
         }
-        Direction direction = this.getCachedState().get(HopperBlock.FACING);
+        Direction direction = hopperState.get(HopperBlock.FACING);
         inventory = HopperHelper.vanillaGetBlockInventory(world, this.getPos().offset(direction));
         this.cacheInsertInventory(inventory);
         return inventory;
     }
 
-    public Inventory getInsertInventory(World world) {
-        Inventory blockInventory = this.getInsertBlockInventory(world);
+    public Inventory getInsertInventory(World world, BlockState hopperState) {
+        Inventory blockInventory = this.getInsertBlockInventory(world, hopperState);
         if (blockInventory != null) {
             return blockInventory;
         }
 
         if (this.insertInventoryEntityTracker == null) {
             assert world instanceof ServerWorld;
-            Direction direction = this.getCachedState().get(HopperBlock.FACING);
+            Direction direction = hopperState.get(HopperBlock.FACING);
             BlockPos pos = this.pos.offset(direction);
             this.insertInventoryEntityTracker =
                     new NearbyInventoryEntityMovementTracker<>(

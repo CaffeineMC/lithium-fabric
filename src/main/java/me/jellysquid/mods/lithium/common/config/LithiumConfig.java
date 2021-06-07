@@ -107,7 +107,7 @@ public class LithiumConfig {
 
         this.addMixinRule("world", true);
         this.addMixinRule("world.block_entity_ticking", true);
-        this.addMixinRule("world.block_entity_ticking.support_cache", true);
+        this.addMixinRule("world.block_entity_ticking.support_cache", false); //have to check whether the cached state bugfix fixes any detectable vanilla bugs first
         this.addMixinRule("world.chunk_access", true);
         this.addMixinRule("world.chunk_inline_block_access", true);
         this.addMixinRule("world.chunk_task_system", true);
