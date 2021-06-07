@@ -19,9 +19,6 @@ public abstract class ItemStackMixin implements StorableItemStack {
     @Nullable
     private LithiumStackList myLocation;
 
-    @Shadow
-    public abstract boolean isEmpty();
-
     @Override
     public void registerToInventory(LithiumStackList itemStacks, int mySlot) {
         assert this.myLocation == null;

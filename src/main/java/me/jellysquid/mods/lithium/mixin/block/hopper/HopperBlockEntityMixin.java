@@ -1,8 +1,8 @@
 package me.jellysquid.mods.lithium.mixin.block.hopper;
 
 import me.jellysquid.mods.lithium.api.inventory.LithiumInventory;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyInventoryEntityMovementTracker;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyItemEntityMovementTracker;
+import me.jellysquid.mods.lithium.common.entity.tracker.nearby.SectionedInventoryEntityMovementTracker;
+import me.jellysquid.mods.lithium.common.entity.tracker.nearby.SectionedItemEntityMovementTracker;
 import me.jellysquid.mods.lithium.common.hopper.HopperHelper;
 import me.jellysquid.mods.lithium.common.hopper.InventoryHelper;
 import me.jellysquid.mods.lithium.common.hopper.LithiumStackList;
@@ -82,9 +82,16 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     private LithiumStackList insertInventoryStackList, extractInventoryStackList;
     private long insertInventoryChangeCount, extractInventoryChangeCount;
 
-    private NearbyItemEntityMovementTracker<ItemEntity> extractItemEntityTracker;
-    private NearbyInventoryEntityMovementTracker<Inventory> extractInventoryEntityTracker;
-    private NearbyInventoryEntityMovementTracker<Inventory> insertInventoryEntityTracker;
+    private SectionedItemEntityMovementTracker<ItemEntity> extractItemEntityTracker;
+    private boolean extractItemEntityTrackerWasEmpty;
+    private Box[] extractItemEntityBoxes;
+    private long extractItemEntityAttemptTime;
+    private SectionedInventoryEntityMovementTracker<Inventory> extractInventoryEntityTracker;
+    private Box extractInventoryEntityBox;
+    private long extractInventoryEntityAttemptTime;
+    private SectionedInventoryEntityMovementTracker<Inventory> insertInventoryEntityTracker;
+    private Box insertInventoryEntityBox;
+    private long insertInventoryEntityAttemptTime;
 
 
     @Override
@@ -113,23 +120,18 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         }
 
         if (hopperBlockEntity.extractInventoryEntityTracker == null) {
-            assert world instanceof ServerWorld;
-            BlockPos pos = hopperBlockEntity.pos.offset(Direction.UP);
-            hopperBlockEntity.extractInventoryEntityTracker =
-                    new NearbyInventoryEntityMovementTracker<>(
-                            new Box(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1),
-                            Inventory.class
-                    );
-            hopperBlockEntity.extractInventoryEntityTracker.register((ServerWorld) world);
+            hopperBlockEntity.initExtractInventoryTracker(world);
         }
-        if (hopperBlockEntity.extractInventoryEntityTracker.isUnchanged()) {
+        if (hopperBlockEntity.extractInventoryEntityTracker.isUnchangedSince(hopperBlockEntity.extractInventoryEntityAttemptTime)) {
             return null;
         }
+        hopperBlockEntity.extractInventoryEntityAttemptTime = Long.MIN_VALUE;
+
         hopperBlockEntity.myLastCollectChangeCount = InventoryHelper.getLithiumStackList(hopperBlockEntity).getModCount();
 
-        List<Inventory> inventoryEntities = hopperBlockEntity.extractInventoryEntityTracker.getEntities();
+        List<Inventory> inventoryEntities = hopperBlockEntity.extractInventoryEntityTracker.getEntities(hopperBlockEntity.extractInventoryEntityBox);
         if (inventoryEntities.isEmpty()) {
-            hopperBlockEntity.extractInventoryEntityTracker.setUnchanged(hopperBlockEntity.lastTickTime);
+            hopperBlockEntity.extractInventoryEntityAttemptTime = hopperBlockEntity.lastTickTime;
             //only set unchanged when no entity present. this allows shortcutting this case
             //shortcutting the entity present case requires checking its change counter
             return null;
@@ -154,7 +156,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     )
     private static boolean lithiumHopperIsFull(HopperBlockEntity hopperBlockEntity) {
         //noinspection ConstantConditions
-        LithiumStackList lithiumStackList = InventoryHelper.getLithiumStackList(((HopperBlockEntityMixin) (Object) hopperBlockEntity));
+        LithiumStackList lithiumStackList = InventoryHelper.getLithiumStackList((HopperBlockEntityMixin) (Object) hopperBlockEntity);
         return lithiumStackList.getFullSlots() == lithiumStackList.size();
     }
 
@@ -167,7 +169,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     )
     private static boolean lithiumHopperIsEmpty(HopperBlockEntity hopperBlockEntity) {
         //noinspection ConstantConditions
-        LithiumStackList lithiumStackList = InventoryHelper.getLithiumStackList(((HopperBlockEntityMixin) (Object) hopperBlockEntity));
+        LithiumStackList lithiumStackList = InventoryHelper.getLithiumStackList((HopperBlockEntityMixin) (Object) hopperBlockEntity);
         return lithiumStackList.getOccupiedSlots() == 0;
     }
 
@@ -301,18 +303,18 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         }
 
         if (hopperBlockEntity.extractItemEntityTracker == null) {
-            assert world instanceof ServerWorld;
-            hopperBlockEntity.initExtractItemEntityTracker((ServerWorld) world);
+            hopperBlockEntity.initExtractItemEntityTracker();
         }
         long modCount = InventoryHelper.getLithiumStackList(hopperBlockEntity).getModCount();
-        if ((hopperBlockEntity.extractItemEntityTracker.lastGetEntitiesWasEmpty() || hopperBlockEntity.myLastCollectChangeCount == modCount) &&
-                hopperBlockEntity.extractItemEntityTracker.isUnchanged()) {
+        if ((hopperBlockEntity.extractItemEntityTrackerWasEmpty || hopperBlockEntity.myLastCollectChangeCount == modCount) &&
+                hopperBlockEntity.extractItemEntityTracker.isUnchangedSince(hopperBlockEntity.extractItemEntityAttemptTime)) {
             return Collections.emptyList();
         }
         hopperBlockEntity.myLastCollectChangeCount = modCount;
 
-        List<ItemEntity> itemEntities = hopperBlockEntity.extractItemEntityTracker.getEntities();
-        hopperBlockEntity.extractItemEntityTracker.setUnchanged(hopperBlockEntity.lastTickTime);
+        List<ItemEntity> itemEntities = hopperBlockEntity.extractItemEntityTracker.getEntities(hopperBlockEntity.extractItemEntityBoxes);
+        hopperBlockEntity.extractItemEntityAttemptTime = hopperBlockEntity.lastTickTime;
+        hopperBlockEntity.extractItemEntityTrackerWasEmpty = itemEntities.isEmpty();
         //set unchanged so that if this extract fails and there is no other change to hoppers or items, extracting
         // items can be skipped.
         return itemEntities;
@@ -362,44 +364,21 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         return inventory;
     }
 
-    public Inventory getInsertInventory(World world, BlockState hopperState) {
-        Inventory blockInventory = this.getInsertBlockInventory(world, hopperState);
-        if (blockInventory != null) {
-            return blockInventory;
+    /**
+     * @author 2No2Name
+     * @reason avoid stream code
+     */
+    @Overwrite
+    private static boolean isInventoryEmpty(Inventory inv, Direction side) {
+        int[] availableSlots = inv instanceof SidedInventory ? ((SidedInventory) inv).getAvailableSlots(side) : null;
+        int fromSize = availableSlots != null ? availableSlots.length : inv.size();
+        for (int i = 0; i < fromSize; i++) {
+            int slot = availableSlots != null ? availableSlots[i] : i;
+            if (!inv.getStack(slot).isEmpty()) {
+                return false;
+            }
         }
-
-        if (this.insertInventoryEntityTracker == null) {
-            assert world instanceof ServerWorld;
-            Direction direction = hopperState.get(HopperBlock.FACING);
-            BlockPos pos = this.pos.offset(direction);
-            this.insertInventoryEntityTracker =
-                    new NearbyInventoryEntityMovementTracker<>(
-                            new Box(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1),
-                            Inventory.class
-                    );
-            this.insertInventoryEntityTracker.register((ServerWorld) world);
-        }
-        if (this.insertInventoryEntityTracker.isUnchanged()) {
-            return null;
-        }
-        this.myLastCollectChangeCount = InventoryHelper.getLithiumStackList(this).getModCount();
-
-        List<Inventory> inventoryEntities = this.insertInventoryEntityTracker.getEntities();
-        if (inventoryEntities.isEmpty()) {
-            this.insertInventoryEntityTracker.setUnchanged(this.lastTickTime);
-            //only set unchanged when no entity present. this allows shortcutting this case
-            //shortcutting the entity present case requires checking its change counter
-            return null;
-        }
-        Inventory inventory = inventoryEntities.get(world.random.nextInt(inventoryEntities.size()));
-        if (inventory != this.insertInventory && inventory instanceof LithiumInventory optimizedInventory) {
-            //not caching the inventory (this.insertBlockInventory == NO_INVENTORY_PRESENT prevents it)
-            //make change counting on the entity inventory possible, without caching it as block inventory
-            this.insertInventory = optimizedInventory;
-            this.insertInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
-            this.insertInventoryChangeCount = this.insertInventoryStackList.getModCount() - 1;
-        }
-        return inventory;
+        return true;
     }
 
     /**
@@ -444,7 +423,40 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         return inventory;
     }
 
-    private void initExtractItemEntityTracker(ServerWorld serverWorld) {
+    public Inventory getInsertInventory(World world, BlockState hopperState) {
+        Inventory blockInventory = this.getInsertBlockInventory(world, hopperState);
+        if (blockInventory != null) {
+            return blockInventory;
+        }
+
+        if (this.insertInventoryEntityTracker == null) {
+            this.initInsertInventoryTracker(world, hopperState);
+        }
+        if (this.insertInventoryEntityTracker.isUnchangedSince(this.insertInventoryEntityAttemptTime)) {
+            return null;
+        }
+        this.insertInventoryEntityAttemptTime = Long.MIN_VALUE;
+        this.myLastCollectChangeCount = InventoryHelper.getLithiumStackList(this).getModCount();
+
+        List<Inventory> inventoryEntities = this.insertInventoryEntityTracker.getEntities(this.insertInventoryEntityBox);
+        if (inventoryEntities.isEmpty()) {
+            this.insertInventoryEntityAttemptTime = this.lastTickTime;
+            //only set unchanged when no entity present. this allows shortcutting this case
+            //shortcutting the entity present case requires checking its change counter
+            return null;
+        }
+        Inventory inventory = inventoryEntities.get(world.random.nextInt(inventoryEntities.size()));
+        if (inventory != this.insertInventory && inventory instanceof LithiumInventory optimizedInventory) {
+            //not caching the inventory (this.insertBlockInventory == NO_INVENTORY_PRESENT prevents it)
+            //make change counting on the entity inventory possible, without caching it as block inventory
+            this.insertInventory = optimizedInventory;
+            this.insertInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
+            this.insertInventoryChangeCount = this.insertInventoryStackList.getModCount() - 1;
+        }
+        return inventory;
+    }
+
+    private void initExtractItemEntityTracker() {
         List<Box> list = new ArrayList<>();
         Box encompassingBox = null;
         for (Box box : this.getInputAreaShape().getBoundingBoxes()) {
@@ -456,13 +468,45 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                 encompassingBox = encompassingBox.union(offsetBox);
             }
         }
+        list.add(encompassingBox);
+        this.extractItemEntityBoxes = list.toArray(new Box[0]);
         this.extractItemEntityTracker =
-                new NearbyItemEntityMovementTracker<>(
+                SectionedItemEntityMovementTracker.getOrCreate(
+                        this.world,
                         encompassingBox,
-                        list.toArray(new Box[0]),
                         ItemEntity.class
                 );
+        this.extractItemEntityAttemptTime = Long.MIN_VALUE;
         this.extractItemEntityTracker.register((ServerWorld) this.world);
+    }
+
+    private void initExtractInventoryTracker(World world) {
+        assert world instanceof ServerWorld;
+        BlockPos pos = this.pos.offset(Direction.UP);
+        this.extractInventoryEntityBox = new Box(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
+        this.extractInventoryEntityTracker =
+                SectionedInventoryEntityMovementTracker.getOrCreate(
+                        this.world,
+                        this.extractInventoryEntityBox,
+                        Inventory.class
+                );
+        this.extractInventoryEntityAttemptTime = Long.MIN_VALUE;
+        this.extractInventoryEntityTracker.register((ServerWorld) world);
+    }
+
+    private void initInsertInventoryTracker(World world, BlockState hopperState) {
+        assert world instanceof ServerWorld;
+        Direction direction = hopperState.get(HopperBlock.FACING);
+        BlockPos pos = this.pos.offset(direction);
+        this.insertInventoryEntityBox = new Box(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
+        this.insertInventoryEntityTracker =
+                SectionedInventoryEntityMovementTracker.getOrCreate(
+                        this.world,
+                        this.insertInventoryEntityBox,
+                        Inventory.class
+                );
+        this.insertInventoryEntityAttemptTime = Long.MIN_VALUE;
+        this.insertInventoryEntityTracker.register((ServerWorld) world);
     }
 
     @Override
@@ -477,6 +521,8 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             }
             if (this.extractItemEntityTracker != null) {
                 this.extractItemEntityTracker.unRegister(serverWorld);
+                this.extractItemEntityTracker = null;
+                this.extractItemEntityBoxes = null;
             }
         }
 
@@ -490,22 +536,5 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         this.extractInventoryStackList = null;
         this.insertInventoryChangeCount = 0;
         this.extractInventoryChangeCount = 0;
-    }
-
-    /**
-     * @author 2No2Name
-     * @reason avoid stream code
-     */
-    @Overwrite
-    private static boolean isInventoryEmpty(Inventory inv, Direction side) {
-        int[] availableSlots = inv instanceof SidedInventory ? ((SidedInventory) inv).getAvailableSlots(side) : null;
-        int fromSize = availableSlots != null ? availableSlots.length : inv.size();
-        for (int i = 0; i < fromSize; i++) {
-            int fromSlot = availableSlots != null ? availableSlots[i] : i;
-            if (!inv.getStack(i).isEmpty()) {
-                return false;
-            }
-        }
-        return true;
     }
 }

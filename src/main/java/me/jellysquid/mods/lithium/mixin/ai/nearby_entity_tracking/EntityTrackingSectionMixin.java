@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngine;
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerSection;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListener;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityMovementTracker;
+import me.jellysquid.mods.lithium.common.entity.tracker.nearby.SectionedEntityMovementTracker;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.world.entity.EntityTrackingSection;
@@ -31,7 +31,7 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
     public abstract boolean isEmpty();
 
     private final ReferenceOpenHashSet<NearbyEntityListener> nearbyEntityListeners = new ReferenceOpenHashSet<>(0);
-    private final ReferenceOpenHashSet<NearbyEntityMovementTracker<?, ?>> movementListeners = new ReferenceOpenHashSet<>(0);
+    private final ReferenceOpenHashSet<SectionedEntityMovementTracker<?, ?>> sectionVisibilityListeners = new ReferenceOpenHashSet<>(0);
     private final long[] lastEntityMovementByType = new long[EntityTrackerEngine.NUM_MOVEMENT_NOTIFYING_CLASSES];
     private long pos;
 
@@ -45,8 +45,8 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
 
     @Override
     public void removeListener(SectionedEntityCache<?> sectionedEntityCache, NearbyEntityListener listener) {
-        this.nearbyEntityListeners.remove(listener);
-        if (this.status.shouldTrack()) {
+        boolean removed = this.nearbyEntityListeners.remove(listener);
+        if (this.status.shouldTrack() && removed) {
             listener.onSectionLeftRange(this, this.collection);
         }
         if (this.isEmpty()) {
@@ -55,17 +55,17 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
     }
 
     @Override
-    public void addListener(NearbyEntityMovementTracker<?, ?> listener) {
-        this.movementListeners.add(listener);
+    public void addListener(SectionedEntityMovementTracker<?, ?> listener) {
+        this.sectionVisibilityListeners.add(listener);
         if (this.status.shouldTrack()) {
             listener.onSectionEnteredRange(this);
         }
     }
 
     @Override
-    public void removeListener(SectionedEntityCache<?> sectionedEntityCache, NearbyEntityMovementTracker<?, ?> listener) {
-        this.movementListeners.remove(listener);
-        if (this.status.shouldTrack()) {
+    public void removeListener(SectionedEntityCache<?> sectionedEntityCache, SectionedEntityMovementTracker<?, ?> listener) {
+        boolean removed = this.sectionVisibilityListeners.remove(listener);
+        if (this.status.shouldTrack() && removed) {
             listener.onSectionLeftRange(this);
         }
         if (this.isEmpty()) {
@@ -84,8 +84,8 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
         }
     }
 
-    public long getMovementTimestamp(int index) {
-        return this.lastEntityMovementByType[index];
+    public long[] getMovementTimestampArray() {
+        return this.lastEntityMovementByType;
     }
 
     public void setPos(long chunkSectionPos) {
@@ -99,7 +99,7 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
 
     @Inject(method = "isEmpty()Z", at = @At(value = "HEAD"), cancellable = true)
     public void isEmpty(CallbackInfoReturnable<Boolean> cir) {
-        if (!this.nearbyEntityListeners.isEmpty() || !this.movementListeners.isEmpty()) {
+        if (!this.nearbyEntityListeners.isEmpty() || !this.sectionVisibilityListeners.isEmpty()) {
             cir.setReturnValue(false);
         }
     }
@@ -118,7 +118,7 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
 
     @Inject(method = "remove(Ljava/lang/Object;)Z", at = @At("RETURN"))
     private void onEntityRemoved(T entityLike, CallbackInfoReturnable<Boolean> cir) {
-        if (this.status.shouldTrack() && entityLike instanceof Entity entity) {
+        if (this.status.shouldTrack() && !this.nearbyEntityListeners.isEmpty() && entityLike instanceof Entity entity) {
             for (NearbyEntityListener nearbyEntityListener : this.nearbyEntityListeners) {
                 nearbyEntityListener.onEntityLeftRange(entity);
             }
@@ -129,18 +129,26 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
     public EntityTrackingStatus swapStatus(final EntityTrackingStatus newStatus) {
         if (this.status.shouldTrack() != newStatus.shouldTrack()) {
             if (!newStatus.shouldTrack()) {
-                for (NearbyEntityListener nearbyEntityListener : this.nearbyEntityListeners) {
-                    nearbyEntityListener.onSectionLeftRange(this, this.collection);
+                if (!this.nearbyEntityListeners.isEmpty()) {
+                    for (NearbyEntityListener nearbyEntityListener : this.nearbyEntityListeners) {
+                        nearbyEntityListener.onSectionLeftRange(this, this.collection);
+                    }
                 }
-                for (NearbyEntityMovementTracker<?, ?> listener : this.movementListeners) {
-                    listener.onSectionLeftRange(this);
+                if (!this.sectionVisibilityListeners.isEmpty()) {
+                    for (SectionedEntityMovementTracker<?, ?> listener : this.sectionVisibilityListeners) {
+                        listener.onSectionLeftRange(this);
+                    }
                 }
             } else {
-                for (NearbyEntityListener nearbyEntityListener : this.nearbyEntityListeners) {
-                    nearbyEntityListener.onSectionEnteredRange(this, this.collection);
+                if (!this.nearbyEntityListeners.isEmpty()) {
+                    for (NearbyEntityListener nearbyEntityListener : this.nearbyEntityListeners) {
+                        nearbyEntityListener.onSectionEnteredRange(this, this.collection);
+                    }
                 }
-                for (NearbyEntityMovementTracker<?, ?> listener : this.movementListeners) {
-                    listener.onSectionEnteredRange(this);
+                if (!this.sectionVisibilityListeners.isEmpty()) {
+                    for (SectionedEntityMovementTracker<?, ?> listener : this.sectionVisibilityListeners) {
+                        listener.onSectionEnteredRange(this);
+                    }
                 }
             }
         }
