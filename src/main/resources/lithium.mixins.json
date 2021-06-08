@@ -54,6 +54,8 @@
     "block.hopper.DefaultedListAccessor",
     "block.hopper.DoubleInventoryAccessor",
     "block.hopper.DoubleInventoryMixin",
+    "block.hopper.EntityAccessor",
+    "block.hopper.EntityDataObjectMixin",
     "block.hopper.EntityTrackingSectionAccessor",
     "block.hopper.HopperBlockEntityMixin",
     "block.hopper.HopperBlockMixin",
