@@ -75,10 +75,11 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
 
     @Override
     public void updateMovementTimestamps(int notificationMask, long time) {
-        int size = this.lastEntityMovementByType.length;
+        long[] lastEntityMovementByType = this.lastEntityMovementByType;
+        int size = lastEntityMovementByType.length;
         int mask;
-        for (int i = Integer.numberOfTrailingZeros(notificationMask); i < size; i++) {
-            this.lastEntityMovementByType[i] = time;
+        for (int i = Integer.numberOfTrailingZeros(notificationMask); i < size; ) {
+            lastEntityMovementByType[i] = time;
             mask = 0xffff_fffe << i;
             i = Integer.numberOfTrailingZeros(notificationMask & mask);
         }

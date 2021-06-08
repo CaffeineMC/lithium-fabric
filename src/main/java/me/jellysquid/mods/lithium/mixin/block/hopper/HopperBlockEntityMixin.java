@@ -15,7 +15,6 @@ import net.minecraft.block.entity.Hopper;
 import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.vehicle.HopperMinecartEntity;
 import net.minecraft.inventory.DoubleInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
@@ -236,10 +235,9 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
      */
     @Inject(method = "extract(Lnet/minecraft/world/World;Lnet/minecraft/block/entity/Hopper;)Z", at = @At(value = "FIELD", target = "Lnet/minecraft/util/math/Direction;DOWN:Lnet/minecraft/util/math/Direction;", shift = At.Shift.AFTER), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
     private static void lithiumExtract(World world, Hopper to, CallbackInfoReturnable<Boolean> cir, Inventory from) {
-        if (to instanceof HopperMinecartEntity) {
+        if (!(to instanceof HopperBlockEntityMixin hopperBlockEntity)) {
             return; //optimizations not implemented for hopper minecarts
         }
-        HopperBlockEntityMixin hopperBlockEntity = (HopperBlockEntityMixin) to;
         if (from != hopperBlockEntity.extractInventory) {
             return; //from inventory is not an optimized inventory, vanilla fallback
         }

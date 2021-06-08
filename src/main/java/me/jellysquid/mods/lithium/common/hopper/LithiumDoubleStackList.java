@@ -75,7 +75,7 @@ public class LithiumDoubleStackList extends LithiumStackList {
 
     @Override
     public int getSignalStrength() {
-        //signal strength override state has to be stored in the halfs, because this object may be replaced with a copy at any time
+        //signal strength override state has to be stored in the halves, because this object may be replaced with a copy at any time
         boolean signalStrengthOverride = this.first.hasSignalStrengthOverride() || this.second.hasSignalStrengthOverride();
         if (signalStrengthOverride) {
             return 0;

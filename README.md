@@ -106,7 +106,7 @@ projects. The basic overview is provided here for those familiar.
     - The [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html#sec:using_wrapper) is provided
       in this repository can be used instead of installing a suitable version of Gradle yourself. However, if you are
       building many projects, you may prefer to install it yourself through a suitable package manager as to save disk
-      space and to avoid many different Gradle daemons sitting around in memory.
+      space and to avoid many Gradle daemons sitting around in memory.
 
 #### Building with Gradle
 
