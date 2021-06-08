@@ -24,11 +24,6 @@ bin/
 
 run/*
 
-# relevant files in the run directory
-!run/gameteststructures/
-!run/world/
-run/world/*
-!run/world/level.dat_old
-!run/config
-run/config/*
-!run/config/mctester.properties
+# lithium
+
+testserver/*

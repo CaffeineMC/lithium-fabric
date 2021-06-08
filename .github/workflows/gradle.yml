@@ -20,7 +20,7 @@ jobs:
 
           -   name: run test server
               timeout-minutes: 5
-              run: ./gradlew runServer
+              run: ./gradlew runAutoTestServer
 
           -   name: Upload build artifacts
               uses: actions/upload-artifact@v1

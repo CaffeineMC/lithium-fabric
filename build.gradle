@@ -53,6 +53,24 @@ repositories {
     }
 }
 
+loom {
+    runs {
+        testmodServer {
+            runDir("testserver");
+            server()
+            ideConfigGenerated project.rootProject == project
+            name = "LithiumTestServer"
+            source sourceSets.main
+        }
+        autoTestServer {
+            runDir("testserver");
+            inherit testmodServer
+            vmArg "-Dfabric.autoTest"
+        }
+    }
+}
+
+
 dependencies {
     //to change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
