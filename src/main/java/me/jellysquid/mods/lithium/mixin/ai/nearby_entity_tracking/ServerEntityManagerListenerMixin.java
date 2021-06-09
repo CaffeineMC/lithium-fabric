@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
@@ -41,11 +42,12 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
         this.notificationMask = EntityTrackerEngine.getNotificationMask(this.entity.getClass());
     }
 
-    @Inject(method = "updateEntityPosition()V", at = @At("RETURN"))
-    private void updateEntityTrackerEngine(CallbackInfo ci) {
+    @ModifyVariable(method = "updateEntityPosition()V", at = @At("RETURN"))
+    private long updateEntityTrackerEngine(long sectionPos) {
         if (this.notificationMask != 0) {
             ((EntityTrackerSection) this.section).updateMovementTimestamps(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
         }
+        return sectionPos;
     }
 
     @Inject(
