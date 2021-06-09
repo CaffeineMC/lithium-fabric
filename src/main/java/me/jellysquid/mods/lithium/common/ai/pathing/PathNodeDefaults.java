@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.common.ai.pathing;
 
 import net.minecraft.block.*;
+import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.tag.BlockTags;
@@ -18,7 +19,7 @@ public class PathNodeDefaults {
             return PathNodeType.DANGER_CACTUS;
         } else if (state.isOf(Blocks.SWEET_BERRY_BUSH)) {
             return PathNodeType.DANGER_OTHER;
-        } else if (isFireDangerSource(state)) {
+        } else if (LandPathNodeMaker.inflictsFireDamage(state)) {
             return PathNodeType.DANGER_FIRE;
         } else if (state.getFluidState().isIn(FluidTags.WATER)) {
             return PathNodeType.WATER_BORDER;
@@ -64,7 +65,7 @@ public class PathNodeDefaults {
             return PathNodeType.LAVA;
         }
 
-        if (isFireDangerSource(state)) {
+        if (LandPathNodeMaker.inflictsFireDamage(state)) {
             return PathNodeType.DAMAGE_FIRE;
         }
 
@@ -97,9 +98,5 @@ public class PathNodeDefaults {
         }
 
         return PathNodeType.OPEN;
-    }
-
-    private static boolean isFireDangerSource(BlockState blockState) {
-        return blockState.isIn(BlockTags.FIRE) || blockState.isOf(Blocks.LAVA) || blockState.isOf(Blocks.MAGMA_BLOCK) || CampfireBlock.isLitCampfire(blockState) || blockState.isOf(Blocks.LAVA_CAULDRON);
     }
 }
