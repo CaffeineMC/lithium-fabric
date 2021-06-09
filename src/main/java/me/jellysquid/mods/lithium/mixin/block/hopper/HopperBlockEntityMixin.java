@@ -83,6 +83,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
 
     private SectionedItemEntityMovementTracker<ItemEntity> extractItemEntityTracker;
     private boolean extractItemEntityTrackerWasEmpty;
+    //item pickup bounding boxes in order. The last box in the array is the box that encompasses all of the others
     private Box[] extractItemEntityBoxes;
     private long extractItemEntityAttemptTime;
     private SectionedInventoryEntityMovementTracker<Inventory> extractInventoryEntityTracker;
@@ -513,9 +514,13 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         if (this.world instanceof ServerWorld serverWorld) {
             if (this.insertInventoryEntityTracker != null) {
                 this.insertInventoryEntityTracker.unRegister(serverWorld);
+                this.insertInventoryEntityTracker = null;
+                this.insertInventoryEntityBox = null;
             }
             if (this.extractInventoryEntityTracker != null) {
                 this.extractInventoryEntityTracker.unRegister(serverWorld);
+                this.extractInventoryEntityTracker = null;
+                this.extractInventoryEntityBox = null;
             }
             if (this.extractItemEntityTracker != null) {
                 this.extractItemEntityTracker.unRegister(serverWorld);
