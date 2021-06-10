@@ -117,6 +117,9 @@ public class BrainMixin<E extends LivingEntity> {
     @Deprecated
     @Debug
     public List<Task<? super E>> getRunningTasks() {
+        if (this.flatTasks == null) {
+            this.initTaskList();
+        }
         return this.flatTasks;
     }
 
