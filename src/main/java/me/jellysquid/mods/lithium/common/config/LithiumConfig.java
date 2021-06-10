@@ -32,6 +32,7 @@ public class LithiumConfig {
         // You must manually add a rule for any new mixins not covered by an existing package rule.
 
         this.addMixinRule("ai", true);
+        this.addMixinRule("ai.brain", true);
         this.addMixinRule("ai.goal", true);
         this.addMixinRule("ai.nearby_entity_tracking", true);
         this.addMixinRule("ai.nearby_entity_tracking.goals", true);

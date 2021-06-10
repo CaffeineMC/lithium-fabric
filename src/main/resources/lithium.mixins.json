@@ -7,6 +7,7 @@
     "defaultRequire": 1
   },
   "mixins": [
+    "ai.brain.BrainMixin",
     "ai.goal.GoalSelectorMixin",
     "ai.nearby_entity_tracking.EntityAccessor",
     "ai.nearby_entity_tracking.EntityMixin",
