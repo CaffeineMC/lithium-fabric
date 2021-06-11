@@ -120,6 +120,7 @@ public class LithiumConfig {
         this.addMixinRule("world.chunk_tickets", true);
         this.addMixinRule("world.chunk_ticking", true);
         this.addMixinRule("world.explosions", true);
+        this.addMixinRule("world.inline_height", true);
         this.addMixinRule("world.mob_spawning", true);
         this.addMixinRule("world.player_chunk_tick", true);
         this.addMixinRule("world.tick_scheduler", true);
