@@ -92,7 +92,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
                     target = "Ljava/util/Set;iterator()Ljava/util/Iterator;"
             )
     )
-    private void getActiveListeners(BlockPos pos, BlockState oldState, BlockState newState, int flags, CallbackInfo ci) {
+    private void updateActiveListeners(BlockPos pos, BlockState oldState, BlockState newState, int flags, CallbackInfo ci) {
         this.isIteratingActiveEntityNavigations = true;
         for (EntityNavigation entityNavigation : this.activeNavigations) {
             if (!entityNavigation.shouldRecalculatePath()) {
@@ -102,7 +102,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
     }
 
     @Inject(method = "updateListeners(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;I)V", at = @At(value = "RETURN"))
-    private void onIterationFinished(BlockPos pos, BlockState oldState, BlockState newState, int flags, CallbackInfo ci) {
+    private void updateActiveListenerCollectionAfterIteration(BlockPos pos, BlockState oldState, BlockState newState, int flags, CallbackInfo ci) {
         this.isIteratingActiveEntityNavigations = false;
         if (!this.removedNavigations.isEmpty() || !this.activeNavigationsUpdates.isEmpty()) {
             this.applyActiveEntityNavigationUpdates();
@@ -119,7 +119,10 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
         for (int i = navigationUpdates.size() - 1; i >= 0; i--) {
             MobEntity mobEntity = navigationUpdates.remove(i);
             EntityNavigation entityNavigation = ((NavigatingEntity) mobEntity).getRegisteredNavigation();
-            if (entityNavigation.getCurrentPath() != null && ((NavigatingEntity) mobEntity).isRegisteredToWorld()) {
+            if (entityNavigation == null) {
+                continue;
+            }
+            if (entityNavigation.getCurrentPath() != null) {
                 this.activeNavigations.add(entityNavigation);
             } else {
                 this.activeNavigations.remove(entityNavigation);
