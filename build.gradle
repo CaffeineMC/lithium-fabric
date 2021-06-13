@@ -59,7 +59,6 @@ loom {
             runDir("testserver");
             server()
             ideConfigGenerated project.rootProject == project
-            name = "LithiumTestServer"
             source sourceSets.main
         }
         autoTestServer {
