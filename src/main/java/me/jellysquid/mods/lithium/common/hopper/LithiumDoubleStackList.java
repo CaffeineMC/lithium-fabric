@@ -74,7 +74,7 @@ public class LithiumDoubleStackList extends LithiumStackList {
     }
 
     @Override
-    public int getSignalStrength() {
+    public int getSignalStrength(Inventory inventory) {
         //signal strength override state has to be stored in the halves, because this object may be replaced with a copy at any time
         boolean signalStrengthOverride = this.first.hasSignalStrengthOverride() || this.second.hasSignalStrengthOverride();
         if (signalStrengthOverride) {
@@ -82,7 +82,7 @@ public class LithiumDoubleStackList extends LithiumStackList {
         }
         int cachedSignalStrength = this.cachedSignalStrength;
         if (cachedSignalStrength == -1 || this.getModCount() != this.signalStrengthChangeCount) {
-            cachedSignalStrength = this.calculateSignalStrength();
+            cachedSignalStrength = this.calculateSignalStrength(Integer.MAX_VALUE);
             this.signalStrengthChangeCount = this.getModCount();
             this.cachedSignalStrength = cachedSignalStrength;
             return cachedSignalStrength;

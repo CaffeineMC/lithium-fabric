@@ -161,35 +161,36 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
         return this.signalStrengthOverride;
     }
 
-    public int getSignalStrength() {
+    public int getSignalStrength(Inventory inventory) {
         if (this.signalStrengthOverride) {
             return 0;
         }
         int signalStrength = this.cachedSignalStrength;
         if (signalStrength == -1) {
-            return this.cachedSignalStrength = this.calculateSignalStrength();
+            return this.cachedSignalStrength = this.calculateSignalStrength(inventory.size());
         }
         return signalStrength;
     }
 
     /**
      * [VanillaCopy] {@link net.minecraft.screen.ScreenHandler#calculateComparatorOutput(Inventory)}
+     *
      * @return the signal strength for this inventory
      */
-    int calculateSignalStrength() {
+    int calculateSignalStrength(int inventorySize) {
         int i = 0;
         float f = 0.0F;
 
-        //noinspection ForLoopReplaceableByForEach
-        for(int j = 0; j < this.size(); ++j) {
+        inventorySize = Math.min(inventorySize, this.size());
+        for (int j = 0; j < inventorySize; ++j) {
             ItemStack itemStack = this.get(j);
             if (!itemStack.isEmpty()) {
-                f += (float)itemStack.getCount() / (float)Math.min(this.maxCountPerStack, itemStack.getMaxCount());
+                f += (float) itemStack.getCount() / (float) Math.min(this.maxCountPerStack, itemStack.getMaxCount());
                 ++i;
             }
         }
 
-        f /= (float)this.size();
+        f /= (float) inventorySize;
         return MathHelper.floor(f * 14.0F) + (i > 0 ? 1 : 0);
     }
 

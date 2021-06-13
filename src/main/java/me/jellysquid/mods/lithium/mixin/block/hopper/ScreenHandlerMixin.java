@@ -14,7 +14,7 @@ public abstract class ScreenHandlerMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/inventory/Inventory;size()I", shift = At.Shift.BEFORE, ordinal = 0), cancellable = true)
     private static void getFastOutputStrength(Inventory inventory, CallbackInfoReturnable<Integer> cir) {
         if (inventory instanceof LithiumInventory optimizedInventory) {
-            cir.setReturnValue(InventoryHelper.getLithiumStackList(optimizedInventory).getSignalStrength());
+            cir.setReturnValue(InventoryHelper.getLithiumStackList(optimizedInventory).getSignalStrength(inventory));
         }
     }
 }
