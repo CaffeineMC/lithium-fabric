@@ -34,7 +34,7 @@ public abstract class SectionedEntityCacheMixin<T> {
             for (int z = minZ; z <= maxZ; z++) {
                 for (int y = minY; y <= maxY; y++) {
                     EntityTrackingSection<T> section = this.findTrackingSection(ChunkSectionPos.asLong(x, y, z));
-                    if (section != null) {
+                    if (section != null && section.getStatus().shouldTrack()) {
                         action.accept(section);
                     }
                 }
