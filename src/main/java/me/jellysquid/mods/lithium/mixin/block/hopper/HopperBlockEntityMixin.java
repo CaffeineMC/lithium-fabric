@@ -526,6 +526,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                 this.extractItemEntityTracker.unRegister(serverWorld);
                 this.extractItemEntityTracker = null;
                 this.extractItemEntityBoxes = null;
+                this.extractItemEntityTrackerWasEmpty = false;
             }
         }
 
