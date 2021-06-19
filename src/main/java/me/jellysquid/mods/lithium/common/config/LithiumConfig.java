@@ -123,6 +123,7 @@ public class LithiumConfig {
         this.addMixinRule("world.player_chunk_tick", true);
         this.addMixinRule("world.tick_scheduler", true);
 
+        this.addRuleDependency("block.hopper", "ai", true);
         this.addRuleDependency("block.hopper", "ai.nearby_entity_tracking", true);
     }
 
