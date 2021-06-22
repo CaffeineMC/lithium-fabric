@@ -44,6 +44,14 @@ public class BrainMixin<E extends LivingEntity> {
         this.flatTasks = null;
     }
 
+    @Inject(
+            method = "clear()V",
+            at = @At("RETURN")
+    )
+    private void clearTaskList(CallbackInfo ci) {
+        this.flatTasks = null;
+    }
+
     private void initTaskList() {
         ObjectArrayList<Task<? super E>> list = new ObjectArrayList<>();
 
