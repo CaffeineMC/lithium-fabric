@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.block.hopper;
 
 import me.jellysquid.mods.lithium.common.hopper.UpdateReceiver;
+import me.jellysquid.mods.lithium.common.world.blockentity.BlockEntityGetter;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
@@ -27,7 +28,7 @@ public abstract class HopperBlockMixin extends BlockWithEntity {
         if (!world.isClient() && newState.getBlock() instanceof InventoryProvider) {
             this.updateHopper(world, myBlockState, myPos, posFrom);
         }
-        return myBlockState;
+        return super.getStateForNeighborUpdate(myBlockState, direction, newState, world, myPos, posFrom);
 
     }
 
@@ -43,7 +44,7 @@ public abstract class HopperBlockMixin extends BlockWithEntity {
         Direction facing = myBlockState.get(HopperBlock.FACING);
         boolean above = posFrom.getY() == myPos.getY() + 1;
         if (above || posFrom.getX() == myPos.getX() + facing.getOffsetX() && posFrom.getY() == myPos.getY() + facing.getOffsetY() && posFrom.getZ() == myPos.getZ() + facing.getOffsetZ()) {
-            BlockEntity hopper = world.getBlockEntity(myPos);
+            BlockEntity hopper = ((BlockEntityGetter) world).getLoadedExistingBlockEntity(myPos);
             if (hopper instanceof UpdateReceiver updateReceiver) {
                 updateReceiver.onNeighborUpdate(above);
             }
@@ -55,8 +56,7 @@ public abstract class HopperBlockMixin extends BlockWithEntity {
         //invalidate caches of nearby hoppers when placing an update suppressed hopper
         if (world.getBlockState(pos) != state) {
             for (Direction direction : DIRECTIONS) {
-                //todo do not create a new blockentity here!
-                BlockEntity hopper = world.getBlockEntity(pos.offset(direction));
+                BlockEntity hopper = ((BlockEntityGetter) world).getLoadedExistingBlockEntity(pos.offset(direction));
                 if (hopper instanceof UpdateReceiver updateReceiver) {
                     updateReceiver.onNeighborUpdate(direction == Direction.DOWN);
                 }

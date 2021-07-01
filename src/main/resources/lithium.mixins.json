@@ -138,6 +138,7 @@
     "shapes.specialized_shapes.VoxelShapeMixin",
     "shapes.specialized_shapes.VoxelShapesMixin",
     "tag.SetTagMixin",
+    "world.block_entity_retrieval.WorldMixin",
     "world.block_entity_ticking.support_cache.BlockEntityMixin",
     "world.block_entity_ticking.support_cache.DirectBlockEntityTickInvokerMixin",
     "world.block_entity_ticking.support_cache.WorldChunkMixin",

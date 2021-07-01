@@ -111,6 +111,7 @@ public class LithiumConfig {
         this.addMixinRule("tag", true);
 
         this.addMixinRule("world", true);
+        this.addMixinRule("world.block_entity_retrieval", true);
         this.addMixinRule("world.block_entity_ticking", true);
         this.addMixinRule("world.block_entity_ticking.support_cache", false); //have to check whether the cached state bugfix fixes any detectable vanilla bugs first
         this.addMixinRule("world.chunk_access", true);
@@ -125,6 +126,8 @@ public class LithiumConfig {
 
         this.addRuleDependency("block.hopper", "ai", true);
         this.addRuleDependency("block.hopper", "ai.nearby_entity_tracking", true);
+        this.addRuleDependency("block.hopper", "world", true);
+        this.addRuleDependency("block.hopper", "world.block_entity_retrieval", true);
     }
 
     /**
