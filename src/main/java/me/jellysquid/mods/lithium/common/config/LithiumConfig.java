@@ -153,7 +153,12 @@ public class LithiumConfig {
         }
 
         config.applyModOverrides();
-        config.applyDependencies();
+
+        // Check dependencies several times, because one iteration may disable a rule required by another rule
+        // This terminates because each additional iteration will disable one or more rules, and there is only a finite number of rules
+        while (config.applyDependencies()) {
+            ;
+        }
 
         return config;
     }
@@ -307,10 +312,12 @@ public class LithiumConfig {
     /**
      * Tests all dependencies and disables options when their dependencies are not met.
      */
-    private void applyDependencies() {
+    private boolean applyDependencies() {
+        boolean changed = false;
         for (Option optionWithDependency : this.optionsWithDependencies) {
-            optionWithDependency.disableIfDependenciesNotMet(LOGGER);
+            changed |= optionWithDependency.disableIfDependenciesNotMet(LOGGER);
         }
+        return changed;
     }
 
     private static void writeDefaultConfig(File file) throws IOException {

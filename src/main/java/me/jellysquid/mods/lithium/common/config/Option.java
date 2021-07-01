@@ -73,7 +73,7 @@ public class Option {
         this.dependencies.put(dependencyOption, requiredValue);
     }
 
-    public void disableIfDependenciesNotMet(Logger logger) {
+    public boolean disableIfDependenciesNotMet(Logger logger) {
         if (this.dependencies != null && this.isEnabled()) {
             for (Object2BooleanMap.Entry<Option> dependency : this.dependencies.object2BooleanEntrySet()) {
                 Option option = dependency.getKey();
@@ -81,8 +81,10 @@ public class Option {
                 if (option.isEnabled() != requiredValue) {
                     this.enabled = false;
                     logger.warn("Option '{}' requires '{}={}' but found '{}'. Setting '{}={}'.", this.name, option.name, requiredValue, option.isEnabled(), this.name, this.enabled);
+                    return true;
                 }
             }
         }
+        return false;
     }
 }
