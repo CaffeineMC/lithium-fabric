@@ -1,4 +1,4 @@
-![Project icon](https://git-assets.jellysquid.me/hotlink-ok/lithium/icon-rounded-128px.png)
+<img src="src/main/resources/assets/lithium/icon.png" width="128">
 
 # Lithium (for Fabric)
 ![GitHub license](https://img.shields.io/github/license/CaffeineMC/lithium-fabric.svg)
