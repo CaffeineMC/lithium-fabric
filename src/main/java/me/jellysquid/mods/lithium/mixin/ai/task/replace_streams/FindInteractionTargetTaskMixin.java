@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.ai.task;
+package me.jellysquid.mods.lithium.mixin.ai.task.replace_streams;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.Brain;

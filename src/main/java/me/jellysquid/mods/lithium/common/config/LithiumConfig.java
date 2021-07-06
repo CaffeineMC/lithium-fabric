@@ -42,6 +42,7 @@ public class LithiumConfig {
         this.addMixinRule("ai.poi.fast_retrieval", true);
         this.addMixinRule("ai.raid", true);
         this.addMixinRule("ai.task", true);
+        this.addMixinRule("ai.task.replace_streams", true);
 
         this.addMixinRule("alloc", true);
         this.addMixinRule("alloc.chunk_random", true);

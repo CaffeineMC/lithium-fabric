@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.ai.task;
+package me.jellysquid.mods.lithium.mixin.ai.task.replace_streams;
 
 import me.jellysquid.mods.lithium.common.ai.WeightedListIterable;
 import net.minecraft.util.collection.WeightedList;

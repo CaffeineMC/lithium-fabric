@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.ai.task;
+package me.jellysquid.mods.lithium.mixin.ai.task.replace_streams;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMaps;
