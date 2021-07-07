@@ -17,7 +17,7 @@ public class ListeningList<T> implements List<T> {
         this.changeCallback = changeCallback;
     }
 
-    private void onChange() {
+    protected void onChange() {
         this.changeCallback.run();
     }
 
