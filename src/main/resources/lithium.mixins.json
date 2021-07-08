@@ -34,6 +34,7 @@
     "ai.task.fast_repetition.FindInteractionTargetTaskMixin",
     "ai.task.fast_repetition.FollowMobTaskMixin",
     "ai.task.fast_repetition.NearestLivingEntitiesSensorMixin",
+    "ai.task.goat_jump.LongJumpTaskMixin",
     "ai.task.replace_streams.CompositeTaskMixin",
     "ai.task.replace_streams.TaskMixin",
     "ai.task.replace_streams.WeightedListMixin",
