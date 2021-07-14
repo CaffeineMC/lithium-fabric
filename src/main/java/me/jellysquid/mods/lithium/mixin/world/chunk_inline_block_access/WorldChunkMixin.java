@@ -1,11 +1,11 @@
 package me.jellysquid.mods.lithium.mixin.world.chunk_inline_block_access;
 
-import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.WorldChunk;
@@ -27,6 +27,10 @@ public abstract class WorldChunkMixin implements Chunk {
     @Final
     public static ChunkSection EMPTY_SECTION;
 
+    @Shadow
+    @Final
+    private World world;
+
     /**
      * @reason Reduce method size to help the JVM inline
      * @author JellySquid
@@ -37,8 +41,9 @@ public abstract class WorldChunkMixin implements Chunk {
         int y = pos.getY();
         int z = pos.getZ();
 
-        if (!this.isOutOfHeightLimit(y)) {
-            ChunkSection section = this.sections[Pos.SectionYIndex.fromBlockCoord(this, y)];
+        int chunkY = this.getSectionIndex(y);
+        if (chunkY >= 0 && chunkY <= this.sections.length) {
+            ChunkSection section = this.sections[chunkY];
 
             if (section != EMPTY_SECTION) {
                 return section.getBlockState(x & 15, y & 15, z & 15);
@@ -54,8 +59,9 @@ public abstract class WorldChunkMixin implements Chunk {
      */
     @Overwrite
     public FluidState getFluidState(int x, int y, int z) {
-        if (!this.isOutOfHeightLimit(y)) {
-            ChunkSection section = this.sections[Pos.SectionYIndex.fromBlockCoord(this, y)];
+        int chunkY = this.getSectionIndex(y);
+        if (chunkY >= 0 && chunkY <= this.sections.length) {
+            ChunkSection section = this.sections[chunkY];
 
             if (section != EMPTY_SECTION) {
                 return section.getFluidState(x & 15, y & 15, z & 15);
