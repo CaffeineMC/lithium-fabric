@@ -30,6 +30,7 @@
     "ai.poi.fast_retrieval.PointOfInterestStorageMixin",
     "ai.poi.fast_retrieval.SerializingRegionBasedStorageMixin",
     "ai.raid.PickupBannerAsLeaderGoalMixin",
+    "ai.raid.RaiderEntityMixin",
     "ai.raid.RaidMixin",
     "ai.task.fast_repetition.FindInteractionTargetTaskMixin",
     "ai.task.fast_repetition.FollowMobTaskMixin",
