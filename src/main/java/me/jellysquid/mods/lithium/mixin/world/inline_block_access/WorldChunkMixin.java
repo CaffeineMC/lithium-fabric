@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.world.chunk_inline_block_access;
+package me.jellysquid.mods.lithium.mixin.world.inline_block_access;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -40,7 +40,9 @@ public abstract class WorldChunkMixin implements Chunk {
         if (chunkY >= 0 && chunkY < this.sections.length) {
             ChunkSection section = this.sections[chunkY];
 
-            if (section != EMPTY_SECTION) {
+            //checking isEmpty cannot be skipped here. https://bugs.mojang.com/browse/MC-232360
+            // Chunk Sections that only contain air and cave_air are treated as empty
+            if (section != EMPTY_SECTION && !section.isEmpty()) {
                 return section.getBlockState(x & 15, y & 15, z & 15);
             }
         }
