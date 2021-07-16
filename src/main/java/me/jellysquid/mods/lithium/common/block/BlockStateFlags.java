@@ -6,7 +6,7 @@ import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.world.chunk.ChunkSection;
 
 public class BlockStateFlags {
-    public static final boolean ENABLED = BlockStateFlagHolder.class.isAssignableFrom(ChunkSection.class);
+    public static final boolean ENABLED = SectionFlagHolder.class.isAssignableFrom(ChunkSection.class);
     public static final int NUM_FLAGS = 2; //Update this number when adding a new flag!
 
     public static final IndexedBlockStatePredicate OVERSIZED_SHAPE = new IndexedBlockStatePredicate() {
