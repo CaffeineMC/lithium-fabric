@@ -84,6 +84,7 @@
     "chunk.entity_class_groups.ServerWorldAccessor",
     "chunk.entity_class_groups.TypeFilterableListMixin",
     "chunk.no_locking.PalettedContainerMixin",
+    "chunk.no_validation.PackedIntegerArrayMixin",
     "chunk.palette.PalettedContainerMixin",
     "chunk.section_update_tracking.ChunkHolderMixin",
     "chunk.serialization.PackedIntegerArrayMixin",
