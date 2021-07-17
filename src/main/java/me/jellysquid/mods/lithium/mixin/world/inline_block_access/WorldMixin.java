@@ -35,7 +35,7 @@ public abstract class WorldMixin implements HeightLimitView {
         int z = pos.getZ();
 
         int chunkY = this.getSectionIndex(y);
-        if (chunkY < 0 || chunkY > sections.length) {
+        if (chunkY < 0 || chunkY >= sections.length) {
             return OUTSIDE_WORLD_BLOCK;
         }
 
