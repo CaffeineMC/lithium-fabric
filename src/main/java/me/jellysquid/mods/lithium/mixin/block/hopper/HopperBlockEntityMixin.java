@@ -43,7 +43,7 @@ import static net.minecraft.block.entity.HopperBlockEntity.getInputItemEntities;
 
 
 @Mixin(HopperBlockEntity.class)
-public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopper, UpdateReceiver, LithiumInventory {
+public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopper, UpdateReceiver, LithiumInventory, CompatHopper {
     private static final Inventory NO_INVENTORY_BLOCK_PRESENT = new SimpleInventory(0);
 
     public HopperBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -116,6 +116,9 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
 
         Inventory blockInventory = hopperBlockEntity.getExtractBlockInventory(world);
         if (blockInventory != null) {
+            if (hopperBlockEntity.mayNotTransferFrom(blockInventory)) {
+                return null;
+            }
             return blockInventory;
         }
 
@@ -137,6 +140,9 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             return null;
         }
         Inventory inventory = inventoryEntities.get(world.random.nextInt(inventoryEntities.size()));
+        if (hopperBlockEntity.mayNotTransferFrom(inventory)) {
+            return null;
+        }
         if (inventory != hopperBlockEntity.extractInventory && inventory instanceof LithiumInventory optimizedInventory) {
             //not caching the inventory (hopperBlockEntity.extractBlockInventory == NO_INVENTORY_PRESENT prevents it)
             //make change counting on the entity inventory possible, without caching it as block inventory
@@ -184,7 +190,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     private static boolean lithiumInsert(World world, BlockPos pos, BlockState hopperState, Inventory hopper) {
         HopperBlockEntityMixin hopperBlockEntity = (HopperBlockEntityMixin) hopper;
         Inventory insertInventory = hopperBlockEntity.getInsertInventory(world, hopperState);
-        if (insertInventory == null) {
+        if (insertInventory == null || hopperBlockEntity.mayNotTransferTo(insertInventory)) {
             //call the vanilla code, but with target inventory nullify (mixin above) to allow other mods inject features
             //e.g. carpet mod allows hoppers to insert items into wool blocks
             return insert(world, pos, hopperState, hopper);
