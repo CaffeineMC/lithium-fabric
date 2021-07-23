@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.block.hopper;
+package me.jellysquid.mods.lithium.common.hopper;
 
 import net.minecraft.inventory.Inventory;
 

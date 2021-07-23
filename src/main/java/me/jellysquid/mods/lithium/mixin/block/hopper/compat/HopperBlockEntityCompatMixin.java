@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.block.hopper.compat;
 
 import me.jellysquid.mods.lithium.api.inventory.LithiumHopperCompat;
-import me.jellysquid.mods.lithium.mixin.block.hopper.CompatHopper;
+import me.jellysquid.mods.lithium.common.hopper.CompatHopper;
 import net.minecraft.block.entity.Hopper;
 import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.inventory.Inventory;
