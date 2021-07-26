@@ -6,7 +6,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
 public abstract class MixinLivingEntity extends Entity {
@@ -17,13 +18,17 @@ public abstract class MixinLivingEntity extends Entity {
         super(type, world);
     }
 
-    @Redirect(method = "isPushable", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;isClimbing()Z"))
-    boolean preventClimbingUpdateCheck(LivingEntity livingEntity) {
-        long time = livingEntity.world.getTime();
-        if (time != lastClimbingUpdate) {
-            lastClimbingUpdate = time;
-            cachedClimbing = livingEntity.isClimbing();
+    @Inject(method = "isClimbing", cancellable = true, at = @At("HEAD"))
+    void useCacheIsClimbing(CallbackInfoReturnable<Boolean> cir) {
+        long time = this.world.getTime();
+        if (time == lastClimbingUpdate) {
+            cir.setReturnValue(cachedClimbing);
         }
-        return cachedClimbing;
+        lastClimbingUpdate = time;
+    }
+
+    @Inject(method = "isClimbing", at = @At("RETURN"))
+    void setCacheIsClimbing(CallbackInfoReturnable<Boolean> cir) {
+        cachedClimbing = cir.getReturnValueZ();
     }
 }
