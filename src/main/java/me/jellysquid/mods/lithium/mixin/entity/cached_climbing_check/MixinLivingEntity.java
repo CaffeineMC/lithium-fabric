@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
 public abstract class MixinLivingEntity extends Entity {
-    private long lastClimbingUpdate;
+    private long lastClimbingUpdate = -1;
     private boolean cachedClimbing = false;
 
     private MixinLivingEntity(EntityType<?> type, World world) {
@@ -19,7 +19,7 @@ public abstract class MixinLivingEntity extends Entity {
     }
 
     @Inject(method = "isClimbing", cancellable = true, at = @At("HEAD"))
-    void useCacheIsClimbing(CallbackInfoReturnable<Boolean> cir) {
+    private void useCacheIsClimbing(CallbackInfoReturnable<Boolean> cir) {
         long time = this.world.getTime();
         if (time == lastClimbingUpdate) {
             cir.setReturnValue(cachedClimbing);
@@ -28,7 +28,7 @@ public abstract class MixinLivingEntity extends Entity {
     }
 
     @Inject(method = "isClimbing", at = @At("RETURN"))
-    void setCacheIsClimbing(CallbackInfoReturnable<Boolean> cir) {
+    private void setCacheIsClimbing(CallbackInfoReturnable<Boolean> cir) {
         cachedClimbing = cir.getReturnValueZ();
     }
 }
