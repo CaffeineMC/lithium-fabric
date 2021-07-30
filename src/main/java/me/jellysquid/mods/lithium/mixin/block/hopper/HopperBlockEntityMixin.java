@@ -508,9 +508,23 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         this.insertInventoryEntityTracker.register((ServerWorld) world);
     }
 
+    @SuppressWarnings("deprecation")
+    @Override
+    public void setCachedState(BlockState state) {
+        BlockState cachedState = this.getCachedState();
+        super.setCachedState(state);
+        if (state.get(HopperBlock.FACING) != cachedState.get(HopperBlock.FACING)) {
+            this.invalidateCachedData();
+        }
+    }
+
     @Override
     public void markRemoved() {
         super.markRemoved();
+        this.invalidateCachedData();
+    }
+
+    private void invalidateCachedData() {
         if (this.world instanceof ServerWorld serverWorld) {
             if (this.insertInventoryEntityTracker != null) {
                 this.insertInventoryEntityTracker.unRegister(serverWorld);
