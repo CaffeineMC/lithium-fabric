@@ -45,6 +45,7 @@
     "alloc.composter.ComposterMixin$ComposterBlockComposterInventoryMixin",
     "alloc.composter.ComposterMixin$ComposterBlockDummyInventoryMixin",
     "alloc.composter.ComposterMixin$ComposterBlockFullComposterInventoryMixin",
+    "alloc.deep_passengers.EntityMixin",
     "alloc.entity_tracker.EntityTrackerMixin",
     "alloc.enum_values.LivingEntityMixin",
     "alloc.enum_values.PistonBlockMixin",
