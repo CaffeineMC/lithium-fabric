@@ -45,7 +45,7 @@ public class SectionedItemEntityMovementTracker<S extends Entity> extends Sectio
                     if (entity.isAlive()) {
                         Box entityBoundingBox = entity.getBoundingBox();
                         //even though there are usually only two boxes to check, checking the encompassing box only will be faster in most cases
-                        //In vanilla the number of boxes checked is always 2. Here is is 1 (miss) and 2-3 (hit)
+                        //In vanilla the number of boxes checked is always 2. Here it is 1 (miss) and 2-3 (hit)
                         if (entityBoundingBox.intersects(encompassingBox)) {
                             for (int j = 0; j < numBoxes; j++) {
                                 if (entityBoundingBox.intersects(areas[j])) {

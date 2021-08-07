@@ -22,7 +22,7 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
     private int timesRegistered;
     private ArrayList<long[]> sectionChangeCounters;
 
-    private long lastChangeTime;
+    private long maxChangeTime;
 
     public SectionedEntityMovementTracker(WorldSectionBox interactionChunks, Class<S> clazz) {
         this.clazz = clazz;
@@ -39,7 +39,7 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
      * @return whether any relevant entity moved in the tracked area
      */
     public boolean isUnchangedSince(long lastCheckedTime) {
-        if (lastCheckedTime <= this.lastChangeTime) {
+        if (lastCheckedTime <= this.maxChangeTime) {
             return false;
         }
         ArrayList<long[]> sectionChangeCounters = this.sectionChangeCounters;
@@ -47,8 +47,9 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
         //noinspection ForLoopReplaceableByForEach
         for (int i = 0, numCounters = sectionChangeCounters.size(); i < numCounters; i++) {
             // >= instead of > is required here, as changes may occur in the same tick but after the last check
-            if (lastCheckedTime <= sectionChangeCounters.get(i)[trackedClass]) {
-                this.setChanged(lastCheckedTime);
+            long sectionChangeTime = sectionChangeCounters.get(i)[trackedClass];
+            if (lastCheckedTime <= sectionChangeTime) {
+                this.setChanged(sectionChangeTime);
                 return false;
             }
         }
@@ -122,7 +123,8 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
      * Method that marks that new entities might have appeared or moved in the tracked chunk sections.
      */
     private void setChanged(long atTime) {
-        assert atTime > this.lastChangeTime;
-        this.lastChangeTime = atTime;
+        if (atTime > this.maxChangeTime) {
+            this.maxChangeTime = atTime;
+        }
     }
 }
