@@ -58,29 +58,32 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
 
     public void register(ServerWorld world) {
         assert world == this.trackedWorldSections.world();
-        //noinspection unchecked
-        SectionedEntityCache<E> cache = ((ServerEntityManagerAccessor<E>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
 
-        this.sectionChangeCounters = new ArrayList<>();
-        WorldSectionBox trackedSections = this.trackedWorldSections;
-        int size = trackedSections.numSections();
-        assert size > 0;
-        this.sortedSections = new ArrayList<>(size);
-        this.sectionVisible = new boolean[size];
+        if (this.timesRegistered == 0) {
+            //noinspection unchecked
+            SectionedEntityCache<E> cache = ((ServerEntityManagerAccessor<E>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
 
-        //vanilla iteration order in SectionedEntityCache is xzy
-        //WorldSectionBox upper coordinates are exclusive
-        for (int x = trackedSections.chunkX1(); x < trackedSections.chunkX2(); x++) {
-            for (int z = trackedSections.chunkZ1(); z < trackedSections.chunkZ2(); z++) {
-                for (int y = trackedSections.chunkY1(); y < trackedSections.chunkY2(); y++) {
-                    EntityTrackingSection<E> section = cache.getTrackingSection(ChunkSectionPos.asLong(x, y, z));
-                    EntityTrackerSection sectionAccess = (EntityTrackerSection) section;
-                    this.sortedSections.add(section);
-                    sectionAccess.addListener(this);
+            this.sectionChangeCounters = new ArrayList<>();
+            WorldSectionBox trackedSections = this.trackedWorldSections;
+            int size = trackedSections.numSections();
+            assert size > 0;
+            this.sortedSections = new ArrayList<>(size);
+            this.sectionVisible = new boolean[size];
+
+            //vanilla iteration order in SectionedEntityCache is xzy
+            //WorldSectionBox upper coordinates are exclusive
+            for (int x = trackedSections.chunkX1(); x < trackedSections.chunkX2(); x++) {
+                for (int z = trackedSections.chunkZ1(); z < trackedSections.chunkZ2(); z++) {
+                    for (int y = trackedSections.chunkY1(); y < trackedSections.chunkY2(); y++) {
+                        EntityTrackingSection<E> section = cache.getTrackingSection(ChunkSectionPos.asLong(x, y, z));
+                        EntityTrackerSection sectionAccess = (EntityTrackerSection) section;
+                        this.sortedSections.add(section);
+                        sectionAccess.addListener(this);
+                    }
                 }
             }
+            this.setChanged(world.getTime());
         }
-        this.setChanged(world.getTime());
 
         this.timesRegistered++;
     }
