@@ -1,7 +1,6 @@
 package me.jellysquid.mods.lithium.common.world.scheduler;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectSortedMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import me.jellysquid.mods.lithium.common.util.Pos;
@@ -17,7 +16,9 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.ScheduledTick;
 import net.minecraft.world.TickPriority;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -39,16 +40,35 @@ import java.util.function.Predicate;
  * - Ticks are stored in a HashMap with their execution state, meaning that redstone gates and other blocks which check
  * to see if something is scheduled/executing will not have to scan a potentially very large array (which can occur
  * when many ticks have been scheduled.)
+ * <p>
+ * <p>
+ * Vanilla Tick Scheduler Behavior Summary
+ * ScheduledTicks will to be executed in their corresponding gametick. The ScheduledTicks are executed ordered by their
+ * priority (lower first). ScheduledTicks with the same priority are executed in the order they were added to the TickScheduler.
+ * ScheduledTicks cannot be added to the TickScheduler if there is already another ScheduledTick added for that position.
+ * <p>
+ * There are several states a ScheduledTick can be in. A scheduled tick can only be in one state at a time:
+ * - scheduled
+ *      stored in collection {@link #scheduledTicks}
+ *      {@link #isScheduled(BlockPos, Object)} returns true,
+ *      adds to count in {@link #getTicks()}, prevents scheduling another tick in the same location for the same type
+ * <p>
+ * - selected for execution
+ *      stored in collection {@link #executingTicks}, not marked as consumed
+ *      {@link #isTicking(BlockPos, Object)} returns true
+ *
+ * - executing or done executing
+ *      stored in collection {@link #executingTicks} but marked as consumed
+ *      {@link #isTicking(BlockPos, Object)} returns false
  */
 public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
-    private static final Predicate<TickEntry<?>> PREDICATE_ANY_TICK = entry -> true;
-    private static final Predicate<TickEntry<?>> PREDICATE_ACTIVE_TICKS = entry -> !entry.consumed;
-
+    //These two collections store the same ScheduledTicks and must stay consistent
     private final Long2ObjectSortedMap<TickEntryQueue<T>> scheduledTicksOrdered = new Long2ObjectAVLTreeMap<>();
-    private final Long2ObjectOpenHashMap<Set<TickEntry<T>>> scheduledTicksByChunk = new Long2ObjectOpenHashMap<>();
+    private final ObjectOpenHashSet<TickEntry<T>> scheduledTicks = new ObjectOpenHashSet<>();
 
-    private final Map<ScheduledTick<T>, TickEntry<T>> scheduledTicks = new HashMap<>();
+    //These two collections store the same ScheduledTicks and must stay consistent
     private final ArrayList<TickEntry<T>> executingTicks = new ArrayList<>();
+    private final ObjectOpenHashSet<TickEntry<T>> executingTicksSet = new ObjectOpenHashSet<>();
 
     private final Predicate<T> invalidObjPredicate;
     private final ServerWorld world;
@@ -66,7 +86,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     public void tick() {
         this.world.getProfiler().push("cleaning");
 
-        this.selectTicks(this.world, this.world.getTime());
+        this.selectTicks(this.world.getTime());
 
         this.world.getProfiler().swap("executing");
 
@@ -77,37 +97,74 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
 
     @Override
     public boolean isTicking(BlockPos pos, T obj) {
-        TickEntry<T> entry = this.scheduledTicks.get(new ScheduledTick<>(pos, obj));
+        TickEntry<T> entry = this.executingTicksSet.get(new TickEntry<>(pos, obj));
 
         if (entry == null) {
             return false;
         }
 
-        return entry.executing;
+        return !entry.consumed;
     }
 
     @Override
     public boolean isScheduled(BlockPos pos, T obj) {
-        TickEntry<T> entry = this.scheduledTicks.get(new ScheduledTick<>(pos, obj));
+        return this.scheduledTicks.contains(new TickEntry<>(pos, obj));
+    }
 
-        if (entry == null) {
-            return false;
+    @Override
+    public List<ScheduledTick<T>> getScheduledTicks(BlockBox bounds, boolean remove, boolean getConsumedTicks) {
+        ArrayList<ScheduledTick<T>> collectedTicks = new ArrayList<>();
+        ObjectOpenHashSet<TickEntry<T>> scheduledTicks = this.scheduledTicks;
+        for (TickEntryQueue<T> tickEntryQueue : this.scheduledTicksOrdered.values()) {
+            for (int i = 0; i < tickEntryQueue.size(); i++) {
+                TickEntry<T> tick = tickEntryQueue.getTickAtIndex(i);
+                if (tick == null) {
+                    continue;
+                }
+                BlockPos tickPos = tick.pos;
+                // The minimum coordinate is inclusive while the maximum coordinate is exclusive
+                if (tickPos.getX() >= bounds.getMinX() && tickPos.getX() < bounds.getMaxX() && tickPos.getZ() >= bounds.getMinZ() && tickPos.getZ() < bounds.getMaxZ()) {
+                    collectedTicks.add(new TickEntry<>(tick.pos, tick.getObject(), tick.time, tick.priority));
+                    if (remove) {
+                        tickEntryQueue.setTickAtIndex(i, null);
+                        scheduledTicks.remove(tick);
+                    }
+                }
+            }
         }
 
-        return entry.scheduled;
+        if (!this.executingTicks.isEmpty()) {
+            ArrayList<ScheduledTick<T>> consumedTicks = new ArrayList<>();
+            ArrayList<TickEntry<T>> executingTicks = this.executingTicks;
+            ObjectOpenHashSet<TickEntry<T>> executingTicksSet = this.executingTicksSet;
+            for (int i = 0, ticksSize = executingTicks.size(); i < ticksSize; i++) {
+                TickEntry<T> tick = executingTicks.get(i);
+                if (tick == null || (!getConsumedTicks && tick.consumed)) {
+                    continue;
+                }
+                BlockPos tickPos = tick.pos;
+                // The minimum coordinate is inclusive while the maximum coordinate is exclusive
+                if (tickPos.getX() >= bounds.getMinX() && tickPos.getX() < bounds.getMaxX() && tickPos.getZ() >= bounds.getMinZ() && tickPos.getZ() < bounds.getMaxZ()) {
+                    (tick.consumed ? consumedTicks : collectedTicks).add(new TickEntry<>(tick.pos, tick.getObject(), tick.time, tick.priority));
+
+                    if (remove) {
+                        executingTicks.set(i, null);
+                        executingTicksSet.remove(tick);
+                    }
+                }
+            }
+            // [VanillaCopy] order of ScheduledTicks: consumed ticks after executing ticks
+            collectedTicks.addAll(consumedTicks);
+        }
+        return collectedTicks;
     }
 
-    @Override
-    public List<ScheduledTick<T>> getScheduledTicksInChunk(ChunkPos chunkPos, boolean mutates, boolean getStaleTicks) {
-        //[VanillaCopy] bug chunk steals ticks from neighboring chunk on unload + does so only in the negative direction
-        BlockBox box = new BlockBox(chunkPos.getStartX() - 2, Integer.MIN_VALUE, chunkPos.getStartZ() - 2, chunkPos.getStartX() + 16, Integer.MAX_VALUE, chunkPos.getStartZ() + 16);
-
-        return this.getScheduledTicks(box, mutates, getStaleTicks);
-    }
-
-    @Override
-    public List<ScheduledTick<T>> getScheduledTicks(BlockBox box, boolean remove, boolean getStaleTicks) {
-        return this.collectTicks(box, remove, getStaleTicks ? PREDICATE_ANY_TICK : PREDICATE_ACTIVE_TICKS);
+    // Computes a timestamped key including the tick's priority
+    // Keys can be sorted in descending order to find what should be executed first
+    // 60 time bits, 4 priority bits
+    private static long getBucketKey(long time, TickPriority priority) {
+        //using priority.ordinal() as is not negative instead of priority.index
+        return (time << 4L) | (priority.ordinal() & 15);
     }
 
     @Override
@@ -115,14 +172,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
         List<ScheduledTick<T>> list = this.getScheduledTicks(box, false, false);
 
         for (ScheduledTick<T> tick : list) {
-            this.addScheduledTick(new ScheduledTick<>(tick.pos.add(pos), tick.getObject(), tick.time, tick.priority));
-        }
-    }
-
-    @Override
-    public void schedule(BlockPos pos, T obj, int delay, TickPriority priority) {
-        if (!this.invalidObjPredicate.test(obj)) {
-            this.addScheduledTick(new ScheduledTick<>(pos, obj, (long) delay + this.world.getTime(), priority));
+            this.scheduleTick(tick.pos.add(pos), tick.getObject(), tick.time, tick.priority);
         }
     }
 
@@ -131,21 +181,20 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
      */
     @Override
     public int getTicks() {
-        int count = 0;
+        return this.scheduledTicks.size();
+    }
 
-        for (TickEntry<T> entry : this.scheduledTicks.values()) {
-            if (entry.scheduled) {
-                count += 1;
-            }
+    @Override
+    public void schedule(BlockPos pos, T obj, int delay, TickPriority priority) {
+        if (!this.invalidObjPredicate.test(obj)) {
+            this.scheduleTick(pos, obj, (long) delay + this.world.getTime(), priority);
         }
-
-        return count;
     }
 
     /**
      * Enqueues all scheduled ticks before the specified time and prepares them for execution.
      */
-    public void selectTicks(ServerWorld world, long time) {
+    public void selectTicks(long time) {
         // Calculates the maximum key value which includes all ticks scheduled before the specified time
         long headKey = getBucketKey(time + 1, TickPriority.EXTREMELY_HIGH) - 1;
 
@@ -171,7 +220,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
             for (int i = 0; i < list.size(); i++) {
                 TickEntry<T> tick = list.getTickAtIndex(i);
 
-                if (!tick.scheduled) {
+                if (tick == null) {
                     continue;
                 }
 
@@ -191,11 +240,8 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
                     // If the tick can be executed right now, then add it to the executing list and decrement our
                     // budget limit.
                     if (canTick) {
-                        tick.scheduled = false;
-                        tick.executing = true;
-
-                        this.executingTicks.add(tick);
-
+                        this.scheduledTicks.remove(tick);
+                        this.selectForExecution(tick);
                         limit--;
 
                         // Avoids the tick being kept in the scheduled queue
@@ -218,126 +264,51 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     }
 
     public void executeTicks(Consumer<ScheduledTick<T>> consumer) {
-        // Mark and execute all executing ticks
-        for (TickEntry<T> tick : this.executingTicks) {
-            try {
+        TickEntry<T> tick = null;
+        try {
+            // Execute all executing ticks
+            ArrayList<TickEntry<T>> ticks = this.executingTicks;
+            for (int i = 0, ticksSize = ticks.size(); i < ticksSize; i++) {
+                tick = ticks.get(i);
+                if (tick == null) {
+                    continue;
+                }
                 // Mark as consumed before execution per vanilla behaviour
-                tick.executing = false;
+                tick.consumed = true;
 
                 // Perform tick execution
                 consumer.accept(tick);
 
-                // If the tick didn't get re-scheduled, we're finished and this tick should be deleted
-                if (!tick.scheduled) {
-                    this.removeTickEntry(tick);
-                }
-            } catch (Throwable e) {
-                CrashReport crash = CrashReport.create(e, "Exception while ticking");
-                CrashReportSection section = crash.addElement("Block being ticked");
-                CrashReportSection.addBlockInfo(section, this.world, tick.pos, null);
-
-                throw new CrashException(crash);
             }
+        } catch (Throwable e) {
+            CrashReport crash = CrashReport.create(e, "Exception while ticking");
+            CrashReportSection section = crash.addElement("Block being ticked");
+            CrashReportSection.addBlockInfo(section, this.world, tick == null ? BlockPos.ORIGIN : tick.pos, null);
+
+            throw new CrashException(crash);
         }
 
 
         // We finished executing those ticks, so empty the list.
         this.executingTicks.clear();
-    }
-
-    private List<ScheduledTick<T>> collectTicks(BlockBox bounds, boolean remove, Predicate<TickEntry<?>> predicate) {
-        List<ScheduledTick<T>> ret = new ArrayList<>();
-
-        int minChunkX = Pos.ChunkCoord.fromBlockCoord(bounds.getMinX());
-        int maxChunkX = Pos.ChunkCoord.fromBlockCoord(bounds.getMaxX());
-
-        int minChunkZ = Pos.ChunkCoord.fromBlockCoord(bounds.getMinZ());
-        int maxChunkZ = Pos.ChunkCoord.fromBlockCoord(bounds.getMaxZ());
-
-        // Iterate over all chunks encompassed by the block box
-        for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
-            for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-                long chunk = ChunkPos.toLong(chunkX, chunkZ);
-
-                Set<TickEntry<T>> set = this.scheduledTicksByChunk.get(chunk);
-
-                if (set == null) {
-                    continue;
-                }
-
-                for (TickEntry<T> tick : set) {
-                    BlockPos pos = tick.pos;
-
-                    // [VanillaCopy] ServerTickScheduler#transferTickInBounds
-                    // The minimum coordinate is include while the maximum coordinate is exclusive
-                    // Possibly a bug in vanilla, but we need to match it here.
-                    if (pos.getX() >= bounds.getMinX() && pos.getX() < bounds.getMaxX() && pos.getZ() >= bounds.getMinZ() && pos.getZ() < bounds.getMaxZ()) {
-                        if (predicate.test(tick)) {
-                            ret.add(tick);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (remove) {
-            for (ScheduledTick<T> tick : ret) {
-                // It's not possible to downcast a collection, so we have to upcast here
-                // This will always succeed
-                this.removeTickEntry((TickEntry<T>) tick);
-            }
-        }
-
-        return ret;
+        this.executingTicksSet.clear();
     }
 
     /**
      * Schedules a tick for execution if it has not already been. To match vanilla, we do not re-schedule matching
      * scheduled ticks which are set to execute at a different time.
      */
-    private void addScheduledTick(ScheduledTick<T> tick) {
-        TickEntry<T> entry = this.scheduledTicks.computeIfAbsent(tick, this::createTickEntry);
-
-        if (!entry.scheduled) {
+    private void scheduleTick(BlockPos pos, T object, long time, TickPriority priority) {
+        TickEntry<T> tick = new TickEntry<>(pos, object, time, priority);
+        boolean added = this.scheduledTicks.add(tick);
+        if (added) {
             TickEntryQueue<T> timeIdx = this.scheduledTicksOrdered.computeIfAbsent(getBucketKey(tick.time, tick.priority), key -> new TickEntryQueue<>());
-            timeIdx.push(entry);
-
-            entry.scheduled = true;
+            timeIdx.push(tick);
         }
     }
 
-    private TickEntry<T> createTickEntry(ScheduledTick<T> tick) {
-        Set<TickEntry<T>> chunkIdx = this.scheduledTicksByChunk.computeIfAbsent(getChunkKey(tick.pos), LithiumServerTickScheduler::createChunkIndex);
-
-        return new TickEntry<>(tick, chunkIdx);
-    }
-
-    private void removeTickEntry(TickEntry<T> tick) {
-        tick.scheduled = false;
-        tick.consumed = true;
-
-        tick.chunkIdx.remove(tick);
-
-        if (tick.chunkIdx.isEmpty()) {
-            this.scheduledTicksByChunk.remove(getChunkKey(tick.pos));
-        }
-
-        this.scheduledTicks.remove(tick);
-    }
-
-    private static <T> Set<TickEntry<T>> createChunkIndex(long pos) {
-        return new ObjectOpenHashSet<>(8);
-    }
-
-    // Computes a chunk key from a block position
-    private static long getChunkKey(BlockPos pos) {
-        return ChunkPos.toLong(Pos.ChunkCoord.fromBlockCoord(pos.getX()), Pos.ChunkCoord.fromBlockCoord(pos.getZ()));
-    }
-
-    // Computes a timestamped key including the tick's priority
-    // Keys can be sorted in descending order to find what should be executed first
-    // 60 time bits, 4 priority bits
-    private static long getBucketKey(long time, TickPriority priority) {
-        return (time << 4L) | (priority.ordinal() & 15);
+    private void selectForExecution(TickEntry<T> tick) {
+        this.executingTicks.add(tick);
+        this.executingTicksSet.add(tick);
     }
 }
