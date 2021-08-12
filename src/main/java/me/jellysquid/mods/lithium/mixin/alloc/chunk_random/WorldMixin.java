@@ -18,7 +18,6 @@ public class WorldMixin implements ChunkRandomSource {
     public void getRandomPosInChunk(int x, int y, int z, int mask, BlockPos.Mutable out) {
         this.lcgBlockSeed = this.lcgBlockSeed * 3 + 1013904223;
         int rand = this.lcgBlockSeed >> 2;
-        //todo 1.17 check y value changes
         out.set(x + (rand & 15), y + (rand >> 16 & mask), z + (rand >> 8 & 15));
     }
 }

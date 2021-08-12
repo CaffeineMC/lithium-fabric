@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(HopperBlock.class)
-//todo maybe only access existing block entities. creating a blockentity here might be observable
 public abstract class HopperBlockMixin extends BlockWithEntity {
 
     protected HopperBlockMixin(Settings settings) {

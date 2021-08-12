@@ -12,7 +12,7 @@ import java.util.List;
  * masks for all Entity classes.
  * Helps to track the entities within a world and provide notifications to listeners when a tracked entity enters or leaves a
  * watched area. This removes the necessity to constantly poll the world for nearby entities each tick and generally
- * provides a sizable boost to performance (todo: actually profile this).
+ * provides a sizable boost to performance of hoppers.
  */
 public abstract class EntityTrackerEngine {
     public static final List<Class<?>> MOVEMENT_NOTIFYING_ENTITY_CLASSES;
