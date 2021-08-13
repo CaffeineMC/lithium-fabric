@@ -25,12 +25,6 @@ public class VoxelShapeEmpty extends VoxelShape implements VoxelShapeCaster {
         return EMPTY_LIST;
     }
 
-    //    @Override
-    //TODO WHERE DID IT GO?
-    protected boolean contains(double x, double y, double z) {
-        return false;
-    }
-
     @Override
     public double getMin(Direction.Axis axis) {
         return Double.POSITIVE_INFINITY;
