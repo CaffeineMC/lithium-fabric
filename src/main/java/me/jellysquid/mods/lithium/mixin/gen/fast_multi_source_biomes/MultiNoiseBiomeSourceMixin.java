@@ -1,7 +1,9 @@
 package me.jellysquid.mods.lithium.mixin.gen.fast_multi_source_biomes;
 
 import com.mojang.datafixers.util.Pair;
+import me.jellysquid.mods.lithium.common.util.collections.BiomeMixedNoisePointKDTree;
 import net.minecraft.util.math.noise.DoublePerlinNoiseSampler;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BuiltinBiomes;
 import net.minecraft.world.biome.source.MultiNoiseBiomeSource;
@@ -9,8 +11,11 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
+import java.util.*;
 import java.util.function.Supplier;
 
 @Mixin(MultiNoiseBiomeSource.class)
@@ -39,9 +44,24 @@ public class MultiNoiseBiomeSourceMixin {
     @Final
     private List<Pair<Biome.MixedNoisePoint, Supplier<Biome>>> biomePoints;
 
+    private BiomeMixedNoisePointKDTree kdTree;
+    private Map<Biome.MixedNoisePoint, Supplier<Biome>> pointMap;
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    @Inject(method = "<init>(JLjava/util/List;Lnet/minecraft/world/biome/source/MultiNoiseBiomeSource$NoiseParameters;Lnet/minecraft/world/biome/source/MultiNoiseBiomeSource$NoiseParameters;Lnet/minecraft/world/biome/source/MultiNoiseBiomeSource$NoiseParameters;Lnet/minecraft/world/biome/source/MultiNoiseBiomeSource$NoiseParameters;Ljava/util/Optional;)V", at = @At("RETURN"))
+    public void buildKDTree(long seed, List<Pair<Biome.MixedNoisePoint, Supplier<Biome>>> biomePoints, MultiNoiseBiomeSource.NoiseParameters temperatureNoiseParameters, MultiNoiseBiomeSource.NoiseParameters humidityNoiseParameters, MultiNoiseBiomeSource.NoiseParameters altitudeNoiseParameters, MultiNoiseBiomeSource.NoiseParameters weirdnessNoiseParameters, Optional<Pair<Registry<Biome>, MultiNoiseBiomeSource.Preset>> instance, CallbackInfo ci) {
+        List<Biome.MixedNoisePoint> points = new ArrayList<>(biomePoints.size());
+        pointMap = new HashMap<>(biomePoints.size());
+        for (var point : biomePoints) {
+            points.add(point.getFirst());
+            pointMap.put(point.getFirst(), point.getSecond());
+        }
+        this.kdTree = BiomeMixedNoisePointKDTree.build(points);
+    }
+
     /**
-     * @reason Remove stream based code in favor of regular collections.
-     * @author SuperCoder79
+     * @reason Use kd-tree to speed up nearest-neighbor biome search
+     * @author magneticflux-
      */
     @Overwrite
     public Biome getBiomeForNoiseGen(int biomeX, int biomeY, int biomeZ) {
@@ -59,21 +79,8 @@ public class MultiNoiseBiomeSourceMixin {
                 0.0F
         );
 
-        int idx = -1;
-        float min = Float.POSITIVE_INFINITY;
-
-        // Iterate through the biome points and calculate the distance to the current noise point.
-        for (int i = 0; i < this.biomePoints.size(); i++) {
-            float distance = this.biomePoints.get(i).getFirst().calculateDistanceTo(mixedNoisePoint);
-
-            // If the distance is less than the recorded minimum, update the minimum and set the current index.
-            if (min > distance) {
-                idx = i;
-                min = distance;
-            }
-        }
-
-        // Return the biome with the noise point closest to the evaluated one.
-        return this.biomePoints.get(idx).getSecond().get() == null ? BuiltinBiomes.THE_VOID : this.biomePoints.get(idx).getSecond().get();
+        Biome.MixedNoisePoint nearest = kdTree.nearestBiomeTo(mixedNoisePoint);
+        Biome value = pointMap.get(nearest).get();
+        return value != null ? value : BuiltinBiomes.THE_VOID;
     }
 }

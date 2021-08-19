@@ -34,3 +34,10 @@ accessible field net/minecraft/util/math/MathHelper SINE_TABLE [F
 
 accessible class net/minecraft/server/world/ServerWorld$ServerEntityHandler
 accessible method net/minecraft/world/World isInvalidVertically (I)Z
+
+accessible class net/minecraft/world/biome/source/MultiNoiseBiomeSource$NoiseParameters
+accessible field net/minecraft/world/biome/Biome$MixedNoisePoint temperature F
+accessible field net/minecraft/world/biome/Biome$MixedNoisePoint humidity F
+accessible field net/minecraft/world/biome/Biome$MixedNoisePoint altitude F
+accessible field net/minecraft/world/biome/Biome$MixedNoisePoint weirdness F
+accessible field net/minecraft/world/biome/Biome$MixedNoisePoint weight F
