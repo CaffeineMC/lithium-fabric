@@ -1,30 +1,35 @@
 package me.jellysquid.mods.lithium.common.util.collections;
 
+import com.google.common.math.Stats;
 import net.minecraft.world.biome.Biome;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 
 /**
  * A kd-tree for the 5D {@link Biome.MixedNoisePoint} class.
  */
 public interface BiomeMixedNoisePointKDTree {
-    int K = 5;
     Axis[] AXIS_VALUES = Axis.values();
 
     static BiomeMixedNoisePointKDTree build(List<Biome.MixedNoisePoint> biomePoints) {
         return build(biomePoints, 0);
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     private static Node build(List<Biome.MixedNoisePoint> biomePoints, int depth) {
         if (biomePoints.isEmpty()) {
             return null;
         }
 
-        Axis axis = AXIS_VALUES[depth % K];
+        // Split on the axis with the most variance first to reduce worst-case performance
+        Axis axis = Stream.of(AXIS_VALUES).max(
+                Comparator.comparing((a) -> Stats.of(biomePoints.stream().mapToDouble(a::apply).toArray()).populationVariance())
+        ).orElseThrow();
 
         biomePoints.sort(axis);
 
