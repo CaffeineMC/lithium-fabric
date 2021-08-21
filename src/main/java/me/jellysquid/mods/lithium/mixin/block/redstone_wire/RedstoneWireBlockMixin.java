@@ -55,7 +55,7 @@ import net.minecraft.world.World;
 public class RedstoneWireBlockMixin extends Block {
     
     private static final Direction[] DIRECTIONS = Direction.values();
-    private static final Direction[] DIRECTIONS_VIRTICAL = { Direction.DOWN, Direction.UP };
+    private static final Direction[] DIRECTIONS_VERTICAL = { Direction.DOWN, Direction.UP };
     private static final Direction[] DIRECTIONS_HORIZONTAL = { Direction.WEST, Direction.EAST, Direction.NORTH, Direction.SOUTH };
     
     private static final int MIN = 0;            // smallest possible power value
@@ -75,7 +75,6 @@ public class RedstoneWireBlockMixin extends Block {
     )
     private void getReceivedPowerFaster(World world, BlockPos pos, CallbackInfoReturnable<Integer> cir) {
         cir.setReturnValue(this.getReceivedPower(world, pos));
-        cir.cancel();
     }
     
     /**
@@ -85,7 +84,7 @@ public class RedstoneWireBlockMixin extends Block {
     private int getReceivedPower(World world, BlockPos pos) {
         int power = MIN;
         
-        for (Direction dir : DIRECTIONS_VIRTICAL) {
+        for (Direction dir : DIRECTIONS_VERTICAL) {
             power = Math.max(power, this.getPowerFromVertical(world, pos.offset(dir), dir));
             
             if (power >= MAX) {
