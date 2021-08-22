@@ -94,7 +94,7 @@ public class RedstoneWireBlockMixin extends Block {
         
         // In vanilla this check is done up to 4 times.
         BlockPos up = pos.up();
-        boolean checkWiresAbove = world.getBlockState(up).isSolidBlock(world, up);
+        boolean checkWiresAbove = !world.getBlockState(up).isSolidBlock(world, up);
         
         for (Direction dir : DIRECTIONS_HORIZONTAL) {
             power = Math.max(power, this.getPowerFromSide(world, pos.offset(dir), dir, checkWiresAbove));
