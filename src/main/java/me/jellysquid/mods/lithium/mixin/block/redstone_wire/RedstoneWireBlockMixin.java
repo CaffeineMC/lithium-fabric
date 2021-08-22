@@ -12,6 +12,7 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.WorldChunk;
 
 /**
  * Optimizing redstone dust is tricky, but even more so if you wish to preserve behavior
@@ -82,19 +83,28 @@ public class RedstoneWireBlockMixin extends Block {
      * blocks around it.
      */
     private int getReceivedPower(World world, BlockPos pos) {
+        WorldChunk chunk = world.getWorldChunk(pos);
         int power = MIN;
         
         for (Direction dir : DIRECTIONS_VERTICAL) {
-            power = Math.max(power, this.getPowerFromVertical(world, pos.offset(dir), dir));
+            BlockPos side = pos.offset(dir);
+            BlockState neighbor = chunk.getBlockState(side);
             
-            if (power >= MAX) {
-                return MAX;
+            // Wires do not accept power from other wires directly above or below them,
+            // so those can be ignored. Similarly, if there is air directly above or
+            // below a wire, it does not receive any power from that direction.
+            if (!neighbor.isAir() && !neighbor.isOf(this)) {
+                power = Math.max(power, this.getPowerFromVertical(world, side, neighbor, dir));
+                
+                if (power >= MAX) {
+                    return MAX;
+                }
             }
         }
         
         // In vanilla this check is done up to 4 times.
         BlockPos up = pos.up();
-        boolean checkWiresAbove = !world.getBlockState(up).isSolidBlock(world, up);
+        boolean checkWiresAbove = !chunk.getBlockState(up).isSolidBlock(world, up);
         
         for (Direction dir : DIRECTIONS_HORIZONTAL) {
             power = Math.max(power, this.getPowerFromSide(world, pos.offset(dir), dir, checkWiresAbove));
@@ -112,16 +122,7 @@ public class RedstoneWireBlockMixin extends Block {
      * We do these positions separately because there are no wire connections
      * vertically. This simplifies the calculations a little.
      */
-    private int getPowerFromVertical(World world, BlockPos pos, Direction toDir) {
-        BlockState state = world.getBlockState(pos);
-        
-        // Wires do not accept power from other wires directly above or below them,
-        // so those can be ignored. Similarly, if there is air directly above or
-        // below a wire, it does not receive any power from that direction.
-        if (state.isOf(this) || state.isAir()) {
-            return MIN;
-        }
-        
+    private int getPowerFromVertical(World world, BlockPos pos, BlockState state, Direction toDir) {
         int power = state.getWeakRedstonePower(world, pos, toDir);
         
         if (power >= MAX) {
@@ -139,7 +140,8 @@ public class RedstoneWireBlockMixin extends Block {
      * Calculate the redstone power a wire receives from blocks next to it.
      */
     private int getPowerFromSide(World world, BlockPos pos, Direction toDir, boolean checkWiresAbove) {
-        BlockState state = world.getBlockState(pos);
+        WorldChunk chunk = world.getWorldChunk(pos);
+        BlockState state = chunk.getBlockState(pos);
         
         if (state.isOf(this)) {
             return state.get(Properties.POWER) - 1;
@@ -160,7 +162,7 @@ public class RedstoneWireBlockMixin extends Block {
             
             if (checkWiresAbove && power < MAX_WIRE) {
                 BlockPos up = pos.up();
-                BlockState aboveState = world.getBlockState(up);
+                BlockState aboveState = chunk.getBlockState(up);
                 
                 if (aboveState.isOf(this)) {
                     power = Math.max(power, aboveState.get(Properties.POWER) - 1);
@@ -168,7 +170,7 @@ public class RedstoneWireBlockMixin extends Block {
             }
         } else if (power < MAX_WIRE) {
             BlockPos down = pos.down();
-            BlockState belowState = world.getBlockState(down);
+            BlockState belowState = chunk.getBlockState(down);
             
             if (belowState.isOf(this)) {
                 power = Math.max(power, belowState.get(Properties.POWER) - 1);
@@ -189,7 +191,7 @@ public class RedstoneWireBlockMixin extends Block {
                 BlockPos side = pos.offset(dir);
                 BlockState neighbor = world.getBlockState(side);
                 
-                if (!neighbor.isOf(this) && !neighbor.isAir()) {
+                if (!neighbor.isAir() && !neighbor.isOf(this)) {
                     power = Math.max(power, neighbor.getStrongRedstonePower(world, side, dir));
                     
                     if (power >= MAX) {
