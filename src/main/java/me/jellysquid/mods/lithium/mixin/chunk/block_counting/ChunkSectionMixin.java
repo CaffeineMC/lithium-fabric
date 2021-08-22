@@ -72,12 +72,11 @@ public abstract class ChunkSectionMixin implements SectionFlagHolder {
                     ordinal = 0,
                     shift = At.Shift.BEFORE
             ),
-            locals = LocalCapture.CAPTURE_FAILHARD,
-            cancellable = true
+            locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private void updateFlagCounters(int x, int y, int z, BlockState state, boolean lock, CallbackInfoReturnable<BlockState> cir, BlockState blockState2) {
-        int prevFlags = ((BlockStateFlagHolder) blockState2).getAllFlags();
-        int flags = ((BlockStateFlagHolder) state).getAllFlags();
+    private void updateFlagCounters(int x, int y, int z, BlockState newState, boolean lock, CallbackInfoReturnable<BlockState> cir, BlockState oldState) {
+        int prevFlags = ((BlockStateFlagHolder) oldState).getAllFlags();
+        int flags = ((BlockStateFlagHolder) newState).getAllFlags();
 
         //no need to update indices that did not change
         int flagsXOR = prevFlags ^ flags;
