@@ -2,15 +2,23 @@ package me.jellysquid.mods.lithium.mixin.shapes.lazy_shape_context;
 
 import net.minecraft.block.EntityShapeContext;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -79,25 +87,38 @@ public class EntityShapeContextMixin {
         this.boots = null;
     }
 
-    /**
-     * @author 2No2Name
-     * @reason allow skipping unused initialization
-     */
-    @Overwrite
-    public boolean isHolding(Item item) {
-        if (this.heldItem == null) {
-            this.heldItem = this.entity.isPresent() && this.entity.get() instanceof LivingEntity ? ((LivingEntity)this.entity.get()).getMainHandStack() : ItemStack.EMPTY;
+    @Inject(
+            method = "isWearingOnFeet(Lnet/minecraft/item/Item;)Z",
+            at = @At("HEAD")
+    )
+    public void isWearingOnFeet(Item item, CallbackInfoReturnable<Boolean> cir) {
+        if (this.boots == null) {
+            this.boots = this.entity.isPresent() && this.entity.get() instanceof LivingEntity ? ((LivingEntity) this.entity.get()).getEquippedStack(EquipmentSlot.FEET) : ItemStack.EMPTY;
         }
-        return this.heldItem.isOf(item);
     }
 
+    @Inject(
+            method = "isHolding(Lnet/minecraft/item/Item;)Z",
+            at = @At("HEAD")
+    )
+    public void isHolding(Item item, CallbackInfoReturnable<Boolean> cir) {
+        if (this.heldItem == null) {
+            this.heldItem = this.entity.isPresent() && this.entity.get() instanceof LivingEntity ? ((LivingEntity) this.entity.get()).getMainHandStack() : ItemStack.EMPTY;
+        }
+    }
 
-    /**
-     * @author 2No2Name
-     * @reason allow skipping unused lambda allocation
-     */
-    @Overwrite
-    public boolean canWalkOnFluid(FluidState aboveState, FlowableFluid fluid) {
-        return this.entity.isPresent() && this.entity.get() instanceof LivingEntity && ((LivingEntity) this.entity.get()).canWalkOnFluid(fluid) && !aboveState.getFluid().matchesType(fluid);
+    @Inject(
+            method = "canWalkOnFluid(Lnet/minecraft/fluid/FluidState;Lnet/minecraft/fluid/FlowableFluid;)Z",
+            at = @At("HEAD")
+    )
+    public void canWalkOnFluid(FluidState state, FlowableFluid fluid, CallbackInfoReturnable<Boolean> cir) {
+        if (this.walkOnFluidPredicate == null) {
+            Entity entity = this.entity.orElse(null);
+            if (entity instanceof LivingEntity livingEntity) {
+                this.walkOnFluidPredicate = livingEntity::canWalkOnFluid;
+            } else {
+                this.walkOnFluidPredicate = (liquid) -> false;
+            }
+        }
     }
 }
