@@ -96,7 +96,6 @@ public class LithiumConfig {
         this.addMixinRule("gen.fast_multi_source_biomes", true);
         this.addMixinRule("gen.features", true);
         this.addMixinRule("gen.perlin_noise", true);
-        this.addMixinRule("gen.voronoi_biomes", true);
 
         this.addMixinRule("item", true);
 

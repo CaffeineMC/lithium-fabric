@@ -126,7 +126,6 @@
     "gen.fast_multi_source_biomes.MultiNoiseBiomeSourceMixin",
     "gen.features.StructureFeatureMixin",
     "gen.perlin_noise.PerlinNoiseSamplerMixin",
-    "gen.voronoi_biomes.VoronoiBiomeAccessTypeMixin",
     "item.ItemStackMixin",
     "math.fast_blockpos.BlockPosMixin",
     "math.fast_blockpos.DirectionMixin",
