@@ -24,6 +24,12 @@ bin/
 
 run/*
 
+# macOS
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
 # lithium
 
 testserver/*
