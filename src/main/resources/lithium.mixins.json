@@ -78,6 +78,7 @@
     "block.moving_block_shapes.PistonBlockEntityMixin",
     "block.moving_block_shapes.VoxelShapeMixin",
     "cached_hashcode.BlockNeighborGroupMixin",
+    "chunk.block_change_counting.ChunkSectionMixin",
     "chunk.block_counting.AbstractBlockStateMixin",
     "chunk.block_counting.ChunkSectionMixin",
     "chunk.entity_class_groups.EntityTrackingSectionAccessor",
