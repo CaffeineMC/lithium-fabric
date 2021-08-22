@@ -89,7 +89,6 @@
     "gen.fast_noise_interpolation.NoiseChunkGeneratorMixin",
     "gen.features.StructureFeatureMixin",
     "gen.perlin_noise.PerlinNoiseSamplerMixin",
-    "gen.voronoi_biomes.VoronoiBiomeAccessTypeMixin",
     "math.fast_blockpos.BlockPosMixin",
     "math.fast_blockpos.DirectionMixin",
     "math.fast_util.AxisCycleDirectionMixin$BackwardMixin",
