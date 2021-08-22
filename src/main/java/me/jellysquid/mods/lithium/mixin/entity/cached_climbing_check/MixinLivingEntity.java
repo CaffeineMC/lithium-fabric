@@ -8,6 +8,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.CollisionView;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkSection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -41,10 +42,14 @@ public abstract class MixinLivingEntity extends Entity {
             if (chunk != null) {
                 SectionModCounter section = (SectionModCounter) chunk.getSectionArray()[Pos.SectionYIndex.fromBlockCoord(world, blockY)];
 
-                if (section.isUnchanged(lastClimbingUpdate)) {
-                    cir.setReturnValue(cachedClimbing);
+                if (!ChunkSection.isEmpty((ChunkSection) section)) {
+                    if (section.isUnchanged(lastClimbingUpdate)) {
+                        cir.setReturnValue(cachedClimbing);
+                    }
+                    lastClimbingUpdate = section.getModCount();
+                } else {
+                    lastClimbingUpdate = Long.MAX_VALUE;
                 }
-                lastClimbingUpdate = section.getModCount();
             }
         }
     }
