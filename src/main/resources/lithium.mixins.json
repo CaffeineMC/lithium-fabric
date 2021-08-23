@@ -49,6 +49,7 @@
     "block.flatten_states.FluidStateMixin",
     "block.moving_block_shapes.PistonBlockEntityMixin",
     "block.moving_block_shapes.VoxelShapeMixin",
+    "block.redstone_wire.RedstoneWireBlockMixin",
     "cached_hashcode.BlockNeighborGroupMixin",
     "chunk.count_oversized_blocks.ChunkSectionMixin",
     "chunk.entity_class_groups.TypeFilterableListMixin",
