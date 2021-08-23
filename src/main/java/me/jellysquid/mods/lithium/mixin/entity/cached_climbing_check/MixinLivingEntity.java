@@ -5,6 +5,7 @@ import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.CollisionView;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -28,7 +29,7 @@ public abstract class MixinLivingEntity extends Entity {
      */
     @Override
     public void setPosition(double x, double y, double z) {
-        if (this.getX() != x || this.getY() != y || this.getZ() != z) {
+        if (this.getBlockX() != MathHelper.floor(x) || this.getBlockY() != MathHelper.floor(y) || this.getBlockZ() != MathHelper.floor(z)) {
             lastClimbingUpdate = Long.MAX_VALUE;
         }
         super.setPosition(x, y, z);
