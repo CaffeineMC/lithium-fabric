@@ -43,6 +43,7 @@
     "alloc.enum_values.LivingEntityMixin",
     "alloc.enum_values.PistonBlockMixin",
     "alloc.enum_values.PistonHandlerMixin",
+    "alloc.enum_values.RedstoneWireBlockMixin",
     "alloc.explosion_behavior.EntityExplosionBehaviorMixin",
     "alloc.world_ticking.ServerWorldMixin",
     "block.flatten_states.AbstractBlockStateMixin",
