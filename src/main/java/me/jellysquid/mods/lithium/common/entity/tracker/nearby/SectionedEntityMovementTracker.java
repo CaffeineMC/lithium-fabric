@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
+import it.unimi.dsi.fastutil.HashCommon;
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngine;
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerSection;
 import me.jellysquid.mods.lithium.common.util.tuples.WorldSectionBox;
@@ -29,6 +30,18 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
         this.trackedWorldSections = interactionChunks;
         this.trackedClass = EntityTrackerEngine.MOVEMENT_NOTIFYING_ENTITY_CLASSES.indexOf(clazz);
         assert this.trackedClass != -1;
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCommon.mix(this.trackedWorldSections.hashCode()) ^ HashCommon.mix(this.trackedClass) ^ this.getClass().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj.getClass() == this.getClass() &&
+                this.clazz == ((SectionedEntityMovementTracker<?, ?>) obj).clazz &&
+                this.trackedWorldSections.equals(((SectionedEntityMovementTracker<?, ?>) obj).trackedWorldSections);
     }
 
     /**
@@ -96,6 +109,9 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
         assert this.timesRegistered == 0;
         //noinspection unchecked
         SectionedEntityCache<E> cache = ((ServerEntityManagerAccessor<E>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
+        MovementTrackerCache storage = (MovementTrackerCache) cache;
+        storage.remove(this);
+
         ArrayList<EntityTrackingSection<E>> sections = this.sortedSections;
         for (int i = sections.size() - 1; i >= 0; i--) {
             EntityTrackingSection<E> section = sections.get(i);

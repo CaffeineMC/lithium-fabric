@@ -1,34 +1,31 @@
 package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceArrayMap;
 import me.jellysquid.mods.lithium.common.util.collections.BucketedList;
 import me.jellysquid.mods.lithium.common.util.tuples.WorldSectionBox;
+import me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking.ServerEntityManagerAccessor;
+import me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking.ServerWorldAccessor;
 import me.jellysquid.mods.lithium.mixin.block.hopper.EntityTrackingSectionAccessor;
 import net.minecraft.entity.Entity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.math.Box;
-import net.minecraft.world.World;
 
 import java.util.List;
-import java.util.WeakHashMap;
 
 public class SectionedItemEntityMovementTracker<S extends Entity> extends SectionedEntityMovementTracker<Entity, S> {
-    private static final WeakHashMap<World, Reference2ReferenceArrayMap<Class<?>, WeakHashMap<WorldSectionBox, SectionedItemEntityMovementTracker<?>>>> trackersByPositionByClassByWorld = new WeakHashMap<>();
 
     public SectionedItemEntityMovementTracker(WorldSectionBox worldSectionBox, Class<S> clazz) {
         super(worldSectionBox, clazz);
     }
 
-    public static <S extends Entity> SectionedItemEntityMovementTracker<S> getOrCreate(World world, Box encompassingBox, Class<S> clazz) {
+    public static <S extends Entity> SectionedItemEntityMovementTracker<S> registerAt(ServerWorld world, Box encompassingBox, Class<S> clazz) {
+        MovementTrackerCache cache = (MovementTrackerCache) ((ServerEntityManagerAccessor<?>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
+
         WorldSectionBox worldSectionBox = WorldSectionBox.entityAccessBox(world, encompassingBox);
-        Reference2ReferenceArrayMap<Class<?>, WeakHashMap<WorldSectionBox, SectionedItemEntityMovementTracker<?>>> trackersByPositionByClass = trackersByPositionByClassByWorld.computeIfAbsent(world, world1 -> new Reference2ReferenceArrayMap<>());
-        WeakHashMap<WorldSectionBox, SectionedItemEntityMovementTracker<?>> trackersByPosition = trackersByPositionByClass.computeIfAbsent(clazz, aClass -> new WeakHashMap<>(1));
-        //noinspection unchecked
-        SectionedItemEntityMovementTracker<S> tracker = (SectionedItemEntityMovementTracker<S>) trackersByPosition.get(worldSectionBox);
-        if (tracker == null) {
-            tracker = new SectionedItemEntityMovementTracker<>(worldSectionBox, clazz);
-            trackersByPosition.put(worldSectionBox, tracker);
-        }
+        SectionedItemEntityMovementTracker<S> tracker = new SectionedItemEntityMovementTracker<>(worldSectionBox, clazz);
+        tracker = cache.deduplicate(tracker);
+
+        tracker.register(world);
         return tracker;
     }
 

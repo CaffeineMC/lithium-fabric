@@ -458,6 +458,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     }
 
     private void initExtractItemEntityTracker() {
+        assert world instanceof ServerWorld;
         List<Box> list = new ArrayList<>();
         Box encompassingBox = null;
         for (Box box : this.getInputAreaShape().getBoundingBoxes()) {
@@ -472,13 +473,12 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         list.add(encompassingBox);
         this.extractItemEntityBoxes = list.toArray(new Box[0]);
         this.extractItemEntityTracker =
-                SectionedItemEntityMovementTracker.getOrCreate(
-                        this.world,
+                SectionedItemEntityMovementTracker.registerAt(
+                        (ServerWorld) this.world,
                         encompassingBox,
                         ItemEntity.class
                 );
         this.extractItemEntityAttemptTime = Long.MIN_VALUE;
-        this.extractItemEntityTracker.register((ServerWorld) this.world);
     }
 
     private void initExtractInventoryTracker(World world) {
@@ -486,13 +486,12 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         BlockPos pos = this.pos.offset(Direction.UP);
         this.extractInventoryEntityBox = new Box(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
         this.extractInventoryEntityTracker =
-                SectionedInventoryEntityMovementTracker.getOrCreate(
-                        this.world,
+                SectionedInventoryEntityMovementTracker.registerAt(
+                        (ServerWorld) this.world,
                         this.extractInventoryEntityBox,
                         Inventory.class
                 );
         this.extractInventoryEntityAttemptTime = Long.MIN_VALUE;
-        this.extractInventoryEntityTracker.register((ServerWorld) world);
     }
 
     private void initInsertInventoryTracker(World world, BlockState hopperState) {
@@ -501,13 +500,12 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         BlockPos pos = this.pos.offset(direction);
         this.insertInventoryEntityBox = new Box(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
         this.insertInventoryEntityTracker =
-                SectionedInventoryEntityMovementTracker.getOrCreate(
-                        this.world,
+                SectionedInventoryEntityMovementTracker.registerAt(
+                        (ServerWorld) this.world,
                         this.insertInventoryEntityBox,
                         Inventory.class
                 );
         this.insertInventoryEntityAttemptTime = Long.MIN_VALUE;
-        this.insertInventoryEntityTracker.register((ServerWorld) world);
     }
 
     @SuppressWarnings("deprecation")
