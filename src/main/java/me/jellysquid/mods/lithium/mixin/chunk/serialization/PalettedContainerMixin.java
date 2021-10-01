@@ -98,7 +98,7 @@ public abstract class PalettedContainerMixin<T> {
             ((CompactingPackedIntegerArray) this.data).compact(this.palette, compactedPalette, array);
 
             // If the palette didn't change during compaction, do a simple copy of the data array
-            if (palette != null && palette.getSize() == compactedPalette.getSize()) {
+            if (palette != null && palette.getSize() == compactedPalette.getSize() && this.paletteSize == Math.max(4, MathHelper.log2DeBruijn(palette.getSize()))) { // paletteSize can de-sync from palette - see https://github.com/CaffeineMC/lithium-fabric/issues/279
                 dataArray = this.data.getStorage().clone();
             } else {
                 // Re-pack the integer array as the palette has changed size
