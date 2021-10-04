@@ -44,7 +44,7 @@ public abstract class SectionedEntityCacheMixin<T> {
             }
 
             int bound = Math.min(-1, maxZ);
-            for (int z = minY; z <= bound; z++) {
+            for (int z = minZ; z <= bound; z++) {
                 this.forEachInColumn(x, minY, maxY, z, action);
             }
         }
