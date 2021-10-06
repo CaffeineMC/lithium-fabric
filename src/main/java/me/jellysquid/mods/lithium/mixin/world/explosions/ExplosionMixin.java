@@ -65,9 +65,8 @@ public abstract class ExplosionMixin {
     // The cached mutable block position used during block traversal.
     private final BlockPos.Mutable cachedPos = new BlockPos.Mutable();
 
-    private BlockPos posOrigin;
     //cached block and blast resistance
-    private final HashMap<Vec3i,Pair<Float,BlockState>> blockAndBlastResCache=new HashMap<>();
+    private final HashMap<BlockPos,Pair<Float,BlockState>> blockAndBlastResCache=new HashMap<>();
 
     // The chunk coordinate of the most recently stepped through block.
     private int prevChunkX = Integer.MIN_VALUE;
@@ -90,7 +89,6 @@ public abstract class ExplosionMixin {
             at = @At("TAIL")
     )
     private void init(World world, Entity entity, DamageSource damageSource, ExplosionBehavior explosionBehavior, double d, double e, double f, float g, boolean bl, Explosion.DestructionType destructionType, CallbackInfo ci) {
-        this.posOrigin=new BlockPos(floor(d),floor(e),floor(f));
         this.minY = this.world.getBottomY();
         this.maxY = this.world.getTopY();
 
@@ -240,15 +238,12 @@ public abstract class ExplosionMixin {
      */
     private float traverseBlock(float strength, int blockX, int blockY, int blockZ, LongOpenHashSet touched) {
         BlockPos pos = this.cachedPos.set(blockX, blockY, blockZ);
-        int relX=pos.getX()-this.posOrigin.getX();
-        int relY=pos.getY()-this.posOrigin.getY();
-        int relZ=pos.getZ()-this.posOrigin.getZ();
-        Pair<Float,BlockState> blockAndBlastRes = this.blockAndBlastResCache.get(new Vec3i(relX,relY,relZ));
+        Pair<Float,BlockState> blockAndBlastRes = this.blockAndBlastResCache.get(pos);
         //test if the block is cached
         if(blockAndBlastRes==null) {
             //compute values and cache
             blockAndBlastRes = getBlockAndBlastRes(blockX,blockY,blockZ);
-            this.blockAndBlastResCache.put(new Vec3i(relX,relY,relZ),blockAndBlastRes);
+            this.blockAndBlastResCache.put(pos,blockAndBlastRes);
         }
         // Check if this ray is still strong enough to break blocks if not out of bound, and if so, add this position to the set
         // of positions to destroy
