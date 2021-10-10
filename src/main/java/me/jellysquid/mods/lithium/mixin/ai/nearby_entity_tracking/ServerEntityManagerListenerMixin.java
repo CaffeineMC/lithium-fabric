@@ -40,13 +40,14 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(ServerEntityManager<?> outer, T entityLike, long l, EntityTrackingSection<T> entityTrackingSection, CallbackInfo ci) {
         this.notificationMask = EntityTrackerEngine.getNotificationMask(this.entity.getClass());
+
+        //Fix #284 Summoned inventory minecarts do not immediately notify hoppers of their presence when created using summon command
+        this.notifyMovementListeners();
     }
 
     @ModifyVariable(method = "updateEntityPosition()V", at = @At("RETURN"))
     private long updateEntityTrackerEngine(long sectionPos) {
-        if (this.notificationMask != 0) {
-            ((EntityTrackerSection) this.section).updateMovementTimestamps(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
-        }
+        this.notifyMovementListeners();
         return sectionPos;
     }
 
@@ -70,9 +71,7 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
                     ChunkSectionPos.from(newPos)
             );
         }
-        if (this.notificationMask != 0) {
-            ((EntityTrackerSection) this.section).updateMovementTimestamps(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
-        }
+        this.notifyMovementListeners();
     }
 
     @Inject(
@@ -83,8 +82,7 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
     )
     private void onRemoveEntity(Entity.RemovalReason reason, CallbackInfo ci) {
         NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) this.entity).getListener();
-        if (listener != null)
-        {
+        if (listener != null) {
             //noinspection unchecked
             listener.forEachChunkInRangeChange(
                     ((ServerEntityManagerAccessor<T>) this.manager).getCache(),
@@ -92,6 +90,10 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
                     null
             );
         }
+        this.notifyMovementListeners();
+    }
+
+    private void notifyMovementListeners() {
         if (this.notificationMask != 0) {
             ((EntityTrackerSection) this.section).updateMovementTimestamps(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
         }
