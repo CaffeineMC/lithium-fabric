@@ -13,7 +13,7 @@ jobs:
               with:
                   distribution: 'temurin'
                   java-version: 16
-                  cache: 'gradle'
+                  cache: 'maven'
           -   name: Grant execute permission for gradlew
               run: chmod +x gradlew
           -   name: Build with Gradle
