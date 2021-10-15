@@ -5,9 +5,9 @@ plugins {
     id 'maven-publish'
 }
 
-minecraft {
-    accessWidener = file("src/main/resources/lithium.accesswidener")
-    refmapName = "mixins.lithium.refmap.json"
+loom {
+    accessWidenerPath = file("src/main/resources/lithium.accesswidener")
+    mixin.defaultRefmapName = "mixins.lithium.refmap.json"
 }
 
 apply plugin: 'fabric-loom'
