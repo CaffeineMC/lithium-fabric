@@ -1,7 +1,15 @@
+on: [ push, pull_request ]
+
 version: 2
 updates:
-  - package-ecosystem: "java:gradle"
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
-    open-pull-requests-limit: 750
+
+  # Maintain dependencies for npm
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "daily"
