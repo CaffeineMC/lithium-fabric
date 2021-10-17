@@ -96,7 +96,7 @@ public class WorldUpdaterMixin {
                             }
                             while (bitsPerState > Math.max(4, MathHelper.log2DeBruijn(palette.size())));
 
-                            LOGGER.info("Lithium chunk section palette fixer: Palette was too large, fixed by adding more entries!");
+                            LOGGER.info("Lithium chunk section palette fixer: Palette was too small, fixed by adding more entries!");
                         }
                     }
                     if (editedSection) {
