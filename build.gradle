@@ -71,9 +71,10 @@ loom {
 
 
 dependencies {
-    minecraft "com.mojang:minecraft:1.17.1"
-    mappings "net.fabricmc:yarn:1.17.1+build.63:v2"
-    modImplementation "net.fabricmc:fabric-loader:0.12.3"
+    //To change the versions see the gradle.properties file
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
  
     //Other dependencies
     modImplementation 'com.github.2No2Name:McTester:v0.2.3'
