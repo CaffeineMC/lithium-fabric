@@ -5,6 +5,7 @@ import com.google.common.collect.UnmodifiableIterator;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.storage.VersionedChunkStorage;
@@ -50,8 +51,8 @@ public class WorldUpdaterMixin {
             boolean editedSection = false;
 
             NbtList sectionList = nbtCompound2.getCompound("Level").getList("Sections", 10);
-            for (int j = 0, sectionListSize = sectionList.size(); j < sectionListSize; j++) {
-                NbtCompound section = sectionList.getCompound(j);
+            for (int y = 0, sectionListSize = sectionList.size(); y < sectionListSize; y++) {
+                NbtCompound section = sectionList.getCompound(y);
                 long[] blockStates = section.getLongArray("BlockStates");
                 NbtList palette = section.getList("Palette", 10);
                 if (palette.size() > 0 && blockStates.length > 0) {
@@ -61,7 +62,7 @@ public class WorldUpdaterMixin {
                     int expectedDataSize = MathHelper.ceil(4096 / (double) expectedStatesPerLong);
                     //fix mismatched sizes. 1.18 vanilla
                     if (expectedDataSize != blockStates.length) {
-                        LOGGER.info("Lithium chunk section palette fixer: Detected bits per blockstate mismatch in palette/data at {}.", chunkPos);
+                        LOGGER.info("Lithium chunk section palette fixer: Detected bits per blockstate mismatch in palette/data at {}.", ChunkSectionPos.from(chunkPos.x, y, chunkPos.z));
 
                         //find out how large the palette needs to be
                         int bitsPerState = 1;
@@ -80,13 +81,8 @@ public class WorldUpdaterMixin {
                         //resize the palette to match the data array
                         int maxPaletteSize = 1 << bitsPerState;
                         if (maxPaletteSize < palette.size()) {
-                            // the palette is too large, drop high indices which cannot be addressed anyways
-                            do {
-                                palette.remove(palette.size() - 1);
-                                editedSection = true;
-                            } while (maxPaletteSize < palette.size());
-
-                            LOGGER.info("Lithium chunk section palette fixer: Palette was too large, fixed by truncating!");
+                            // the palette is too large, this issue isn't caused by previous lithium versions
+                            LOGGER.info("Lithium chunk section palette fixer: Palette is too large, not fixing this issue!");
                         }
                         if (bitsPerState > Math.max(4, MathHelper.log2DeBruijn(palette.size()))) {
                             // the palette is too small, duplicate the first entry
