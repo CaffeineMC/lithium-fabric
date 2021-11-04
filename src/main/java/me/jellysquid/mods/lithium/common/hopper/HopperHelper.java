@@ -74,10 +74,8 @@ public class HopperHelper {
         if (to.isValid(targetSlot, transferStack) && (toSided == null || toSided.canInsert(targetSlot, transferStack, fromDirection))) {
             int toCount;
             if (toStack.isEmpty()) {
-                ItemStack copy = transferStack.copy();
-                copy.setCount(1);
-                transferStack.decrement(1);
-                to.setStack(targetSlot, copy);
+                ItemStack singleItem = transferStack.split(1);
+                to.setStack(targetSlot, singleItem);
                 return true; //caller needs to call to.markDirty()
             } else if (toStack.isOf(transferStack.getItem()) && toStack.getMaxCount() > (toCount = toStack.getCount()) && to.getMaxCountPerStack() > toCount && ItemStack.areNbtEqual(toStack, transferStack)) {
                 transferStack.decrement(1);
