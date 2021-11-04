@@ -16,11 +16,7 @@
     "license": "LGPL-3.0-only",
     "icon": "assets/lithium/icon.png",
     "environment": "*",
-    "entrypoints": {
-        "main": [
-            "me.jellysquid.mods.lithium.common.LithiumMod"
-        ]
-    },
+    "entrypoints": {},
     "mixins": [
         "lithium.mixins.json"
     ],
@@ -30,7 +26,8 @@
       "minecraft": [
         "1.17",
         "1.17.1"
-      ]
+      ],
+      "caffeineconfig": ">=1.0.0"
     },
     "breaks": {
         "optifabric": "*"
