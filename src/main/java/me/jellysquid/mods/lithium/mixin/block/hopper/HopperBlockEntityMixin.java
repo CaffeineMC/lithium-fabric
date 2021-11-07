@@ -245,26 +245,27 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             }
         }
 
-        //todo maybe should check whether the receiving inventory is not full first, like vanilla. However this is a rare shortcut case and increases the work most of the time. worst case is 5x work than with the check
         boolean insertInventoryWasEmptyHopperNotDisabled = insertInventory instanceof HopperBlockEntityMixin && !((HopperBlockEntityMixin) insertInventory).isDisabled() && hopperBlockEntity.insertInventoryStackList.getOccupiedSlots() == 0;
-        Direction fromDirection = hopperState.get(HopperBlock.FACING).getOpposite();
-        int size = hopperStackList.size();
-        //noinspection ForLoopReplaceableByForEach
-        for (int i = 0; i < size; ++i) {
-            ItemStack transferStack = hopperStackList.get(i);
-            if (!transferStack.isEmpty()) {
-                boolean transferSuccess = HopperHelper.tryMoveSingleItem(insertInventory, transferStack, fromDirection);
-                if (transferSuccess) {
-                    if (insertInventoryWasEmptyHopperNotDisabled) {
-                        HopperBlockEntityMixin receivingHopper = (HopperBlockEntityMixin) insertInventory;
-                        int k = 8;
-                        if (receivingHopper.lastTickTime >= hopperBlockEntity.lastTickTime) {
-                            k = 7;
+        if (!(hopperBlockEntity.insertInventory == insertInventory && hopperBlockEntity.insertInventoryStackList.getFullSlots() == hopperBlockEntity.insertInventoryStackList.size())) {
+            Direction fromDirection = hopperState.get(HopperBlock.FACING).getOpposite();
+            int size = hopperStackList.size();
+            //noinspection ForLoopReplaceableByForEach
+            for (int i = 0; i < size; ++i) {
+                ItemStack transferStack = hopperStackList.get(i);
+                if (!transferStack.isEmpty()) {
+                    boolean transferSuccess = HopperHelper.tryMoveSingleItem(insertInventory, transferStack, fromDirection);
+                    if (transferSuccess) {
+                        if (insertInventoryWasEmptyHopperNotDisabled) {
+                            HopperBlockEntityMixin receivingHopper = (HopperBlockEntityMixin) insertInventory;
+                            int k = 8;
+                            if (receivingHopper.lastTickTime >= hopperBlockEntity.lastTickTime) {
+                                k = 7;
+                            }
+                            receivingHopper.setCooldown(k);
                         }
-                        receivingHopper.setCooldown(k);
+                        insertInventory.markDirty();
+                        return true;
                     }
-                    insertInventory.markDirty();
-                    return true;
                 }
             }
         }
