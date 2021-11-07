@@ -5,14 +5,16 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.collection.IdList;
 import net.minecraft.util.collection.PackedIntegerArray;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.chunk.ArrayPalette;
 import net.minecraft.world.chunk.Palette;
 import net.minecraft.world.chunk.PaletteResizeListener;
 import net.minecraft.world.chunk.PalettedContainer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.function.Function;
 
@@ -50,38 +52,48 @@ public abstract class PalettedContainerMixin<T> {
     private Palette<T> fallbackPalette;
 
     @Shadow
-    @Final
-    private T defaultValue;
-
-    @Shadow
     protected abstract T get(int int_1);
 
     /**
-     * TODO: Replace this with something that doesn't overwrite.
-     *
      * @reason Replace the hash palette from vanilla with our own and change the threshold for usage to only 3 bits,
      * as our implementation performs better at smaller key ranges.
      * @author JellySquid
+     *
+     * Overwrite replaced with 3 mixins by 2No2Name
      */
-    @SuppressWarnings({"unchecked", "ConstantConditions"})
-    @Overwrite
-    private void setPaletteSize(int size) {
-        if (size != this.paletteSize) {
-            this.paletteSize = size;
 
-            if (this.paletteSize <= 2) {
-                this.paletteSize = 2;
-                this.palette = new ArrayPalette<>(this.idList, this.paletteSize, (PalettedContainer<T>) (Object) this, this.elementDeserializer);
-            } else if (this.paletteSize <= 8) {
-                this.palette = new LithiumHashPalette<>(this.idList, this.paletteSize, (PaletteResizeListener<T>) this, this.elementDeserializer, this.elementSerializer);
-            } else {
-                this.paletteSize = MathHelper.log2DeBruijn(this.idList.size());
-                this.palette = this.fallbackPalette;
-            }
-
-            this.palette.getIndex(this.defaultValue);
-            this.data = new PackedIntegerArray(this.paletteSize, 4096);
-        }
+    @ModifyConstant(
+            method = "setPaletteSize(I)V",
+            constant = @Constant(intValue = 9)
+    )
+    private int skipBiMapPalette(int size) {
+        return -1;
     }
-
+    @Redirect(
+            method = "setPaletteSize(I)V",
+            at = @At(
+                    value = "FIELD",
+                    target = "Lnet/minecraft/world/chunk/PalettedContainer;fallbackPalette:Lnet/minecraft/world/chunk/Palette;"
+            )
+    )
+    private Palette<T> hashOrFallbackPalette(PalettedContainer<T> palettedContainer) {
+        if (this.paletteSize < 9) {
+            //noinspection unchecked
+            return new LithiumHashPalette<>(this.idList, this.paletteSize, (PaletteResizeListener<T>) this, this.elementDeserializer, this.elementSerializer);
+        }
+        return this.fallbackPalette;
+    }
+    @Redirect(
+            method = "setPaletteSize(I)V",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/util/math/MathHelper;log2DeBruijn(I)I"
+            )
+    )
+    private int hashOrFallbackPaletteSize(int value) {
+        if (this.palette != this.fallbackPalette) {
+            return this.paletteSize;
+        }
+        return MathHelper.log2DeBruijn(value);
+    }
 }
