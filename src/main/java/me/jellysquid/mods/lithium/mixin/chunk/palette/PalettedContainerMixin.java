@@ -94,6 +94,6 @@ public abstract class PalettedContainerMixin<T> {
         if (this.palette != this.fallbackPalette) {
             return this.paletteSize;
         }
-        return MathHelper.log2DeBruijn(value);
+        return MathHelper.ceilLog2(value);
     }
 }

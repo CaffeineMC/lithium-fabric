@@ -9,7 +9,7 @@ import net.minecraft.world.chunk.ChunkSection;
 
 public abstract class PathNodeCache {
     private static boolean isChunkSectionDangerousNeighbor(ChunkSection section) {
-        return section.getContainer()
+        return section.getBlockStateContainer()
                 .hasAny(state -> getNeighborPathNodeType(state) != PathNodeType.OPEN);
     }
 

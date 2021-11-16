@@ -40,7 +40,7 @@ public abstract class StructureAccessorMixin {
             Chunk chunk = this.world.getChunk(ChunkPos.getPackedX(pos), ChunkPos.getPackedZ(pos), ChunkStatus.STRUCTURE_STARTS);
             StructureStart<?> structure = chunk.getStructureStart(feature);
 
-            if (structure == null || !structure.hasChildren() || !matchChildren && !structure.setBoundingBoxFromChildren().contains(blockPos)) {
+            if (structure == null || !structure.hasChildren() || !matchChildren && !structure.getBoundingBox().contains(blockPos)) {
                 continue;
             }
 

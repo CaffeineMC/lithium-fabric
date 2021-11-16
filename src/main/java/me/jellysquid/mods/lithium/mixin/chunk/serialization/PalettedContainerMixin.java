@@ -85,7 +85,7 @@ public abstract class PalettedContainerMixin<T> {
             palette = ((LithiumHashPalette<T>) this.palette);
 
             // The palette only contains the default block, so don't re-pack
-            if (palette.getSize() == 1 && palette.getByIndex(0) == this.defaultValue) {
+            if (palette.getSize() == 1 && palette.get(0) == this.defaultValue) {
                 dataArray = EMPTY_PALETTE_DATA;
             }
         }
@@ -98,11 +98,11 @@ public abstract class PalettedContainerMixin<T> {
             ((CompactingPackedIntegerArray) this.data).compact(this.palette, compactedPalette, array);
 
             // If the palette didn't change during compaction, do a simple copy of the data array
-            if (palette != null && palette.getSize() == compactedPalette.getSize() && this.paletteSize == Math.max(4, MathHelper.log2DeBruijn(palette.getSize()))) { // paletteSize can de-sync from palette - see https://github.com/CaffeineMC/lithium-fabric/issues/279
-                dataArray = this.data.getStorage().clone();
+            if (palette != null && palette.getSize() == compactedPalette.getSize() && this.paletteSize == Math.max(4, MathHelper.ceilLog2(palette.getSize()))) { // paletteSize can de-sync from palette - see https://github.com/CaffeineMC/lithium-fabric/issues/279
+                dataArray = this.data.getData().clone();
             } else {
                 // Re-pack the integer array as the palette has changed size
-                int size = Math.max(4, MathHelper.log2DeBruijn(compactedPalette.getSize()));
+                int size = Math.max(4, MathHelper.ceilLog2(compactedPalette.getSize()));
                 PackedIntegerArray copy = new PackedIntegerArray(size, 4096);
 
                 for (int i = 0; i < array.length; ++i) {
@@ -110,7 +110,7 @@ public abstract class PalettedContainerMixin<T> {
                 }
 
                 // We don't need to clone the data array as we are the sole owner of it
-                dataArray = copy.getStorage();
+                dataArray = copy.getData();
                 palette = compactedPalette;
             }
         }
@@ -132,7 +132,7 @@ public abstract class PalettedContainerMixin<T> {
      * @author JellySquid
      */
     @Inject(method = "count(Lnet/minecraft/world/chunk/PalettedContainer$CountConsumer;)V", at = @At("HEAD"), cancellable = true)
-    public void count(PalettedContainer.CountConsumer<T> consumer, CallbackInfo ci) {
+    public void count(PalettedContainer.Counter<T> consumer, CallbackInfo ci) {
         int len = (1 << this.paletteSize);
 
         // Do not allocate huge arrays if we're using a large palette
@@ -145,7 +145,7 @@ public abstract class PalettedContainerMixin<T> {
         this.data.forEach(i -> counts[i]++);
 
         for (int i = 0; i < counts.length; i++) {
-            T obj = this.palette.getByIndex(i);
+            T obj = this.palette.get(i);
 
             if (obj != null) {
                 consumer.accept(obj, counts[i]);

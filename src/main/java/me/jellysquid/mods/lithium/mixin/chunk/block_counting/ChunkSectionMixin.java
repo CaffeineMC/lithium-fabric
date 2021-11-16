@@ -44,7 +44,7 @@ public abstract class ChunkSectionMixin implements SectionFlagHolder {
                     target = "Lnet/minecraft/world/chunk/PalettedContainer;count(Lnet/minecraft/world/chunk/PalettedContainer$CountConsumer;)V"
             )
     )
-    private void initFlagCounters(PalettedContainer<BlockState> palettedContainer, PalettedContainer.CountConsumer<BlockState> consumer) {
+    private void initFlagCounters(PalettedContainer<BlockState> palettedContainer, PalettedContainer.Counter<BlockState> consumer) {
         palettedContainer.count((state, count) -> {
             consumer.accept(state, count);
 

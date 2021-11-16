@@ -2,7 +2,7 @@ package me.jellysquid.mods.lithium.mixin.gen.perlin_noise;
 
 import net.minecraft.util.math.noise.PerlinNoiseSampler;
 import net.minecraft.util.math.noise.SimplexNoiseSampler;
-import net.minecraft.world.gen.WorldGenRandom;
+import net.minecraft.world.gen.random.AbstractRandom;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -33,7 +33,7 @@ public abstract class PerlinNoiseSamplerMixin {
     private byte[] permutations;
 
     @Inject(method = "<init>(Lnet/minecraft/world/gen/WorldGenRandom;)V", at = @At("RETURN"))
-    private void reinit(WorldGenRandom random, CallbackInfo ci) {
+    private void reinit(AbstractRandom random, CallbackInfo ci) {
         for (int i = 0; i < 256; i++) {
             int hash = this.permutations[i & 255] & 15;
 

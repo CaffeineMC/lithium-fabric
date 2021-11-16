@@ -57,7 +57,7 @@ public class WorldUpdaterMixin {
                 NbtList palette = section.getList("Palette", 10);
                 if (palette.size() > 0 && blockStates.length > 0) {
                     //calculate how large the data array should be according to the palette size
-                    int expectedBitsPerState = Math.max(4, MathHelper.log2DeBruijn(palette.size()));
+                    int expectedBitsPerState = Math.max(4, MathHelper.ceilLog2(palette.size()));
                     int expectedStatesPerLong = 64 / expectedBitsPerState;
                     int expectedDataSize = MathHelper.ceil(4096 / (double) expectedStatesPerLong);
                     //fix mismatched sizes. 1.18 vanilla
@@ -84,13 +84,13 @@ public class WorldUpdaterMixin {
                             // the palette is too large, this issue isn't caused by previous lithium versions
                             LOGGER.info("Lithium chunk section palette fixer: Palette is too large, not fixing this issue!");
                         }
-                        if (bitsPerState > Math.max(4, MathHelper.log2DeBruijn(palette.size()))) {
+                        if (bitsPerState > Math.max(4, MathHelper.ceilLog2(palette.size()))) {
                             // the palette is too small, duplicate the first entry
                             do {
                                 palette.add(palette.get(0));
                                 editedSection = true;
                             }
-                            while (bitsPerState > Math.max(4, MathHelper.log2DeBruijn(palette.size())));
+                            while (bitsPerState > Math.max(4, MathHelper.ceilLog2(palette.size())));
 
                             LOGGER.info("Lithium chunk section palette fixer: Palette was too small, fixed by adding more entries!");
                         }

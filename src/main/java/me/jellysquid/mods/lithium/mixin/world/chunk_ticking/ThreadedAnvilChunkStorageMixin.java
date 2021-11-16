@@ -40,7 +40,7 @@ public abstract class ThreadedAnvilChunkStorageMixin {
     public boolean isTooFarFromPlayersToSpawnMobs(ChunkPos pos) {
         long key = pos.toLong();
 
-        if (!this.ticketManager.method_20800(key)) {
+        if (!this.ticketManager.shouldTick(key)) {
             return true;
         }
 

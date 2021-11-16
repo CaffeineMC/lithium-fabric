@@ -54,7 +54,7 @@ public class PackedIntegerArrayMixin implements CompactingPackedIntegerArray {
                 int remappedId = mappings[value];
 
                 if (remappedId == 0) {
-                    remappedId = dstPalette.getIndex(srcPalette.getByIndex(value)) + 1;
+                    remappedId = dstPalette.index(srcPalette.get(value)) + 1;
                     mappings[value] = (short) remappedId;
                 }
 

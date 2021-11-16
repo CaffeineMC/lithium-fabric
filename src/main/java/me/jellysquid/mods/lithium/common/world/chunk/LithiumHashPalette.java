@@ -18,7 +18,7 @@ import static it.unimi.dsi.fastutil.Hash.FAST_LOAD_FACTOR;
 
 /**
  * Generally provides better performance over the vanilla {@link net.minecraft.world.chunk.BiMapPalette} when calling
- * {@link LithiumHashPalette#getIndex(Object)} through using a faster backing map and reducing pointer chasing.
+ * {@link LithiumHashPalette#index(Object)} through using a faster backing map and reducing pointer chasing.
  */
 public class LithiumHashPalette<T> implements Palette<T> {
     private static final int ABSENT_VALUE = -1;
@@ -49,7 +49,7 @@ public class LithiumHashPalette<T> implements Palette<T> {
     }
 
     @Override
-    public int getIndex(T obj) {
+    public int index(T obj) {
         int id = this.table.getInt(obj);
 
         if (id == ABSENT_VALUE) {
@@ -93,7 +93,7 @@ public class LithiumHashPalette<T> implements Palette<T> {
     }
 
     @Override
-    public boolean accepts(Predicate<T> predicate) {
+    public boolean hasAny(Predicate<T> predicate) {
         for (int i = 0; i < this.size; ++i) {
             if (predicate.test(this.entries[i])) {
                 return true;
@@ -104,7 +104,7 @@ public class LithiumHashPalette<T> implements Palette<T> {
     }
 
     @Override
-    public T getByIndex(int id) {
+    public T get(int id) {
         T[] entries = this.entries;
 
         if (id >= 0 && id < entries.length) {
@@ -115,7 +115,7 @@ public class LithiumHashPalette<T> implements Palette<T> {
     }
 
     @Override
-    public void fromPacket(PacketByteBuf buf) {
+    public void readPacket(PacketByteBuf buf) {
         this.clear();
 
         int entryCount = buf.readVarInt();
@@ -126,12 +126,12 @@ public class LithiumHashPalette<T> implements Palette<T> {
     }
 
     @Override
-    public void toPacket(PacketByteBuf buf) {
+    public void writePacket(PacketByteBuf buf) {
         int size = this.size;
         buf.writeVarInt(size);
 
         for (int i = 0; i < size; ++i) {
-            buf.writeVarInt(this.idList.getRawId(this.getByIndex(i)));
+            buf.writeVarInt(this.idList.getRawId(this.get(i)));
         }
     }
 
@@ -140,14 +140,14 @@ public class LithiumHashPalette<T> implements Palette<T> {
         int size = PacketByteBuf.getVarIntLength(this.size);
 
         for (int i = 0; i < this.size; ++i) {
-            size += PacketByteBuf.getVarIntLength(this.idList.getRawId(this.getByIndex(i)));
+            size += PacketByteBuf.getVarIntLength(this.idList.getRawId(this.get(i)));
         }
 
         return size;
     }
 
     @Override
-    public int getIndexBits() {
+    public int getSize() {
         return this.size;
     }
 
@@ -162,7 +162,7 @@ public class LithiumHashPalette<T> implements Palette<T> {
 
     public void toTag(NbtList list) {
         for (int i = 0; i < this.size; ++i) {
-            list.add(this.elementSerializer.apply(this.getByIndex(i)));
+            list.add(this.elementSerializer.apply(this.get(i)));
         }
     }
 

@@ -50,8 +50,8 @@ import java.util.function.Predicate;
  * There are several states a ScheduledTick can be in. A scheduled tick can only be in one state at a time:
  * - scheduled
  *      stored in collection {@link #scheduledTicks}
- *      {@link #isScheduled(BlockPos, Object)} returns true,
- *      adds to count in {@link #getTicks()}, prevents scheduling another tick in the same location for the same type
+ *      {@link #isQueued(BlockPos, Object)} returns true,
+ *      adds to count in {@link #getTickCount()}, prevents scheduling another tick in the same location for the same type
  * <p>
  * - selected for execution
  *      stored in collection {@link #executingTicks}, not marked as consumed
@@ -107,7 +107,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
     }
 
     @Override
-    public boolean isScheduled(BlockPos pos, T obj) {
+    public boolean isQueued(BlockPos pos, T obj) {
         return this.scheduledTicks.contains(new TickEntry<>(pos, obj));
     }
 
@@ -180,7 +180,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
      * Returns the number of currently scheduled ticks.
      */
     @Override
-    public int getTicks() {
+    public int getTickCount() {
         return this.scheduledTicks.size();
     }
 
@@ -234,7 +234,7 @@ public class LithiumServerTickScheduler<T> extends ServerTickScheduler<T> {
                     // in the same chunk can be updated. This avoids the more expensive check to the chunk manager.
                     if (prevChunk != chunk) {
                         prevChunk = chunk;
-                        canTick = this.world.method_37117(tick.pos);
+                        canTick = this.world.isTickingFutureReady(tick.pos);
                     }
 
                     // If the tick can be executed right now, then add it to the executing list and decrement our

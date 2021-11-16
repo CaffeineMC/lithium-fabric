@@ -64,7 +64,7 @@ public class MultiNoiseBiomeSourceMixin {
 
         // Iterate through the biome points and calculate the distance to the current noise point.
         for (int i = 0; i < this.biomePoints.size(); i++) {
-            float distance = this.biomePoints.get(i).getFirst().calculateDistanceTo(mixedNoisePoint);
+            float distance = this.biomePoints.get(i).getFirst().getSquaredDistance(mixedNoisePoint);
 
             // If the distance is less than the recorded minimum, update the minimum and set the current index.
             if (min > distance) {
