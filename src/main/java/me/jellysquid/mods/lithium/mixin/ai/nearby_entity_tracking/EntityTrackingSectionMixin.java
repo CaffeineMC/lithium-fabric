@@ -7,6 +7,7 @@ import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListe
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.SectionedEntityMovementTracker;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.collection.TypeFilterableList;
+import net.minecraft.world.entity.EntityLike;
 import net.minecraft.world.entity.EntityTrackingSection;
 import net.minecraft.world.entity.EntityTrackingStatus;
 import net.minecraft.world.entity.SectionedEntityCache;
@@ -20,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EntityTrackingSection.class)
-public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSection {
+public abstract class EntityTrackingSectionMixin<T extends EntityLike> implements EntityTrackerSection {
     @Shadow
     private EntityTrackingStatus status;
     @Shadow
@@ -105,7 +106,7 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
         }
     }
 
-    @Inject(method = "add(Ljava/lang/Object;)V", at = @At("RETURN"))
+    @Inject(method = "add(Lnet/minecraft/world/entity/EntityLike;)V", at = @At("RETURN"))
     private void onEntityAdded(T entityLike, CallbackInfo ci) {
         if (!this.status.shouldTrack() || this.nearbyEntityListeners.isEmpty()) {
             return;
@@ -117,7 +118,7 @@ public abstract class EntityTrackingSectionMixin<T> implements EntityTrackerSect
         }
     }
 
-    @ModifyVariable(method = "remove(Ljava/lang/Object;)Z", at = @At("RETURN"))
+    @ModifyVariable(method = "remove(Lnet/minecraft/world/entity/EntityLike;)Z", at = @At("RETURN"))
     private T onEntityRemoved(final T entityLike) {
         if (this.status.shouldTrack() && !this.nearbyEntityListeners.isEmpty() && entityLike instanceof Entity entity) {
             for (NearbyEntityListener nearbyEntityListener : this.nearbyEntityListeners) {

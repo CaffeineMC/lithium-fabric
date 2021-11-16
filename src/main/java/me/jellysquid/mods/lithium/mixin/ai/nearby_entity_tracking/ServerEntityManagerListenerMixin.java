@@ -55,7 +55,7 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
             method = "updateEntityPosition()V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/EntityTrackingSection;add(Ljava/lang/Object;)V",
+                    target = "Lnet/minecraft/world/entity/EntityTrackingSection;add(Lnet/minecraft/world/entity/EntityLike;)V",
                     shift = At.Shift.AFTER
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
