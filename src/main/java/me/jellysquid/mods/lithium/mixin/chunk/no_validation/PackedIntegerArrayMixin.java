@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(PackedIntegerArray.class)
 public class PackedIntegerArrayMixin {
     @Redirect(
-            method = {"setAndGetOldValue(II)I", "set(II)V", "get(I)I"},
+            method = {"swap(II)I", "set(II)V", "get(I)I"},
             at = @At(value = "INVOKE", target = "Lorg/apache/commons/lang3/Validate;inclusiveBetween(JJJ)V", remap = false)
 
     )
