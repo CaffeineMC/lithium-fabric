@@ -1,6 +1,5 @@
 package me.jellysquid.mods.lithium.mixin.alloc.chunk_ticking;
 
-import com.google.common.collect.Iterators;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,14 +20,13 @@ public class ServerChunkManagerMixin {
             at = @At(
                     remap = false,
                     value = "INVOKE",
-                    target = "Lcom/google/common/collect/Lists;newArrayList(Ljava/lang/Iterable;)Ljava/util/ArrayList;"
+                    target = "Lcom/google/common/collect/Lists;newArrayListWithCapacity(I)Ljava/util/ArrayList;"
             )
     )
-    private ArrayList<ChunkHolder> redirectChunksListClone(Iterable<? extends ChunkHolder> elements) {
+    private ArrayList<ChunkHolder> redirectChunksListClone(int initialArraySize) {
         ArrayList<ChunkHolder> list = this.cachedChunkList;
         list.clear(); // Ensure the list is empty before re-using it
-
-        Iterators.addAll(list, elements.iterator());
+        list.ensureCapacity(initialArraySize);
 
         return list;
     }
