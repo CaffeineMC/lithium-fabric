@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.mixin.entity.fast_retrieval;
 
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.world.entity.EntityLike;
 import net.minecraft.world.entity.EntityTrackingSection;
 import net.minecraft.world.entity.SectionedEntityCache;
 import org.jetbrains.annotations.Nullable;
@@ -12,7 +13,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.function.Consumer;
 
 @Mixin(SectionedEntityCache.class)
-public abstract class SectionedEntityCacheMixin<T> {
+public abstract class SectionedEntityCacheMixin<T extends EntityLike> {
     @Shadow
     @Nullable
     public abstract EntityTrackingSection<T> findTrackingSection(long sectionPos);
