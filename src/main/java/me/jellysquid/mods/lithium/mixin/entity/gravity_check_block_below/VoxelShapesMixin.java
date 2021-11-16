@@ -21,7 +21,7 @@ public class VoxelShapesMixin {
      * gravity.
      */
     @Inject(
-            method = "calculatePushVelocity(Lnet/minecraft/util/math/Box;Lnet/minecraft/world/WorldView;DLnet/minecraft/block/ShapeContext;Lnet/minecraft/util/math/AxisCycleDirection;Ljava/util/stream/Stream;)D",
+            method = "calculatePushVelocity(Lnet/minecraft/util/math/Box;Lnet/minecraft/world/WorldView;DLnet/minecraft/block/ShapeContext;Lnet/minecraft/util/math/AxisCycleDirection;Ljava/lang/Iterable;)D",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/util/math/AxisCycleDirection;opposite()Lnet/minecraft/util/math/AxisCycleDirection;",
@@ -30,10 +30,10 @@ public class VoxelShapesMixin {
             cancellable = true,
             locals = LocalCapture.NO_CAPTURE
     )
-    private static void checkBelowFeet(Box box, WorldView world, double movement, ShapeContext context, AxisCycleDirection direction, Stream<VoxelShape> shapes, CallbackInfoReturnable<Double> cir) {
+    private static void checkBelowFeet(Box box, WorldView world, double initial, ShapeContext context, AxisCycleDirection direction, Iterable<VoxelShape> shapes, CallbackInfoReturnable<Double> cir) {
         // [VanillaCopy] calculate axis of movement like vanilla: direction.opposite().cycle(...)
         // Necessary due to the method not simply explicitly receiving the axis of the movement
-        if (movement >= 0 || direction.opposite().cycle(Direction.Axis.Z) != Direction.Axis.Y) {
+        if (initial >= 0 || direction.opposite().cycle(Direction.Axis.Z) != Direction.Axis.Y) {
             return;
         }
 
@@ -45,8 +45,8 @@ public class VoxelShapesMixin {
 
         // [VanillaCopy] collide with the block below the center of the box exactly like vanilla does during block iteration
         BlockState blockState = world.getBlockState(pos);
-        movement = blockState.getCollisionShape(world, pos, context).calculateMaxDistance(Direction.Axis.Y, box.offset(-x, -y, -z), movement);
-        if (Math.abs(movement) < 1.0E-7D) {
+        initial = blockState.getCollisionShape(world, pos, context).calculateMaxDistance(Direction.Axis.Y, box.offset(-x, -y, -z), initial);
+        if (Math.abs(initial) < 1.0E-7D) {
             cir.setReturnValue(0.0D);
         }
     }
