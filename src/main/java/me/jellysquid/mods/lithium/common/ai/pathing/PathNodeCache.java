@@ -31,7 +31,7 @@ public abstract class PathNodeCache {
      */
     public static boolean isSectionSafeAsNeighbor(ChunkSection section) {
         // Empty sections can never contribute a danger
-        if (ChunkSection.isEmpty(section)) {
+        if (section.isEmpty()) {
             return true;
         }
 

@@ -81,7 +81,7 @@ public abstract class LandPathNodeMakerMixin {
             // If we can guarantee that blocks won't be modified while the cache is active, try to see if the chunk
             // section is empty or contains any dangerous blocks within the palette. If not, we can assume any checks
             // against this chunk section will always fail, allowing us to fast-exit.
-            if (ChunkSection.isEmpty(section) || PathNodeCache.isSectionSafeAsNeighbor(section)) {
+            if (section == null || PathNodeCache.isSectionSafeAsNeighbor(section)) {
                 return type;
             }
         }
