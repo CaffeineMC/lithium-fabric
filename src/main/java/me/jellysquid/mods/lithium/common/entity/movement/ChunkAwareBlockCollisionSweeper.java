@@ -128,7 +128,7 @@ public class ChunkAwareBlockCollisionSweeper {
                     }
                 }
                 //skip empty chunks and empty chunk sections
-            } while (this.cachedChunk == null || ChunkSection.isEmpty(this.cachedChunkSection));
+            } while (this.cachedChunk == null || this.cachedChunkSection == null || this.cachedChunkSection.isEmpty());
 
             this.sectionOversizedBlocks = hasChunkSectionOversizedBlocks(this.cachedChunk, this.chunkYIndex);
 
