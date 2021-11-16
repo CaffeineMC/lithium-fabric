@@ -42,7 +42,7 @@ public class LithiumConfig {
         this.addMixinRule("ai.poi.fast_retrieval", true);
         this.addMixinRule("ai.raid", true);
         this.addMixinRule("ai.task", true);
-        this.addMixinRule("ai.task.fast_repetition", true);
+        this.addMixinRule("ai.task.fast_repetition", false); //removed during 1.18 update
         this.addMixinRule("ai.task.goat_jump", true);
         this.addMixinRule("ai.task.replace_streams", true);
 
