@@ -115,7 +115,6 @@
     "entity.stream_entity_collisions_lazily.EntityMixin",
     "gen.cached_generator_settings.NoiseChunkGeneratorMixin",
     "gen.chunk_region.ChunkRegionMixin",
-    "gen.features.StructureFeatureMixin",
     "gen.perlin_noise.PerlinNoiseSamplerMixin",
     "item.ItemStackMixin",
     "math.fast_blockpos.BlockPosMixin",
