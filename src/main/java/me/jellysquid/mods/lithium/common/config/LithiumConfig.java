@@ -93,7 +93,7 @@ public class LithiumConfig {
         this.addMixinRule("gen.cached_generator_settings", true);
         this.addMixinRule("gen.chunk_region", true);
         this.addMixinRule("gen.fast_island_noise", true);
-        this.addMixinRule("gen.fast_layer_sampling", true);
+        this.addMixinRule("gen.fast_layer_sampling", false); //removed during 1.18 update
         this.addMixinRule("gen.fast_multi_source_biomes", true);
         this.addMixinRule("gen.features", true);
         this.addMixinRule("gen.perlin_noise", true);
