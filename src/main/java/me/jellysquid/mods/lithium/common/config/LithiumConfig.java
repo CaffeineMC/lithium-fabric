@@ -96,7 +96,7 @@ public class LithiumConfig {
         this.addMixinRule("gen.fast_layer_sampling", false); //removed during 1.18 update
         this.addMixinRule("gen.fast_multi_source_biomes", false); //removed during 1.18 update
         this.addMixinRule("gen.features", false); //removed during 1.18 update
-        this.addMixinRule("gen.perlin_noise", true);
+        this.addMixinRule("gen.perlin_noise", false); //removed during 1.18 update
 
         this.addMixinRule("item", true);
 
