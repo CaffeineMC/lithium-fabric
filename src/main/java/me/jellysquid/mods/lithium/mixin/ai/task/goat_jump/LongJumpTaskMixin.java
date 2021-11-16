@@ -119,7 +119,7 @@ public abstract class LongJumpTaskMixin {
     /**
      * Gets rid of the random selection of a target, as the targets have already been carefully randomly selected.
      */
-    @Redirect(method = "keepRunning", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/WeightedPicker;getRandom(Ljava/util/Random;Ljava/util/List;)Ljava/util/Optional;"))
+    @Redirect(method = "keepRunning", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/Weighting;getRandom(Ljava/util/Random;Ljava/util/List;)Ljava/util/Optional;"))
     private Optional<LongJumpTask.Target> getNextRandomTarget(Random random, List<LongJumpTask.Target> list) {
         if (list.isEmpty()) {
             return Optional.empty();
