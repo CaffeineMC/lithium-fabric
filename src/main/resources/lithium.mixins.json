@@ -92,7 +92,6 @@
     "entity.data_tracker.no_locks.DataTrackerMixin",
     "entity.data_tracker.use_arrays.DataTrackerMixin",
     "entity.fast_retrieval.SectionedEntityCacheMixin",
-    "entity.fast_suffocation_check.EntityMixin",
     "entity.gravity_check_block_below.VoxelShapesMixin",
     "entity.inactive_navigations.DrownedEntityLeaveWaterGoalMixin",
     "entity.inactive_navigations.DrownedEntityMixin",
