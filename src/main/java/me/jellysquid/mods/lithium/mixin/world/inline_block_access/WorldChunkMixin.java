@@ -5,26 +5,29 @@ import net.minecraft.block.Blocks;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.HeightLimitView;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.chunk.UpgradeData;
 import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.gen.chunk.Blender;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(value = WorldChunk.class, priority = 500)
-public abstract class WorldChunkMixin implements Chunk {
+public abstract class WorldChunkMixin extends Chunk {
     private static final BlockState DEFAULT_BLOCK_STATE = Blocks.AIR.getDefaultState();
     private static final FluidState DEFAULT_FLUID_STATE = Fluids.EMPTY.getDefaultState();
 
-    @Shadow
-    @Final
-    private ChunkSection[] sections;
-
-    @Shadow
-    @Final
-    public static ChunkSection EMPTY_SECTION;
+    public WorldChunkMixin(ChunkPos pos, UpgradeData upgradeData, HeightLimitView heightLimitView, Registry<Biome> biome, long inhabitedTime, @Nullable ChunkSection[] sectionArrayInitializer, @Nullable Blender blendingData) {
+        super(pos, upgradeData, heightLimitView, biome, inhabitedTime, sectionArrayInitializer, blendingData);
+    }
 
     /**
      * @reason Reduce method size to help the JVM inline
@@ -37,12 +40,13 @@ public abstract class WorldChunkMixin implements Chunk {
         int z = pos.getZ();
 
         int chunkY = this.getSectionIndex(y);
-        if (chunkY >= 0 && chunkY < this.sections.length) {
-            ChunkSection section = this.sections[chunkY];
+        ChunkSection[] sectionArray = this.getSectionArray();
+        if (chunkY >= 0 && chunkY < sectionArray.length) {
+            ChunkSection section = sectionArray[chunkY];
 
             //checking isEmpty cannot be skipped here. https://bugs.mojang.com/browse/MC-232360
             // Chunk Sections that only contain air and cave_air are treated as empty
-            if (section != EMPTY_SECTION && !section.isEmpty()) {
+            if (!section.isEmpty()) {
                 return section.getBlockState(x & 15, y & 15, z & 15);
             }
         }
@@ -57,12 +61,10 @@ public abstract class WorldChunkMixin implements Chunk {
     @Overwrite
     public FluidState getFluidState(int x, int y, int z) {
         int chunkY = this.getSectionIndex(y);
-        if (chunkY >= 0 && chunkY < this.sections.length) {
-            ChunkSection section = this.sections[chunkY];
-
-            if (section != EMPTY_SECTION) {
-                return section.getFluidState(x & 15, y & 15, z & 15);
-            }
+        ChunkSection[] sectionArray = this.getSectionArray();
+        if (chunkY >= 0 && chunkY < sectionArray.length) {
+            ChunkSection section = sectionArray[chunkY];
+            return section.getFluidState(x & 15, y & 15, z & 15);
         }
 
         return DEFAULT_FLUID_STATE;
