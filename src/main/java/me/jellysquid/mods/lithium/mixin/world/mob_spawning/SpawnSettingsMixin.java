@@ -26,8 +26,8 @@ public class SpawnSettingsMixin {
      * Re-initialize the spawn category lists with a much faster backing collection type for enum keys. This provides
      * a modest speed-up for mob spawning as {@link SpawnSettings#getSpawnEntries(SpawnGroup)} is a rather hot method.
      */
-    @Inject(method = "<init>(FLjava/util/Map;Ljava/util/Map;Z)V", at = @At("RETURN"))
-    private void reinit(float creatureSpawnProbability, Map<SpawnGroup, Pool<SpawnSettings.SpawnEntry>> spawners, Map<EntityType<?>, SpawnSettings.SpawnDensity> spawnCosts, boolean playerSpawnFriendly, CallbackInfo ci) {
+    @Inject(method = "<init>(FLjava/util/Map;Ljava/util/Map;)V", at = @At("RETURN"))
+    private void reinit(float creatureSpawnProbability, Map<SpawnGroup, Pool<SpawnSettings.SpawnEntry>> spawners, Map<EntityType<?>, SpawnSettings.SpawnDensity> spawnCosts, CallbackInfo ci) {
         Map<SpawnGroup, Pool<SpawnSettings.SpawnEntry>> spawns = Maps.newEnumMap(SpawnGroup.class);
 
         for (Map.Entry<SpawnGroup, Pool<SpawnSettings.SpawnEntry>> entry : this.spawners.entrySet()) {
