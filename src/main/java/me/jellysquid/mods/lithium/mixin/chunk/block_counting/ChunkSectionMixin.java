@@ -41,7 +41,7 @@ public abstract class ChunkSectionMixin implements SectionFlagHolder {
             method = "calculateCounts()V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/PalettedContainer;count(Lnet/minecraft/world/chunk/PalettedContainer$CountConsumer;)V"
+                    target = "Lnet/minecraft/world/chunk/PalettedContainer;count(Lnet/minecraft/world/chunk/PalettedContainer$Counter;)V"
             )
     )
     private void initFlagCounters(PalettedContainer<BlockState> palettedContainer, PalettedContainer.Counter<BlockState> consumer) {
