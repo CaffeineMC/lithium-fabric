@@ -70,7 +70,7 @@ public class LithiumConfig {
         this.addMixinRule("chunk.no_validation", true);
         this.addMixinRule("chunk.palette", true);
         this.addMixinRule("chunk.section_update_tracking", true);
-        this.addMixinRule("chunk.serialization", false); //removed during 1.18 update
+        this.addMixinRule("chunk.serialization", true);
 
         this.addMixinRule("collections", true);
         this.addMixinRule("collections.entity_filtering", true);
