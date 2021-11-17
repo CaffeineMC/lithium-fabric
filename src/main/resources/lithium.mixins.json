@@ -140,7 +140,6 @@
     "world.inline_height.WorldMixin",
     "world.mob_spawning.PoolMixin",
     "world.mob_spawning.SpawnSettingsMixin",
-    "world.player_chunk_tick.ThreadedAnvilChunkStorageMixin",
-    "worldfixer.WorldUpdaterMixin"
+    "world.player_chunk_tick.ThreadedAnvilChunkStorageMixin"
   ]
 }
