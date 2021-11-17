@@ -11,11 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
  * Extends {@link PackedIntegerArray} with a special compaction method defined in {@link CompactingPackedIntegerArray}.
  */
 @Mixin(PackedIntegerArray.class)
-public class PackedIntegerArrayMixin implements CompactingPackedIntegerArray {
-    @Shadow
-    @Final
-    private long[] storage;
-
+public abstract class PackedIntegerArrayMixin implements CompactingPackedIntegerArray {
     @Shadow
     @Final
     private int size;
@@ -32,6 +28,10 @@ public class PackedIntegerArrayMixin implements CompactingPackedIntegerArray {
     @Final
     private int elementsPerLong;
 
+    @Shadow
+    @Final
+    private long[] data;
+
     @Override
     public <T> void compact(Palette<T> srcPalette, Palette<T> dstPalette, short[] out) {
         if (this.size >= Short.MAX_VALUE) {
@@ -46,7 +46,7 @@ public class PackedIntegerArrayMixin implements CompactingPackedIntegerArray {
 
         int idx = 0;
 
-        for (long word : this.storage) {
+        for (long word : this.data) {
             long bits = word;
 
             for (int elementIdx = 0; elementIdx < this.elementsPerLong; ++elementIdx) {
