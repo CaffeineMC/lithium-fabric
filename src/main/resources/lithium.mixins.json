@@ -109,7 +109,6 @@
     "entity.replace_entitytype_predicates.FormCaravanGoalMixin",
     "entity.replace_entitytype_predicates.ItemFrameEntityMixin",
     "entity.skip_fire_check.EntityMixin",
-    "entity.stream_entity_collisions_lazily.EntityMixin",
     "gen.cached_generator_settings.NoiseChunkGeneratorMixin",
     "gen.chunk_region.ChunkRegionMixin",
     "item.ItemStackMixin",
