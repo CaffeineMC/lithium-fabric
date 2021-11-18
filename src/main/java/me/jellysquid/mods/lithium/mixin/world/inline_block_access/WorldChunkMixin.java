@@ -13,19 +13,17 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.UpgradeData;
 import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.gen.chunk.Blender;
+import net.minecraft.world.gen.chunk.BlendingData;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(value = WorldChunk.class, priority = 500)
 public abstract class WorldChunkMixin extends Chunk {
     private static final BlockState DEFAULT_BLOCK_STATE = Blocks.AIR.getDefaultState();
     private static final FluidState DEFAULT_FLUID_STATE = Fluids.EMPTY.getDefaultState();
 
-    public WorldChunkMixin(ChunkPos pos, UpgradeData upgradeData, HeightLimitView heightLimitView, Registry<Biome> biome, long inhabitedTime, @Nullable ChunkSection[] sectionArrayInitializer, @Nullable Blender blendingData) {
+    public WorldChunkMixin(ChunkPos pos, UpgradeData upgradeData, HeightLimitView heightLimitView, Registry<Biome> biome, long inhabitedTime, @Nullable ChunkSection[] sectionArrayInitializer, @Nullable BlendingData blendingData) {
         super(pos, upgradeData, heightLimitView, biome, inhabitedTime, sectionArrayInitializer, blendingData);
     }
 
