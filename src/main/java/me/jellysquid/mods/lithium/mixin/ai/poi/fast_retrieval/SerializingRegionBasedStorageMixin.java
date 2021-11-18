@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.BitSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -48,8 +49,8 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
 
     private Long2ObjectOpenHashMap<BitSet> columns;
 
-    @Inject(method = "<init>(Ljava/io/File;Ljava/util/function/Function;Ljava/util/function/Function;Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/datafixer/DataFixTypes;ZLnet/minecraft/world/HeightLimitView;)V", at = @At("RETURN"))
-    private void init(File directory, Function<Runnable, Codec<R>> codecFactory, Function<Runnable, R> factory, DataFixer dataFixer, DataFixTypes dataFixTypes, boolean dsync, HeightLimitView world, CallbackInfo ci) {
+    @Inject(method = "<init>(Ljava/nio/file/Path;Ljava/util/function/Function;Ljava/util/function/Function;Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/datafixer/DataFixTypes;ZLnet/minecraft/world/HeightLimitView;)V", at = @At("RETURN"))
+    private void init(Path directory, Function<Runnable, Codec<R>> codecFactory, Function<Runnable, R> factory, DataFixer dataFixer, DataFixTypes dataFixTypes, boolean dsync, HeightLimitView world, CallbackInfo ci) {
         this.columns = new Long2ObjectOpenHashMap<>();
         this.loadedElements = new ListeningLong2ObjectOpenHashMap<>(this::onEntryAdded, this::onEntryRemoved);
     }
