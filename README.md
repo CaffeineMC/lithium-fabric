@@ -93,7 +93,7 @@ projects. The basic overview is provided here for those familiar.
 
 #### Requirements
 
-- JDK 16
+- JDK 17
     - You can either install this through a package manager such as [Chocolatey](https://chocolatey.org/) on Windows
       or [SDKMAN!](https://sdkman.io/) on other platforms. If you'd prefer to not use a package manager, you can always
       grab the installers or packages directly from [AdoptOpenJDK](https://adoptopenjdk.net/).
