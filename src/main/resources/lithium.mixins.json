@@ -102,6 +102,7 @@
     "entity.replace_entitytype_predicates.AbstractMinecartEntityMixin",
     "entity.replace_entitytype_predicates.ArmorStandEntityMixin",
     "entity.replace_entitytype_predicates.FormCaravanGoalMixin",
+    "entity.replace_entitytype_predicates.IronGolemWanderAroundGoalMixin",
     "entity.replace_entitytype_predicates.ItemFrameEntityMixin",
     "entity.skip_fire_check.EntityMixin",
     "gen.cached_generator_settings.NoiseChunkGeneratorMixin",
