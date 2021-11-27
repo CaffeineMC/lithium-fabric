@@ -35,11 +35,6 @@ public class EntityShapeContextMixin {
     @Final
     private Predicate<Fluid> walkOnFluidPredicate;
 
-    @Mutable
-    @Shadow
-    @Final
-    private ItemStack boots;
-
     @Shadow
     @Final
     @Nullable
@@ -65,36 +60,17 @@ public class EntityShapeContextMixin {
         return false;
     }
 
-    @ModifyConstant(
-            method = "<init>(Lnet/minecraft/entity/Entity;)V",
-            constant = @Constant(classValue = LivingEntity.class, ordinal = 4)
-    )
-    private static boolean redirectInstanceOf3(Object obj, Class<?> clazz) {
-        return false;
-    }
-
     @Inject(
             method = "<init>(Lnet/minecraft/entity/Entity;)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/block/EntityShapeContext;<init>(ZDLnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemStack;Ljava/util/function/Predicate;Lnet/minecraft/entity/Entity;)V",
+                    target = "Lnet/minecraft/block/EntityShapeContext;<init>(ZDLnet/minecraft/item/ItemStack;Ljava/util/function/Predicate;Lnet/minecraft/entity/Entity;)V",
                     shift = At.Shift.AFTER
             )
     )
     private void initFields(Entity entity, CallbackInfo ci) {
         this.heldItem = null;
         this.walkOnFluidPredicate = null;
-        this.boots = null;
-    }
-
-    @Inject(
-            method = "isWearingOnFeet(Lnet/minecraft/item/Item;)Z",
-            at = @At("HEAD")
-    )
-    public void isWearingOnFeet(Item item, CallbackInfoReturnable<Boolean> cir) {
-        if (this.boots == null) {
-            this.boots = this.entity instanceof LivingEntity ? ((LivingEntity) this.entity).getEquippedStack(EquipmentSlot.FEET) : ItemStack.EMPTY;
-        }
     }
 
     @Inject(

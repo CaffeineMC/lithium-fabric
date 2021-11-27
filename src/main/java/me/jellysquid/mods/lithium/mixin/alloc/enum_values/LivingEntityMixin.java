@@ -14,7 +14,7 @@ public class LivingEntityMixin {
      * @reason Avoid cloning enum values
      */
     @Redirect(
-            method = "getEquipment()Ljava/util/Map;",
+            method = "getEquipmentChanges()Ljava/util/Map;",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/EquipmentSlot;values()[Lnet/minecraft/entity/EquipmentSlot;"

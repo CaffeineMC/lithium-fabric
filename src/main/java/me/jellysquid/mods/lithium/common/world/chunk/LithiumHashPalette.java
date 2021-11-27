@@ -9,6 +9,7 @@ import net.minecraft.util.collection.IndexedIterable;
 import net.minecraft.world.chunk.Palette;
 import net.minecraft.world.chunk.PaletteResizeListener;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
@@ -152,6 +153,12 @@ public class LithiumHashPalette<T> implements Palette<T> {
     @Override
     public int getSize() {
         return this.size;
+    }
+
+    @Override
+    public Palette<T> copy() {
+        var clone = new ArrayList<>(this.table.keySet());
+        return new LithiumHashPalette<>(this.idList, this.indexBits, this.resizeHandler, clone);
     }
 
     private void clear() {
