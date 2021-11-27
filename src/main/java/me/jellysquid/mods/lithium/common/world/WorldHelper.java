@@ -56,7 +56,7 @@ public class WorldHelper {
         final int maxY = ChunkSectionPos.getSectionCoord(box.maxY + 2.0D);
         final int maxZ = ChunkSectionPos.getSectionCoord(box.maxZ + 2.0D);
         ArrayList<Entity> entities = new ArrayList<>();
-        //vanilla iteration order in SectionedEntityCache is xzy
+        //todo fix iteration order
         for (int x = minX; x <= maxX; x++) {
             for (int z = minZ; z <= maxZ; z++) {
                 for (int y = minY; y <= maxY; y++) {

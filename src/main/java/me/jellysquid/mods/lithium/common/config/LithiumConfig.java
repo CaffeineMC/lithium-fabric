@@ -76,12 +76,11 @@ public class LithiumConfig {
         this.addMixinRule("collections.entity_filtering", true);
 
         this.addMixinRule("entity", true);
-        this.addMixinRule("entity.collisions", false); //removed during 1.18 update
+        this.addMixinRule("entity.collisions", true);
         this.addMixinRule("entity.data_tracker", true);
         this.addMixinRule("entity.data_tracker.no_locks", true);
         this.addMixinRule("entity.data_tracker.use_arrays", true);
         this.addMixinRule("entity.fast_retrieval", true);
-        this.addMixinRule("entity.fast_suffocation_check", false); //removed during 1.18 update
         this.addMixinRule("entity.gravity_check_block_below", false); //removed during 1.18-rc1 update
         this.addMixinRule("entity.inactive_navigations", true);
         this.addMixinRule("entity.replace_entitytype_predicates", true);

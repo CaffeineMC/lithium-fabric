@@ -39,8 +39,8 @@ public class VoxelShapeSimpleCube extends VoxelShape implements VoxelShapeCaster
 
         this.isTiny =
                 this.minX + 3 * EPSILON >= this.maxX ||
-                this.minY + 3 * EPSILON >= this.maxY ||
-                this.minZ + 3 * EPSILON >= this.maxZ;
+                        this.minY + 3 * EPSILON >= this.maxY ||
+                        this.minZ + 3 * EPSILON >= this.maxZ;
     }
 
     @Override

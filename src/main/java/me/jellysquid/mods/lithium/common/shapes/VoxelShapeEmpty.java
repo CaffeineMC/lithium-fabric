@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.common.shapes;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
+import net.minecraft.util.math.AxisCycleDirection;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelSet;
@@ -18,6 +19,11 @@ public class VoxelShapeEmpty extends VoxelShape implements VoxelShapeCaster {
 
     public VoxelShapeEmpty(VoxelSet voxels) {
         super(voxels);
+    }
+
+    @Override
+    protected double calculateMaxDistance(AxisCycleDirection axisCycle, Box box, double maxDist) {
+        return maxDist;
     }
 
     @Override

@@ -30,7 +30,7 @@ public class NearbyEntityListenerMulti implements NearbyEntityListener {
         if (this.range != null) {
             return this.range;
         }
-        return calculateRange();
+        return this.calculateRange();
     }
     private Range6Int calculateRange() {
         if (this.listeners.isEmpty()) {

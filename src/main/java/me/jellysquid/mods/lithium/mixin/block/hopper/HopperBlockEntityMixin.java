@@ -459,7 +459,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     }
 
     private void initExtractItemEntityTracker() {
-        assert world instanceof ServerWorld;
+        assert this.world instanceof ServerWorld;
         List<Box> list = new ArrayList<>();
         Box encompassingBox = null;
         for (Box box : this.getInputAreaShape().getBoundingBoxes()) {

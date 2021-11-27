@@ -1,8 +1,8 @@
 package me.jellysquid.mods.lithium.common.entity.movement;
 
+import com.google.common.collect.AbstractIterator;
 import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
 import me.jellysquid.mods.lithium.common.block.SectionFlagHolder;
-import me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeCaster;
 import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.block.BlockState;
@@ -25,7 +25,7 @@ import static me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions.E
  * ChunkAwareBlockCollisionSweeper iterates over blocks in one chunk section at a time. Together with the chunk
  * section keeping track of the amount of oversized blocks inside the number of iterations can often be reduced.
  */
-public class ChunkAwareBlockCollisionSweeper {
+public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape> {
 
     private final BlockPos.Mutable pos = new BlockPos.Mutable();
 
@@ -43,10 +43,6 @@ public class ChunkAwareBlockCollisionSweeper {
 
     private final ShapeContext context;
 
-    private final BlockCollisionPredicate collisionPredicate;
-
-    private final Entity entity;
-
     //limits of the area without extension for oversized blocks
     private final int minX, minY, minZ, maxX, maxY, maxZ;
 
@@ -62,15 +58,12 @@ public class ChunkAwareBlockCollisionSweeper {
     private boolean sectionOversizedBlocks;
     private Chunk cachedChunk;
     private ChunkSection cachedChunkSection;
-    private boolean needEntityCollisionCheck;
 
-    public ChunkAwareBlockCollisionSweeper(CollisionView view, Entity entity, Box box, BlockCollisionPredicate collisionPredicate) {
+    public ChunkAwareBlockCollisionSweeper(CollisionView view, Entity entity, Box box) {
         this.box = box;
         this.shape = VoxelShapes.cuboid(box);
         this.context = entity == null ? ShapeContext.absent() : ShapeContext.of(entity);
         this.view = view;
-        this.entity = entity;
-        this.needEntityCollisionCheck = entity != null;
 
         this.minX = MathHelper.floor(box.minX - EPSILON);
         this.maxX = MathHelper.floor(box.maxX + EPSILON);
@@ -78,7 +71,6 @@ public class ChunkAwareBlockCollisionSweeper {
         this.maxY = MathHelper.clamp(MathHelper.floor(box.maxY + EPSILON), Pos.BlockCoord.getMinY(this.view), Pos.BlockCoord.getMaxYInclusive(this.view));
         this.minZ = MathHelper.floor(box.minZ - EPSILON);
         this.maxZ = MathHelper.floor(box.maxZ + EPSILON);
-        this.collisionPredicate = collisionPredicate;
 
         this.chunkX = Pos.ChunkCoord.fromBlockCoord(expandMin(this.minX));
         this.chunkZ = Pos.ChunkCoord.fromBlockCoord(expandMin(this.minZ));
@@ -153,28 +145,13 @@ public class ChunkAwareBlockCollisionSweeper {
         return true;
     }
 
-    public VoxelShape getNextCollidedShape() {
-        VoxelShape shape = null;
-
-        if (this.needEntityCollisionCheck) {
-            shape = this.getNextEntityCollision();
-
-            this.needEntityCollisionCheck = false;
-        }
-
-        if (shape == null) {
-            shape = this.getNextBlockCollision();
-        }
-
-        return shape;
-    }
-
     /**
      * Advances the sweep forward until finding a block with a box-colliding VoxelShape
      *
      * @return null if no VoxelShape is left in the area, otherwise the next VoxelShape
      */
-    private VoxelShape getNextBlockCollision() {
+    @Override
+    public VoxelShape computeNext() {
         while (true) {
             if (this.cIterated >= this.cTotalSize) {
                 if (!this.nextSection()) {
@@ -191,8 +168,7 @@ public class ChunkAwareBlockCollisionSweeper {
 
             //The iteration order within a chunk section is chosen so that it causes a mostly linear array access in the storage.
             //In net.minecraft.world.chunk.PalettedContainer.toIndex x gets the 4 least significant bits, z the 4 above, and y the 4 even higher ones.
-            //Linearly accessing arrays might be slightly faster than other access patterns.
-            //This code hasn't been benchmarked in comparison to another access order.
+            //Linearly accessing arrays is faster than other access patterns.
             if (this.cX < this.cEndX) {
                 this.cX++;
             } else if (this.cZ < this.cEndZ) {
@@ -224,10 +200,6 @@ public class ChunkAwareBlockCollisionSweeper {
 
             this.pos.set(x, y, z);
 
-            if (!this.collisionPredicate.test(this.view, this.pos, state)) {
-                continue;
-            }
-
             VoxelShape collisionShape = state.getCollisionShape(this.view, this.pos, this.context);
 
             if (collisionShape != VoxelShapes.empty()) {
@@ -238,15 +210,7 @@ public class ChunkAwareBlockCollisionSweeper {
             }
         }
 
-        return null;
-    }
-
-    private VoxelShape getNextEntityCollision() {
-        if (LithiumEntityCollisions.canEntityCollideWithWorldBorder(this.view, this.entity)) {
-            return this.view.getWorldBorder().asVoxelShape();
-        }
-
-        return null;
+        return this.endOfData();
     }
 
     /**
