@@ -6,8 +6,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
-import java.util.Random;
-
 @Mixin(Direction.class)
 public class DirectionMixin {
     @Shadow
@@ -25,14 +23,5 @@ public class DirectionMixin {
     @Overwrite
     public Direction getOpposite() {
         return ALL[this.idOpposite];
-    }
-
-    /**
-     * @reason Do not allocate an excessive number of Direction arrays
-     * @author JellySquid
-     */
-    @Overwrite
-    public static Direction random(Random rand) {
-        return ALL[rand.nextInt(ALL.length)];
     }
 }
