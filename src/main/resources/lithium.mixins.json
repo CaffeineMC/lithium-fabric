@@ -8,7 +8,6 @@
   },
   "mixins": [
     "ai.brain.BrainMixin",
-    "ai.goal.GoalSelectorMixin",
     "ai.nearby_entity_tracking.EntityMixin",
     "ai.nearby_entity_tracking.EntityTrackingSectionMixin",
     "ai.nearby_entity_tracking.SectionedEntityCacheMixin",
