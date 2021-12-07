@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.entity.collisions;
+package me.jellysquid.mods.lithium.mixin.entity.collisions.intersection;
 
 import me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions;
 import net.minecraft.entity.Entity;
