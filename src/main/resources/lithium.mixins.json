@@ -91,6 +91,7 @@
     "collections.entity_filtering.TypeFilterableListMixin",
     "entity.collisions.intersection.CollisionViewMixin",
     "entity.collisions.movement.EntityMixin",
+    "entity.collisions.suffocation.EntityMixin",
     "entity.data_tracker.no_locks.DataTrackerMixin",
     "entity.data_tracker.use_arrays.DataTrackerMixin",
     "entity.fast_retrieval.SectionedEntityCacheMixin",
