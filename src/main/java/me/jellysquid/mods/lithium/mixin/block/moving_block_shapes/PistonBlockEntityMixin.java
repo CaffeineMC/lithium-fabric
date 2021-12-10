@@ -34,6 +34,9 @@ public abstract class PistonBlockEntityMixin {
     private boolean source;
 
 
+    @Shadow
+    private BlockState pushedBlock;
+
     /**
      * Avoid calling {@link VoxelShapes#union(VoxelShape, VoxelShape)} whenever possible - use precomputed merged piston head + base shapes and
      * cache the results for all union calls with an empty shape as first argument. (these are all other cases)
@@ -48,10 +51,10 @@ public abstract class PistonBlockEntityMixin {
             locals = LocalCapture.CAPTURE_FAILHARD,
             cancellable = true
     )
-    private void skipVoxelShapeUnion(BlockView world, BlockPos pos, CallbackInfoReturnable<VoxelShape> cir, VoxelShape voxelShape2, BlockState blockState2, float f) {
-        if (this.extending || !this.source) {
+    private void skipVoxelShapeUnion(BlockView world, BlockPos pos, CallbackInfoReturnable<VoxelShape> cir, VoxelShape voxelShape, Direction direction, BlockState blockState, float f) {
+        if (this.extending || !this.source || !(this.pushedBlock.getBlock() instanceof PistonBlock)) {
             //here voxelShape2.isEmpty() is guaranteed, vanilla code would call union() which calls simplify()
-            VoxelShape blockShape = blockState2.getCollisionShape(world, pos);
+            VoxelShape blockShape = blockState.getCollisionShape(world, pos);
 
             //we cache the simplified shapes, as the simplify() method costs a lot of CPU time and allocates several objects
             VoxelShape offsetAndSimplified = getOffsetAndSimplified(blockShape, Math.abs(f), f < 0f ? this.facing.getOpposite() : this.facing);
