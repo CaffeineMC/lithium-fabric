@@ -12,6 +12,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
@@ -27,8 +28,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
@@ -55,18 +60,11 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
     Set<MobEntity> loadedMobs;
 
     private ReferenceOpenHashSet<EntityNavigation> activeNavigations;
-    private ArrayList<MobEntity> activeNavigationsUpdates;
-    private ArrayList<EntityNavigation> removedNavigations;
-
-    private boolean isIteratingActiveEntityNavigations;
 
     @Inject(method = "<init>(Lnet/minecraft/server/MinecraftServer;Ljava/util/concurrent/Executor;Lnet/minecraft/world/level/storage/LevelStorage$Session;Lnet/minecraft/world/level/ServerWorldProperties;Lnet/minecraft/util/registry/RegistryKey;Lnet/minecraft/world/dimension/DimensionType;Lnet/minecraft/server/WorldGenerationProgressListener;Lnet/minecraft/world/gen/chunk/ChunkGenerator;ZJLjava/util/List;Z)V", at = @At("TAIL"))
     private void init(MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey<World> registryKey, DimensionType dimensionType, WorldGenerationProgressListener worldGenerationProgressListener, ChunkGenerator chunkGenerator, boolean debugWorld, long l, List<Spawner> list, boolean bl, CallbackInfo ci) {
         this.loadedMobs = new ReferenceOpenHashSet<>(this.loadedMobs);
         this.activeNavigations = new ReferenceOpenHashSet<>();
-        this.activeNavigationsUpdates = new ArrayList<>();
-        this.removedNavigations = new ArrayList<>();
-        this.isIteratingActiveEntityNavigations = false;
     }
 
     /**
@@ -90,62 +88,25 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
             at = @At(
                     value = "INVOKE",
                     target = "Ljava/util/Set;iterator()Ljava/util/Iterator;"
-            )
+            ),
+            locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private void updateActiveListeners(BlockPos pos, BlockState oldState, BlockState newState, int flags, CallbackInfo ci) {
-        this.isIteratingActiveEntityNavigations = true;
+    private void updateActiveListeners(BlockPos pos, BlockState oldState, BlockState newState, int arg3, CallbackInfo ci, VoxelShape string, VoxelShape voxelShape, List<EntityNavigation> list) {
         for (EntityNavigation entityNavigation : this.activeNavigations) {
-            if (!entityNavigation.shouldRecalculatePath()) {
-                entityNavigation.onBlockChanged(pos);
-            }
-        }
-    }
-
-    @Inject(method = "updateListeners(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;I)V", at = @At(value = "RETURN"))
-    private void updateActiveListenerCollectionAfterIteration(BlockPos pos, BlockState oldState, BlockState newState, int flags, CallbackInfo ci) {
-        this.isIteratingActiveEntityNavigations = false;
-        if (!this.removedNavigations.isEmpty() || !this.activeNavigationsUpdates.isEmpty()) {
-            this.applyActiveEntityNavigationUpdates();
-        }
-    }
-
-    private void applyActiveEntityNavigationUpdates() {
-        ArrayList<EntityNavigation> removedNavigations = this.removedNavigations;
-        for (int i = removedNavigations.size() - 1; i >= 0; i--) {
-            EntityNavigation remove = removedNavigations.remove(i);
-            this.activeNavigations.remove(remove);
-        }
-        ArrayList<MobEntity> navigationUpdates = this.activeNavigationsUpdates;
-        for (int i = navigationUpdates.size() - 1; i >= 0; i--) {
-            MobEntity mobEntity = navigationUpdates.remove(i);
-            EntityNavigation entityNavigation = ((NavigatingEntity) mobEntity).getRegisteredNavigation();
-            if (entityNavigation == null) {
-                continue;
-            }
-            if (entityNavigation.getCurrentPath() != null) {
-                this.activeNavigations.add(entityNavigation);
-            } else {
-                this.activeNavigations.remove(entityNavigation);
+            if (entityNavigation.onBlockChanged(pos)) {
+                list.add(entityNavigation);
             }
         }
     }
 
     @Override
     public void setNavigationActive(MobEntity mobEntity) {
-        if (!this.isIteratingActiveEntityNavigations) {
-            this.activeNavigations.add(((NavigatingEntity) mobEntity).getRegisteredNavigation());
-        } else {
-            this.activeNavigationsUpdates.add(mobEntity);
-        }
+        this.activeNavigations.add(((NavigatingEntity) mobEntity).getRegisteredNavigation());
     }
 
     @Override
     public void setNavigationInactive(MobEntity mobEntity) {
-        if (!this.isIteratingActiveEntityNavigations) {
-            this.activeNavigations.remove(((NavigatingEntity) mobEntity).getRegisteredNavigation());
-        } else {
-            this.removedNavigations.add(((NavigatingEntity) mobEntity).getRegisteredNavigation());
-        }
+        this.activeNavigations.remove(((NavigatingEntity) mobEntity).getRegisteredNavigation());
     }
 
     protected ServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DimensionType dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
