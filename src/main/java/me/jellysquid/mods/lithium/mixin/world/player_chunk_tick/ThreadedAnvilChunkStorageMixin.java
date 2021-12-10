@@ -18,11 +18,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
+import static net.minecraft.server.world.ThreadedAnvilChunkStorage.method_39975;
+
 @Mixin(ThreadedAnvilChunkStorage.class)
 public abstract class ThreadedAnvilChunkStorageMixin {
-    @Shadow
-    public static native boolean isWithinDistance(int x1, int z1, int x2, int z2, int distance);
-
     @Shadow
     protected abstract void sendChunkDataPackets(ServerPlayerEntity player, MutableObject<ChunkDataS2CPacket> cachedDataPacket, WorldChunk chunk);
 
@@ -104,8 +103,8 @@ public abstract class ThreadedAnvilChunkStorageMixin {
 
             for (int x = minX; x <= maxX; x++) {
                 for (int z = minZ; z <= maxZ; z++) {
-                    boolean isWithinOldRadius = isWithinDistance(x, z, oldCenterX, oldCenterZ, watchRadius);
-                    boolean isWithinNewRadius = isWithinDistance(x, z, newCenterX, newCenterZ, watchRadius);
+                    boolean isWithinOldRadius = method_39975(x, z, oldCenterX, oldCenterZ, watchRadius);
+                    boolean isWithinNewRadius = method_39975(x, z, newCenterX, newCenterZ, watchRadius);
 
                     if (isWithinNewRadius && !isWithinOldRadius) {
                         this.startWatchingChunk(player, x, z);
