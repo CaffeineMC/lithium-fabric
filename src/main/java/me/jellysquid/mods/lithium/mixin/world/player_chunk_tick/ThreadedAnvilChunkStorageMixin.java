@@ -93,13 +93,14 @@ public abstract class ThreadedAnvilChunkStorageMixin {
         int oldCenterZ = oldPos.getSectionZ();
 
         int watchRadius = this.watchDistance;
+        int watchRadiusIncr = watchRadius + 1;
         int watchDiameter = watchRadius * 2;
 
         if (Math.abs(oldCenterX - newCenterX) <= watchDiameter && Math.abs(oldCenterZ - newCenterZ) <= watchDiameter) {
-            int minX = Math.min(newCenterX, oldCenterX) - watchRadius;
-            int minZ = Math.min(newCenterZ, oldCenterZ) - watchRadius;
-            int maxX = Math.max(newCenterX, oldCenterX) + watchRadius;
-            int maxZ = Math.max(newCenterZ, oldCenterZ) + watchRadius;
+            int minX = Math.min(newCenterX, oldCenterX) - watchRadiusIncr;
+            int minZ = Math.min(newCenterZ, oldCenterZ) - watchRadiusIncr;
+            int maxX = Math.max(newCenterX, oldCenterX) + watchRadiusIncr;
+            int maxZ = Math.max(newCenterZ, oldCenterZ) + watchRadiusIncr;
 
             for (int x = minX; x <= maxX; x++) {
                 for (int z = minZ; z <= maxZ; z++) {
@@ -116,15 +117,19 @@ public abstract class ThreadedAnvilChunkStorageMixin {
                 }
             }
         } else {
-            for (int x = oldCenterX - watchRadius; x <= oldCenterX + watchRadius; ++x) {
-                for (int z = oldCenterZ - watchRadius; z <= oldCenterZ + watchRadius; ++z) {
-                    this.stopWatchingChunk(player, x, z);
+            for (int x = oldCenterX - watchRadiusIncr; x <= oldCenterX + watchRadiusIncr; ++x) {
+                for (int z = oldCenterZ - watchRadiusIncr; z <= oldCenterZ + watchRadiusIncr; ++z) {
+                    if (method_39975(x, z, oldCenterX, oldCenterZ, watchRadius)) {
+                        this.stopWatchingChunk(player, x, z);
+                    }
                 }
             }
 
-            for (int x = newCenterX - watchRadius; x <= newCenterX + watchRadius; ++x) {
-                for (int z = newCenterZ - watchRadius; z <= newCenterZ + watchRadius; ++z) {
-                    this.startWatchingChunk(player, x, z);
+            for (int x = newCenterX - watchRadiusIncr; x <= newCenterX + watchRadiusIncr; ++x) {
+                for (int z = newCenterZ - watchRadiusIncr; z <= newCenterZ + watchRadiusIncr; ++z) {
+                    if (method_39975(x, z, newCenterX, newCenterZ, watchRadius)) {
+                        this.startWatchingChunk(player, x, z);
+                    }
                 }
             }
         }
