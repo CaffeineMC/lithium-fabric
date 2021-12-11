@@ -33,7 +33,6 @@ public class LithiumConfig {
 
         this.addMixinRule("ai", true);
         this.addMixinRule("ai.brain", true);
-        this.addMixinRule("ai.goal", false); //probably made obsolete during 1.18 update
         this.addMixinRule("ai.nearby_entity_tracking", true);
         this.addMixinRule("ai.nearby_entity_tracking.goals", true);
         this.addMixinRule("ai.pathing", true);
@@ -74,6 +73,7 @@ public class LithiumConfig {
 
         this.addMixinRule("collections", true);
         this.addMixinRule("collections.entity_filtering", true);
+        this.addMixinRule("collections.goals", true);
 
         this.addMixinRule("entity", true);
         this.addMixinRule("entity.collisions", true);

@@ -89,6 +89,7 @@
     "chunk.serialization.PackedIntegerArrayMixin",
     "chunk.serialization.PalettedContainerMixin",
     "collections.entity_filtering.TypeFilterableListMixin",
+    "collections.goals.GoalSelectorMixin",
     "entity.collisions.intersection.CollisionViewMixin",
     "entity.collisions.movement.EntityMixin",
     "entity.collisions.suffocation.EntityMixin",
