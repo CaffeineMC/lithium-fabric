@@ -35,7 +35,6 @@
     "ai.task.replace_streams.WeightedListMixin",
     "alloc.chunk_random.ServerWorldMixin",
     "alloc.chunk_random.WorldMixin",
-    "alloc.chunk_ticking.ChunkTicketManagerMixin",
     "alloc.chunk_ticking.ServerChunkManagerMixin",
     "alloc.composter.ComposterMixin$ComposterBlockComposterInventoryMixin",
     "alloc.composter.ComposterMixin$ComposterBlockDummyInventoryMixin",
