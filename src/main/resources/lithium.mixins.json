@@ -134,7 +134,6 @@
     "world.chunk_access.ChunkHolderMixin",
     "world.chunk_access.ServerChunkManagerMixin",
     "world.chunk_access.WorldMixin",
-    "world.chunk_task_system.ChunkTaskPrioritySystemMixin",
     "world.chunk_tickets.SortedArraySetMixin",
     "world.explosions.ExplosionMixin",
     "world.inline_block_access.WorldChunkMixin",

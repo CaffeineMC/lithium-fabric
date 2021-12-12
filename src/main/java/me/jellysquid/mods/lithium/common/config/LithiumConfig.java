@@ -122,7 +122,6 @@ public class LithiumConfig {
         this.addMixinRule("world.block_entity_ticking", true);
         this.addMixinRule("world.block_entity_ticking.support_cache", false); //have to check whether the cached state bugfix fixes any detectable vanilla bugs first
         this.addMixinRule("world.chunk_access", true);
-        this.addMixinRule("world.chunk_task_system", true);
         this.addMixinRule("world.chunk_tickets", true);
         this.addMixinRule("world.chunk_ticking", false); //removed during 1.18 update
         this.addMixinRule("world.explosions", true);
