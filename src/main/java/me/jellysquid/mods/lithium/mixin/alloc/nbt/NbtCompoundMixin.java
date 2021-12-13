@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.collections.nbt;
+package me.jellysquid.mods.lithium.mixin.alloc.nbt;
 
 import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
