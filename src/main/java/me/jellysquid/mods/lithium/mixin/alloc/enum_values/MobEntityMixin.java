@@ -2,19 +2,19 @@ package me.jellysquid.mods.lithium.mixin.alloc.enum_values;
 
 import me.jellysquid.mods.lithium.common.util.EquipmentSlots;
 import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.MobEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(LivingEntity.class)
-public class LivingEntityMixin {
+@Mixin(MobEntity.class)
+public class MobEntityMixin {
 
     /**
      * Avoid cloning enum values.
      */
     @Redirect(
-            method = "getEquipmentChanges()Ljava/util/Map;",
+            method = "convertTo",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/EquipmentSlot;values()[Lnet/minecraft/entity/EquipmentSlot;"
