@@ -28,28 +28,19 @@ public class EntityTrackerMixin {
         return null;
     }
 
-    // Redirects cannot capture local variables =(
-    @Unique
-    private ServerPlayerEntity lithium$player;
-
-    @Inject(method = "updateTrackedStatus(Lnet/minecraft/server/network/ServerPlayerEntity;)V", at = @At("HEAD"))
-    private void captureLocalPlayer(ServerPlayerEntity player, CallbackInfo ci) {
-        this.lithium$player = player;
-    }
-
     @Redirect(
             method = "updateTrackedStatus(Lnet/minecraft/server/network/ServerPlayerEntity;)V",
             at = @At(value = "FIELD", target = "Lnet/minecraft/util/math/Vec3d;x:D")
     )
-    private double calcX(Vec3d vec) {
-        return this.lithium$player.getPos().x - entry.getLastPos().x;
+    private double calcX(Vec3d vec, ServerPlayerEntity player) {
+        return player.getPos().x - entry.getLastPos().x;
     }
 
     @Redirect(
             method = "updateTrackedStatus(Lnet/minecraft/server/network/ServerPlayerEntity;)V",
             at = @At(value = "FIELD", target = "Lnet/minecraft/util/math/Vec3d;z:D")
     )
-    private double calcZ(Vec3d vec) {
-        return this.lithium$player.getPos().z - this.entry.getLastPos().z;
+    private double calcZ(Vec3d vec, ServerPlayerEntity player) {
+        return player.getPos().z - this.entry.getLastPos().z;
     }
 }
