@@ -92,6 +92,7 @@
     "collections.entity_filtering.TypeFilterableListMixin",
     "collections.goals.GoalSelectorMixin",
     "collections.nbt.NbtCompoundMixin",
+    "collections.nbt.NbtCompoundMixin$Type",
     "entity.collisions.intersection.CollisionViewMixin",
     "entity.collisions.movement.EntityMixin",
     "entity.collisions.suffocation.EntityMixin",
