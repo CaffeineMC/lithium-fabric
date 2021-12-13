@@ -53,6 +53,7 @@ public class LithiumConfig {
         this.addMixinRule("alloc.entity_tracker", true);
         this.addMixinRule("alloc.enum_values", true);
         this.addMixinRule("alloc.explosion_behavior", true);
+        this.addMixinRule("alloc.vectors", true);
 
         this.addMixinRule("block", true);
         this.addMixinRule("block.flatten_states", true);
@@ -74,6 +75,7 @@ public class LithiumConfig {
         this.addMixinRule("collections", true);
         this.addMixinRule("collections.entity_filtering", true);
         this.addMixinRule("collections.goals", true);
+        this.addMixinRule("collections.nbt", true);
 
         this.addMixinRule("entity", true);
         this.addMixinRule("entity.collisions", true);
