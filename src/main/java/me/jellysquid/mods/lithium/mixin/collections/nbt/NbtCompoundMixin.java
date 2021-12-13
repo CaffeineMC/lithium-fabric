@@ -32,7 +32,7 @@ public class NbtCompoundMixin {
 
     @Redirect(
             method = "<init>()V",
-            at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Maps;newHashMap()Ljava/util/HashMap;")
+            at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Maps;newHashMap()Ljava/util/HashMap;", remap = false)
     )
     private static <K, V> HashMap<K, V> removeOldMapAlloc() {
         return null;

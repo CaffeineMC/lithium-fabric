@@ -11,7 +11,6 @@ accessible class net/minecraft/world/chunk/PalettedContainer$Serialized
 accessible class net/minecraft/world/chunk/PalettedContainer$DataProvider
 
 accessible field net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker entity Lnet/minecraft/entity/Entity;
-accessible field net/minecraft/util/math/MathHelper SINE_TABLE [F
 accessible field net/minecraft/util/shape/VoxelShape voxels Lnet/minecraft/util/shape/VoxelSet;
 
 accessible field net/minecraft/util/math/noise/SimplexNoiseSampler GRADIENTS [[I
@@ -33,3 +32,5 @@ accessible field net/minecraft/util/math/MathHelper SINE_TABLE [F
 
 accessible class net/minecraft/server/world/ServerWorld$ServerEntityHandler
 accessible method net/minecraft/world/World isInvalidVertically (I)Z
+
+accessible method net/minecraft/nbt/NbtCompound <init> (Ljava/util/Map;)V
