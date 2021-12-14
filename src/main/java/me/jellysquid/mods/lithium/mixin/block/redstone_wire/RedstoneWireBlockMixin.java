@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.block.redstone_wire;
 
+import me.jellysquid.mods.lithium.common.util.DirectionConstants;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -55,10 +56,6 @@ import net.minecraft.world.chunk.WorldChunk;
 @Mixin(RedstoneWireBlock.class)
 public class RedstoneWireBlockMixin extends Block {
     
-    private static final Direction[] DIRECTIONS = Direction.values();
-    private static final Direction[] DIRECTIONS_VERTICAL = { Direction.DOWN, Direction.UP };
-    private static final Direction[] DIRECTIONS_HORIZONTAL = { Direction.WEST, Direction.EAST, Direction.NORTH, Direction.SOUTH };
-    
     private static final int MIN = 0;            // smallest possible power value
     private static final int MAX = 15;           // largest possible power value
     private static final int MAX_WIRE = MAX - 1; // largest possible power a wire can receive from another wire
@@ -86,7 +83,7 @@ public class RedstoneWireBlockMixin extends Block {
         WorldChunk chunk = world.getWorldChunk(pos);
         int power = MIN;
         
-        for (Direction dir : DIRECTIONS_VERTICAL) {
+        for (Direction dir : DirectionConstants.VERTICAL) {
             BlockPos side = pos.offset(dir);
             BlockState neighbor = chunk.getBlockState(side);
             
@@ -106,7 +103,7 @@ public class RedstoneWireBlockMixin extends Block {
         BlockPos up = pos.up();
         boolean checkWiresAbove = !chunk.getBlockState(up).isSolidBlock(world, up);
         
-        for (Direction dir : DIRECTIONS_HORIZONTAL) {
+        for (Direction dir : DirectionConstants.HORIZONTAL) {
             power = Math.max(power, this.getPowerFromSide(world, pos.offset(dir), dir, checkWiresAbove));
             
             if (power >= MAX) {
@@ -186,7 +183,7 @@ public class RedstoneWireBlockMixin extends Block {
     private int getStrongPowerTo(World world, BlockPos pos, Direction ignore) {
         int power = MIN;
         
-        for (Direction dir : DIRECTIONS) {
+        for (Direction dir : DirectionConstants.ALL) {
             if (dir != ignore) {
                 BlockPos side = pos.offset(dir);
                 BlockState neighbor = world.getBlockState(side);

@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.alloc.enum_values;
 
-import me.jellysquid.mods.lithium.common.util.EquipmentSlots;
+import me.jellysquid.mods.lithium.common.util.EquipmentSlotConstants;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.mob.MobEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,6 +21,6 @@ public class MobEntityMixin {
             )
     )
     private EquipmentSlot[] removeAllocation() {
-        return EquipmentSlots.ALL;
+        return EquipmentSlotConstants.ALL;
     }
 }

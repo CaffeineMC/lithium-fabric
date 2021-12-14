@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.alloc.enum_values;
 
+import me.jellysquid.mods.lithium.common.util.DirectionConstants;
 import net.minecraft.block.piston.PistonHandler;
 import net.minecraft.util.math.Direction;
 import org.spongepowered.asm.mixin.Mixin;
@@ -8,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(PistonHandler.class)
 public class PistonHandlerMixin {
-    private static final Direction[] VALUES = Direction.values();
 
     @Redirect(
             method = "tryMoveAdjacentBlock(Lnet/minecraft/util/math/BlockPos;)Z",
@@ -18,6 +18,6 @@ public class PistonHandlerMixin {
             )
     )
     private Direction[] redirectCanMoveAdjacentBlockValues() {
-        return VALUES;
+        return DirectionConstants.ALL;
     }
 }
