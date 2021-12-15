@@ -2,6 +2,9 @@ package me.jellysquid.mods.lithium.common.util;
 
 import net.minecraft.util.math.Direction;
 
+/**
+ * Pre-initialized constants to avoid unnecessary allocations.
+ */
 public final class DirectionConstants {
     private DirectionConstants() {}
 

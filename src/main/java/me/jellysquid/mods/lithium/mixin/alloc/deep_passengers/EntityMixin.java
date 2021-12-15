@@ -19,7 +19,7 @@ public abstract class EntityMixin {
 
     /**
      * @author 2No2Name
-     * @reason avoid stream code
+     * @reason Avoid stream code
      */
     @Overwrite
     public Iterable<Entity> getPassengersDeep() {
@@ -34,7 +34,7 @@ public abstract class EntityMixin {
 
     /**
      * @author 2No2Name
-     * @reason avoid stream allocations
+     * @reason Avoid stream allocations
      */
     @Overwrite
     private Stream<Entity> streamIntoPassengers() {
@@ -49,7 +49,7 @@ public abstract class EntityMixin {
 
     /**
      * @author 2No2Name
-     * @reason avoid stream allocations
+     * @reason Avoid stream allocations
      */
     @Overwrite
     public Stream<Entity> streamSelfAndPassengers() {
@@ -65,7 +65,7 @@ public abstract class EntityMixin {
 
     /**
      * @author 2No2Name
-     * @reason avoid stream allocations
+     * @reason Avoid stream allocations
      */
     @Overwrite
     public Stream<Entity> streamPassengersAndSelf() {
@@ -97,5 +97,4 @@ public abstract class EntityMixin {
             passengers.add(passenger);
         }
     }
-
 }

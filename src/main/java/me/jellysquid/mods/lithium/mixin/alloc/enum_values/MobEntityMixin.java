@@ -10,9 +10,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(MobEntity.class)
 public class MobEntityMixin {
 
-    /**
-     * Avoid cloning enum values.
-     */
     @Redirect(
             method = "convertTo",
             at = @At(

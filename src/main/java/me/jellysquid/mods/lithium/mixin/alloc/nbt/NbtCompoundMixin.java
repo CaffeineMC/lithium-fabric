@@ -16,6 +16,12 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Use {@link Object2ObjectOpenHashMap} instead of {@link HashMap} to reduce NBT memory consumption and improve
+ * iteration speed.
+ *
+ * @author Maity
+ */
 @Mixin(NbtCompound.class)
 public class NbtCompoundMixin {
 
@@ -64,7 +70,6 @@ public class NbtCompoundMixin {
         private Map<String, NbtElement> useFasterCollection(Map<String, NbtElement> map) {
             return new Object2ObjectOpenHashMap<>();
         }
-
 
         @Redirect(
                 method = "read(Ljava/io/DataInput;ILnet/minecraft/nbt/NbtTagSizeTracker;)Lnet/minecraft/nbt/NbtCompound;",

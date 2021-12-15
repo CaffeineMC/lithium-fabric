@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+// Avoid unnecessary Vec3d allocations
 @Mixin(EntityTrackerEntry.class)
 public class EntityTrackerEntryMixin {
 
@@ -28,7 +29,7 @@ public class EntityTrackerEntryMixin {
             )
     )
     private Vec3d removeAllocation(Vec3d playerPos, Vec3d playerLastPos) {
-        // Magic numbers from EntityS2CPacket.decodePacketCoordinates(ddd)
+        // [VanillaCopy] Magic numbers from EntityS2CPacket.decodePacketCoordinates(ddd)
         this.lithium$x = this.entity.getPos().x - (this.lastX * 2.44140625E-4D);
         this.lithium$y = this.entity.getPos().y - (this.lastY * 2.44140625E-4D);
         this.lithium$z = this.entity.getPos().z - (this.lastZ * 2.44140625E-4D);
@@ -38,6 +39,7 @@ public class EntityTrackerEntryMixin {
 
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Vec3d;lengthSquared()D"))
     private double calcVecSquaredLength(Vec3d vec) {
+        // [VanillaCopy] Vec3d.lengthSquared()
         return this.lithium$x * this.lithium$x + this.lithium$y * this.lithium$y + this.lithium$z * this.lithium$z;
     }
 

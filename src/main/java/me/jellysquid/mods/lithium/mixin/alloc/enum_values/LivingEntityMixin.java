@@ -10,9 +10,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(LivingEntity.class)
 public class LivingEntityMixin {
 
-    /**
-     * Avoid cloning enum values.
-     */
     @Redirect(
             method = "getEquipmentChanges()Ljava/util/Map;",
             at = @At(

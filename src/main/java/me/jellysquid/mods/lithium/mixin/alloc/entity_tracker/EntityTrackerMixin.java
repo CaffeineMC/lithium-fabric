@@ -20,4 +20,3 @@ public class EntityTrackerMixin {
         return new ReferenceOpenHashSet<>();
     }
 }
-
