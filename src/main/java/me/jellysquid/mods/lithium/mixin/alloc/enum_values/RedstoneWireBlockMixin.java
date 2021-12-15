@@ -14,7 +14,7 @@ public class RedstoneWireBlockMixin {
             method = "update(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Direction;values()[Lnet/minecraft/util/math/Direction;")
     )
-    private Direction[] redirectUpdateDirectionValues() {
+    private Direction[] removeAllocation1() {
         return DirectionConstants.ALL;
     }
 
@@ -22,7 +22,7 @@ public class RedstoneWireBlockMixin {
             method = "updateNeighbors(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Direction;values()[Lnet/minecraft/util/math/Direction;")
     )
-    private Direction[] redirectUpdateNeighborsDirectionValues() {
+    private Direction[] removeAllocation2() {
         return DirectionConstants.ALL;
     }
 }

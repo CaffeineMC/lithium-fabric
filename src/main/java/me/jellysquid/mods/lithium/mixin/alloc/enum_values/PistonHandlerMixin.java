@@ -17,7 +17,7 @@ public class PistonHandlerMixin {
                     target = "Lnet/minecraft/util/math/Direction;values()[Lnet/minecraft/util/math/Direction;"
             )
     )
-    private Direction[] redirectCanMoveAdjacentBlockValues() {
+    private Direction[] removeAllocation() {
         return DirectionConstants.ALL;
     }
 }

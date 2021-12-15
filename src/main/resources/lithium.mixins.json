@@ -46,6 +46,7 @@
     "alloc.enum_values.PistonBlockMixin",
     "alloc.enum_values.PistonHandlerMixin",
     "alloc.enum_values.RedstoneWireBlockMixin",
+    "alloc.enum_values.ZombieVillagerEntityMixin",
     "alloc.explosion_behavior.EntityExplosionBehaviorMixin",
     "alloc.nbt.NbtCompoundMixin",
     "alloc.nbt.NbtCompoundMixin$Type",

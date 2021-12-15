@@ -10,7 +10,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-// Avoid unnecessary Vec3d allocations
+/**
+ * Avoid unnecessary {@link Vec3d} allocations.
+ */
 @Mixin(EntityTrackerEntry.class)
 public class EntityTrackerEntryMixin {
 
