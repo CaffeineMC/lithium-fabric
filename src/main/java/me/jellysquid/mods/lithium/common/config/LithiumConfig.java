@@ -73,6 +73,7 @@ public class LithiumConfig {
 
         this.addMixinRule("collections", true);
         this.addMixinRule("collections.entity_filtering", true);
+        this.addMixinRule("collections.gamerules", true);
         this.addMixinRule("collections.goals", true);
 
         this.addMixinRule("entity", true);
