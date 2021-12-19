@@ -37,11 +37,14 @@ public class ServerEntityHandlerMixin {
     @Redirect(method = "stopTracking(Lnet/minecraft/entity/Entity;)V", at = @At(value = "INVOKE", target = "Ljava/util/Set;remove(Ljava/lang/Object;)Z"))
     private boolean stopListeningOnEntityUnload(Set<MobEntity> set, Object mobEntityObj) {
         MobEntity mobEntity = (MobEntity) mobEntityObj;
-        EntityNavigation registeredNavigation = ((NavigatingEntity) mobEntity).getRegisteredNavigation();
-        if (registeredNavigation.getCurrentPath() != null) {
-            ((ServerWorldExtended) this.outer).setNavigationInactive(mobEntity);
+        NavigatingEntity navigatingEntity = (NavigatingEntity) mobEntity;
+        if (navigatingEntity.isRegisteredToWorld()) {
+            EntityNavigation registeredNavigation = navigatingEntity.getRegisteredNavigation();
+            if (registeredNavigation.getCurrentPath() != null) {
+                ((ServerWorldExtended) this.outer).setNavigationInactive(mobEntity);
+            }
+            navigatingEntity.setRegisteredToWorld(null);
         }
-        ((NavigatingEntity) mobEntity).setRegisteredToWorld(null);
         return set.remove(mobEntity);
     }
 
