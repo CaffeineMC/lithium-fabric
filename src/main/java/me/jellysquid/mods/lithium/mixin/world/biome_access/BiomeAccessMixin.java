@@ -47,15 +47,15 @@ public class BiomeAccessMixin {
         int y = yMinus2 >> 2;
         int z = zMinus2 >> 2;
         double quartX = (double)(xMinus2 & 3) / 4.0D; // quartLocal divided by 4
-        double quartY = (double)(yMinus2 & 3) / 4.0D; //      0/4, 1/4, 2/4, 3/4
+        double quartY = (double)(yMinus2 & 3) / 4.0D; // 0/4, 1/4, 2/4, 3/4
         double quartZ = (double)(zMinus2 & 3) / 4.0D; // [0, 0.25, 0.5, 0.75]
         int smallestX = 0;
-        double smallestChance = Double.POSITIVE_INFINITY;
+        double smallestDist = Double.POSITIVE_INFINITY;
         for(int biomeX = 0; biomeX < 8; ++biomeX) {
             boolean everyOtherQuad = (biomeX & 4) == 0; // 1 1 1 1 0 0 0 0
             boolean everyOtherPair = (biomeX & 2) == 0; // 1 1 0 0 1 1 0 0
             boolean everyOther =     (biomeX & 1) == 0; // 1 0 1 0 1 0 1 0
-            double quartXX = everyOtherQuad ? quartX : quartX - 1.0D; // [-1.0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75]
+            double quartXX = everyOtherQuad ? quartX : quartX - 1.0D; //[-1.0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75]
             double quartYY = everyOtherPair ? quartY : quartY - 1.0D;
             double quartZZ = everyOther ? quartZ : quartZ - 1.0D;
 
@@ -64,8 +64,8 @@ public class BiomeAccessMixin {
             if (biomeX != 0) {
                 maxQuartYY = MathHelper.square(Math.max(quartYY + 0.4500000001D, Math.abs(quartYY - 0.4500000001D)));
                 maxQuartZZ = MathHelper.square(Math.max(quartZZ + 0.4500000001D, Math.abs(quartZZ - 0.4500000001D)));
-                double maxQuartXX = MathHelper.square(Math.max(quartXX + 0.4500000001D, Math.abs(quartXX - 0.4500000001D)));
-                if (smallestChance < maxQuartXX + maxQuartYY + maxQuartZZ) {
+                double maxQuartXX = MathHelper.square(Math.max(quartXX+0.4500000001D, Math.abs(quartXX-0.4500000001D)));
+                if (smallestDist < maxQuartXX + maxQuartYY + maxQuartZZ) {
                     continue;
                 }
             }
@@ -81,22 +81,24 @@ public class BiomeAccessMixin {
             seed = SeedMixer.mixSeed(seed, xx);
             seed = SeedMixer.mixSeed(seed, yy);
             seed = SeedMixer.mixSeed(seed, zz);
-            double mixX = method_38108(seed);
-            if (biomeX != 0 && smallestChance < MathHelper.square(quartXX + mixX) + maxQuartYY + maxQuartZZ) {
+            double offsetX = method_38108(seed);
+            double sqrX = MathHelper.square(quartXX + offsetX);
+            if (biomeX != 0 && smallestDist < sqrX + maxQuartYY + maxQuartZZ) {
                 continue; // skip the rest of the loop
             }
             seed = SeedMixer.mixSeed(seed, this.seed);
-            double mixY = method_38108(seed);
-            if (biomeX != 0 && smallestChance < MathHelper.square(quartXX + mixX) + MathHelper.square(quartXX + mixY) + maxQuartZZ) {
+            double offsetY = method_38108(seed);
+            double sqrY = MathHelper.square(quartXX + offsetY);
+            if (biomeX != 0 && smallestDist < sqrX + sqrY + maxQuartZZ) {
                 continue; // skip the rest of the loop
             }
             seed = SeedMixer.mixSeed(seed, this.seed);
-            double mixZ = method_38108(seed);
-            double biomeChance = MathHelper.square(quartZZ + mixZ) + MathHelper.square(quartYY + mixY) + MathHelper.square(quartXX + mixX);
+            double offsetZ = method_38108(seed);
+            double biomeDist = sqrX + sqrY + MathHelper.square(quartZZ + offsetZ);
 
-            if (smallestChance > biomeChance) {
+            if (smallestDist > biomeDist) {
                 smallestX = biomeX;
-                smallestChance = biomeChance;
+                smallestDist = biomeDist;
             }
         }
 
