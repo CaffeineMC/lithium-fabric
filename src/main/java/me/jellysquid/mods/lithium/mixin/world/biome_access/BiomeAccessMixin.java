@@ -88,7 +88,7 @@ public class BiomeAccessMixin {
             }
             seed = SeedMixer.mixSeed(seed, this.seed);
             double offsetY = method_38108(seed);
-            double sqrY = MathHelper.square(quartXX + offsetY);
+            double sqrY = MathHelper.square(quartYY + offsetY);
             if (biomeX != 0 && smallestDist < sqrX + sqrY + maxQuartZZ) {
                 continue; // skip the rest of the loop
             }
