@@ -564,6 +564,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                 this.extractItemEntityTrackerWasEmpty = false;
             }
         }
+        this.invalidateBlockExtractionData();
     }
 
     private void invalidateBlockExtractionData() {
