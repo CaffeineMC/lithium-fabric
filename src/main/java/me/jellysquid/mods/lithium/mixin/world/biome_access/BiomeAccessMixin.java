@@ -34,6 +34,8 @@ public class BiomeAccessMixin {
     @Shadow
     private static double method_38108(long l) {return 0;}
 
+    private static final double maxOffset = 0.4500000001D;
+
     /**
      * @author FX - PR0CESS
      * @reason I wanted to make it faster
@@ -57,14 +59,14 @@ public class BiomeAccessMixin {
             boolean everyOther =     (biomeX & 1) == 0; // 1 0 1 0 1 0 1 0
             double quartXX = everyOtherQuad ? quartX : quartX - 1.0D; //[-1.0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75]
             double quartYY = everyOtherPair ? quartY : quartY - 1.0D;
-            double quartZZ = everyOther ? quartZ : quartZ - 1.0D;
+            double quartZZ = everyOther     ? quartZ : quartZ - 1.0D;
 
             //This code block is new
             double maxQuartYY = 0.0D,maxQuartZZ = 0.0D;
             if (biomeX != 0) {
-                maxQuartYY = MathHelper.square(Math.max(quartYY + 0.4500000001D, Math.abs(quartYY - 0.4500000001D)));
-                maxQuartZZ = MathHelper.square(Math.max(quartZZ + 0.4500000001D, Math.abs(quartZZ - 0.4500000001D)));
-                double maxQuartXX = MathHelper.square(Math.max(quartXX+0.4500000001D, Math.abs(quartXX-0.4500000001D)));
+                maxQuartYY = MathHelper.square(Math.max(quartYY + maxOffset, Math.abs(quartYY - maxOffset)));
+                maxQuartZZ = MathHelper.square(Math.max(quartZZ + maxOffset, Math.abs(quartZZ - maxOffset)));
+                double maxQuartXX = MathHelper.square(Math.max(quartXX + maxOffset, Math.abs(quartXX - maxOffset)));
                 if (smallestDist < maxQuartXX + maxQuartYY + maxQuartZZ) {
                     continue;
                 }
