@@ -19,7 +19,8 @@ import java.util.Map;
 
 /**
  * Mixin that mostly removes empty structure starts and references, which in turn speeds up spawning entities and
- * reduces memory usage and disk space usage.
+ * reduces memory usage. {@link ChunkSerializerMixin} makes sure that the empty structures will not be missing from
+ * chunks saved on disk, just in case future minecraft versions rely on empty structures being present.
  */
 @Mixin(Chunk.class)
 public class ChunkMixin {
@@ -44,7 +45,7 @@ public class ChunkMixin {
             at = @At("HEAD")
     )
     private void removeEmptyStructureFeatureEntries(Map<StructureFeature<?>, LongSet> structureReferences, CallbackInfo ci) {
-        if (structureReferences instanceof HashMap) {
+        if (structureReferences instanceof HashMap && !structureReferences.isEmpty()) {
             structureReferences.values().removeIf(longs -> longs == null || longs.isEmpty());
         }
     }
@@ -57,7 +58,7 @@ public class ChunkMixin {
             at = @At("HEAD")
     )
     private void removeEmptyStructureStartEntries(Map<StructureFeature<?>, StructureStart<?>> structureStarts, CallbackInfo ci) {
-        if (structureStarts instanceof HashMap) {
+        if (structureStarts instanceof HashMap && !structureStarts.isEmpty()) {
             structureStarts.values().removeIf(structureStart -> structureStart == null || structureStart == StructureStart.DEFAULT);
         }
     }

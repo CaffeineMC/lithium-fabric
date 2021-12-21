@@ -87,6 +87,7 @@
     "chunk.serialization.PackedIntegerArrayMixin",
     "chunk.serialization.PalettedContainerMixin",
     "chunk.structure_storage.ChunkMixin",
+    "chunk.structure_storage.ChunkSerializerMixin",
     "collections.entity_filtering.TypeFilterableListMixin",
     "collections.gamerules.GameRulesMixin",
     "collections.goals.GoalSelectorMixin",
