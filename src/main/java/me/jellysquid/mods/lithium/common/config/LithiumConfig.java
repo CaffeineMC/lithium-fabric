@@ -78,6 +78,7 @@ public class LithiumConfig {
         this.addMixinRule("collections.entity_ticking", true);
         this.addMixinRule("collections.gamerules", true);
         this.addMixinRule("collections.goals", true);
+        this.addMixinRule("collections.mob_spawning", true);
 
         this.addMixinRule("entity", true);
         this.addMixinRule("entity.collisions", true);
@@ -133,7 +134,6 @@ public class LithiumConfig {
         this.addMixinRule("world.explosions", true);
         this.addMixinRule("world.inline_block_access", true);
         this.addMixinRule("world.inline_height", true);
-        this.addMixinRule("world.mob_spawning", true);
         this.addMixinRule("world.player_chunk_tick", true);
         this.addMixinRule("world.tick_scheduler", false); //removed during 1.18 update
 

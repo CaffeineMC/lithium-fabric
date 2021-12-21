@@ -94,6 +94,8 @@
     "collections.entity_ticking.EntityListMixin",
     "collections.gamerules.GameRulesMixin",
     "collections.goals.GoalSelectorMixin",
+    "collections.mob_spawning.PoolMixin",
+    "collections.mob_spawning.SpawnSettingsMixin",
     "entity.collisions.intersection.CollisionViewMixin",
     "entity.collisions.movement.EntityMixin",
     "entity.collisions.suffocation.EntityMixin",
@@ -148,8 +150,6 @@
     "world.inline_block_access.WorldMixin",
     "world.inline_height.WorldChunkMixin",
     "world.inline_height.WorldMixin",
-    "world.mob_spawning.PoolMixin",
-    "world.mob_spawning.SpawnSettingsMixin",
     "world.player_chunk_tick.ThreadedAnvilChunkStorageMixin"
   ],
   "client": [

@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.world.mob_spawning;
+package me.jellysquid.mods.lithium.mixin.collections.mob_spawning;
 
 import com.google.common.collect.ImmutableList;
 import me.jellysquid.mods.lithium.common.util.collections.HashedReferenceList;
