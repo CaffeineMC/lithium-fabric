@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeAlignedCuboid;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeEmpty;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeSimpleCube;
+import me.jellysquid.mods.lithium.common.util.math.FastMath;
 import net.minecraft.util.shape.BitSetVoxelSet;
 import net.minecraft.util.shape.VoxelSet;
 import net.minecraft.util.shape.VoxelShape;
@@ -104,8 +105,8 @@ public abstract class VoxelShapesMixin {
                 return FULL_CUBE;
             }
             // vanilla would use a SimpleVoxelShape with a BitSetVoxelSet of resolution of xRes, yRes, zRes here, we match its behavior
-            return new VoxelShapeAlignedCuboid(Math.round(minX * 8D) / 8D, Math.round(minY * 8D) / 8D, Math.round(minZ * 8D) / 8D,
-                    Math.round(maxX * 8D) / 8D, Math.round(maxY * 8D) / 8D, Math.round(maxZ * 8D) / 8D, xRes, yRes, zRes);
+            return new VoxelShapeAlignedCuboid(FastMath.round(minX * 8D) / 8D, FastMath.round(minY * 8D) / 8D, FastMath.round(minZ * 8D) / 8D,
+                    FastMath.round(maxX * 8D) / 8D, FastMath.round(maxY * 8D) / 8D, FastMath.round(maxZ * 8D) / 8D, xRes, yRes, zRes);
         }
     }
 }

@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.common.shapes;
 
+import me.jellysquid.mods.lithium.common.util.math.FastMath;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelSet;
 
@@ -9,12 +10,12 @@ public class CuboidVoxelSet extends VoxelSet {
     protected CuboidVoxelSet(int xSize, int ySize, int zSize, double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         super(xSize, ySize, zSize);
 
-        this.minX = (int) Math.round(minX * xSize);
-        this.maxX = (int) Math.round(maxX * xSize);
-        this.minY = (int) Math.round(minY * ySize);
-        this.maxY = (int) Math.round(maxY * ySize);
-        this.minZ = (int) Math.round(minZ * zSize);
-        this.maxZ = (int) Math.round(maxZ * zSize);
+        this.minX = (int) FastMath.round(minX * xSize);
+        this.maxX = (int) FastMath.round(maxX * xSize);
+        this.minY = (int) FastMath.round(minY * ySize);
+        this.maxY = (int) FastMath.round(maxY * ySize);
+        this.minZ = (int) FastMath.round(minZ * zSize);
+        this.maxZ = (int) FastMath.round(maxZ * zSize);
     }
 
     @Override

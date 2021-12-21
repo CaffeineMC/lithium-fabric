@@ -105,6 +105,7 @@ public class LithiumConfig {
         this.addMixinRule("math", true);
         this.addMixinRule("math.fast_blockpos", true);
         this.addMixinRule("math.fast_util", true);
+        this.addMixinRule("math.fast_round", true);
         this.addMixinRule("math.sine_lut", true);
 
         this.addMixinRule("shapes", true);
