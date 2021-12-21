@@ -113,10 +113,7 @@
     "item.ItemStackMixin",
     "math.fast_blockpos.BlockPosMixin",
     "math.fast_blockpos.DirectionMixin",
-    "math.fast_round.BakedQuadFactoryMixin",
-    "math.fast_round.BeeDebugRendererMixin",
     "math.fast_round.ChunkGeneratorMixin",
-    "math.fast_round.DoubleOptionMixin",
     "math.fast_round.PlayerEntityMixin",
     "math.fast_round.SurfaceBuilderMixin",
     "math.fast_round.VoxelShapesMixin",
@@ -150,5 +147,10 @@
     "world.mob_spawning.PoolMixin",
     "world.mob_spawning.SpawnSettingsMixin",
     "world.player_chunk_tick.ThreadedAnvilChunkStorageMixin"
+  ],
+  "client": [
+    "math.fast_round.BakedQuadFactoryMixin",
+    "math.fast_round.BeeDebugRendererMixin",
+    "math.fast_round.DoubleOptionMixin"
   ]
 }
