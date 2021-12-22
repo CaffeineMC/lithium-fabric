@@ -30,6 +30,7 @@ public abstract class LongJumpTaskMixin {
     private static int MAX_COOLDOWN;
     private final LongArrayList potentialTargets = new LongArrayList();
     private final ShortArrayList potentialWeights = new ShortArrayList();
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     @Shadow
     private Optional<LongJumpTask.Target> lastTarget;
     @Shadow
@@ -37,6 +38,7 @@ public abstract class LongJumpTaskMixin {
     @Shadow
     @Final
     private List<LongJumpTask.Target> targets;
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     @Shadow
     private Optional<Vec3d> lastPos;
     @Shadow
@@ -109,6 +111,7 @@ public abstract class LongJumpTaskMixin {
             potentialTotalWeight -= chosenWeight;
             //Very expensive method call, it shifts bounding boxes around and checks for collisions with them
             Optional<Vec3d> optional = this.getRammingVelocity(mobEntity, Vec3d.ofCenter(targetPosCopy.set(chosenPos)));
+            //noinspection OptionalIsPresent
             if (optional.isPresent()) {
                 //the weight in Target should be unused, as the random selection already took place
                 this.targets.add(new LongJumpTask.Target(new BlockPos(targetPosCopy), optional.get(), chosenWeight));
@@ -119,7 +122,7 @@ public abstract class LongJumpTaskMixin {
     /**
      * Gets rid of the random selection of a target, as the targets have already been carefully randomly selected.
      */
-    @Redirect(method = "keepRunning", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/Weighting;getRandom(Ljava/util/Random;Ljava/util/List;)Ljava/util/Optional;"))
+    @Redirect(method = "keepRunning(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/mob/MobEntity;J)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/Weighting;getRandom(Ljava/util/Random;Ljava/util/List;)Ljava/util/Optional;"))
     private Optional<LongJumpTask.Target> getNextRandomTarget(Random random, List<LongJumpTask.Target> list) {
         if (list.isEmpty()) {
             return Optional.empty();
