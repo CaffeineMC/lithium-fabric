@@ -72,6 +72,7 @@ public class LithiumConfig {
         this.addMixinRule("chunk.structure_storage", true);
 
         this.addMixinRule("collections", true);
+        this.addMixinRule("collections.brain", true);
         this.addMixinRule("collections.entity_by_type", true);
         this.addMixinRule("collections.entity_filtering", true);
         this.addMixinRule("collections.entity_ticking", true);
