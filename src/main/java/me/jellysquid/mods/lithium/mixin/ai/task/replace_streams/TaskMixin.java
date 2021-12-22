@@ -1,9 +1,10 @@
 package me.jellysquid.mods.lithium.mixin.ai.task.replace_streams;
 
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.task.Task;
@@ -32,11 +33,11 @@ public class TaskMixin<E extends LivingEntity> {
      */
     @Overwrite
     private boolean hasRequiredMemoryState(E entity) {
-        Iterable<Reference2ObjectMap.Entry<MemoryModuleType<?>, MemoryModuleState>> iterable =
-                Reference2ObjectMaps.fastIterable((Reference2ObjectOpenHashMap<MemoryModuleType<?>, MemoryModuleState>) this.requiredMemoryStates);
-
-        for (Reference2ObjectMap.Entry<MemoryModuleType<?>, MemoryModuleState> entry : iterable) {
-            if (!entity.getBrain().isMemoryInState(entry.getKey(), entry.getValue())) {
+        Brain<?> brain = entity.getBrain();
+        ObjectIterator<Reference2ObjectMap.Entry<MemoryModuleType<?>, MemoryModuleState>> fastIterator = ((Reference2ObjectOpenHashMap<MemoryModuleType<?>, MemoryModuleState>) this.requiredMemoryStates).reference2ObjectEntrySet().fastIterator();
+        while (fastIterator.hasNext()) {
+            Reference2ObjectMap.Entry<MemoryModuleType<?>, MemoryModuleState> entry = fastIterator.next();
+            if (!brain.isMemoryInState(entry.getKey(), entry.getValue())) {
                 return false;
             }
         }
