@@ -89,6 +89,7 @@
     "chunk.structure_storage.ChunkMixin",
     "chunk.structure_storage.ChunkSerializerMixin",
     "collections.entity_filtering.TypeFilterableListMixin",
+    "collections.entity_ticking.EntityListMixin",
     "collections.gamerules.GameRulesMixin",
     "collections.goals.GoalSelectorMixin",
     "entity.collisions.intersection.CollisionViewMixin",
