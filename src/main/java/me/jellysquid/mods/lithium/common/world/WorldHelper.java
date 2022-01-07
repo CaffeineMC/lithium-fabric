@@ -1,17 +1,19 @@
 package me.jellysquid.mods.lithium.common.world;
 
+import me.jellysquid.mods.lithium.common.client.ClientWorldAccessor;
 import me.jellysquid.mods.lithium.common.entity.EntityClassGroup;
 import me.jellysquid.mods.lithium.common.world.chunk.ClassGroupFilterableList;
+import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.ClientEntityManagerAccessor;
 import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.EntityTrackingSectionAccessor;
 import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.ServerEntityManagerAccessor;
 import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.ServerWorldAccessor;
 import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.EntityView;
+import net.minecraft.world.World;
 import net.minecraft.world.entity.EntityTrackingSection;
 import net.minecraft.world.entity.SectionedEntityCache;
 
@@ -36,19 +38,26 @@ public class WorldHelper {
      * @return iterator of entities with collision boxes
      */
     public static List<Entity> getEntitiesForCollision(EntityView entityView, Box box, Entity collidingEntity) {
-        if (CUSTOM_TYPE_FILTERABLE_LIST_DISABLED || !(entityView instanceof ServerWorld) || collidingEntity != null && EntityClassGroup.MINECART_BOAT_LIKE_COLLISION.contains(collidingEntity.getClass())) {
-            //use vanilla code in case the shortcut is not applicable
-            // due to the reference entity implementing special collision or the mixin being disabled in the config
-            return entityView.getOtherEntities(collidingEntity, box);
-        } else {
-            return getEntitiesOfClassGroup((ServerWorld) entityView, collidingEntity, EntityClassGroup.NoDragonClassGroup.BOAT_SHULKER_LIKE_COLLISION, box);
+        if (!CUSTOM_TYPE_FILTERABLE_LIST_DISABLED && entityView instanceof World world && (collidingEntity == null || !EntityClassGroup.MINECART_BOAT_LIKE_COLLISION.contains(collidingEntity.getClass()))) {
+            SectionedEntityCache<Entity> cache = null;
+            if (world instanceof ClientWorldAccessor) {
+                //noinspection unchecked
+                cache = ((ClientEntityManagerAccessor<Entity>) ((ClientWorldAccessor) world).getEntityManager()).getCache();
+            } else if (world instanceof ServerWorldAccessor) {
+                //noinspection unchecked
+                cache = ((ServerEntityManagerAccessor<Entity>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
+            }
+            if (cache != null) {
+                world.getProfiler().visit("getEntities");
+                return getEntitiesOfClassGroup(cache, collidingEntity, EntityClassGroup.NoDragonClassGroup.BOAT_SHULKER_LIKE_COLLISION, box);
+            }
         }
+        //use vanilla code in case the shortcut is not applicable
+        // due to the reference entity implementing special collision or the mixin being disabled in the config
+        return entityView.getOtherEntities(collidingEntity, box);
     }
 
-    public static List<Entity> getEntitiesOfClassGroup(ServerWorld world, Entity collidingEntity, EntityClassGroup.NoDragonClassGroup entityClassGroup, Box box) {
-        world.getProfiler().visit("getEntities");
-        //noinspection unchecked
-        SectionedEntityCache<Entity> cache = ((ServerEntityManagerAccessor<Entity>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
+    public static List<Entity> getEntitiesOfClassGroup(SectionedEntityCache<Entity> cache, Entity collidingEntity, EntityClassGroup.NoDragonClassGroup entityClassGroup, Box box) {
         final int minX = ChunkSectionPos.getSectionCoord(box.minX - 2.0D);
         final int minY = ChunkSectionPos.getSectionCoord(box.minY - 2.0D);
         final int minZ = ChunkSectionPos.getSectionCoord(box.minZ - 2.0D);

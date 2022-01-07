@@ -147,5 +147,9 @@
     "world.mob_spawning.PoolMixin",
     "world.mob_spawning.SpawnSettingsMixin",
     "world.player_chunk_tick.ThreadedAnvilChunkStorageMixin"
+  ],
+  "client": [
+    "chunk.entity_class_groups.ClientEntityManagerAccessor",
+    "chunk.entity_class_groups.ClientWorldMixin"
   ]
 }
