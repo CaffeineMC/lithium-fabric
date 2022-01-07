@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -49,9 +48,9 @@ public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterable
      */
     @ModifyVariable(method = "remove(Ljava/lang/Object;)Z", at = @At("HEAD"), argsOnly = true)
     public Object remove(Object o) {
-        for (Map.Entry<EntityClassGroup, ReferenceLinkedOpenHashSet<T>> entityGroupAndSet : this.entitiesByGroup.entrySet()) {
+        for (ReferenceLinkedOpenHashSet<T> entitySet : this.entitiesByGroup.values()) {
             //noinspection SuspiciousMethodCalls
-            entityGroupAndSet.getValue().remove(o);
+            entitySet.remove(o);
         }
         return o;
     }
@@ -66,7 +65,7 @@ public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterable
             collection = this.createAllOfGroupType(type);
         }
 
-        return Collections.unmodifiableCollection(collection);
+        return collection;
     }
 
     /**
