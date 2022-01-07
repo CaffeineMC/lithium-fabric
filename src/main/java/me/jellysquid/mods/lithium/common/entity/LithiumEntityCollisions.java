@@ -29,9 +29,6 @@ public class LithiumEntityCollisions {
      * VoxelShape system.
      */
     public static List<VoxelShape> getBlockCollisions(CollisionView world, Entity entity, Box box) {
-        if (isBoxEmpty(box)) {
-            return Collections.emptyList();
-        }
         ArrayList<VoxelShape> shapes = new ArrayList<>();
         ChunkAwareBlockCollisionSweeper sweeper = new ChunkAwareBlockCollisionSweeper(world, entity, box);
         while (sweeper.hasNext()) {
@@ -44,10 +41,6 @@ public class LithiumEntityCollisions {
      * @return True if the box (possibly that of an entity's) collided with any blocks
      */
     public static boolean doesBoxCollideWithBlocks(CollisionView world, Entity entity, Box box) {
-        if (isBoxEmpty(box)) {
-            return false;
-        }
-
         final ChunkAwareBlockCollisionSweeper sweeper = new ChunkAwareBlockCollisionSweeper(world, entity, box);
 
         final VoxelShape shape = sweeper.computeNext();
