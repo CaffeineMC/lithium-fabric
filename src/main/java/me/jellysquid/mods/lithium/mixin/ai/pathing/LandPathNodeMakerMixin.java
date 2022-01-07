@@ -67,7 +67,7 @@ public abstract class LandPathNodeMakerMixin {
         if (world instanceof CollisionView && WorldHelper.areNeighborsWithinSameChunk(pos)) {
             // If the y-coordinate is within bounds, we can cache the chunk section. Otherwise, the if statement to check
             // if the cached chunk section was initialized will early-exit.
-            if (!world.isOutOfHeightLimit(y)) { //todo use cached values for height limit
+            if (!world.isOutOfHeightLimit(y)) {
                 // This cast is always safe and is necessary to obtain direct references to chunk sections.
                 Chunk chunk = (Chunk) ((CollisionView) world).getChunkAsView(Pos.ChunkCoord.fromBlockCoord(x), Pos.ChunkCoord.fromBlockCoord(z));
 
