@@ -13,9 +13,6 @@ import java.util.*;
  */
 @Mixin(TypeFilterableList.class)
 public class TypeFilterableListMixin<T> {
-    @Shadow
-    @Final
-    private Class<T> elementType;
 
     @Shadow
     @Final

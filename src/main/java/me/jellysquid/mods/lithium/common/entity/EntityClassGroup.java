@@ -34,7 +34,7 @@ public class EntityClassGroup {
         }
         if ((MINECART_BOAT_LIKE_COLLISION.contains(ShulkerEntity.class))) {
             //should not throw an Error here, because another mod *could* add the method to ShulkerEntity. Wwarning when this sanity check fails.
-            Logger.getLogger("Lithium EntityClassGroup").warning("Either chunk.entity_class_groups is broken or something else gave Shulkers the minecart-like collision behavior.");
+            Logger.getLogger("Lithium EntityClassGroup").warning("Either Lithium EntityClassGroup is broken or something else gave Shulkers the minecart-like collision behavior.");
         }
         MINECART_BOAT_LIKE_COLLISION.clear();
     }
@@ -99,7 +99,7 @@ public class EntityClassGroup {
         public NoDragonClassGroup(Predicate<Class<?>> classFitEvaluator) {
             super(classFitEvaluator);
             if (classFitEvaluator.test(EnderDragonEntity.class)) {
-                throw new IllegalArgumentException("EntityClassGroupNoDragon cannot be initialized: Class fit evaluator must exclude EnderDragonEntity!");
+                throw new IllegalArgumentException("EntityClassGroup.NoDragonClassGroup cannot be initialized: Must exclude EnderDragonEntity!");
             }
         }
     }
