@@ -124,6 +124,7 @@
     "math.fast_util.BoxMixin",
     "math.fast_util.DirectionMixin",
     "math.sine_lut.MixinMathHelper",
+    "profiler.ServerWorldMixin",
     "shapes.blockstate_cache.BlockMixin",
     "shapes.lazy_shape_context.EntityShapeContextMixin",
     "shapes.optimized_matching.VoxelShapesMixin",
