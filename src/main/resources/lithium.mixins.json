@@ -98,6 +98,7 @@
     "entity.collisions.suffocation.EntityMixin",
     "entity.data_tracker.no_locks.DataTrackerMixin",
     "entity.data_tracker.use_arrays.DataTrackerMixin",
+    "entity.fast_powder_snow_check.LivingEntityMixin",
     "entity.fast_retrieval.SectionedEntityCacheMixin",
     "entity.inactive_navigations.DrownedEntityLeaveWaterGoalMixin",
     "entity.inactive_navigations.DrownedEntityMixin",
