@@ -93,6 +93,7 @@ public class LithiumConfig {
         this.addMixinRule("entity.fast_retrieval", true);
         this.addMixinRule("entity.inactive_navigations", true);
         this.addMixinRule("entity.replace_entitytype_predicates", true);
+        this.addMixinRule("entity.skip_equipment_change_check", true);
         this.addMixinRule("entity.skip_fire_check", true);
 
         this.addMixinRule("gen", true);
