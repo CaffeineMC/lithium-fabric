@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.common.ai.pathing;
 
+import me.jellysquid.mods.lithium.common.block.BlockCountingSection;
 import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
-import me.jellysquid.mods.lithium.common.block.SectionFlagHolder;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.pathing.PathNodeType;
@@ -36,7 +36,7 @@ public abstract class PathNodeCache {
         }
 
         if (BlockStateFlags.ENABLED) {
-            return !((SectionFlagHolder) section).getFlag(BlockStateFlags.PATH_NOT_OPEN);
+            return !((BlockCountingSection) section).anyMatch(BlockStateFlags.PATH_NOT_OPEN);
         }
         return !isChunkSectionDangerousNeighbor(section);
     }

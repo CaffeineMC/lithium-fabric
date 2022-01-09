@@ -1,9 +1,9 @@
 package me.jellysquid.mods.lithium.mixin.entity.collisions.fluid;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
+import me.jellysquid.mods.lithium.common.block.BlockCountingSection;
 import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
 import me.jellysquid.mods.lithium.common.block.IndexedBlockStatePredicate;
-import me.jellysquid.mods.lithium.common.block.SectionFlagHolder;
 import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.Fluid;
@@ -62,7 +62,7 @@ public abstract class EntityMixin {
                 Chunk chunk = this.world.getChunk(chunkX, chunkZ);
                 for (int chunkYIndex = chunkYIndex1; chunkYIndex <= chunkYIndex2; chunkYIndex++) {
                     ChunkSection section = chunk.getSectionArray()[chunkYIndex];
-                    if (((SectionFlagHolder) section).getFlag(blockStateFlag)) {
+                    if (((BlockCountingSection) section).anyMatch(blockStateFlag)) {
                         //fluid found, cannot skip code
                         return;
                     }

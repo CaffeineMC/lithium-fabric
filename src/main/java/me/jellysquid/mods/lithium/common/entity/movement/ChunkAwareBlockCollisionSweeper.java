@@ -1,8 +1,8 @@
 package me.jellysquid.mods.lithium.common.entity.movement;
 
 import com.google.common.collect.AbstractIterator;
+import me.jellysquid.mods.lithium.common.block.BlockCountingSection;
 import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
-import me.jellysquid.mods.lithium.common.block.SectionFlagHolder;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeCaster;
 import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.block.BlockState;
@@ -263,7 +263,7 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
     private static boolean hasChunkSectionOversizedBlocks(Chunk chunk, int chunkY) {
         if (BlockStateFlags.ENABLED) {
             ChunkSection section = chunk.getSectionArray()[chunkY];
-            return section != null && ((SectionFlagHolder) section).getFlag(BlockStateFlags.OVERSIZED_SHAPE);
+            return section != null && ((BlockCountingSection) section).anyMatch(BlockStateFlags.OVERSIZED_SHAPE);
         }
         return true; //like vanilla, assume that a chunk section has oversized blocks, when the section mixin isn't loaded
     }
