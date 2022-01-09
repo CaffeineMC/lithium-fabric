@@ -34,7 +34,7 @@ public abstract class ChunkSectionMixin implements SectionFlagHolder {
 
     @Override
     public boolean getFlag(IndexedBlockStatePredicate indexedBlockStatePredicate) {
-        return this.countsByFlag[indexedBlockStatePredicate.getIndex()] != 0;
+        return this.countsByFlag[indexedBlockStatePredicate.getIndex()] != (short) 0;
     }
 
     @Redirect(

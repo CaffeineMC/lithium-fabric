@@ -83,6 +83,7 @@ public class LithiumConfig {
 
         this.addMixinRule("entity", true);
         this.addMixinRule("entity.collisions", true);
+        this.addMixinRule("entity.collisions.fluid", true);
         this.addMixinRule("entity.collisions.intersection", true);
         this.addMixinRule("entity.collisions.movement", true);
         this.addMixinRule("entity.collisions.suffocation", true);
@@ -144,6 +145,8 @@ public class LithiumConfig {
         this.addRuleDependency("block.hopper", "ai.nearby_entity_tracking", true);
         this.addRuleDependency("block.hopper", "world", true);
         this.addRuleDependency("block.hopper", "world.block_entity_retrieval", true);
+
+        this.addRuleDependency("entity.collisions.fluid", "chunk.block_counting", true);
     }
 
     /**

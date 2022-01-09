@@ -97,6 +97,7 @@
     "collections.goals.GoalSelectorMixin",
     "collections.mob_spawning.PoolMixin",
     "collections.mob_spawning.SpawnSettingsMixin",
+    "entity.collisions.fluid.EntityMixin",
     "entity.collisions.intersection.CollisionViewMixin",
     "entity.collisions.movement.EntityMixin",
     "entity.collisions.suffocation.EntityMixin",
