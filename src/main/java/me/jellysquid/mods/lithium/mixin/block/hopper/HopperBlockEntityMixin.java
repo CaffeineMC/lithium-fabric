@@ -356,7 +356,8 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         }
         LithiumInventory optimizedInventory;
         if ((optimizedInventory = this.insertInventory) != null) {
-            if (optimizedInventory.getRemovedCountLithium() == this.insertInventoryRemovedCount) {
+            LithiumStackList insertInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
+            if (insertInventoryStackList == this.insertInventoryStackList && optimizedInventory.getRemovedCountLithium() == this.insertInventoryRemovedCount) {
                 return optimizedInventory;
             }
         }
@@ -416,7 +417,8 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         }
         LithiumInventory optimizedInventory;
         if ((optimizedInventory = this.extractInventory) != null) {
-            if (optimizedInventory.getRemovedCountLithium() == this.extractInventoryRemovedCount) {
+            LithiumStackList extractInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
+            if (extractInventoryStackList == this.extractInventoryStackList && optimizedInventory.getRemovedCountLithium() == this.extractInventoryRemovedCount) {
                 return optimizedInventory;
             }
         }
