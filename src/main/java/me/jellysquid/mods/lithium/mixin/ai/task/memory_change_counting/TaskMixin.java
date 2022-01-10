@@ -1,8 +1,9 @@
-package me.jellysquid.mods.lithium.mixin.ai.task.replace_streams;
+package me.jellysquid.mods.lithium.mixin.ai.task.memory_change_counting;
 
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import me.jellysquid.mods.lithium.common.ai.MemoryModificationCounter;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
@@ -22,26 +23,37 @@ public class TaskMixin<E extends LivingEntity> {
     @Final
     protected Map<MemoryModuleType<?>, MemoryModuleState> requiredMemoryStates;
 
+    @Unique
+    private long cachedMemoryModCount;
+    @Unique
+    private boolean cachedHasRequiredMemoryState;
+
     @Inject(method = "<init>(Ljava/util/Map;II)V", at = @At("RETURN"))
     private void init(Map<MemoryModuleType<?>, MemoryModuleState> map, int int_1, int int_2, CallbackInfo ci) {
         this.requiredMemoryStates = new Reference2ObjectOpenHashMap<>(map);
     }
 
     /**
-     * @reason Replace stream-based code with traditional iteration, use a flattened array list to avoid pointer chasing
-     * @author JellySquid
+     * @reason Use cached required memory state test result if memory state is unchanged
+     * @author 2No2Name
      */
     @Overwrite
     private boolean hasRequiredMemoryState(E entity) {
         Brain<?> brain = entity.getBrain();
+        long modCount = ((MemoryModificationCounter) brain).getModCount();
+        if (this.cachedMemoryModCount == modCount) {
+            return this.cachedHasRequiredMemoryState;
+        }
+        this.cachedMemoryModCount = modCount;
+
         ObjectIterator<Reference2ObjectMap.Entry<MemoryModuleType<?>, MemoryModuleState>> fastIterator = ((Reference2ObjectOpenHashMap<MemoryModuleType<?>, MemoryModuleState>) this.requiredMemoryStates).reference2ObjectEntrySet().fastIterator();
         while (fastIterator.hasNext()) {
             Reference2ObjectMap.Entry<MemoryModuleType<?>, MemoryModuleState> entry = fastIterator.next();
             if (!brain.isMemoryInState(entry.getKey(), entry.getValue())) {
-                return false;
+                return this.cachedHasRequiredMemoryState = false;
             }
         }
 
-        return true;
+        return this.cachedHasRequiredMemoryState = true;
     }
 }

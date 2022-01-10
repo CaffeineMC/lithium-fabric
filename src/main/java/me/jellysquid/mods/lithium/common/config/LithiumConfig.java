@@ -43,6 +43,7 @@ public class LithiumConfig {
         this.addMixinRule("ai.task", true);
         this.addMixinRule("ai.task.fast_repetition", false); //removed during 1.18 update
         this.addMixinRule("ai.task.goat_jump", true);
+        this.addMixinRule("ai.task.memory_change_counting", true);
         this.addMixinRule("ai.task.replace_streams", true);
 
         this.addMixinRule("alloc", true);
