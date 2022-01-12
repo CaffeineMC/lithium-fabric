@@ -55,8 +55,8 @@ public abstract class EntityMixin {
         int chunkZ1 = z1 >> 4;
         int chunkX2 = ((x2 - 1) >> 4);
         int chunkZ2 = ((z2 - 1) >> 4);
-        int chunkYIndex1 = Pos.SectionYIndex.fromBlockCoord(this.world, y1);
-        int chunkYIndex2 = Pos.SectionYIndex.fromBlockCoord(this.world, y2 - 1);
+        int chunkYIndex1 = Math.max(Pos.SectionYIndex.fromBlockCoord(this.world, y1), Pos.SectionYIndex.getMinYSectionIndex(this.world));
+        int chunkYIndex2 = Math.min(Pos.SectionYIndex.fromBlockCoord(this.world, y2 - 1), Pos.SectionYIndex.getMaxYSectionIndexInclusive(this.world));
         for (int chunkX = chunkX1; chunkX <= chunkX2; chunkX++) {
             for (int chunkZ = chunkZ1; chunkZ <= chunkZ2; chunkZ++) {
                 Chunk chunk = this.world.getChunk(chunkX, chunkZ);
