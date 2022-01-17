@@ -47,7 +47,7 @@ public class VoxelShapeEmpty extends VoxelShape implements VoxelShapeCaster {
     }
 
     @Override
-    public boolean intersects(Box box, double x, double y, double z) {
+    public boolean intersects(Box box, double blockX, double blockY, double blockZ) {
         return false;
     }
 }

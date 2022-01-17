@@ -232,7 +232,7 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
      */
     private static VoxelShape getCollidedShape(Box entityBox, VoxelShape entityShape, VoxelShape shape, int x, int y, int z) {
         if (shape instanceof VoxelShapeCaster) {
-            if (((VoxelShapeCaster) shape).intersects(entityBox, x, y, z)) { //todo missing 1e-7 margins from VoxelShape (onyl when not full cube)
+            if (((VoxelShapeCaster) shape).intersects(entityBox, x, y, z)) {
                 return shape.offset(x, y, z);
             } else {
                 return null;
