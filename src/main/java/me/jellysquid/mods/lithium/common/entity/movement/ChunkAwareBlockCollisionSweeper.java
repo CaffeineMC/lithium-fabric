@@ -231,6 +231,9 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
      * @return A {@link VoxelShape} which contains the shape representing that which was collided with, otherwise null
      */
     private static VoxelShape getCollidedShape(Box entityBox, VoxelShape entityShape, VoxelShape shape, int x, int y, int z) {
+        if (shape == VoxelShapes.fullCube()) {
+            return entityBox.intersects(x, y, z, x + 1.0, y + 1.0, z + 1.0) ? shape.offset(x, y, z) : null;
+        }
         if (shape instanceof VoxelShapeCaster) {
             if (((VoxelShapeCaster) shape).intersects(entityBox, x, y, z)) {
                 return shape.offset(x, y, z);
