@@ -15,7 +15,15 @@ public class EntityTrackerMixin {
     /**
      * Uses less memory, and will cache the returned iterator.
      */
-    @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/Sets;newIdentityHashSet()Ljava/util/Set;", remap = false))
+    @Redirect(
+            method = "<init>",
+            require = 0,
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lcom/google/common/collect/Sets;newIdentityHashSet()Ljava/util/Set;",
+                    remap = false
+            )
+    )
     private Set<EntityTrackingListener> useFasterCollection() {
         return new ReferenceOpenHashSet<>();
     }

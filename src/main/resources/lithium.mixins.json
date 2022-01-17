@@ -48,7 +48,6 @@
     "alloc.explosion_behavior.EntityExplosionBehaviorMixin",
     "alloc.nbt.NbtCompoundMixin",
     "alloc.nbt.NbtCompoundMixin$Type",
-    "alloc.vectors.EntityTrackerMixin",
     "block.flatten_states.AbstractBlockStateMixin",
     "block.flatten_states.FluidStateMixin",
     "block.hopper.BlockEntityMixin",
