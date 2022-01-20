@@ -34,6 +34,7 @@
     "ai.task.memory_change_counting.TaskMixin",
     "ai.task.replace_streams.CompositeTaskMixin",
     "ai.task.replace_streams.WeightedListMixin",
+    "alloc.blockstate.StateMixin",
     "alloc.chunk_random.ServerWorldMixin",
     "alloc.chunk_random.WorldMixin",
     "alloc.chunk_ticking.ServerChunkManagerMixin",
