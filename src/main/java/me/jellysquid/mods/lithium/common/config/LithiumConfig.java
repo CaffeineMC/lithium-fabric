@@ -47,6 +47,7 @@ public class LithiumConfig {
         this.addMixinRule("ai.task.replace_streams", true);
 
         this.addMixinRule("alloc", true);
+        this.addMixinRule("alloc.blockstate", true);
         this.addMixinRule("alloc.chunk_random", true);
         this.addMixinRule("alloc.chunk_ticking", true);
         this.addMixinRule("alloc.composter", true);
