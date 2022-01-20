@@ -1,8 +1,10 @@
 package me.jellysquid.mods.lithium.mixin;
 
+import me.jellysquid.mods.lithium.api.mixin.LithiumMixin;
 import me.jellysquid.mods.lithium.common.LithiumMod;
 import me.jellysquid.mods.lithium.common.config.LithiumConfig;
 import me.jellysquid.mods.lithium.common.config.Option;
+import net.fabricmc.loader.api.FabricLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.tree.ClassNode;
@@ -95,6 +97,8 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-
+        FabricLoader.getInstance().getEntrypoints("lithium-mixin-post-apply", LithiumMixin.class).forEach(
+                lm->lm.onLithiumMixinPostApply(targetClassName, targetClass, mixinClassName, mixinInfo)
+        );
     }
 }
