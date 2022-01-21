@@ -39,6 +39,9 @@ public abstract class SectionedEntityCacheMixin<T extends EntityLike> {
         // the world. y and z positions are treated as unsigned when sorting by ascending long value, as their sign bits
         // are placed somewhere inside the packed long
 
+        // Vanilla is likely more optimized when shooting entities with TNT cannons over huge distances.
+        // Todo: branch off to optimized variant for huge volumes
+
         for (int x = minX; x <= maxX; x++) {
             for (int z = Math.max(minZ, 0); z <= maxZ; z++) {
                 this.forEachInColumn(x, minY, maxY, z, action);
