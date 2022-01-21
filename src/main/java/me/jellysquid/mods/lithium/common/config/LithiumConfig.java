@@ -88,6 +88,7 @@ public class LithiumConfig {
         this.addMixinRule("entity.collisions.fluid", true);
         this.addMixinRule("entity.collisions.intersection", true);
         this.addMixinRule("entity.collisions.movement", true);
+        this.addMixinRule("entity.collisions.replace_streams", true);
         this.addMixinRule("entity.collisions.suffocation", true);
         this.addMixinRule("entity.data_tracker", true);
         this.addMixinRule("entity.data_tracker.no_locks", true);

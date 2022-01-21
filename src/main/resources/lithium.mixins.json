@@ -102,6 +102,7 @@
     "entity.collisions.fluid.EntityMixin",
     "entity.collisions.intersection.CollisionViewMixin",
     "entity.collisions.movement.EntityMixin",
+    "entity.collisions.replace_streams.ServerPlayNetworkHandlerMixin",
     "entity.collisions.suffocation.EntityMixin",
     "entity.data_tracker.no_locks.DataTrackerMixin",
     "entity.data_tracker.use_arrays.DataTrackerMixin",
