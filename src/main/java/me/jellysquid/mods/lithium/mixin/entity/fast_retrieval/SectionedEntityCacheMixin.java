@@ -54,17 +54,17 @@ public abstract class SectionedEntityCacheMixin<T extends EntityLike> {
     private void forEachInColumn(int x, int minY, int maxY, int z, Consumer<EntityTrackingSection<T>> action) {
         //y from negative to positive, but y is treated as unsigned
         for (int y = Math.max(minY, 0); y <= maxY; y++) {
-            this.consumeSection(x, y, z, action);
+            this.consumeSection(ChunkSectionPos.asLong(x, y, z), action);
         }
         int bound = Math.min(-1, maxY);
         for (int y = minY; y <= bound; y++) {
-            this.consumeSection(x, y, z, action);
+            this.consumeSection(ChunkSectionPos.asLong(x, y, z), action);
         }
     }
 
-    private void consumeSection(int x, int y, int z, Consumer<EntityTrackingSection<T>> action) {
-        EntityTrackingSection<T> section = this.findTrackingSection(ChunkSectionPos.asLong(x, y, z));
-        if (section != null && section.getStatus().shouldTrack()) {
+    private void consumeSection(long pos, Consumer<EntityTrackingSection<T>> action) {
+        EntityTrackingSection<T> section = this.findTrackingSection(pos);
+        if (section != null && 0 != section.size() && section.getStatus().shouldTrack()) {
             action.accept(section);
         }
     }
