@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.common.world;
 
 import me.jellysquid.mods.lithium.common.client.ClientWorldAccessor;
 import me.jellysquid.mods.lithium.common.entity.EntityClassGroup;
+import me.jellysquid.mods.lithium.common.entity.pushable.EntityPushablePredicate;
 import me.jellysquid.mods.lithium.common.world.chunk.ClassGroupFilterableList;
 import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.ClientEntityManagerAccessor;
 import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.EntityTrackingSectionAccessor;
@@ -11,10 +12,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.EntityView;
 import net.minecraft.world.World;
-import net.minecraft.world.entity.EntityTrackingSection;
 import net.minecraft.world.entity.SectionedEntityCache;
 
 import java.util.ArrayList;
@@ -39,14 +38,7 @@ public class WorldHelper {
      */
     public static List<Entity> getEntitiesForCollision(EntityView entityView, Box box, Entity collidingEntity) {
         if (!CUSTOM_TYPE_FILTERABLE_LIST_DISABLED && entityView instanceof World world && (collidingEntity == null || !EntityClassGroup.MINECART_BOAT_LIKE_COLLISION.contains(collidingEntity.getClass()))) {
-            SectionedEntityCache<Entity> cache = null;
-            if (world instanceof ClientWorldAccessor) {
-                //noinspection unchecked
-                cache = ((ClientEntityManagerAccessor<Entity>) ((ClientWorldAccessor) world).getEntityManager()).getCache();
-            } else if (world instanceof ServerWorldAccessor) {
-                //noinspection unchecked
-                cache = ((ServerEntityManagerAccessor<Entity>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
-            }
+            SectionedEntityCache<Entity> cache = getEntityCacheOrNull(world);
             if (cache != null) {
                 world.getProfiler().visit("getEntities");
                 return getEntitiesOfClassGroup(cache, collidingEntity, EntityClassGroup.NoDragonClassGroup.BOAT_SHULKER_LIKE_COLLISION, box);
@@ -57,39 +49,39 @@ public class WorldHelper {
         return entityView.getOtherEntities(collidingEntity, box);
     }
 
-    public static List<Entity> getEntitiesOfClassGroup(SectionedEntityCache<Entity> cache, Entity collidingEntity, EntityClassGroup.NoDragonClassGroup entityClassGroup, Box box) {
-        final int minX = ChunkSectionPos.getSectionCoord(box.minX - 2.0D);
-        final int minY = ChunkSectionPos.getSectionCoord(box.minY - 2.0D);
-        final int minZ = ChunkSectionPos.getSectionCoord(box.minZ - 2.0D);
-        final int maxX = ChunkSectionPos.getSectionCoord(box.maxX + 2.0D);
-        final int maxY = ChunkSectionPos.getSectionCoord(box.maxY + 2.0D);
-        final int maxZ = ChunkSectionPos.getSectionCoord(box.maxZ + 2.0D);
-        ArrayList<Entity> entities = new ArrayList<>();
-        //todo fix iteration order
-        for (int x = minX; x <= maxX; x++) {
-            for (int z = minZ; z <= maxZ; z++) {
-                for (int y = minY; y <= maxY; y++) {
-                    EntityTrackingSection<Entity> section = cache.findTrackingSection(ChunkSectionPos.asLong(x, y, z));
-                    if (section != null) {
-                        //noinspection unchecked
-                        TypeFilterableList<Entity> allEntities = ((EntityTrackingSectionAccessor<Entity>) section).getCollection();
-                        if (!allEntities.isEmpty()) {
-                            //noinspection unchecked
-                            Collection<Entity> entitiesOfType = ((ClassGroupFilterableList<Entity>) allEntities).getAllOfGroupType(entityClassGroup);
-                            if (!entitiesOfType.isEmpty()) {
-                                for (Entity entity : entitiesOfType) {
-                                    if (entity.getBoundingBox().intersects(box) && !entity.isSpectator() && entity != collidingEntity) {
-                                        //skip the dragon piece check without issues by only allowing only EntityClassGroup.NoDragonClassGroup as type
-                                        entities.add(entity);
-                                    }
-                                }
-                            }
-                        }
-                    }
+    public static SectionedEntityCache<Entity> getEntityCacheOrNull(World world) {
+        if (world instanceof ClientWorldAccessor) {
+            //noinspection unchecked
+            return ((ClientEntityManagerAccessor<Entity>) ((ClientWorldAccessor) world).getEntityManager()).getCache();
+        } else if (world instanceof ServerWorldAccessor) {
+            //noinspection unchecked
+            return ((ServerEntityManagerAccessor<Entity>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
+        }
+        return null;
+    }
 
+    public static List<Entity> getEntitiesOfClassGroup(SectionedEntityCache<Entity> cache, Entity collidingEntity, EntityClassGroup.NoDragonClassGroup entityClassGroup, Box box) {
+        ArrayList<Entity> entities = new ArrayList<>();
+        cache.forEachInBox(box, section -> {
+            //noinspection unchecked
+            TypeFilterableList<Entity> allEntities = ((EntityTrackingSectionAccessor<Entity>) section).getCollection();
+            //noinspection unchecked
+            Collection<Entity> entitiesOfType = ((ClassGroupFilterableList<Entity>) allEntities).getAllOfGroupType(entityClassGroup);
+            if (!entitiesOfType.isEmpty()) {
+                for (Entity entity : entitiesOfType) {
+                    if (entity.getBoundingBox().intersects(box) && !entity.isSpectator() && entity != collidingEntity) {
+                        //skip the dragon piece check without issues by only allowing only EntityClassGroup.NoDragonClassGroup as type
+                        entities.add(entity);
+                    }
                 }
             }
-        }
+        });
+        return entities;
+    }
+
+    public static List<Entity> getPushableEntities(World world, SectionedEntityCache<Entity> cache, Entity except, Box box, EntityPushablePredicate<? super Entity> entityPushablePredicate) {
+        ArrayList<Entity> entities = new ArrayList<>();
+        cache.forEachInBox(box, section -> ((ClimbingMobCachingSection) section).collectPushableEntities(world, except, box, entityPushablePredicate, entities));
         return entities;
     }
 
