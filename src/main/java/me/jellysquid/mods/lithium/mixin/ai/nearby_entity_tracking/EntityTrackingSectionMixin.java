@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngine;
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerSection;
+import me.jellysquid.mods.lithium.common.entity.tracker.PositionedEntityTrackingSection;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListener;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.SectionedEntityMovementTracker;
 import net.minecraft.entity.Entity;
@@ -21,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EntityTrackingSection.class)
-public abstract class EntityTrackingSectionMixin<T extends EntityLike> implements EntityTrackerSection {
+public abstract class EntityTrackingSectionMixin<T extends EntityLike> implements EntityTrackerSection, PositionedEntityTrackingSection {
     @Shadow
     private EntityTrackingStatus status;
     @Shadow
@@ -34,7 +35,6 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
     private final ReferenceOpenHashSet<NearbyEntityListener> nearbyEntityListeners = new ReferenceOpenHashSet<>(0);
     private final ReferenceOpenHashSet<SectionedEntityMovementTracker<?, ?>> sectionVisibilityListeners = new ReferenceOpenHashSet<>(0);
     private final long[] lastEntityMovementByType = new long[EntityTrackerEngine.NUM_MOVEMENT_NOTIFYING_CLASSES];
-    private long pos;
 
     @Override
     public void addListener(NearbyEntityListener listener) {
@@ -51,7 +51,7 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
             listener.onSectionLeftRange(this, this.collection);
         }
         if (this.isEmpty()) {
-            sectionedEntityCache.removeSection(this.pos);
+            sectionedEntityCache.removeSection(this.getPos());
         }
     }
 
@@ -70,7 +70,7 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
             listener.onSectionLeftRange(this);
         }
         if (this.isEmpty()) {
-            sectionedEntityCache.removeSection(this.pos);
+            sectionedEntityCache.removeSection(this.getPos());
         }
     }
 
@@ -89,15 +89,6 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
     public long[] getMovementTimestampArray() {
         return this.lastEntityMovementByType;
     }
-
-    public void setPos(long chunkSectionPos) {
-        this.pos = chunkSectionPos;
-    }
-
-    public long getPos() {
-        return this.pos;
-    }
-
 
     @Inject(method = "isEmpty()Z", at = @At(value = "HEAD"), cancellable = true)
     public void isEmpty(CallbackInfoReturnable<Boolean> cir) {
@@ -118,7 +109,7 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
         }
     }
 
-    @ModifyVariable(method = "remove(Lnet/minecraft/world/entity/EntityLike;)Z", at = @At("RETURN"))
+    @ModifyVariable(method = "remove(Lnet/minecraft/world/entity/EntityLike;)Z", at = @At("RETURN"), argsOnly = true)
     private T onEntityRemoved(final T entityLike) {
         if (this.status.shouldTrack() && !this.nearbyEntityListeners.isEmpty() && entityLike instanceof Entity entity) {
             for (NearbyEntityListener nearbyEntityListener : this.nearbyEntityListeners) {

@@ -131,6 +131,8 @@ public class LithiumConfig {
 
         this.addMixinRule("tag", true);
 
+        this.addMixinRule("util.entity_section_position", true);
+
         this.addMixinRule("world", true);
         this.addMixinRule("world.block_entity_retrieval", true);
         this.addMixinRule("world.block_entity_ticking", true);
@@ -144,11 +146,14 @@ public class LithiumConfig {
         this.addMixinRule("world.player_chunk_tick", true);
         this.addMixinRule("world.tick_scheduler", false); //removed during 1.18 update
 
+        this.addRuleDependency("ai.nearby_entity_tracking", "util", true);
+        this.addRuleDependency("ai.nearby_entity_tracking", "util.entity_section_position", true);
         this.addRuleDependency("block.hopper", "ai", true);
         this.addRuleDependency("block.hopper", "ai.nearby_entity_tracking", true);
         this.addRuleDependency("block.hopper", "world", true);
         this.addRuleDependency("block.hopper", "world.block_entity_retrieval", true);
 
+        this.addRuleDependency("entity.collisions.fluid", "chunk", true);
         this.addRuleDependency("entity.collisions.fluid", "chunk.block_counting", true);
     }
 
