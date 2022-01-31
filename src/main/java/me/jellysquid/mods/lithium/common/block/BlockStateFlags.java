@@ -10,25 +10,25 @@ public class BlockStateFlags {
     public static final boolean ENABLED = BlockCountingSection.class.isAssignableFrom(ChunkSection.class);
     public static final int NUM_FLAGS = 4; //Update this number when adding a new flag!
 
-    public static final IndexedBlockStatePredicate OVERSIZED_SHAPE = new IndexedBlockStatePredicate() {
+    public static final TrackedBlockStatePredicate OVERSIZED_SHAPE = new TrackedBlockStatePredicate() {
         @Override
         public boolean test(BlockState operand) {
             return operand.exceedsCube();
         }
     };
-    public static final IndexedBlockStatePredicate PATH_NOT_OPEN = new IndexedBlockStatePredicate() {
+    public static final TrackedBlockStatePredicate PATH_NOT_OPEN = new TrackedBlockStatePredicate() {
         @Override
         public boolean test(BlockState operand) {
             return PathNodeCache.getNeighborPathNodeType(operand) != PathNodeType.OPEN;
         }
     };
-    public static final IndexedBlockStatePredicate WATER = new IndexedBlockStatePredicate() {
+    public static final TrackedBlockStatePredicate WATER = new TrackedBlockStatePredicate() {
         @Override
         public boolean test(BlockState operand) {
             return operand.getFluidState().getFluid().isIn(FluidTags.WATER);
         }
     };
-    public static final IndexedBlockStatePredicate LAVA = new IndexedBlockStatePredicate() {
+    public static final TrackedBlockStatePredicate LAVA = new TrackedBlockStatePredicate() {
         @Override
         public boolean test(BlockState operand) {
             return operand.getFluidState().getFluid().isIn(FluidTags.LAVA);

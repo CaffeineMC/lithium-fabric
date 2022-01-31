@@ -6,15 +6,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
-public abstract class IndexedBlockStatePredicate implements Predicate<BlockState> {
+public abstract class TrackedBlockStatePredicate implements Predicate<BlockState> {
     public static final AtomicBoolean FULLY_INITIALIZED;
-    public static final IndexedBlockStatePredicate[] ALL_FLAGS;
+    public static final TrackedBlockStatePredicate[] ALL_FLAGS;
     private static final AtomicInteger NEXT_INDEX;
 
     static {
         FULLY_INITIALIZED = new AtomicBoolean(false);
         NEXT_INDEX = new AtomicInteger(0);
-        ALL_FLAGS = new IndexedBlockStatePredicate[BlockStateFlags.NUM_FLAGS];
+        ALL_FLAGS = new TrackedBlockStatePredicate[BlockStateFlags.NUM_FLAGS];
         if (!BlockStateFlags.ENABLED) { //classload the BlockStateFlags class which initializes the content of ALL_FLAGS
             System.out.println("Lithium Cached BlockState Flags are disabled!");
         }
@@ -22,7 +22,7 @@ public abstract class IndexedBlockStatePredicate implements Predicate<BlockState
 
     private final int index;
 
-    public IndexedBlockStatePredicate() {
+    public TrackedBlockStatePredicate() {
         if (FULLY_INITIALIZED.get()) {
             throw new IllegalStateException("Lithium Cached BlockState Flags: Cannot register more flags after assuming to be fully initialized.");
         }

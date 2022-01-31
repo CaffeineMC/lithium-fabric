@@ -3,7 +3,7 @@ package me.jellysquid.mods.lithium.mixin.entity.collisions.fluid;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import me.jellysquid.mods.lithium.common.block.BlockCountingSection;
 import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
-import me.jellysquid.mods.lithium.common.block.IndexedBlockStatePredicate;
+import me.jellysquid.mods.lithium.common.block.TrackedBlockStatePredicate;
 import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.Fluid;
@@ -43,7 +43,7 @@ public abstract class EntityMixin {
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     public void tryShortcutFluidPushing(Tag<Fluid> tag, double speed, CallbackInfoReturnable<Boolean> cir, Box box, int x1, int x2, int y1, int y2, int z1, int z2, double zero) {
-        IndexedBlockStatePredicate blockStateFlag;
+        TrackedBlockStatePredicate blockStateFlag;
         if (tag == FluidTags.WATER) {
             blockStateFlag = BlockStateFlags.WATER;
         } else if (tag == FluidTags.LAVA) {

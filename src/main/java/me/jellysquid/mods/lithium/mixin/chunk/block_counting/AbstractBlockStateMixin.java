@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.chunk.block_counting;
 
 import me.jellysquid.mods.lithium.common.block.BlockStateFlagHolder;
-import me.jellysquid.mods.lithium.common.block.IndexedBlockStatePredicate;
+import me.jellysquid.mods.lithium.common.block.TrackedBlockStatePredicate;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,12 +19,12 @@ public class AbstractBlockStateMixin implements BlockStateFlagHolder {
     }
 
     private void initFlags() {
-        IndexedBlockStatePredicate.FULLY_INITIALIZED.set(true);
+        TrackedBlockStatePredicate.FULLY_INITIALIZED.set(true);
 
         int flags = 0;
 
-        for (int i = 0; i < IndexedBlockStatePredicate.ALL_FLAGS.length; i++) {
-            if (IndexedBlockStatePredicate.ALL_FLAGS[i].test((BlockState) (Object) this)) {
+        for (int i = 0; i < TrackedBlockStatePredicate.ALL_FLAGS.length; i++) {
+            if (TrackedBlockStatePredicate.ALL_FLAGS[i].test((BlockState) (Object) this)) {
                 flags |= 1 << i;
             }
         }
