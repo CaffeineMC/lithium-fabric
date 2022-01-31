@@ -5,7 +5,7 @@ import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 
 public class ReflectionUtil {
-    public static boolean isMethodFromSuperclassOverwritten(Class<?> clazz, Class<?> superclass, String methodName, Class<?>... methodArgs) {
+    public static boolean hasMethodOverride(Class<?> clazz, Class<?> superclass, String methodName, Class<?>... methodArgs) {
         while (clazz != null && clazz != superclass && superclass.isAssignableFrom(clazz)) {
             try {
                 clazz.getDeclaredMethod(methodName, methodArgs);
