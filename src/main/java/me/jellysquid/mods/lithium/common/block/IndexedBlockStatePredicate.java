@@ -21,7 +21,6 @@ public abstract class IndexedBlockStatePredicate implements Predicate<BlockState
     }
 
     private final int index;
-    private final int mask;
 
     public IndexedBlockStatePredicate() {
         if (FULLY_INITIALIZED.get()) {
@@ -31,7 +30,6 @@ public abstract class IndexedBlockStatePredicate implements Predicate<BlockState
         if (this.index > 31 || this.index >= BlockStateFlags.NUM_FLAGS) {
             throw new IndexOutOfBoundsException();
         }
-        this.mask = 1 << this.index;
 
         //initialization is run on one thread with synchronization afterwards, so escaping this here is fine
         ALL_FLAGS[this.index] = this;
@@ -43,9 +41,5 @@ public abstract class IndexedBlockStatePredicate implements Predicate<BlockState
 
     public int getIndex() {
         return this.index;
-    }
-
-    public int getMask() {
-        return this.mask;
     }
 }
