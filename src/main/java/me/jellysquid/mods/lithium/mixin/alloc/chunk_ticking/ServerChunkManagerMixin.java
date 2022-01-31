@@ -18,9 +18,9 @@ public class ServerChunkManagerMixin {
     @Redirect(
             method = "tickChunks()V",
             at = @At(
-                    remap = false,
                     value = "INVOKE",
-                    target = "Lcom/google/common/collect/Lists;newArrayListWithCapacity(I)Ljava/util/ArrayList;"
+                    target = "Lcom/google/common/collect/Lists;newArrayListWithCapacity(I)Ljava/util/ArrayList;",
+                    remap = false
             )
     )
     private ArrayList<ChunkHolder> redirectChunksListClone(int initialArraySize) {

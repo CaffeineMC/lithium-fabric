@@ -48,6 +48,8 @@
     "alloc.enum_values.PistonHandlerMixin",
     "alloc.enum_values.RedstoneWireBlockMixin",
     "alloc.explosion_behavior.EntityExplosionBehaviorMixin",
+    "alloc.nbt.NbtCompoundMixin",
+    "alloc.nbt.NbtCompoundMixin$Type",
     "block.flatten_states.AbstractBlockStateMixin",
     "block.flatten_states.FluidStateMixin",
     "block.hopper.BlockEntityMixin",
