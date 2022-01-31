@@ -7,8 +7,11 @@ import net.minecraft.world.entity.EntityTrackingSection;
 import net.minecraft.world.entity.SectionedEntityCache;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.function.Consumer;
 
@@ -22,15 +25,25 @@ public abstract class SectionedEntityCacheMixin<T extends EntityLike> {
      * @author 2No2Name
      * @reason avoid iterating through LongAVLTreeSet, possibly iterating over hundreds of irrelevant longs to save up to 8 hash set gets
      */
-    @Overwrite
-    public void forEachInBox(Box box, Consumer<EntityTrackingSection<T>> action) {
-        int minX = ChunkSectionPos.getSectionCoord(box.minX - 2.0D);
-        int minY = ChunkSectionPos.getSectionCoord(box.minY - 2.0D);
-        int minZ = ChunkSectionPos.getSectionCoord(box.minZ - 2.0D);
-        int maxX = ChunkSectionPos.getSectionCoord(box.maxX + 2.0D);
-        int maxY = ChunkSectionPos.getSectionCoord(box.maxY + 2.0D);
-        int maxZ = ChunkSectionPos.getSectionCoord(box.maxZ + 2.0D);
-
+    @SuppressWarnings("InvalidInjectorMethodSignature")
+    @Inject(
+            method = "forEachInBox",
+            at = @At(
+                    value = "INVOKE_ASSIGN",
+                    shift = At.Shift.AFTER,
+                    target = "Lnet/minecraft/util/math/ChunkSectionPos;getSectionCoord(D)I",
+                    ordinal = 5
+            ),
+            locals = LocalCapture.CAPTURE_FAILHARD,
+            cancellable = true
+    )
+    public void forEachInBox(Box box, Consumer<EntityTrackingSection<T>> action, CallbackInfo ci, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+        if (maxX >= minX + 4 || maxZ >= minZ + 4) {
+            return; // Vanilla is likely more optimized when shooting entities with TNT cannons over huge distances.
+            // Choosing a cutoff of 4 chunk size, as it becomes more likely that these entity sections do not exist when
+            // they are far away from the shot entity (player despawn range, position maybe not on the ground, etc)
+        }
+        ci.cancel();
 
         // Vanilla order of the AVL long set is sorting by ascending long value. The x, y, z positions are packed into
         // a long with the x position's lowest 22 bits placed at the MSB.
@@ -38,9 +51,6 @@ public abstract class SectionedEntityCacheMixin<T extends EntityLike> {
         // is negative. A positive x position will never have its 22th bit set, as these big coordinates are far outside
         // the world. y and z positions are treated as unsigned when sorting by ascending long value, as their sign bits
         // are placed somewhere inside the packed long
-
-        // Vanilla is likely more optimized when shooting entities with TNT cannons over huge distances.
-        // Todo: branch off to optimized variant for huge volumes
 
         for (int x = minX; x <= maxX; x++) {
             for (int z = Math.max(minZ, 0); z <= maxZ; z++) {
