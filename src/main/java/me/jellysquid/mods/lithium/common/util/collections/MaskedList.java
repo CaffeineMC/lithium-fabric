@@ -42,9 +42,8 @@ public class MaskedList<E> extends AbstractList<E> {
         int index = this.element2Index.getInt(element);
         if (index != -1) {
             this.visibleMask.set(index, visible);
-        } else {
-            throw new IllegalStateException("Trying to set object visibility that isn't in the collection! " + element);
         }
+        //ignore when the element is not in the collection
     }
 
     @Override

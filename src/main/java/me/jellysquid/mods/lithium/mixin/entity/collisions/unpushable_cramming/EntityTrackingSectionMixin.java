@@ -79,6 +79,8 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
         this.pushableEntities = null;
     }
 
+    //This might be called while the world is in an inconsistent state. E.g. the entity may be in a different section than
+    //it is registered to.
     @Override
     public void onEntityModifiedCachedBlock(BlockCachingEntity entity, BlockState newBlockState) {
         if (this.pushableEntities == null) {
@@ -90,6 +92,9 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
 
     private void updatePushabilityOnCachedStateChange(BlockCachingEntity entity, BlockState newBlockState) {
         boolean visible = entityPushableHeuristic(newBlockState);
+        //The entity might be moving into this section right now but isn't registered yet.
+        // If the entity is not in the collection, do nothing.
+        // When it becomes registered to this section, it will be set to the correct visibility as well.
         this.pushableEntities.setVisible((Entity) entity, visible);
     }
 
