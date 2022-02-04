@@ -63,7 +63,7 @@ public class BrainMixin<E extends LivingEntity> {
                 }
             }
         }
-        this.flatTasks = new MaskedList<>(list);
+        this.flatTasks = new MaskedList<>(list, false);
     }
 
     @Inject(
