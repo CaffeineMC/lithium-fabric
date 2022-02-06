@@ -132,6 +132,7 @@ public class LithiumConfig {
 
         this.addMixinRule("tag", true);
 
+        this.addMixinRule("util", true);
         this.addMixinRule("util.entity_section_position", true);
 
         this.addMixinRule("world", true);
