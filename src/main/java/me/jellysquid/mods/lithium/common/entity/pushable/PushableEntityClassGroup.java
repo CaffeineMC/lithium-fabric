@@ -3,13 +3,12 @@ package me.jellysquid.mods.lithium.common.entity.pushable;
 import me.jellysquid.mods.lithium.common.entity.EntityClassGroup;
 import me.jellysquid.mods.lithium.common.reflection.ReflectionUtil;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.passive.BatEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.vehicle.AbstractMinecartEntity;
-import net.minecraft.entity.vehicle.BoatEntity;
 
 public class PushableEntityClassGroup {
 
@@ -44,25 +43,19 @@ public class PushableEntityClassGroup {
                 });
         MAYBE_PUSHABLE = new EntityClassGroup(
                 (Class<?> entityClass) -> {
-                    if (EnderDragonEntity.class.isAssignableFrom(entityClass)) {
-                        return false;
+                    if (ReflectionUtil.hasMethodOverride(entityClass, Entity.class, true, remapped_isPushable)) {
+                        if (EnderDragonEntity.class.isAssignableFrom(entityClass)) {
+                            return false;
+                        }
+                        if (ArmorStandEntity.class.isAssignableFrom(entityClass)) {
+                            return ReflectionUtil.hasMethodOverride(entityClass, ArmorStandEntity.class, true, remapped_isPushable);
+                        }
+                        if (BatEntity.class.isAssignableFrom(entityClass)) {
+                            return ReflectionUtil.hasMethodOverride(entityClass, BatEntity.class, true, remapped_isPushable);
+                        }
+                        return true;
                     }
                     if (PlayerEntity.class.isAssignableFrom(entityClass)) {
-                        return true;
-                    }
-                    if (ArmorStandEntity.class.isAssignableFrom(entityClass)) {
-                        return ReflectionUtil.hasMethodOverride(entityClass, ArmorStandEntity.class, true, remapped_isPushable);
-                    }
-                    if (BatEntity.class.isAssignableFrom(entityClass)) {
-                        return ReflectionUtil.hasMethodOverride(entityClass, BatEntity.class, true, remapped_isPushable);
-                    }
-                    if (AbstractMinecartEntity.class.isAssignableFrom(entityClass)) {
-                        return true;
-                    }
-                    if (BoatEntity.class.isAssignableFrom(entityClass)) {
-                        return true;
-                    }
-                    if (LivingEntity.class.isAssignableFrom(entityClass)) {
                         return true;
                     }
                     return false;
