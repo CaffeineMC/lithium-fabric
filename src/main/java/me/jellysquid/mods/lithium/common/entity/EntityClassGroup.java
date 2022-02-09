@@ -26,7 +26,7 @@ public class EntityClassGroup {
     static {
         String remapped_method_30949 = FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_1297", "method_30949", "(Lnet/minecraft/class_1297;)Z");
         MINECART_BOAT_LIKE_COLLISION = new EntityClassGroup(
-                (Class<?> entityClass) -> ReflectionUtil.hasMethodOverride(entityClass, Entity.class, remapped_method_30949, Entity.class));
+                (Class<?> entityClass) -> ReflectionUtil.hasMethodOverride(entityClass, Entity.class, true, remapped_method_30949, Entity.class));
 
         //sanity check: in case intermediary mappings changed, we fail
         if ((!MINECART_BOAT_LIKE_COLLISION.contains(MinecartEntity.class))) {
@@ -88,7 +88,7 @@ public class EntityClassGroup {
         static {
             String remapped_method_30948 = FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_1297", "method_30948", "()Z");
             BOAT_SHULKER_LIKE_COLLISION = new NoDragonClassGroup(
-                    (Class<?> entityClass) -> ReflectionUtil.hasMethodOverride(entityClass, Entity.class, remapped_method_30948));
+                    (Class<?> entityClass) -> ReflectionUtil.hasMethodOverride(entityClass, Entity.class, true, remapped_method_30948));
 
             if ((!BOAT_SHULKER_LIKE_COLLISION.contains(ShulkerEntity.class))) {
                 throw new AssertionError();

@@ -34,8 +34,8 @@ public class PushableEntityClassGroup {
         CACHABLE_UNPUSHABILITY = new EntityClassGroup(
                 (Class<?> entityClass) -> {
                     if (LivingEntity.class.isAssignableFrom(entityClass) && !PlayerEntity.class.isAssignableFrom(entityClass)) {
-                        if (!ReflectionUtil.hasMethodOverride(entityClass, LivingEntity.class, remapped_isPushable)) {
-                            if (!ReflectionUtil.hasMethodOverride(entityClass, LivingEntity.class, remapped_isClimbing)) {
+                        if (!ReflectionUtil.hasMethodOverride(entityClass, LivingEntity.class, true, remapped_isPushable)) {
+                            if (!ReflectionUtil.hasMethodOverride(entityClass, LivingEntity.class, true, remapped_isClimbing)) {
                                 return true;
                             }
                         }
@@ -51,10 +51,10 @@ public class PushableEntityClassGroup {
                         return true;
                     }
                     if (ArmorStandEntity.class.isAssignableFrom(entityClass)) {
-                        return ReflectionUtil.hasMethodOverride(entityClass, ArmorStandEntity.class, remapped_isPushable);
+                        return ReflectionUtil.hasMethodOverride(entityClass, ArmorStandEntity.class, true, remapped_isPushable);
                     }
                     if (BatEntity.class.isAssignableFrom(entityClass)) {
-                        return ReflectionUtil.hasMethodOverride(entityClass, BatEntity.class, remapped_isPushable);
+                        return ReflectionUtil.hasMethodOverride(entityClass, BatEntity.class, true, remapped_isPushable);
                     }
                     if (AbstractMinecartEntity.class.isAssignableFrom(entityClass)) {
                         return true;
