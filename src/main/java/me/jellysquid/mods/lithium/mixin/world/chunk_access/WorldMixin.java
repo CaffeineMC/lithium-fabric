@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.world.chunk_access;
 
-import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.*;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -26,7 +26,7 @@ public abstract class WorldMixin implements WorldAccess {
 
     @Override
     public Chunk getChunk(BlockPos pos) {
-        return this.getChunkLithium(Pos.ChunkCoord.fromBlockCoord(pos.getX()), Pos.ChunkCoord.fromBlockCoord(pos.getZ()), ChunkStatus.FULL, true);
+        return this.getChunk(ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()), ChunkStatus.FULL, true);
     }
 
     /**
@@ -36,26 +36,16 @@ public abstract class WorldMixin implements WorldAccess {
     @Override
     @Overwrite
     public WorldChunk getChunk(int chunkX, int chunkZ) {
-        return (WorldChunk) this.getChunkLithium(chunkX, chunkZ, ChunkStatus.FULL, true);
+        return (WorldChunk) this.getChunk(chunkX, chunkZ, ChunkStatus.FULL, true);
     }
 
     @Override
     public Chunk getChunk(int chunkX, int chunkZ, ChunkStatus status) {
-        return this.getChunkLithium(chunkX, chunkZ, status, true);
+        return this.getChunk(chunkX, chunkZ, status, true);
     }
 
     @Override
     public BlockView getChunkAsView(int chunkX, int chunkZ) {
-        return this.getChunkLithium(chunkX, chunkZ, ChunkStatus.FULL, false);
-    }
-
-    private Chunk getChunkLithium(int chunkX, int chunkZ, ChunkStatus leastStatus, boolean create) {
-        Chunk chunk = this.getChunkManager().getChunk(chunkX, chunkZ, leastStatus, create);
-
-        if (chunk == null && create) {
-            throw new IllegalStateException("Should always be able to create a chunk!");
-        } else {
-            return chunk;
-        }
+        return this.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
     }
 }
