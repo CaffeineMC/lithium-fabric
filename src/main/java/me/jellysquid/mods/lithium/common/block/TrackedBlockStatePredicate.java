@@ -3,18 +3,13 @@ package me.jellysquid.mods.lithium.common.block;
 import net.minecraft.block.BlockState;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 public abstract class TrackedBlockStatePredicate implements Predicate<BlockState> {
     public static final AtomicBoolean FULLY_INITIALIZED;
-    public static final TrackedBlockStatePredicate[] ALL_FLAGS;
-    private static final AtomicInteger NEXT_INDEX;
 
     static {
         FULLY_INITIALIZED = new AtomicBoolean(false);
-        NEXT_INDEX = new AtomicInteger(0);
-        ALL_FLAGS = new TrackedBlockStatePredicate[BlockStateFlags.NUM_FLAGS];
         if (!BlockStateFlags.ENABLED) { //classload the BlockStateFlags class which initializes the content of ALL_FLAGS
             System.out.println("Lithium Cached BlockState Flags are disabled!");
         }
@@ -22,21 +17,11 @@ public abstract class TrackedBlockStatePredicate implements Predicate<BlockState
 
     private final int index;
 
-    public TrackedBlockStatePredicate() {
+    public TrackedBlockStatePredicate(int index) {
         if (FULLY_INITIALIZED.get()) {
             throw new IllegalStateException("Lithium Cached BlockState Flags: Cannot register more flags after assuming to be fully initialized.");
         }
-        this.index = NEXT_INDEX.getAndIncrement();
-        if (this.index > 31 || this.index >= BlockStateFlags.NUM_FLAGS) {
-            throw new IndexOutOfBoundsException();
-        }
-
-        //initialization is run on one thread with synchronization afterwards, so escaping this here is fine
-        ALL_FLAGS[this.index] = this;
-
-        if (FULLY_INITIALIZED.get()) {
-            throw new IllegalStateException("Lithium Cached BlockState Flags: Cannot register more flags after assuming to be fully initialized.");
-        }
+        this.index = index;
     }
 
     public int getIndex() {
