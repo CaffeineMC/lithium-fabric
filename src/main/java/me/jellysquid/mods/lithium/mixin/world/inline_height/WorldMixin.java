@@ -1,13 +1,12 @@
 package me.jellysquid.mods.lithium.mixin.world.inline_height;
 
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,10 +19,10 @@ import java.util.function.Supplier;
  * Implement world height related methods directly instead of going through WorldView and Dimension
  */
 @Mixin(World.class)
-public class WorldMixin implements HeightLimitView {
+public abstract class WorldMixin implements HeightLimitView {
     @Shadow
-    @Final
-    private DimensionType dimension;
+    public abstract DimensionType getDimension();
+
     private int bottomY;
     private int height;
     private int topYInclusive;
@@ -32,9 +31,9 @@ public class WorldMixin implements HeightLimitView {
             method = "<init>",
             at = @At("RETURN")
     )
-    private void initHeightCache(MutableWorldProperties properties, RegistryKey<World> registryRef, DimensionType dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed, CallbackInfo ci) {
-        this.height = this.dimension.getHeight();
-        this.bottomY = this.dimension.getMinimumY();
+    private void initHeightCache(MutableWorldProperties properties, RegistryKey<?> registryRef, RegistryEntry<?> registryEntry, Supplier<?> profiler, boolean isClient, boolean debugWorld, long seed, CallbackInfo ci) {
+        this.height = this.getDimension().getHeight();
+        this.bottomY = this.getDimension().getMinimumY();
         this.topYInclusive = this.bottomY + this.height - 1;
     }
 

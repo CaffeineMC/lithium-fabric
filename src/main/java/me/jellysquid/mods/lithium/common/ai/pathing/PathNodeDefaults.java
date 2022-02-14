@@ -88,8 +88,7 @@ public class PathNodeDefaults {
         if (block instanceof LeavesBlock) {
             return PathNodeType.LEAVES;
         }
-
-        if (BlockTags.FENCES.contains(block) || (BlockTags.WALLS).contains(block) || ((block instanceof FenceGateBlock) && !state.get(FenceGateBlock.OPEN))) {
+        if (state.isIn(BlockTags.FENCES) || state.isIn(BlockTags.WALLS) || ((block instanceof FenceGateBlock) && !state.get(FenceGateBlock.OPEN))) {
             return PathNodeType.FENCE;
         }
 

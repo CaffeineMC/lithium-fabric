@@ -11,12 +11,12 @@ import net.minecraft.server.WorldGenerationProgressListener;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.gen.Spawner;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.level.ServerWorldProperties;
 import net.minecraft.world.level.storage.LevelStorage;
@@ -61,10 +61,8 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
 
     private ReferenceOpenHashSet<EntityNavigation> activeNavigations;
 
-    @Inject(method = "<init>(Lnet/minecraft/server/MinecraftServer;Ljava/util/concurrent/Executor;Lnet/minecraft/world/level/storage/LevelStorage$Session;Lnet/minecraft/world/level/ServerWorldProperties;Lnet/minecraft/util/registry/RegistryKey;Lnet/minecraft/world/dimension/DimensionType;Lnet/minecraft/server/WorldGenerationProgressListener;Lnet/minecraft/world/gen/chunk/ChunkGenerator;ZJLjava/util/List;Z)V", at = @At("TAIL"))
-    private void init(MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey<World> registryKey, DimensionType dimensionType, WorldGenerationProgressListener worldGenerationProgressListener, ChunkGenerator chunkGenerator, boolean debugWorld, long l, List<Spawner> list, boolean bl, CallbackInfo ci) {
-        this.loadedMobs = new ReferenceOpenHashSet<>(this.loadedMobs);
-        this.activeNavigations = new ReferenceOpenHashSet<>();
+    protected ServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, RegistryEntry<DimensionType> registryEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
+        super(properties, registryRef, registryEntry, profiler, isClient, debugWorld, seed);
     }
 
     /**
@@ -83,20 +81,10 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
         return Collections.emptyIterator();
     }
 
-    @Inject(
-            method = "updateListeners(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;I)V",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Ljava/util/Set;iterator()Ljava/util/Iterator;"
-            ),
-            locals = LocalCapture.CAPTURE_FAILHARD
-    )
-    private void updateActiveListeners(BlockPos pos, BlockState oldState, BlockState newState, int arg3, CallbackInfo ci, VoxelShape string, VoxelShape voxelShape, List<EntityNavigation> list) {
-        for (EntityNavigation entityNavigation : this.activeNavigations) {
-            if (entityNavigation.onBlockChanged(pos)) {
-                list.add(entityNavigation);
-            }
-        }
+    @Inject(method = "<init>(Lnet/minecraft/server/MinecraftServer;Ljava/util/concurrent/Executor;Lnet/minecraft/world/level/storage/LevelStorage$Session;Lnet/minecraft/world/level/ServerWorldProperties;Lnet/minecraft/util/registry/RegistryKey;Lnet/minecraft/util/registry/RegistryEntry;Lnet/minecraft/server/WorldGenerationProgressListener;Lnet/minecraft/world/gen/chunk/ChunkGenerator;ZJLjava/util/List;Z)V", at = @At("TAIL"))
+    private void init(MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey<?> worldKey, RegistryEntry<?> registryEntry, WorldGenerationProgressListener worldGenerationProgressListener, ChunkGenerator chunkGenerator, boolean debugWorld, long seed, List<?> spawners, boolean shouldTickTime, CallbackInfo ci) {
+        this.loadedMobs = new ReferenceOpenHashSet<>(this.loadedMobs);
+        this.activeNavigations = new ReferenceOpenHashSet<>();
     }
 
     @Override
@@ -109,12 +97,25 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
         this.activeNavigations.remove(((NavigatingEntity) mobEntity).getRegisteredNavigation());
     }
 
-    protected ServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DimensionType dimensionType, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long seed) {
-        super(properties, registryRef, dimensionType, profiler, isClient, debugWorld, seed);
+    @Inject(
+            method = "updateListeners(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;I)V",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Ljava/util/Set;iterator()Ljava/util/Iterator;"
+            ),
+            locals = LocalCapture.CAPTURE_FAILHARD
+    )
+    private void updateActiveListeners(BlockPos pos, BlockState oldState, BlockState newState, int arg3, CallbackInfo ci, VoxelShape string, VoxelShape voxelShape, List<EntityNavigation> list) {
+        for (EntityNavigation entityNavigation : this.activeNavigations) {
+            if (entityNavigation.shouldRecalculatePath(pos)) {
+                list.add(entityNavigation);
+            }
+        }
     }
 
     /**
      * Debug function
+     *
      * @return whether the activeEntityNavigation set is in the correct state
      */
     @SuppressWarnings("unused")

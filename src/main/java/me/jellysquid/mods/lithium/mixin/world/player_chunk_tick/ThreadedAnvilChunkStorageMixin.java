@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
-import static net.minecraft.server.world.ThreadedAnvilChunkStorage.method_39975;
+import static net.minecraft.server.world.ThreadedAnvilChunkStorage.isWithinDistance;
 
 @Mixin(ThreadedAnvilChunkStorage.class)
 public abstract class ThreadedAnvilChunkStorageMixin {
@@ -104,8 +104,8 @@ public abstract class ThreadedAnvilChunkStorageMixin {
 
             for (int x = minX; x <= maxX; x++) {
                 for (int z = minZ; z <= maxZ; z++) {
-                    boolean isWithinOldRadius = method_39975(x, z, oldCenterX, oldCenterZ, watchRadius);
-                    boolean isWithinNewRadius = method_39975(x, z, newCenterX, newCenterZ, watchRadius);
+                    boolean isWithinOldRadius = isWithinDistance(x, z, oldCenterX, oldCenterZ, watchRadius);
+                    boolean isWithinNewRadius = isWithinDistance(x, z, newCenterX, newCenterZ, watchRadius);
 
                     if (isWithinNewRadius && !isWithinOldRadius) {
                         this.startWatchingChunk(player, x, z);
@@ -119,7 +119,7 @@ public abstract class ThreadedAnvilChunkStorageMixin {
         } else {
             for (int x = oldCenterX - watchRadiusIncr; x <= oldCenterX + watchRadiusIncr; ++x) {
                 for (int z = oldCenterZ - watchRadiusIncr; z <= oldCenterZ + watchRadiusIncr; ++z) {
-                    if (method_39975(x, z, oldCenterX, oldCenterZ, watchRadius)) {
+                    if (isWithinDistance(x, z, oldCenterX, oldCenterZ, watchRadius)) {
                         this.stopWatchingChunk(player, x, z);
                     }
                 }
@@ -127,7 +127,7 @@ public abstract class ThreadedAnvilChunkStorageMixin {
 
             for (int x = newCenterX - watchRadiusIncr; x <= newCenterX + watchRadiusIncr; ++x) {
                 for (int z = newCenterZ - watchRadiusIncr; z <= newCenterZ + watchRadiusIncr; ++z) {
-                    if (method_39975(x, z, newCenterX, newCenterZ, watchRadius)) {
+                    if (isWithinDistance(x, z, newCenterX, newCenterZ, watchRadius)) {
                         this.startWatchingChunk(player, x, z);
                     }
                 }

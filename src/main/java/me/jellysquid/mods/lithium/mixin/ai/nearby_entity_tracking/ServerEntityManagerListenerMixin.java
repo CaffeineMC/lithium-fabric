@@ -28,6 +28,7 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
     @Final
     private T entity;
 
+    @Final
     @SuppressWarnings("ShadowTarget")
     @Shadow
     ServerEntityManager<T> manager;

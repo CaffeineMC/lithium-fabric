@@ -63,8 +63,61 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     @Shadow
     private long lastTickTime;
 
-    @Shadow
-    protected abstract void setCooldown(int cooldown);
+    /**
+     * Effectively overwrites {@link HopperBlockEntity#insert(World, BlockPos, BlockState, Inventory)} (only usage redirect)
+     * [VanillaCopy] general hopper insert logic, modified for optimizations
+     *
+     * @reason Adding the inventory caching into the static method using mixins seems to be unfeasible without temporarily storing state in static fields.
+     */
+    @SuppressWarnings("JavadocReference")
+    @Redirect(method = "insertAndExtract(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/entity/HopperBlockEntity;Ljava/util/function/BooleanSupplier;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;insert(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/inventory/Inventory;)Z"))
+    private static boolean lithiumInsert(World world, BlockPos pos, BlockState hopperState, Inventory hopper) {
+        HopperBlockEntityMixin hopperBlockEntity = (HopperBlockEntityMixin) hopper;
+        Inventory insertInventory = hopperBlockEntity.getInsertInventory(world, hopperState);
+        if (insertInventory == null) {
+            //call the vanilla code, but with target inventory nullify (mixin above) to allow other mods inject features
+            //e.g. carpet mod allows hoppers to insert items into wool blocks
+            return insert(world, pos, hopperState, hopper);
+        }
+
+        LithiumStackList hopperStackList = InventoryHelper.getLithiumStackList(hopperBlockEntity);
+        if (hopperBlockEntity.insertInventory == insertInventory && hopperStackList.getModCount() == hopperBlockEntity.myLastInsertChangeCount) {
+            if (hopperBlockEntity.insertInventoryStackList.getModCount() == hopperBlockEntity.insertInventoryChangeCount) {
+//                ComparatorUpdatePattern.NO_UPDATE.apply(hopperBlockEntity, hopperStackList); //commented because it's a noop, Hoppers do not send useless comparator updates
+                return false;
+            }
+        }
+
+        boolean insertInventoryWasEmptyHopperNotDisabled = insertInventory instanceof HopperBlockEntityMixin && !((HopperBlockEntityMixin) insertInventory).isDisabled() && hopperBlockEntity.insertInventoryStackList.getOccupiedSlots() == 0;
+        if (!(hopperBlockEntity.insertInventory == insertInventory && hopperBlockEntity.insertInventoryStackList.getFullSlots() == hopperBlockEntity.insertInventoryStackList.size())) {
+            Direction fromDirection = hopperState.get(HopperBlock.FACING).getOpposite();
+            int size = hopperStackList.size();
+            //noinspection ForLoopReplaceableByForEach
+            for (int i = 0; i < size; ++i) {
+                ItemStack transferStack = hopperStackList.get(i);
+                if (!transferStack.isEmpty()) {
+                    boolean transferSuccess = HopperHelper.tryMoveSingleItem(insertInventory, transferStack, fromDirection);
+                    if (transferSuccess) {
+                        if (insertInventoryWasEmptyHopperNotDisabled) {
+                            HopperBlockEntityMixin receivingHopper = (HopperBlockEntityMixin) insertInventory;
+                            int k = 8;
+                            if (receivingHopper.lastTickTime >= hopperBlockEntity.lastTickTime) {
+                                k = 7;
+                            }
+                            receivingHopper.setTransferCooldown(k);
+                        }
+                        insertInventory.markDirty();
+                        return true;
+                    }
+                }
+            }
+        }
+        hopperBlockEntity.myLastInsertChangeCount = hopperStackList.getModCount();
+        if (hopperBlockEntity.insertInventoryStackList != null) {
+            hopperBlockEntity.insertInventoryChangeCount = hopperBlockEntity.insertInventoryStackList.getModCount();
+        }
+        return false;
+    }
 
     @Shadow
     private static native boolean canExtract(Inventory inv, ItemStack stack, int slot, Direction facing);
@@ -220,61 +273,8 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         return lithiumStackList.getOccupiedSlots() == 0;
     }
 
-    /**
-     * Effectively overwrites {@link HopperBlockEntity#insert(World, BlockPos, BlockState, Inventory)} (only usage redirect)
-     * [VanillaCopy] general hopper insert logic, modified for optimizations
-     *
-     * @reason Adding the inventory caching into the static method using mixins seems to be unfeasible without temporarily storing state in static fields.
-     */
-    @SuppressWarnings("JavadocReference")
-    @Redirect(method = "insertAndExtract(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/entity/HopperBlockEntity;Ljava/util/function/BooleanSupplier;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;insert(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/inventory/Inventory;)Z"))
-    private static boolean lithiumInsert(World world, BlockPos pos, BlockState hopperState, Inventory hopper) {
-        HopperBlockEntityMixin hopperBlockEntity = (HopperBlockEntityMixin) hopper;
-        Inventory insertInventory = hopperBlockEntity.getInsertInventory(world, hopperState);
-        if (insertInventory == null) {
-            //call the vanilla code, but with target inventory nullify (mixin above) to allow other mods inject features
-            //e.g. carpet mod allows hoppers to insert items into wool blocks
-            return insert(world, pos, hopperState, hopper);
-        }
-
-        LithiumStackList hopperStackList = InventoryHelper.getLithiumStackList(hopperBlockEntity);
-        if (hopperBlockEntity.insertInventory == insertInventory && hopperStackList.getModCount() == hopperBlockEntity.myLastInsertChangeCount) {
-            if (hopperBlockEntity.insertInventoryStackList.getModCount() == hopperBlockEntity.insertInventoryChangeCount) {
-//                ComparatorUpdatePattern.NO_UPDATE.apply(hopperBlockEntity, hopperStackList); //commented because it's a noop, Hoppers do not send useless comparator updates
-                return false;
-            }
-        }
-
-        boolean insertInventoryWasEmptyHopperNotDisabled = insertInventory instanceof HopperBlockEntityMixin && !((HopperBlockEntityMixin) insertInventory).isDisabled() && hopperBlockEntity.insertInventoryStackList.getOccupiedSlots() == 0;
-        if (!(hopperBlockEntity.insertInventory == insertInventory && hopperBlockEntity.insertInventoryStackList.getFullSlots() == hopperBlockEntity.insertInventoryStackList.size())) {
-            Direction fromDirection = hopperState.get(HopperBlock.FACING).getOpposite();
-            int size = hopperStackList.size();
-            //noinspection ForLoopReplaceableByForEach
-            for (int i = 0; i < size; ++i) {
-                ItemStack transferStack = hopperStackList.get(i);
-                if (!transferStack.isEmpty()) {
-                    boolean transferSuccess = HopperHelper.tryMoveSingleItem(insertInventory, transferStack, fromDirection);
-                    if (transferSuccess) {
-                        if (insertInventoryWasEmptyHopperNotDisabled) {
-                            HopperBlockEntityMixin receivingHopper = (HopperBlockEntityMixin) insertInventory;
-                            int k = 8;
-                            if (receivingHopper.lastTickTime >= hopperBlockEntity.lastTickTime) {
-                                k = 7;
-                            }
-                            receivingHopper.setCooldown(k);
-                        }
-                        insertInventory.markDirty();
-                        return true;
-                    }
-                }
-            }
-        }
-        hopperBlockEntity.myLastInsertChangeCount = hopperStackList.getModCount();
-        if (hopperBlockEntity.insertInventoryStackList != null) {
-            hopperBlockEntity.insertInventoryChangeCount = hopperBlockEntity.insertInventoryStackList.getModCount();
-        }
-        return false;
-    }
+    @Shadow
+    protected abstract void setTransferCooldown(int cooldown);
 
     @Override
     public void onNeighborUpdate(boolean above) {

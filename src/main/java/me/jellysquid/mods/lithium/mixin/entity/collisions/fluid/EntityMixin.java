@@ -8,7 +8,7 @@ import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.tag.FluidTags;
-import net.minecraft.tag.Tag;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -30,10 +30,10 @@ public abstract class EntityMixin {
     public World world;
 
     @Shadow
-    protected Object2DoubleMap<Tag<Fluid>> fluidHeight;
+    protected Object2DoubleMap<TagKey<Fluid>> fluidHeight;
 
     @Inject(
-            method = "updateMovementInFluid(Lnet/minecraft/tag/Tag;D)Z",
+            method = "updateMovementInFluid(Lnet/minecraft/tag/TagKey;D)Z",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/Entity;isPushedByFluids()Z",
@@ -42,7 +42,7 @@ public abstract class EntityMixin {
             cancellable = true,
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    public void tryShortcutFluidPushing(Tag<Fluid> tag, double speed, CallbackInfoReturnable<Boolean> cir, Box box, int x1, int x2, int y1, int y2, int z1, int z2, double zero) {
+    public void tryShortcutFluidPushing(TagKey<Fluid> tag, double speed, CallbackInfoReturnable<Boolean> cir, Box box, int x1, int x2, int y1, int y2, int z1, int z2, double zero) {
         TrackedBlockStatePredicate blockStateFlag;
         if (tag == FluidTags.WATER) {
             blockStateFlag = BlockStateFlags.WATER;

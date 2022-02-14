@@ -19,12 +19,11 @@ public abstract class ServerEntityManagerMixin<T extends EntityLike> {
     @Final
     SectionedEntityCache<T> cache;
 
-    @SuppressWarnings("UnresolvedMixinReference")
     @Inject(
             method = "addEntity(Lnet/minecraft/world/entity/EntityLike;Z)Z",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/EntityLike;setListener(Lnet/minecraft/world/entity/EntityChangeListener;)V",
+                    target = "Lnet/minecraft/world/entity/EntityLike;setChangeListener(Lnet/minecraft/world/entity/EntityChangeListener;)V",
                     shift = At.Shift.AFTER
             )
     )

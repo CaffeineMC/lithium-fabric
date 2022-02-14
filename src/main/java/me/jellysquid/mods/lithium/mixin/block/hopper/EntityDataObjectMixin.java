@@ -31,7 +31,7 @@ public class EntityDataObjectMixin {
     private void updateEntityTrackerEngine(NbtCompound nbt, CallbackInfo ci) {
         Entity entity = this.entity;
         if (entity instanceof ItemEntity) {
-            ((EntityAccessor) entity).getEntityChangeListener().updateEntityPosition();
+            ((EntityAccessor) entity).getChangeListener().updateEntityPosition();
         }
     }
 }

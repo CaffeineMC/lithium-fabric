@@ -2,10 +2,7 @@ package me.jellysquid.mods.lithium.mixin.shapes.lazy_shape_context;
 
 import net.minecraft.block.EntityShapeContext;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.fluid.FlowableFluid;
-import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -33,7 +30,7 @@ public class EntityShapeContextMixin {
     @Mutable
     @Shadow
     @Final
-    private Predicate<Fluid> walkOnFluidPredicate;
+    private Predicate<FluidState> walkOnFluidPredicate;
 
     @Shadow
     @Final
@@ -84,10 +81,10 @@ public class EntityShapeContextMixin {
     }
 
     @Inject(
-            method = "canWalkOnFluid(Lnet/minecraft/fluid/FluidState;Lnet/minecraft/fluid/FlowableFluid;)Z",
+            method = "canWalkOnFluid(Lnet/minecraft/fluid/FluidState;Lnet/minecraft/fluid/FluidState;)Z",
             at = @At("HEAD")
     )
-    public void canWalkOnFluid(FluidState state, FlowableFluid fluid, CallbackInfoReturnable<Boolean> cir) {
+    public void canWalkOnFluid(FluidState state, FluidState fluidState, CallbackInfoReturnable<Boolean> cir) {
         if (this.walkOnFluidPredicate == null) {
             if (this.entity instanceof LivingEntity livingEntity) {
                 this.walkOnFluidPredicate = livingEntity::canWalkOnFluid;
