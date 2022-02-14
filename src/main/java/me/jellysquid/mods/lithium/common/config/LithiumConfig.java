@@ -130,8 +130,6 @@ public class LithiumConfig {
         this.addMixinRule("shapes.shape_merging", true);
         this.addMixinRule("shapes.specialized_shapes", true);
 
-        this.addMixinRule("tag", true);
-
         this.addMixinRule("util", true);
         this.addMixinRule("util.entity_section_position", true);
 

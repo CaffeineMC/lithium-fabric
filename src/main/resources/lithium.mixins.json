@@ -152,7 +152,6 @@
     "shapes.shape_merging.VoxelShapesMixin",
     "shapes.specialized_shapes.VoxelShapeMixin",
     "shapes.specialized_shapes.VoxelShapesMixin",
-    "tag.SetTagMixin",
     "util.entity_section_position.EntityTrackingSectionMixin",
     "util.entity_section_position.SectionedEntityCacheMixin",
     "world.block_entity_retrieval.WorldMixin",
