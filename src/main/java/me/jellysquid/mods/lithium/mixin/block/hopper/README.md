@@ -1,5 +1,13 @@
 # Lithium Hopper Optimizations
 
+## Assumptions made about other inventories
+
+(likely incomplete)
+Inventories that implement restrictions for hopper item insertion do not depend on the size of the inserted stack.
+Hoppers always transfer a single item, inventories do not reject a stack if they are able to receive a single item from
+the stack (the receiving inventory slot is not filled to its limit and the item type is correct). This allows lithium to
+avoid creating a copy of the transferred item stack when the transfer is going to fail.
+
 ## Inventory Stack List
 
 LithiumStackList replaces the inventory stack lists. It keeps an inventory content modification counter and caches the
