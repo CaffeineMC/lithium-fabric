@@ -24,6 +24,8 @@ import java.util.concurrent.locks.ReadWriteLock;
  */
 @Mixin(value = DataTracker.class, priority = 1001)
 public abstract class DataTrackerMixin {
+    private static final NullReadWriteLock NULL_READ_WRITE_LOCK = new NullReadWriteLock();
+
     @Mutable
     @Shadow
     @Final
@@ -31,6 +33,6 @@ public abstract class DataTrackerMixin {
 
     @Inject(method = "<init>(Lnet/minecraft/entity/Entity;)V", at = @At("RETURN"))
     private void init(Entity entity, CallbackInfo ci) {
-        this.lock = new NullReadWriteLock();
+        this.lock = NULL_READ_WRITE_LOCK;
     }
 }
