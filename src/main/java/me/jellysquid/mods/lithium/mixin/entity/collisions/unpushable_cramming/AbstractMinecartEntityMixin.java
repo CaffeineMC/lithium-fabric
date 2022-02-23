@@ -25,7 +25,8 @@ public class AbstractMinecartEntityMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/World;getOtherEntities(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"
-            )
+            ),
+            require = 0 // Consistency Plus compatibility: disable this mixin
     )
     private List<Entity> getOtherPushableEntities(World world, @Nullable Entity except, Box box, Predicate<? super Entity> predicate) {
         //noinspection Guava
