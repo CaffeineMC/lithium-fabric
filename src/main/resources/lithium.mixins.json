@@ -90,8 +90,6 @@
     "chunk.palette.PalettedContainerMixin",
     "chunk.serialization.PackedIntegerArrayMixin",
     "chunk.serialization.PalettedContainerMixin",
-    "chunk.structure_storage.ChunkMixin",
-    "chunk.structure_storage.ChunkSerializerMixin",
     "collections.attributes.AttributeContainerMixin",
     "collections.brain.BrainMixin",
     "collections.entity_by_type.TypeFilterableListMixin",
