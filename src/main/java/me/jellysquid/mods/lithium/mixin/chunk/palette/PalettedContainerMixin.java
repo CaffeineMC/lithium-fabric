@@ -28,6 +28,7 @@ public abstract class PalettedContainerMixin {
      */
 
     static {
+        Palette.Factory idListFactory = ID_LIST;
         BLOCK_STATE = new PalettedContainer.PaletteProvider(4) {
             public <A> PalettedContainer.DataProvider<A> createDataProvider(IndexedIterable<A> idList, int bits) {
                 return switch (bits) {
@@ -40,7 +41,7 @@ public abstract class PalettedContainerMixin {
 
                     case 5, 6, 7, 8 -> new PalettedContainer.DataProvider<>(HASH, bits);
 
-                    default -> new PalettedContainer.DataProvider<>(ID_LIST, MathHelper.ceilLog2(idList.size()));
+                    default -> new PalettedContainer.DataProvider<>(idListFactory, MathHelper.ceilLog2(idList.size()));
                 };
             }
         };
