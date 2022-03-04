@@ -78,6 +78,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     //any optimized inventories interacted with are stored (including entities) with extra data
     private LithiumInventory insertInventory, extractInventory;
     private int insertInventoryRemovedCount, extractInventoryRemovedCount;
+
     private LithiumStackList insertInventoryStackList, extractInventoryStackList;
     private long insertInventoryChangeCount, extractInventoryChangeCount;
 
@@ -122,12 +123,15 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             return null;
         }
         Inventory inventory = inventoryEntities.get(world.random.nextInt(inventoryEntities.size()));
-        if (inventory != hopperBlockEntity.extractInventory && inventory instanceof LithiumInventory optimizedInventory) {
-            //not caching the inventory (hopperBlockEntity.extractBlockInventory == USE_ENTITY_INVENTORY prevents it)
-            //make change counting on the entity inventory possible, without caching it as block inventory
-            hopperBlockEntity.extractInventory = optimizedInventory;
-            hopperBlockEntity.extractInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
-            hopperBlockEntity.extractInventoryChangeCount = hopperBlockEntity.extractInventoryStackList.getModCount() - 1;
+        if (inventory instanceof LithiumInventory optimizedInventory) {
+            LithiumStackList extractInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
+            if (inventory != hopperBlockEntity.extractInventory || hopperBlockEntity.extractInventoryStackList != extractInventoryStackList) {
+                //not caching the inventory (hopperBlockEntity.extractBlockInventory == USE_ENTITY_INVENTORY prevents it)
+                //make change counting on the entity inventory possible, without caching it as block inventory
+                hopperBlockEntity.extractInventory = optimizedInventory;
+                hopperBlockEntity.extractInventoryStackList = extractInventoryStackList;
+                hopperBlockEntity.extractInventoryChangeCount = hopperBlockEntity.extractInventoryStackList.getModCount() - 1;
+            }
         }
         return inventory;
     }
@@ -450,13 +454,17 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             return null;
         }
         Inventory inventory = inventoryEntities.get(world.random.nextInt(inventoryEntities.size()));
-        if (inventory != this.insertInventory && inventory instanceof LithiumInventory optimizedInventory) {
-            //not caching the inventory (this.insertBlockInventory == USE_ENTITY_INVENTORY prevents it)
-            //make change counting on the entity inventory possible, without caching it as block inventory
-            this.insertInventory = optimizedInventory;
-            this.insertInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
-            this.insertInventoryChangeCount = this.insertInventoryStackList.getModCount() - 1;
+        if (inventory instanceof LithiumInventory optimizedInventory) {
+            LithiumStackList insertInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
+            if (inventory != this.insertInventory || this.insertInventoryStackList != insertInventoryStackList) {
+                //not caching the inventory (this.insertBlockInventory == USE_ENTITY_INVENTORY prevents it)
+                //make change counting on the entity inventory possible, without caching it as block inventory
+                this.insertInventory = optimizedInventory;
+                this.insertInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
+                this.insertInventoryChangeCount = this.insertInventoryStackList.getModCount() - 1;
+            }
         }
+
         return inventory;
     }
 
