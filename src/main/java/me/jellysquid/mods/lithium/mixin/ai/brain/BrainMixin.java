@@ -53,17 +53,16 @@ public class BrainMixin<E extends LivingEntity> {
     }
 
     private void initTaskList() {
-        ObjectArrayList<Task<? super E>> list = new ObjectArrayList<>();
+        MaskedList<Task<? super E>> list = new MaskedList<>(new ObjectArrayList<>(), false);
 
         for (Map<Activity, Set<Task<? super E>>> map : this.tasks.values()) {
             for (Set<Task<? super E>> set : map.values()) {
                 for (Task<? super E> task : set) {
-                    //noinspection UseBulkOperation
-                    list.add(task);
+                    list.addOrSet(task, task.getStatus() == Task.Status.RUNNING);
                 }
             }
         }
-        this.flatTasks = new MaskedList<>(list, false);
+        this.flatTasks = list;
     }
 
     @Inject(
