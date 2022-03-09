@@ -24,7 +24,7 @@ public class TaskMixin<E extends LivingEntity> {
     protected Map<MemoryModuleType<?>, MemoryModuleState> requiredMemoryStates;
 
     @Unique
-    private long cachedMemoryModCount;
+    private long cachedMemoryModCount = -1;
     @Unique
     private boolean cachedHasRequiredMemoryState;
 
