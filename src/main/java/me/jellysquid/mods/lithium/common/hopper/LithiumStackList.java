@@ -114,8 +114,10 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
         if (previous != element) {
             //noinspection ConstantConditions
             ((StorableItemStack) (Object) previous).unregisterFromInventory(this);
-            //noinspection ConstantConditions
-            ((StorableItemStack) (Object) element).registerToInventory(this, index);
+            if (!element.isEmpty()) {
+                //noinspection ConstantConditions
+                ((StorableItemStack) (Object) element).registerToInventory(this, index);
+            }
 
             this.occupiedSlots += (previous.isEmpty() ? 1 : 0) - (element.isEmpty() ? 1 : 0);
             this.fullSlots += (element.getCount() >= element.getMaxCount() ? 1 : 0) - (previous.getCount() >= previous.getMaxCount() ? 1 : 0);
@@ -128,8 +130,10 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
     @Override
     public void add(int slot, ItemStack element) {
         super.add(slot, element);
-        //noinspection ConstantConditions
-        ((StorableItemStack) (Object) element).registerToInventory(this, -1);
+        if (!element.isEmpty()) {
+            //noinspection ConstantConditions
+            ((StorableItemStack) (Object) element).registerToInventory(this, this.indexOf(element));
+        }
         this.changedALot();
     }
 
