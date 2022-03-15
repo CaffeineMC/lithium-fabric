@@ -28,6 +28,7 @@
     "ai.raid.PickupBannerAsLeaderGoalMixin",
     "ai.raid.RaiderEntityMixin",
     "ai.raid.RaidMixin",
+    "ai.sensor.secondary_poi.SecondaryPointsOfInterestSensorMixin",
     "ai.task.goat_jump.LongJumpTaskMixin",
     "ai.task.launch.BrainMixin",
     "ai.task.memory_change_counting.BrainMixin",
