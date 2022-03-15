@@ -32,7 +32,6 @@ public class LithiumConfig {
         // You must manually add a rule for any new mixins not covered by an existing package rule.
 
         this.addMixinRule("ai", true);
-        this.addMixinRule("ai.brain", true);
         this.addMixinRule("ai.nearby_entity_tracking", true);
         this.addMixinRule("ai.nearby_entity_tracking.goals", true);
         this.addMixinRule("ai.pathing", true);
@@ -43,6 +42,7 @@ public class LithiumConfig {
         this.addMixinRule("ai.task", true);
         this.addMixinRule("ai.task.fast_repetition", false); //removed during 1.18 update
         this.addMixinRule("ai.task.goat_jump", true);
+        this.addMixinRule("ai.task.launch", true);
         this.addMixinRule("ai.task.memory_change_counting", true);
         this.addMixinRule("ai.task.replace_streams", true);
 

@@ -7,7 +7,6 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "ai.brain.BrainMixin",
     "ai.nearby_entity_tracking.EntityMixin",
     "ai.nearby_entity_tracking.EntityTrackingSectionMixin",
     "ai.nearby_entity_tracking.SectionedEntityCacheMixin",
@@ -30,6 +29,7 @@
     "ai.raid.RaiderEntityMixin",
     "ai.raid.RaidMixin",
     "ai.task.goat_jump.LongJumpTaskMixin",
+    "ai.task.launch.BrainMixin",
     "ai.task.memory_change_counting.BrainMixin",
     "ai.task.memory_change_counting.TaskMixin",
     "ai.task.replace_streams.CompositeTaskMixin",
