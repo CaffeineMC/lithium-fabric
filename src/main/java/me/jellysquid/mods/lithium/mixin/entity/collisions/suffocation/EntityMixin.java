@@ -35,14 +35,12 @@ public abstract class EntityMixin {
      */
     @Overwrite
     public boolean isInsideWall() {
-        // [VanillaCopy] The whole method functionality including bug below. Cannot use ChunkAwareBlockCollisionSweeper due to special bug behavior and ignoring of oversized blocks
+        // [VanillaCopy] The whole method functionality including bug below. Cannot use ChunkAwareBlockCollisionSweeper due to ignoring of oversized blocks
         if (this.noClip) {
             return false;
         }
         Vec3d eyePos = this.getEyePos();
         double suffocationRadius = Math.abs((double) (this.dimensions.width * 0.8f) / 2.0);
-
-        BlockPos incorrectSuffocationPos = new BlockPos(eyePos);
 
         double suffocationMinX = eyePos.x - suffocationRadius;
         double suffocationMinY = eyePos.y - 5.0E-7;
@@ -66,13 +64,12 @@ public abstract class EntityMixin {
                 for (int x = minX; x <= maxX; x++) {
                     blockPos.set(x, y, z);
                     BlockState blockState = world.getBlockState(blockPos);
-                    // [VanillaCopy] https://bugs.mojang.com/browse/MC-242543 (incorrectly marked as cannot reproduce)
-                    if (!blockState.isAir() && blockState.shouldSuffocate(this.world, incorrectSuffocationPos)) {
+                    if (!blockState.isAir() && blockState.shouldSuffocate(this.world, blockPos)) {
                         if (suffocationShape == null) {
                             suffocationShape = VoxelShapes.cuboid(new Box(suffocationMinX, suffocationMinY, suffocationMinZ, suffocationMaxX, suffocationMaxY, suffocationMaxZ));
                         }
-                        if (VoxelShapes.matchesAnywhere(blockState.getCollisionShape(this.world, incorrectSuffocationPos).
-                                        offset(eyePos.x, eyePos.y, eyePos.z), // [VanillaCopy] This is broken. Should be offset by blockPos. But vanilla does it like this. Causes https://bugs.mojang.com/browse/MC-245416
+                        if (VoxelShapes.matchesAnywhere(blockState.getCollisionShape(this.world, blockPos).
+                                        offset(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
                                 suffocationShape, BooleanBiFunction.AND)) {
                             return true;
                         }
