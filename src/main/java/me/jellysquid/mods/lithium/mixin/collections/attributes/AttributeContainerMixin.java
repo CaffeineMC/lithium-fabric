@@ -34,7 +34,7 @@ public class AttributeContainerMixin {
             at = @At("RETURN")
     )
     private void initCollections(DefaultAttributeContainer defaultAttributes, CallbackInfo ci) {
-        this.custom = new Reference2ReferenceOpenHashMap<>();
-        this.tracked = new ReferenceOpenHashSet<>();
+        this.custom = new Reference2ReferenceOpenHashMap<>(0);
+        this.tracked = new ReferenceOpenHashSet<>(0);
     }
 }
