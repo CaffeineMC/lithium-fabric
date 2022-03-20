@@ -54,4 +54,12 @@ public abstract class LivingEntityMixin extends Entity implements EquipmentEntit
             this.equipmentChanged = false;
         }
     }
+
+    @Inject(
+            method = "eatFood(Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;",
+            at = @At("RETURN")
+    )
+    private void trackEatingEquipmentChange(World world, ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
+        this.lithiumOnEquipmentChanged();
+    }
 }
