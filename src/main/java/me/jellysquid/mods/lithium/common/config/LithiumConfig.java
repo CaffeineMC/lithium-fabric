@@ -36,8 +36,6 @@ public class LithiumConfig {
         this.addMixinRule("ai.nearby_entity_tracking.goals", true);
         this.addMixinRule("ai.pathing", true);
         this.addMixinRule("ai.poi", true);
-        this.addMixinRule("ai.poi.fast_init", true);
-        this.addMixinRule("ai.poi.fast_retrieval", true);
         this.addMixinRule("ai.raid", true);
         this.addMixinRule("ai.sensor", true);
         this.addMixinRule("ai.sensor.secondary_poi", true);

@@ -1,13 +1,13 @@
-package me.jellysquid.mods.lithium.mixin.ai.poi.fast_retrieval;
+package me.jellysquid.mods.lithium.mixin.ai.poi;
 
+import com.google.common.collect.AbstractIterator;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import me.jellysquid.mods.lithium.common.util.Collector;
 import me.jellysquid.mods.lithium.common.util.Pos;
 import me.jellysquid.mods.lithium.common.util.collections.ListeningLong2ObjectOpenHashMap;
-import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageSectionAccess;
+import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageSectionExtended;
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
@@ -21,17 +21,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.io.File;
 import java.nio.file.Path;
-import java.util.BitSet;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType") // We don't get a choice, this is Minecraft's doing!
 @Mixin(SerializingRegionBasedStorage.class)
-public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBasedStorageSectionAccess<R> {
+public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBasedStorageSectionExtended<R> {
     @Mutable
     @Shadow
     @Final
@@ -46,7 +43,6 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
     @Shadow
     @Final
     protected HeightLimitView world;
-
     private Long2ObjectOpenHashMap<BitSet> columns;
 
     @Inject(method = "<init>(Ljava/nio/file/Path;Ljava/util/function/Function;Ljava/util/function/Function;Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/datafixer/DataFixTypes;ZLnet/minecraft/world/HeightLimitView;)V", at = @At("RETURN"))
@@ -84,42 +80,63 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
 
     @Override
     public Stream<R> getWithinChunkColumn(int chunkX, int chunkZ) {
-        BitSet flags = this.getCachedColumnInfo(chunkX, chunkZ);
+        BitSet sectionsWithPOI = this.getNonEmptyPOISections(chunkX, chunkZ);
 
         // No items are present in this column
-        if (flags.isEmpty()) {
+        if (sectionsWithPOI.isEmpty()) {
             return Stream.empty();
         }
 
-        return flags.stream()
-                .map(chunkYIndex -> Pos.SectionYCoord.fromSectionIndex(this.world, chunkYIndex))
-                .mapToObj((chunkY) -> this.loadedElements.get(ChunkSectionPos.asLong(chunkX, chunkY, chunkZ)).orElse(null))
-                .filter(Objects::nonNull);
-    }
-
-    @Override
-    public boolean collectWithinChunkColumn(int chunkX, int chunkZ, Collector<R> consumer) {
-        BitSet flags = this.getCachedColumnInfo(chunkX, chunkZ);
-
-        // No items are present in this column
-        if (flags.isEmpty()) {
-            return true;
-        }
-        for (int chunkY = flags.nextSetBit(0); chunkY >= 0; chunkY = flags.nextSetBit(chunkY + 1)) {
-            R obj = this.loadedElements.get(ChunkSectionPos.asLong(chunkX, Pos.SectionYCoord.fromSectionIndex(this.world, chunkY), chunkZ)).orElse(null);
-
-            if (obj != null && !consumer.collect(obj)) {
-                return false;
+        List<R> list = new ArrayList<>();
+        int minYSection = Pos.SectionYCoord.getMinYSection(this.world);
+        for (int chunkYIndex = sectionsWithPOI.nextSetBit(0); chunkYIndex != -1; chunkYIndex = sectionsWithPOI.nextSetBit(chunkYIndex + 1)) {
+            int chunkY = chunkYIndex + minYSection;
+            //noinspection SimplifyOptionalCallChains
+            R r = this.loadedElements.get(ChunkSectionPos.asLong(chunkX, chunkY, chunkZ)).orElse(null);
+            if (r != null) {
+                list.add(r);
             }
         }
 
-        return true;
+        return list.stream();
     }
 
-    private BitSet getCachedColumnInfo(int chunkX, int chunkZ) {
+    @Override
+    public Iterable<R> getInChunkColumn(int chunkX, int chunkZ) {
+        BitSet sectionsWithPOI = this.getNonEmptyPOISections(chunkX, chunkZ);
+
+        // No items are present in this column
+        if (sectionsWithPOI.isEmpty()) {
+            return Collections::emptyIterator;
+        }
+
+        return () -> new AbstractIterator<>() {
+            private int nextBit = sectionsWithPOI.nextSetBit(0);
+
+
+            @Override
+            protected R computeNext() {
+                // If the next bit is <0, that means that no remaining set bits exist
+                while (this.nextBit >= 0) {
+                    Optional<R> next = SerializingRegionBasedStorageMixin.this.loadedElements.get(ChunkSectionPos.asLong(chunkX, Pos.SectionYCoord.fromSectionIndex(world, this.nextBit), chunkZ));
+
+                    // Find and advance to the next set bit
+                    this.nextBit = sectionsWithPOI.nextSetBit(this.nextBit + 1);
+
+                    if (next.isPresent()) {
+                        return next.get();
+                    }
+                }
+
+                return this.endOfData();
+            }
+        };
+    }
+
+    private BitSet getNonEmptyPOISections(int chunkX, int chunkZ) {
         long pos = ChunkPos.toLong(chunkX, chunkZ);
 
-        BitSet flags = this.getColumnInfo(pos, false);
+        BitSet flags = this.getNonEmptySections(pos, false);
 
         if (flags != null) {
             return flags;
@@ -127,10 +144,10 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
 
         this.loadDataAt(new ChunkPos(pos));
 
-        return this.getColumnInfo(pos, true);
+        return this.getNonEmptySections(pos, true);
     }
 
-    private BitSet getColumnInfo(long pos, boolean required) {
+    private BitSet getNonEmptySections(long pos, boolean required) {
         BitSet set = this.columns.get(pos);
 
         if (set == null && required) {
