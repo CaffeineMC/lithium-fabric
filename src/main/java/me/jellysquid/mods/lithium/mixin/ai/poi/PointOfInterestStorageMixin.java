@@ -8,6 +8,7 @@ import me.jellysquid.mods.lithium.common.world.interests.PointOfInterestStorageE
 import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageSectionExtended;
 import me.jellysquid.mods.lithium.common.world.interests.iterator.NearbyPointOfInterestStream;
 import me.jellysquid.mods.lithium.common.world.interests.iterator.SinglePointOfInterestTypeFilter;
+import me.jellysquid.mods.lithium.common.world.interests.iterator.SphereChunkOrderedPoiSetSpliterator;
 import me.jellysquid.mods.lithium.common.world.interests.types.PointOfInterestTypeHelper;
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.util.annotation.Debug;
@@ -28,7 +29,9 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.Random;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -39,6 +42,9 @@ import java.util.stream.StreamSupport;
 @Mixin(PointOfInterestStorage.class)
 public abstract class PointOfInterestStorageMixin extends SerializingRegionBasedStorage<PointOfInterestSet>
         implements PointOfInterestStorageExtended {
+
+    @Shadow
+    public abstract Stream<PointOfInterest> getInSquare(Predicate<PointOfInterestType> typePredicate, BlockPos pos, int radius, PointOfInterestStorage.OccupationStatus occupationStatus);
 
     public PointOfInterestStorageMixin(Path path, Function<Runnable, Codec<PointOfInterestSet>> codecFactory, Function<Runnable, PointOfInterestSet> factory, DataFixer dataFixer, DataFixTypes dataFixTypes, boolean dsync, HeightLimitView world) {
         super(path, codecFactory, factory, dataFixer, dataFixTypes, dsync, world);
@@ -187,43 +193,12 @@ public abstract class PointOfInterestStorageMixin extends SerializingRegionBased
                                                                          int radius, PointOfInterestStorage.OccupationStatus status) {
         double radiusSq = radius * radius;
 
-        int minChunkX = origin.getX() - radius - 1 >> 4;
-        int minChunkZ = origin.getZ() - radius - 1 >> 4;
-
-        int maxChunkX = origin.getX() + radius + 1 >> 4;
-        int maxChunkZ = origin.getZ() + radius + 1 >> 4;
 
         // noinspection unchecked
         RegionBasedStorageSectionExtended<PointOfInterestSet> storage = (RegionBasedStorageSectionExtended<PointOfInterestSet>) this;
 
-        int limit = (maxChunkX - minChunkX + 1) * (maxChunkZ - minChunkZ + 1);
-        Stream<Stream<PointOfInterestSet>> stream = StreamSupport.stream(new Spliterators.AbstractSpliterator<>(limit, Spliterator.ORDERED) {
-            int chunkX = minChunkX;
-            int chunkZ = minChunkZ;
-            int iterated = 0;
 
-            @Override
-            public boolean tryAdvance(Consumer<? super Stream<PointOfInterestSet>> action) {
-                while (true) {
-                    if (this.iterated >= limit) {
-                        return false;
-                    } else {
-                        if (this.chunkZ > maxChunkZ) {
-                            this.chunkX++;
-                            this.chunkZ = minChunkZ;
-                        } else {
-                            this.chunkZ++;
-                        }
-                    }
-                    this.iterated++;
-                    if (Distances.getMinChunkToBlockDistanceL2Sq(origin, this.chunkX, this.chunkZ) <= radiusSq) {
-                        //future work: filter sections with too high distance on the y axis as well
-                        action.accept(storage.getWithinChunkColumn(this.chunkX, this.chunkZ));
-                        return true;
-                    }
-                }
-            }
-        }, false);
+        Stream<Stream<PointOfInterestSet>> stream = StreamSupport.stream(new SphereChunkOrderedPoiSetSpliterator(radius, origin, storage), false);
 
         return stream.flatMap((Stream<PointOfInterestSet> setStream) -> setStream.flatMap(
                 (PointOfInterestSet set) -> set.get(predicate, status)
