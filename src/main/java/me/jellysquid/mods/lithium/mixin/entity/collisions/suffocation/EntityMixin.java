@@ -56,6 +56,12 @@ public abstract class EntityMixin {
         int maxZ = MathHelper.floor(suffocationMaxZ);
 
         World world = this.world;
+        //skip getting blocks when the entity is outside the world height
+        //also avoids infinite loop with entities below y = Integer.MIN_VALUE (some modded servers do that)
+        if (world.getBottomY() > maxY || world.getTopY() < minY) {
+            return false;
+        }
+
         BlockPos.Mutable blockPos = new BlockPos.Mutable();
         VoxelShape suffocationShape = null;
 
