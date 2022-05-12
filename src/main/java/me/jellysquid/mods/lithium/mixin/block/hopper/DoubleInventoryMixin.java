@@ -4,6 +4,7 @@ import me.jellysquid.mods.lithium.api.inventory.LithiumInventory;
 import me.jellysquid.mods.lithium.common.hopper.InventoryHelper;
 import me.jellysquid.mods.lithium.common.hopper.LithiumDoubleStackList;
 import me.jellysquid.mods.lithium.common.hopper.LithiumStackList;
+import me.jellysquid.mods.lithium.common.hopper.RemovalCounter;
 import net.minecraft.inventory.DoubleInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -13,7 +14,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(DoubleInventory.class)
-public abstract class DoubleInventoryMixin implements LithiumInventory {
+public abstract class DoubleInventoryMixin implements LithiumInventory, RemovalCounter {
     @Shadow
     @Final
     private Inventory first;

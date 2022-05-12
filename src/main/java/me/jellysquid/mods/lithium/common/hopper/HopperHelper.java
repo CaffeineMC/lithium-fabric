@@ -86,6 +86,15 @@ public class HopperHelper {
         return false;
     }
 
+    private static int calculateReducedSignalStrength(float contentWeight, int inventorySize, int inventoryMaxCountPerStack, int numOccupiedSlots, int itemStackCount, int itemStackMaxCount) {
+        //contentWeight adaption can include rounding error for non power of 2 max stack sizes, which do not exist in vanilla anyways
+        int maxStackSize = Math.min(inventoryMaxCountPerStack, itemStackMaxCount);
+        int newNumOccupiedSlots = numOccupiedSlots - (itemStackCount == 1 ? 1 : 0);
+        float newContentWeight = contentWeight - (1f / (float) maxStackSize);
+        newContentWeight /= (float) inventorySize;
+        return MathHelper.floor(newContentWeight * 14.0F) + (newNumOccupiedSlots > 0 ? 1 : 0);
+    }
+
     public static ComparatorUpdatePattern determineComparatorUpdatePattern(Inventory from, LithiumStackList fromStackList) {
         if ((from instanceof HopperBlockEntity) || !(from instanceof LootableContainerBlockEntity)) {
             return ComparatorUpdatePattern.NO_UPDATE;
@@ -94,7 +103,7 @@ public class HopperHelper {
         float contentWeight = 0f;
         int numOccupiedSlots = 0;
 
-        for(int j = 0; j < from.size(); ++j) {
+        for (int j = 0; j < from.size(); ++j) {
             ItemStack itemStack = from.getStack(j);
             if (!itemStack.isEmpty()) {
                 int maxStackSize = Math.min(from.getMaxCountPerStack(), itemStack.getMaxCount());
@@ -116,12 +125,7 @@ public class HopperHelper {
             int fromSlot = availableSlots != null ? availableSlots[i] : i;
             ItemStack itemStack = fromStackList.get(fromSlot);
             if (!itemStack.isEmpty() && (sidedInventory == null || sidedInventory.canExtract(fromSlot, itemStack, Direction.DOWN))) {
-                //contentWeight adaption can including rounding error for non power of 2 max stack sizes, which do not exist in vanilla anyways
-                int maxStackSize = Math.min(from.getMaxCountPerStack(), itemStack.getMaxCount());
-                int newNumOccupiedSlots = numOccupiedSlots - (itemStack.getCount() == 1 ? 1 : 0);
-                float g = contentWeight - (1f / (float) maxStackSize);
-                g /= (float)from.size();
-                int newSignalStrength = MathHelper.floor(g * 14.0F) + (newNumOccupiedSlots > 0 ? 1 : 0);
+                int newSignalStrength = calculateReducedSignalStrength(contentWeight, from.size(), from.getMaxCountPerStack(), numOccupiedSlots, itemStack.getCount(), itemStack.getMaxCount());
                 if (newSignalStrength != originalSignalStrength) {
                     updatePattern = updatePattern.thenDecrementUpdateIncrementUpdate();
                 } else {
