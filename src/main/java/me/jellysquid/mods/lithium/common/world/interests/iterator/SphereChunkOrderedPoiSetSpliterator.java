@@ -41,14 +41,14 @@ public class SphereChunkOrderedPoiSetSpliterator extends Spliterators.AbstractSp
     @Override
     public boolean tryAdvance(Consumer<? super Stream<PointOfInterestSet>> action) {
         while (true) {
-            if (this.iterated >= limit) {
+            if (this.iterated >= this.limit) {
                 return false;
             } else {
                 this.iterated++;
                 boolean progress = false;
-                if (Distances.getMinChunkToBlockDistanceL2Sq(origin, this.chunkX, this.chunkZ) <= radiusSq) {
+                if (Distances.getMinChunkToBlockDistanceL2Sq(this.origin, this.chunkX, this.chunkZ) <= this.radiusSq) {
                     //future work: filter sections with too high distance on the y axis as well
-                    action.accept(storage.getWithinChunkColumn(this.chunkX, this.chunkZ));
+                    action.accept(this.storage.getWithinChunkColumn(this.chunkX, this.chunkZ));
                     progress = true;
                 }
 
