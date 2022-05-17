@@ -66,3 +66,129 @@ This might be hard to do over chunk boundaries, but the inner 12x12 of a chunk i
 
 Cache whether a LithiumStackList is empty or full. Do not forget directional behavior of SidedInventories. This could
 speed up the empty and full inventory checks.
+
+## How Lithium hoppers work different from vanilla
+
+- Lithium Optimized Inventories:
+    - Any vanilla inventory vanilla hoppers can interact with (Composters excluded!)
+    - Custom Stack list (LithiumStackList):
+      Replaces the vanilla stack list when a hopper accesses the inventory. It stores additional data:
+        - Cached signal strength (int)
+            - Stored when signal strength is calculated
+            - Deleted when inventory content is changed
+        - Cached Comparator Update Pattern (Enum)
+            - Possible values: NO_UPDATE, UPDATE, DECR_UPDATE_INCR_UPDATE, UPDATE_DECR_UPDATE_INCR_UPDATE
+            - Stored when accessed and not stored
+                - accessed when failed transfer attempt is skipped due to unchanged inventories
+            - Deleted when inventory content is changed
+        - Signal Strength Override (boolean)
+            - Sets the inventory signal strength to 0 when set
+                - Only used to execute certain Comparator Update Patterns
+        - Inventory Modificiation Count (long)
+            - Increased when inventory content is changed
+        - Number of occupied slots (int)
+            - Updated when inventory content is changed (only checking the changed slot)
+        - Number of full slots (int)
+            - Updated when inventory content is changed (only checking the changed slot)
+        - Parent Stack list
+            - Only used when stack lists is a double chest half
+            - Set when double stack list is created when double inventory is accessed by a hopper
+
+- Block Entities:
+    - Times removed from the world (int)
+        - usually 0, but mods like Movable Block Entities might add Block Entities to the world after removing them
+        - also increased when chests change their BlockState
+
+- Lithium Sectioned Entity Movement Trackers:
+    - Certain classes of Entities are configured to be tracked: Inventory and ItemEntity
+    - Entity Sections store the timestamp of the last change for each tracked class
+    - Entities of tracked classes notify their entity section every time their position change or when they are added or
+      removed from the world
+        - Updates their classes timestamp of the entity section to the current time
+    - Entity Sections store a set of movement trackers
+        - When the section becomes accessible or inaccessible the movement trackers are notified
+    - Movement trackers are a data structure used by hoppers.
+        - Data stored:
+            - Box of the observed sections
+            - The observed world (dimension)
+            - The tracked class (Inventory or ItemEntity)
+            - List of observed entity sections
+            - Mask whether the sections are accessible
+            - Number of users of this tracker
+            - List of the accessible observed entity sections' timestamp (for more direct access)
+            - Largest known change timestamp
+        - Functonality:
+            - Check whether it is guaranteed that no change (entity movement, creation, removal) happened after a given
+              timestamp (includes usage and update of largest known timestamp)
+            - Collect all entities of the tracked class inside a given box from the accessible observed entity sections.
+                - For item entities multiple hitbox checks are done to return the item entities in the same order as
+                  vanilla. First an encompassing box is checked as most nearby item entities won't be in any part of the
+                  hopper interaction area.
+        - Deduplication:
+            - When a new movement tracker is created, and an equal one already exists, the already existing one is used
+              instead. The number of users of the tracker is increased.
+            - When the user no longer uses the tracker, it has to un-register and the number of users will be decreased.
+              When it reaches 0, it is removed from the sets of trackers and can be garbage collected.
+
+- Lithium Hopper behavior:
+    - Data:
+        - Own inventory modification counter at last item collection attempt
+        - Own inventory modification counter at last insert attempt
+        - Own inventory modification counter at last extraction attempt
+        - Current insertion cache state and current extraction cache state:
+            - UNKNOWN: Not yet determined
+            - BLOCK_STATE: Composter or similar
+            - BLOCK_ENTITY: Block Entity inventory or double chest
+            - NO_BLOCK_INVENTORY: Interact with entities
+        - Current insertion / extraction inventory (only block inventories)
+        - Current expected block entity removal count for each current insertion / extraction inventory (only
+          BLOCK_ENTITY)
+        - Current lithium insertion / extraction inventory (only lithium optimized inventories)
+        - Last known stack list of each current lithium insertion / extraction inventory
+        - Last known inventory modification count of each current lithium insertion / extraction inventory
+            - Updated just before attempting to transfer items
+            - Used to skip transfer attempts
+            - Only used if the last known stack list is also the current stack list of the same inventory
+
+        - Item entity movement tracker
+            - Created when item entities are searched for the first time
+            - Un-registered when the hopper is removed
+        - Item pickup search space bounding boxes and encompassing box
+        - Time of the last item collection attempt
+
+        - Inventory entity movement tracker (one for extraction and insertion each)
+            - Created before searching for extraction / insertion inventory entities for the first time
+            - Un-registered when the hopper is removed
+        - Extract / Insert inventory entity interaction search box
+        - Time of last search with no extract / insert inventory inside search box
+    - Behavior
+        - Shortcut inventory emptiness and fullness checks by comparing the number of occupied or full slots to 0 or
+          inventory size
+        - UNKNOWN cache state:
+            - get the block inventory like vanilla and initialize the cache
+        - BLOCK_STATE:
+            - use the cached inventory
+        - BLOCK_ENTITY:
+            - check the expected removal count of the block entity, invalidate the cache if it changed
+            - use the cached inventory if not invalidated, otherwise UNKNOWN cache state
+        - NO_BLOCK_INVENTORY:
+            - skip interacting with block inventory
+        - Hopper receives a block/observer update from top or hopper's face:
+            - invalidate corresponding cache state to UNKNOWN if current state is BLOCK_STATE or NO_BLOCK_INVENTORY
+        - Use the extract / insert inventory entity movement tracker to retrieve an inventory entity
+            - Skip getting inventory entities if the search box was empty and the tracker guarantees that no inventory
+              entity positions changed since the last search
+            - Cache the selected inventory
+        - If interacting with an optimized inventory, compare the inventory modification counters to the stored values
+          to determine whether the transfer attempt is guaranteed to fail. If it is guaranteed to fail, skip the
+          transfer attempt and execute its cached comparator update pattern (use no update pattern when inserting).
+        - Transfer a single item from the source to the target inventory like vanilla. Avoid copying item stacks when
+          possible.
+        - Update stored modification counters after failed a transfer attempt
+        - Use the item entity entity movement trackers to retrieve item entities to interact with
+            - Skip getting item entities if the search box was empty and the tracker guarantees that no item entity
+              positions changed since the last search
+            - Skip getting item entities if the modification counter of the hopper is equal to the stored value, and the
+              tracker guarantees that no item entity positions changed since the last search
+            - Get item entities, update the stored modification counter, the search timestamp and whether the search box
+              is empty.
