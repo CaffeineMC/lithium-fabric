@@ -89,7 +89,7 @@ public class MaskedList<E> extends AbstractList<E> {
     public boolean add(E e) {
         int oldIndex = this.element2Index.put(e, this.allElements.size());
         if (oldIndex != -1) {
-            throw new IllegalStateException("MaskedList must not contain duplicates!");
+            throw new IllegalStateException("MaskedList must not contain duplicates! Trying to add " + e + " but it is already present at index " + oldIndex + ". Current size: " + this.allElements.size());
         }
         this.visibleMask.set(this.allElements.size(), this.defaultVisibility);
         return this.allElements.add(e);
