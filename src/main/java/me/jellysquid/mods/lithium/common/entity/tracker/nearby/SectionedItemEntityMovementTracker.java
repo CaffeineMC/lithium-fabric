@@ -47,6 +47,8 @@ public class SectionedItemEntityMovementTracker<S extends Entity> extends Sectio
                             for (int j = 0; j < numBoxes; j++) {
                                 if (entityBoundingBox.intersects(areas[j])) {
                                     entities.addToBucket(j, entity);
+                                    //Only add each entity once. A hopper cannot pick up from the entity twice anyways.
+                                    break;
                                 }
                             }
                         }
