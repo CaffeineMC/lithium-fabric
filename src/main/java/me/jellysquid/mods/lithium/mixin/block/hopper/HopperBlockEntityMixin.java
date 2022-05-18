@@ -393,7 +393,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     private void cacheExtractBlockInventory(Inventory extractInventory) {
         assert !(extractInventory instanceof Entity);
         if (extractInventory instanceof BlockEntity || extractInventory instanceof DoubleInventory) {
-            this.extractBlockInventory = null;
+            this.extractBlockInventory = extractInventory;
             this.extractionMode = HopperCachingState.BlockInventory.BLOCK_ENTITY;
         } else {
             if (extractInventory == null) {
