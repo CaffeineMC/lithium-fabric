@@ -63,6 +63,74 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     @Shadow
     private long lastTickTime;
 
+    @Shadow
+    private static native boolean canExtract(Inventory inv, ItemStack stack, int slot, Direction facing);
+
+    private long myLastInsertChangeCount, myLastExtractChangeCount, myLastCollectChangeCount;
+
+    //these fields, together with the removedCount are storing the relevant data for deciding whether a cached inventory can be used again
+    //does not store the block entities for cache invalidation reasons
+    //null means unknown or inventory blockentity present (use the LithiumInventory directly), USE_ENTITY_INVENTORY means no blockentity and no composter, composter inventory means composter present
+    private Inventory insertBlockInventory, extractBlockInventory;
+    //any optimized inventories interacted with are stored (including entities) with extra data
+    private LithiumInventory insertInventory, extractInventory;
+    private int insertInventoryRemovedCount, extractInventoryRemovedCount;
+
+    private LithiumStackList insertInventoryStackList, extractInventoryStackList;
+    private long insertInventoryChangeCount, extractInventoryChangeCount;
+
+    private SectionedItemEntityMovementTracker<ItemEntity> extractItemEntityTracker;
+    private boolean extractItemEntityTrackerWasEmpty;
+    //item pickup bounding boxes in order. The last box in the array is the box that encompasses all of the others
+    private Box[] extractItemEntityBoxes;
+    private long extractItemEntityAttemptTime;
+    private SectionedInventoryEntityMovementTracker<Inventory> extractInventoryEntityTracker;
+    private Box extractInventoryEntityBox;
+    private long extractInventoryEntityAttemptTime;
+    private SectionedInventoryEntityMovementTracker<Inventory> insertInventoryEntityTracker;
+    private Box insertInventoryEntityBox;
+    private long insertInventoryEntityAttemptTime;
+
+    @Redirect(method = "extract(Lnet/minecraft/world/World;Lnet/minecraft/block/entity/Hopper;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getInputInventory(Lnet/minecraft/world/World;Lnet/minecraft/block/entity/Hopper;)Lnet/minecraft/inventory/Inventory;"))
+    private static Inventory getExtractInventory(World world, Hopper hopper) {
+        if (!(hopper instanceof HopperBlockEntityMixin hopperBlockEntity)) {
+            return getInputInventory(world, hopper); //Hopper Minecarts do not cache Inventories
+        }
+
+        Inventory blockInventory = hopperBlockEntity.getExtractBlockInventory(world);
+        if (blockInventory != null) {
+            return blockInventory;
+        }
+
+        if (hopperBlockEntity.extractInventoryEntityTracker == null) {
+            hopperBlockEntity.initExtractInventoryTracker(world);
+        }
+        if (hopperBlockEntity.extractInventoryEntityTracker.isUnchangedSince(hopperBlockEntity.extractInventoryEntityAttemptTime)) {
+            return null;
+        }
+        hopperBlockEntity.extractInventoryEntityAttemptTime = Long.MIN_VALUE;
+
+        List<Inventory> inventoryEntities = hopperBlockEntity.extractInventoryEntityTracker.getEntities(hopperBlockEntity.extractInventoryEntityBox);
+        if (inventoryEntities.isEmpty()) {
+            hopperBlockEntity.extractInventoryEntityAttemptTime = hopperBlockEntity.lastTickTime;
+            //only set unchanged when no entity present. this allows shortcutting this case
+            //shortcutting the entity present case requires checking its change counter
+            return null;
+        }
+        Inventory inventory = inventoryEntities.get(world.random.nextInt(inventoryEntities.size()));
+        if (inventory instanceof LithiumInventory optimizedInventory) {
+            LithiumStackList extractInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
+            if (inventory != hopperBlockEntity.extractInventory || hopperBlockEntity.extractInventoryStackList != extractInventoryStackList) {
+                //not caching the inventory (hopperBlockEntity.extractBlockInventory == USE_ENTITY_INVENTORY prevents it)
+                //make change counting on the entity inventory possible, without caching it as block inventory
+                hopperBlockEntity.extractInventory = optimizedInventory;
+                hopperBlockEntity.extractInventoryStackList = extractInventoryStackList;
+                hopperBlockEntity.extractInventoryChangeCount = hopperBlockEntity.extractInventoryStackList.getModCount() - 1;
+            }
+        }
+        return inventory;
+    }
+
     /**
      * Effectively overwrites {@link HopperBlockEntity#insert(World, BlockPos, BlockState, Inventory)} (only usage redirect)
      * [VanillaCopy] general hopper insert logic, modified for optimizations
@@ -117,76 +185,6 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             hopperBlockEntity.insertInventoryChangeCount = hopperBlockEntity.insertInventoryStackList.getModCount();
         }
         return false;
-    }
-
-    @Shadow
-    private static native boolean canExtract(Inventory inv, ItemStack stack, int slot, Direction facing);
-
-    private long myLastInsertChangeCount, myLastExtractChangeCount, myLastCollectChangeCount;
-
-    //these fields, together with the removedCount are storing the relevant data for deciding whether a cached inventory can be used again
-    //does not store the block entities for cache invalidation reasons
-    //null means unknown or inventory blockentity present (use the LithiumInventory directly), USE_ENTITY_INVENTORY means no blockentity and no composter, composter inventory means composter present
-    private Inventory insertBlockInventory, extractBlockInventory;
-    //any optimized inventories interacted with are stored (including entities) with extra data
-    private LithiumInventory insertInventory, extractInventory;
-    private int insertInventoryRemovedCount, extractInventoryRemovedCount;
-
-    private LithiumStackList insertInventoryStackList, extractInventoryStackList;
-    private long insertInventoryChangeCount, extractInventoryChangeCount;
-
-    private SectionedItemEntityMovementTracker<ItemEntity> extractItemEntityTracker;
-    private boolean extractItemEntityTrackerWasEmpty;
-    //item pickup bounding boxes in order. The last box in the array is the box that encompasses all of the others
-    private Box[] extractItemEntityBoxes;
-    private long extractItemEntityAttemptTime;
-    private SectionedInventoryEntityMovementTracker<Inventory> extractInventoryEntityTracker;
-    private Box extractInventoryEntityBox;
-    private long extractInventoryEntityAttemptTime;
-    private SectionedInventoryEntityMovementTracker<Inventory> insertInventoryEntityTracker;
-    private Box insertInventoryEntityBox;
-    private long insertInventoryEntityAttemptTime;
-
-    @Redirect(method = "extract(Lnet/minecraft/world/World;Lnet/minecraft/block/entity/Hopper;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getInputInventory(Lnet/minecraft/world/World;Lnet/minecraft/block/entity/Hopper;)Lnet/minecraft/inventory/Inventory;"))
-    private static Inventory getExtractInventory(World world, Hopper hopper) {
-        if (!(hopper instanceof HopperBlockEntityMixin hopperBlockEntity)) {
-            return getInputInventory(world, hopper); //Hopper Minecarts do not cache Inventories
-        }
-
-        Inventory blockInventory = hopperBlockEntity.getExtractBlockInventory(world);
-        if (blockInventory != null) {
-            return blockInventory;
-        }
-
-        if (hopperBlockEntity.extractInventoryEntityTracker == null) {
-            hopperBlockEntity.initExtractInventoryTracker(world);
-        }
-        if (hopperBlockEntity.extractInventoryEntityTracker.isUnchangedSince(hopperBlockEntity.extractInventoryEntityAttemptTime)) {
-            return null;
-        }
-        hopperBlockEntity.extractInventoryEntityAttemptTime = Long.MIN_VALUE;
-
-        hopperBlockEntity.myLastCollectChangeCount = InventoryHelper.getLithiumStackList(hopperBlockEntity).getModCount();
-
-        List<Inventory> inventoryEntities = hopperBlockEntity.extractInventoryEntityTracker.getEntities(hopperBlockEntity.extractInventoryEntityBox);
-        if (inventoryEntities.isEmpty()) {
-            hopperBlockEntity.extractInventoryEntityAttemptTime = hopperBlockEntity.lastTickTime;
-            //only set unchanged when no entity present. this allows shortcutting this case
-            //shortcutting the entity present case requires checking its change counter
-            return null;
-        }
-        Inventory inventory = inventoryEntities.get(world.random.nextInt(inventoryEntities.size()));
-        if (inventory instanceof LithiumInventory optimizedInventory) {
-            LithiumStackList extractInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
-            if (inventory != hopperBlockEntity.extractInventory || hopperBlockEntity.extractInventoryStackList != extractInventoryStackList) {
-                //not caching the inventory (hopperBlockEntity.extractBlockInventory == USE_ENTITY_INVENTORY prevents it)
-                //make change counting on the entity inventory possible, without caching it as block inventory
-                hopperBlockEntity.extractInventory = optimizedInventory;
-                hopperBlockEntity.extractInventoryStackList = extractInventoryStackList;
-                hopperBlockEntity.extractInventoryChangeCount = hopperBlockEntity.extractInventoryStackList.getModCount() - 1;
-            }
-        }
-        return inventory;
     }
 
     /**
@@ -444,7 +442,6 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             return null;
         }
         this.insertInventoryEntityAttemptTime = Long.MIN_VALUE;
-        this.myLastCollectChangeCount = InventoryHelper.getLithiumStackList(this).getModCount();
 
         List<Inventory> inventoryEntities = this.insertInventoryEntityTracker.getEntities(this.insertInventoryEntityBox);
         if (inventoryEntities.isEmpty()) {
