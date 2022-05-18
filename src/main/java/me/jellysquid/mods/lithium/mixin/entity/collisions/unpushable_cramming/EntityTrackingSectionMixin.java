@@ -119,6 +119,11 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
                 this.stopFilteringPushableEntities();
             } else {
                 this.onStartClimbingCachingEntity((Entity) entityLike);
+                if (this.pushableEntities.totalSize() > this.collection.size()) {
+                    //Todo: Decide on proper issue handling, printing a warning (?)
+                    //something is leaking somewhere, maybe due to mod compat issues!
+                    this.stopFilteringPushableEntities();
+                }
             }
         }
     }

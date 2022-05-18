@@ -27,6 +27,10 @@ public class MaskedList<E> extends AbstractList<E> {
         this(new ObjectArrayList<>(), true);
     }
 
+    public int totalSize() {
+        return this.allElements.size();
+    }
+
 
     public void addOrSet(E element, boolean visible) {
         int index = this.element2Index.getInt(element);
