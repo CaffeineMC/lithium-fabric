@@ -46,6 +46,7 @@ sourceSets {
 }
 
 repositories {
+    mavenLocal()
     allprojects {
         repositories {
             maven { url 'https://jitpack.io' }
@@ -78,6 +79,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation 'com.github.2No2Name:McTester:v0.2.4'
     modImplementation 'com.github.astei:lazydfu:0.1.2'
+    modImplementation 'net.caffeinemc:CaffeineConfig:1.0.0'
+    include 'net.caffeinemc:CaffeineConfig:1.0.0'
 }
 
 processResources {

@@ -16,18 +16,15 @@
     "license": "LGPL-3.0-only",
     "icon": "assets/lithium/icon.png",
     "environment": "*",
-    "entrypoints": {
-        "main": [
-            "me.jellysquid.mods.lithium.common.LithiumMod"
-        ]
-    },
+    "entrypoints": {},
     "mixins": [
         "lithium.mixins.json"
     ],
     "accessWidener": "lithium.accesswidener",
     "depends": {
       "fabricloader": ">=0.12.11",
-      "minecraft": "1.18.2"
+      "minecraft": "1.18.2",
+      "caffeineconfig": ">=1.0.0"
     },
     "breaks": {
         "optifabric": "*"
