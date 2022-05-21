@@ -78,7 +78,7 @@ public interface LithiumInventory extends Inventory {
             ((LootableContainerBlockEntity) this).checkLootInteraction(null);
         }
         if (this instanceof StorageMinecartEntity) {
-            ((StorageMinecartEntity) this).generateLoot(null);
+            ((StorageMinecartEntity) this).generateInventoryLoot(null);
         }
     }
 }

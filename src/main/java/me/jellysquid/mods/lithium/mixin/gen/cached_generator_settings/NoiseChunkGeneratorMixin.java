@@ -36,15 +36,16 @@ public class NoiseChunkGeneratorMixin {
     /**
      * Initialize the cache early in the ctor to avoid potential future problems with uninitialized usages
      */
+    @SuppressWarnings("rawtypes")
     @Inject(
-            method = "<init>(Lnet/minecraft/util/registry/Registry;Lnet/minecraft/util/registry/Registry;Lnet/minecraft/world/biome/source/BiomeSource;Lnet/minecraft/world/biome/source/BiomeSource;JLnet/minecraft/util/registry/RegistryEntry;)V",
+            method = "<init>",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/util/registry/RegistryEntry;value()Ljava/lang/Object;",
                     shift = At.Shift.BEFORE
             )
     )
-    private void hookConstructor(Registry<?> noiseRegistry, Registry<?> structuresRegistry, BiomeSource populationSource, BiomeSource biomeSource, long seed, RegistryEntry<?> settings, CallbackInfo ci) {
+    private void hookConstructor(Registry structureSetRegistry, Registry noiseRegistry, BiomeSource populationSource, RegistryEntry registryEntry, CallbackInfo ci) {
         this.cachedSeaLevel = this.settings.value().seaLevel();
     }
 }

@@ -6,12 +6,12 @@ import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.AxisCycleDirection;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Arrays;
-import java.util.Random;
 
 import static me.jellysquid.mods.lithium.common.shapes.VoxelShapeMatchesAnywhere.cuboidMatchesAnywhere;
 import static me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes.VoxelShapesMixin.cuboidUnchecked;
@@ -53,7 +53,7 @@ public class TestOptimizedVoxelShapeMatchesAnywhere {
         matchedAnywhere = 0;
         notMatchedAnywhere = 0;
         notRunModCode = 0;
-        Random random = new Random();
+        Random random = Random.createLocal();
         VoxelShapeVoxelShapePair pair = null;
 
         try {

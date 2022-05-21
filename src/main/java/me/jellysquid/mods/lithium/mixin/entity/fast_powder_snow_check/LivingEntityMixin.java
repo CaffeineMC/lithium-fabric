@@ -54,6 +54,6 @@ public abstract class LivingEntityMixin extends Entity {
             )
     )
     private EntityAttributeInstance doDelayedBlockStateAirTest(LivingEntity instance, EntityAttribute attribute) {
-        return this.getLandingBlockState().isAir() ? null : this.getAttributeInstance(attribute);
+        return this.getSteppingBlockState().isAir() ? null : this.getAttributeInstance(attribute);
     }
 }
