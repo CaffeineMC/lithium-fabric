@@ -9,6 +9,7 @@ import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageSecti
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.poi.PointOfInterest;
 import net.minecraft.world.poi.PointOfInterestSet;
 import net.minecraft.world.poi.PointOfInterestStorage;
@@ -31,7 +32,7 @@ import java.util.function.Predicate;
 public class NearbyPointOfInterestStream extends Spliterators.AbstractSpliterator<PointOfInterest> {
     private final RegionBasedStorageSectionExtended<PointOfInterestSet> storage;
 
-    private final Predicate<PointOfInterestType> typeSelector;
+    private final Predicate<RegistryEntry<PointOfInterestType>> typeSelector;
     private final PointOfInterestStorage.OccupationStatus occupationStatus;
 
     private final LongArrayList chunksSortedByMinDistance;
@@ -45,7 +46,7 @@ public class NearbyPointOfInterestStream extends Spliterators.AbstractSpliterato
     private int pointIndex;
     private final Comparator<? super SortedPointOfInterest> pointComparator;
 
-    public NearbyPointOfInterestStream(Predicate<PointOfInterestType> typeSelector,
+    public NearbyPointOfInterestStream(Predicate<RegistryEntry<PointOfInterestType>> typeSelector,
                                        PointOfInterestStorage.OccupationStatus status,
                                        boolean useSquareDistanceLimit,
                                        boolean preferNegativeY,

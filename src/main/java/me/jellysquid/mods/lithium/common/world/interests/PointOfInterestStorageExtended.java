@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.common.world.interests;
 
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.poi.PointOfInterest;
 import net.minecraft.world.poi.PointOfInterestStorage;
@@ -29,6 +30,6 @@ public interface PointOfInterestStorageExtended {
      * @param worldBorder        The world border the POI must be inside.
      * @return The first accepted position (respecting the described order)
      */
-    Optional<PointOfInterest> findNearestForPortalLogic(BlockPos pos, int radius, PointOfInterestType type, PointOfInterestStorage.OccupationStatus status,
+    Optional<PointOfInterest> findNearestForPortalLogic(BlockPos pos, int radius, RegistryEntry<PointOfInterestType> type, PointOfInterestStorage.OccupationStatus status,
                                                         Predicate<PointOfInterest> afterSortPredicate, WorldBorder worldBorder);
 }

@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.ai.poi.fast_portals;
 
+import me.jellysquid.mods.lithium.common.util.POIRegistryEntries;
 import me.jellysquid.mods.lithium.common.world.interests.PointOfInterestStorageExtended;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ChunkTicketType;
@@ -13,7 +14,6 @@ import net.minecraft.world.PortalForcer;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.poi.PointOfInterest;
 import net.minecraft.world.poi.PointOfInterestStorage;
-import net.minecraft.world.poi.PointOfInterestType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -40,7 +40,7 @@ public class PortalForcerMixin {
         poiStorage.preloadChunks(this.world, centerPos, searchRadius);
 
         Optional<PointOfInterest> ret = ((PointOfInterestStorageExtended) poiStorage).findNearestForPortalLogic(centerPos, searchRadius,
-                PointOfInterestType.NETHER_PORTAL, PointOfInterestStorage.OccupationStatus.ANY,
+                POIRegistryEntries.NETHER_PORTAL_ENTRY, PointOfInterestStorage.OccupationStatus.ANY,
                 (poi) -> this.world.getBlockState(poi.getPos()).contains(Properties.HORIZONTAL_AXIS),
                 worldBorder
         );

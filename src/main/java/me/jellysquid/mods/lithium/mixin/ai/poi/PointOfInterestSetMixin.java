@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceMaps;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import me.jellysquid.mods.lithium.common.world.interests.PointOfInterestSetExtended;
 import me.jellysquid.mods.lithium.common.world.interests.iterator.SinglePointOfInterestTypeFilter;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.poi.PointOfInterest;
 import net.minecraft.world.poi.PointOfInterestSet;
 import net.minecraft.world.poi.PointOfInterestStorage;
@@ -31,7 +32,7 @@ public class PointOfInterestSetMixin implements PointOfInterestSetExtended {
     @Mutable
     @Shadow
     @Final
-    private Map<PointOfInterestType, Set<PointOfInterest>> pointsOfInterestByType;
+    private Map<RegistryEntry<PointOfInterestType>, Set<PointOfInterest>> pointsOfInterestByType;
 
     private static <K, V> Iterable<? extends Map.Entry<K, V>> getPointsByTypeIterator(Map<K, V> map) {
         if (map instanceof Reference2ReferenceMap) {
@@ -47,7 +48,7 @@ public class PointOfInterestSetMixin implements PointOfInterestSetExtended {
     }
 
     @Override
-    public void collectMatchingPoints(Predicate<PointOfInterestType> type, PointOfInterestStorage.OccupationStatus status, Consumer<PointOfInterest> consumer) {
+    public void collectMatchingPoints(Predicate<RegistryEntry<PointOfInterestType>> type, PointOfInterestStorage.OccupationStatus status, Consumer<PointOfInterest> consumer) {
         if (type instanceof SinglePointOfInterestTypeFilter) {
             this.getWithSingleTypeFilter(((SinglePointOfInterestTypeFilter) type).getType(), status, consumer);
         } else {
@@ -55,8 +56,8 @@ public class PointOfInterestSetMixin implements PointOfInterestSetExtended {
         }
     }
 
-    private void getWithDynamicTypeFilter(Predicate<PointOfInterestType> type, PointOfInterestStorage.OccupationStatus status, Consumer<PointOfInterest> consumer) {
-        for (Map.Entry<PointOfInterestType, Set<PointOfInterest>> entry : getPointsByTypeIterator(this.pointsOfInterestByType)) {
+    private void getWithDynamicTypeFilter(Predicate<RegistryEntry<PointOfInterestType>> type, PointOfInterestStorage.OccupationStatus status, Consumer<PointOfInterest> consumer) {
+        for (Map.Entry<RegistryEntry<PointOfInterestType>, Set<PointOfInterest>> entry : getPointsByTypeIterator(this.pointsOfInterestByType)) {
             if (!type.test(entry.getKey())) {
                 continue;
             }
@@ -71,7 +72,7 @@ public class PointOfInterestSetMixin implements PointOfInterestSetExtended {
         }
     }
 
-    private void getWithSingleTypeFilter(PointOfInterestType type, PointOfInterestStorage.OccupationStatus status, Consumer<PointOfInterest> consumer) {
+    private void getWithSingleTypeFilter(RegistryEntry<PointOfInterestType> type, PointOfInterestStorage.OccupationStatus status, Consumer<PointOfInterest> consumer) {
         Set<PointOfInterest> entries = this.pointsOfInterestByType.get(type);
 
         if (entries == null || entries.isEmpty()) {

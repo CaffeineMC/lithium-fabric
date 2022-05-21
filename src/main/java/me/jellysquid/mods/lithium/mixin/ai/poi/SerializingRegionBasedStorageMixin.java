@@ -2,7 +2,6 @@ package me.jellysquid.mods.lithium.mixin.ai.poi;
 
 import com.google.common.collect.AbstractIterator;
 import com.mojang.datafixers.DataFixer;
-import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import me.jellysquid.mods.lithium.common.util.Pos;
@@ -11,6 +10,7 @@ import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageSecti
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.storage.SerializingRegionBasedStorage;
 import org.spongepowered.asm.mixin.Final;
@@ -45,8 +45,9 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
     protected HeightLimitView world;
     private Long2ObjectOpenHashMap<BitSet> columns;
 
-    @Inject(method = "<init>(Ljava/nio/file/Path;Ljava/util/function/Function;Ljava/util/function/Function;Lcom/mojang/datafixers/DataFixer;Lnet/minecraft/datafixer/DataFixTypes;ZLnet/minecraft/world/HeightLimitView;)V", at = @At("RETURN"))
-    private void init(Path directory, Function<Runnable, Codec<R>> codecFactory, Function<Runnable, R> factory, DataFixer dataFixer, DataFixTypes dataFixTypes, boolean dsync, HeightLimitView world, CallbackInfo ci) {
+    @SuppressWarnings("rawtypes")
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void init(Path path, Function codecFactory, Function factory, DataFixer dataFixer, DataFixTypes dataFixTypes, boolean dsync, DynamicRegistryManager dynamicRegistryManager, HeightLimitView world, CallbackInfo ci) {
         this.columns = new Long2ObjectOpenHashMap<>();
         this.loadedElements = new ListeningLong2ObjectOpenHashMap<>(this::onEntryAdded, this::onEntryRemoved);
     }
