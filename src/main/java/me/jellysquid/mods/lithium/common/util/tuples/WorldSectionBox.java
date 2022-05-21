@@ -10,10 +10,10 @@ public record WorldSectionBox(World world, int chunkX1, int chunkY1, int chunkZ1
                               int chunkZ2) {
     public static WorldSectionBox entityAccessBox(World world, Box box) {
         int minX = ChunkSectionPos.getSectionCoord(box.minX - 2.0D);
-        int minY = ChunkSectionPos.getSectionCoord(box.minY - 2.0D);
+        int minY = ChunkSectionPos.getSectionCoord(box.minY - 4.0D);
         int minZ = ChunkSectionPos.getSectionCoord(box.minZ - 2.0D);
         int maxX = ChunkSectionPos.getSectionCoord(box.maxX + 2.0D) + 1;
-        int maxY = ChunkSectionPos.getSectionCoord(box.maxY + 2.0D) + 1;
+        int maxY = ChunkSectionPos.getSectionCoord(box.maxY) + 1;
         int maxZ = ChunkSectionPos.getSectionCoord(box.maxZ + 2.0D) + 1;
         return new WorldSectionBox(world, minX, minY, minZ, maxX, maxY, maxZ);
     }
