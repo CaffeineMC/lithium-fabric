@@ -123,7 +123,7 @@ public abstract class ExplosionMixin {
      * @author JellySquid
      */
     @Redirect(method = "collectBlocksAndDamageEntities()V",
-            at = @At(value = "INVOKE", target = "Lit/unimi/dsi/fastutil/objects/ObjectArrayList;addAll(Ljava/util/Collection;)Z"))
+            at = @At(value = "INVOKE", target = "Lit/unimi/dsi/fastutil/objects/ObjectArrayList;addAll(Ljava/util/Collection;)Z", remap = false))
     public boolean collectBlocks(ObjectArrayList<BlockPos> affectedBlocks, Collection<BlockPos> collection) {
         // Using integer encoding for the block positions provides a massive speedup and prevents us from needing to
         // allocate a block position for every step we make along each ray, eliminating essentially all the memory
