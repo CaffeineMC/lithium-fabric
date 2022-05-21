@@ -42,8 +42,6 @@ public class LithiumConfig {
         this.addMixinRule("ai.sensor", true);
         this.addMixinRule("ai.sensor.secondary_poi", true);
         this.addMixinRule("ai.task", true);
-        this.addMixinRule("ai.task.fast_repetition", false); //removed during 1.18 update
-        this.addMixinRule("ai.task.goat_jump", true);
         this.addMixinRule("ai.task.launch", true);
         this.addMixinRule("ai.task.memory_change_counting", true);
         this.addMixinRule("ai.task.replace_streams", true);
@@ -105,14 +103,8 @@ public class LithiumConfig {
         this.addMixinRule("entity.skip_fire_check", true);
 
         this.addMixinRule("gen", true);
-        this.addMixinRule("gen.biome_noise_cache", false); //removed during 1.18 update
         this.addMixinRule("gen.cached_generator_settings", true);
         this.addMixinRule("gen.chunk_region", true);
-        this.addMixinRule("gen.fast_island_noise", false); //removed during 1.18 update
-        this.addMixinRule("gen.fast_layer_sampling", false); //removed during 1.18 update
-        this.addMixinRule("gen.fast_multi_source_biomes", false); //removed during 1.18 update
-        this.addMixinRule("gen.features", false); //removed during 1.18 update
-        this.addMixinRule("gen.perlin_noise", false); //removed during 1.18 update
 
         this.addMixinRule("item", true);
 
@@ -145,7 +137,6 @@ public class LithiumConfig {
         this.addMixinRule("world.inline_block_access", true);
         this.addMixinRule("world.inline_height", true);
         this.addMixinRule("world.player_chunk_tick", true);
-        this.addMixinRule("world.tick_scheduler", false); //removed during 1.18 update
 
         this.addRuleDependency("ai.nearby_entity_tracking", "util", true);
         this.addRuleDependency("ai.nearby_entity_tracking", "util.entity_section_position", true);
