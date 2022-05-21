@@ -37,7 +37,7 @@ public abstract class SectionedEntityCacheMixin<T extends EntityLike> {
             locals = LocalCapture.CAPTURE_FAILHARD,
             cancellable = true
     )
-    public void forEachInBox(Box box, Consumer<EntityTrackingSection<T>> action, CallbackInfo ci, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+    public void forEachInBox(Box box, Consumer<EntityTrackingSection<T>> action, CallbackInfo ci, int i, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
         if (maxX >= minX + 4 || maxZ >= minZ + 4) {
             return; // Vanilla is likely more optimized when shooting entities with TNT cannons over huge distances.
             // Choosing a cutoff of 4 chunk size, as it becomes more likely that these entity sections do not exist when
