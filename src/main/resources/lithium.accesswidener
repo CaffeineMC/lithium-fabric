@@ -7,7 +7,6 @@ accessible class net/minecraft/server/world/ThreadedAnvilChunkStorage$TicketMana
 accessible class net/minecraft/util/shape/PairList
 accessible class net/minecraft/world/chunk/PaletteResizeListener
 accessible class net/minecraft/world/chunk/PalettedContainer$Data
-accessible class net/minecraft/world/chunk/PalettedContainer$Serialized
 accessible class net/minecraft/world/chunk/PalettedContainer$DataProvider
 
 accessible field net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker entity Lnet/minecraft/entity/Entity;
@@ -18,7 +17,6 @@ accessible field net/minecraft/util/math/noise/SimplexNoiseSampler GRADIENTS [[I
 accessible method net/minecraft/world/chunk/PalettedContainer$DataProvider <init> (Lnet/minecraft/world/chunk/Palette$Factory;I)V
 accessible method net/minecraft/world/chunk/PalettedContainer$PaletteProvider getBits (Lnet/minecraft/util/collection/IndexedIterable;I)I
 accessible method net/minecraft/world/chunk/PalettedContainer$PaletteProvider <init> (I)V
-accessible method net/minecraft/world/chunk/PalettedContainer$Serialized <init> (Ljava/util/List;Ljava/util/Optional;)V
 accessible method net/minecraft/entity/ai/brain/task/Task shouldKeepRunning (Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/LivingEntity;J)Z
 accessible method net/minecraft/fluid/Fluid isEmpty ()Z
 accessible method net/minecraft/server/world/ChunkHolder combineSavingFuture (Ljava/util/concurrent/CompletableFuture;Ljava/lang/String;)V
