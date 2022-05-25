@@ -134,5 +134,5 @@ publishing {
         }
     }
 }
-
-build.dependsOn remapApiJar
+//TODO Fix api jar build task
+//build.dependsOn remapApiJar
