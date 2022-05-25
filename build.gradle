@@ -1,7 +1,7 @@
 import net.fabricmc.loom.task.RemapJarTask
 
 plugins {
-    id 'fabric-loom' version '0.11-SNAPSHOT'
+    id 'fabric-loom' version '0.12-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -119,7 +119,8 @@ task remapApiJar(type: RemapJarTask) {
     input = apiJar.archiveFile.get().asFile
     addNestedDependencies = false
 }
-prepareRemapApiJar.dependsOn apiJar
+
+prepareRemapApiJar.dependsOn(apiJar)
 
 publishing {
     publications {
@@ -134,5 +135,4 @@ publishing {
         }
     }
 }
-//TODO Fix api jar build task
-//build.dependsOn remapApiJar
+build.dependsOn remapApiJar
