@@ -137,6 +137,7 @@ public class LithiumConfig {
         this.addMixinRule("world.inline_block_access", true);
         this.addMixinRule("world.inline_height", true);
         this.addMixinRule("world.player_chunk_tick", true);
+        this.addMixinRule("world.tick_scheduler", true);
 
         this.addRuleDependency("ai.nearby_entity_tracking", "util", true);
         this.addRuleDependency("ai.nearby_entity_tracking", "util.entity_section_position", true);
