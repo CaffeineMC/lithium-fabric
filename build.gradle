@@ -69,6 +69,11 @@ loom {
     }
 }
 
+loom {
+    mixin {
+        it.defaultRefmapName = 'lithium.refmap.json'
+    }
+}
 
 dependencies {
     //to change the versions see the gradle.properties file
