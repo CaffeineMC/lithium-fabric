@@ -111,6 +111,8 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
             return Collections::emptyIterator;
         }
 
+        Long2ObjectMap<Optional<R>> loadedElements = this.loadedElements;
+
         return () -> new AbstractIterator<>() {
             private int nextBit = sectionsWithPOI.nextSetBit(0);
 
@@ -119,7 +121,7 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
             protected R computeNext() {
                 // If the next bit is <0, that means that no remaining set bits exist
                 while (this.nextBit >= 0) {
-                    Optional<R> next = SerializingRegionBasedStorageMixin.this.loadedElements.get(ChunkSectionPos.asLong(chunkX, Pos.SectionYCoord.fromSectionIndex(world, this.nextBit), chunkZ));
+                    Optional<R> next = loadedElements.get(ChunkSectionPos.asLong(chunkX, Pos.SectionYCoord.fromSectionIndex(world, this.nextBit), chunkZ));
 
                     // Find and advance to the next set bit
                     this.nextBit = sectionsWithPOI.nextSetBit(this.nextBit + 1);
