@@ -31,12 +31,11 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
     @Final
     private TypeFilterableList<T> collection;
 
+    @Unique
+    private boolean lithium$cachedIsEmpty = true;
     private final ReferenceOpenHashSet<NearbyEntityListener> nearbyEntityListeners = new ReferenceOpenHashSet<>(0);
     private final ReferenceOpenHashSet<SectionedEntityMovementTracker<?, ?>> sectionVisibilityListeners = new ReferenceOpenHashSet<>(0);
     private final long[] lastEntityMovementByType = new long[EntityTrackerEngine.NUM_MOVEMENT_NOTIFYING_CLASSES];
-
-    @Unique
-    private boolean lithium$cachedIsEmpty = true;
 
     @Unique
     private void lithium$updateIsEmpty() {
