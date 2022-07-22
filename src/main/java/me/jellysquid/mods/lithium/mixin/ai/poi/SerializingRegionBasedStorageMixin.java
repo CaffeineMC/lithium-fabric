@@ -112,6 +112,7 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
         }
 
         Long2ObjectMap<Optional<R>> loadedElements = this.loadedElements;
+        HeightLimitView world = this.world;
 
         return () -> new AbstractIterator<>() {
             private int nextBit = sectionsWithPOI.nextSetBit(0);
