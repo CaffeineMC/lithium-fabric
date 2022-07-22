@@ -31,21 +31,9 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
     @Final
     private TypeFilterableList<T> collection;
 
-    @Unique
-    private boolean lithium$cachedIsEmpty = true;
     private final ReferenceOpenHashSet<NearbyEntityListener> nearbyEntityListeners = new ReferenceOpenHashSet<>(0);
     private final ReferenceOpenHashSet<SectionedEntityMovementTracker<?, ?>> sectionVisibilityListeners = new ReferenceOpenHashSet<>(0);
     private final long[] lastEntityMovementByType = new long[EntityTrackerEngine.NUM_MOVEMENT_NOTIFYING_CLASSES];
-
-    @Unique
-    private void lithium$updateIsEmpty() {
-        this.lithium$cachedIsEmpty = this.collection.isEmpty() && this.nearbyEntityListeners.isEmpty() && this.sectionVisibilityListeners.isEmpty();
-    }
-
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void onInit(CallbackInfo ci) {
-        this.lithium$updateIsEmpty();
-    }
 
     @Override
     public void addListener(NearbyEntityListener listener) {
@@ -53,7 +41,6 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
         if (this.status.shouldTrack()) {
             listener.onSectionEnteredRange(this, this.collection);
         }
-        lithium$updateIsEmpty();
     }
 
     @Override
@@ -65,7 +52,6 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
         if (this.isEmpty()) {
             sectionedEntityCache.removeSection(this.getPos());
         }
-        lithium$updateIsEmpty();
     }
 
     @Override
@@ -74,7 +60,6 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
         if (this.status.shouldTrack()) {
             listener.onSectionEnteredRange(this);
         }
-        lithium$updateIsEmpty();
     }
 
     @Override
@@ -86,7 +71,6 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
         if (this.isEmpty()) {
             sectionedEntityCache.removeSection(this.getPos());
         }
-        lithium$updateIsEmpty();
     }
 
     @Override
@@ -111,12 +95,11 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
      */
     @Overwrite
     public boolean isEmpty() {
-        return this.lithium$cachedIsEmpty;
+        return this.collection.isEmpty() && this.nearbyEntityListeners.isEmpty() && this.sectionVisibilityListeners.isEmpty();
     }
 
     @Inject(method = "add(Lnet/minecraft/world/entity/EntityLike;)V", at = @At("RETURN"))
     private void onEntityAdded(T entityLike, CallbackInfo ci) {
-        lithium$updateIsEmpty();
         if (!this.status.shouldTrack() || this.nearbyEntityListeners.isEmpty()) {
             return;
         }
@@ -125,11 +108,6 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
                 nearbyEntityListener.onEntityEnteredRange(entity);
             }
         }
-    }
-
-    @Inject(method = "remove(Lnet/minecraft/world/entity/EntityLike;)Z", at = @At("RETURN"))
-    private void onEntityRemoved(CallbackInfoReturnable<Boolean> cir) {
-        lithium$updateIsEmpty();
     }
 
     @ModifyVariable(method = "remove(Lnet/minecraft/world/entity/EntityLike;)Z", at = @At("RETURN"), argsOnly = true)
