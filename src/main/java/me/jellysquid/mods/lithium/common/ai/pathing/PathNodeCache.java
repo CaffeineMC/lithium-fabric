@@ -36,7 +36,7 @@ public abstract class PathNodeCache {
         }
 
         if (BlockStateFlags.ENABLED) {
-            return !((BlockCountingSection) section).anyMatch(BlockStateFlags.PATH_NOT_OPEN);
+            return !((BlockCountingSection) section).anyMatch(BlockStateFlags.PATH_NOT_OPEN, true);
         }
         return !isChunkSectionDangerousNeighbor(section);
     }
