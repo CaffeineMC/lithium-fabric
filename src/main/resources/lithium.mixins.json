@@ -117,6 +117,7 @@
     "entity.fast_hand_swing.LivingEntityMixin",
     "entity.fast_powder_snow_check.LivingEntityMixin",
     "entity.fast_retrieval.SectionedEntityCacheMixin",
+    "entity.hopper_minecart.HopperBlockEntityMixin",
     "entity.inactive_navigations.DrownedEntityLeaveWaterGoalMixin",
     "entity.inactive_navigations.DrownedEntityMixin",
     "entity.inactive_navigations.EntityNavigationMixin",
@@ -168,7 +169,7 @@
     "world.inline_height.WorldChunkMixin",
     "world.inline_height.WorldMixin",
     "world.player_chunk_tick.ThreadedAnvilChunkStorageMixin",
-    "world.tick_scheduler.ChunkTickSchedulerMixin",
+    "world.tick_scheduler.ChunkTickSchedulerMixin"
   ],
   "client": [
     "chunk.entity_class_groups.ClientEntityManagerAccessor",

@@ -520,7 +520,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         assert this.world instanceof ServerWorld;
         List<Box> list = new ArrayList<>();
         Box encompassingBox = null;
-        for (Box box : this.getInputAreaShape().getBoundingBoxes()) {
+        for (Box box : HopperHelper.getHopperPickupVolumeBoxes(this)) {
             Box offsetBox = box.offset(this.pos.getX(), this.pos.getY(), this.pos.getZ());
             list.add(offsetBox);
             if (encompassingBox == null) {

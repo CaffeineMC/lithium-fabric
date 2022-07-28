@@ -4,20 +4,30 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ChestBlock;
 import net.minecraft.block.InventoryProvider;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.ChestBlockEntity;
-import net.minecraft.block.entity.HopperBlockEntity;
-import net.minecraft.block.entity.LootableContainerBlockEntity;
+import net.minecraft.block.entity.*;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class HopperHelper {
+
+    private static final VoxelShape CACHED_INPUT_VOLUME = Hopper.INPUT_AREA_SHAPE;
+    private static final Box[] CACHED_INPUT_VOLUME_BOXES = CACHED_INPUT_VOLUME.getBoundingBoxes().toArray(new Box[0]);
+
+    public static Box[] getHopperPickupVolumeBoxes(Hopper hopper) {
+        VoxelShape inputAreaShape = hopper.getInputAreaShape();
+        if (inputAreaShape == CACHED_INPUT_VOLUME) {
+            return CACHED_INPUT_VOLUME_BOXES;
+        }
+        return inputAreaShape.getBoundingBoxes().toArray(new Box[0]);
+    }
 
     /**
      * Gets the block inventory at the given position, exactly like vanilla gets it.
