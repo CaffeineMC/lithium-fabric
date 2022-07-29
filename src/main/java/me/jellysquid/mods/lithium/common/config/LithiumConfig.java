@@ -125,11 +125,13 @@ public class LithiumConfig {
 
         this.addMixinRule("util", true);
         this.addMixinRule("util.entity_section_position", true);
+        this.addMixinRule("util.world_border_listener", true);
 
         this.addMixinRule("world", true);
         this.addMixinRule("world.block_entity_retrieval", true);
         this.addMixinRule("world.block_entity_ticking", true);
         this.addMixinRule("world.block_entity_ticking.support_cache", false); //have to check whether the cached state bugfix fixes any detectable vanilla bugs first
+        this.addMixinRule("world.block_entity_ticking.world_border", true);
         this.addMixinRule("world.chunk_access", true);
         this.addMixinRule("world.chunk_tickets", true);
         this.addMixinRule("world.chunk_ticking", true);
@@ -148,6 +150,8 @@ public class LithiumConfig {
 
         this.addRuleDependency("entity.collisions.fluid", "chunk", true);
         this.addRuleDependency("entity.collisions.fluid", "chunk.block_counting", true);
+
+        this.addRuleDependency("block_entity_ticking.world_border", "util.world_border_listener", true);
 
     }
 
