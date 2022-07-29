@@ -37,18 +37,17 @@ public class HopperBlockEntityMixin {
 
         Box[] boundingBoxes = HopperHelper.getHopperPickupVolumeBoxes(hopper);
         int numBoxes = boundingBoxes.length;
+        Box[] offsetBoundingBoxes = new Box[numBoxes];
         for (int i = 0; i < numBoxes; i++) {
-            boundingBoxes[i] = boundingBoxes[i].offset(xOffset, yOffset, zOffset);
+            offsetBoundingBoxes[i] = boundingBoxes[i].offset(xOffset, yOffset, zOffset);
         }
 
-        BucketedList<ItemEntity> entities = null;
+        BucketedList<ItemEntity> entities = new BucketedList<>(numBoxes);
+
         for (ItemEntity itemEntity : nearbyEntities) {
             Box entityBoundingBox = itemEntity.getBoundingBox();
             for (int j = 0; j < numBoxes; j++) {
-                if (entityBoundingBox.intersects(boundingBoxes[j])) {
-                    if (entities == null) {
-                        entities = new BucketedList<>(numBoxes);
-                    }
+                if (entityBoundingBox.intersects(offsetBoundingBoxes[j])) {
                     entities.addToBucket(j, itemEntity);
                     //Only add each entity once. A hopper cannot pick up from the entity twice anyways.
                     break;
@@ -56,7 +55,7 @@ public class HopperBlockEntityMixin {
             }
         }
 
-        return entities == null ? Collections.emptyList() : entities;
+        return entities;
     }
 
 }
