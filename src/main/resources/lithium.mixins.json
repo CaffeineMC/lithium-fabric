@@ -93,6 +93,7 @@
     "chunk.serialization.PackedIntegerArrayMixin",
     "chunk.serialization.PalettedContainerMixin",
     "collections.attributes.AttributeContainerMixin",
+    "collections.blockentity_tickers.WorldChunkMixin",
     "collections.brain.BrainMixin",
     "collections.entity_by_type.TypeFilterableListMixin",
     "collections.entity_filtering.TypeFilterableListMixin",
