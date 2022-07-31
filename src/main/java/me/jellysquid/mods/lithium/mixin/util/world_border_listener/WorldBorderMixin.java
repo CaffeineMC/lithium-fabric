@@ -53,6 +53,7 @@ public abstract class WorldBorderMixin {
     public WorldBorder.Area getUpdatedArea(WorldBorder.Area instance) {
         WorldBorder.Area areaInstance = this.area.getAreaInstance();
         if (areaInstance != this.area) {
+            this.area = areaInstance;
             this.worldBorderListenerOnceMulti.onAreaReplaced((WorldBorder) (Object) this);
         }
         return areaInstance;
