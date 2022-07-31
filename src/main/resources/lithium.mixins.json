@@ -160,6 +160,7 @@
     "world.block_entity_retrieval.WorldMixin",
     "world.block_entity_ticking.sleeping.HopperBlockEntityMixin",
     "world.block_entity_ticking.sleeping.WorldChunkMixin",
+    "world.block_entity_ticking.sleeping.WorldMixin",
     "world.block_entity_ticking.sleeping.WrappedBlockEntityTickInvokerAccessor",
     "world.block_entity_ticking.support_cache.BlockEntityMixin",
     "world.block_entity_ticking.support_cache.DirectBlockEntityTickInvokerMixin",

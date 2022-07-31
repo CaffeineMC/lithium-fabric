@@ -14,7 +14,7 @@ public interface SleepingBlockEntity {
         }
 
         public BlockPos getPos() {
-            return BlockPos.ORIGIN;
+            return null;
         }
 
         public String getName() {
