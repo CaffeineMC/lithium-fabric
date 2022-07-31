@@ -1,7 +1,7 @@
-package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping;
+package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.hopper;
 
-import me.jellysquid.mods.lithium.common.block.entity.SleepUntilTimeBlockEntityTickInvoker;
 import me.jellysquid.mods.lithium.common.block.entity.SleepingBlockEntity;
+import me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.WrappedBlockEntityTickInvokerAccessor;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HopperBlock;
 import net.minecraft.block.entity.BlockEntity;
@@ -26,8 +26,29 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
 
     @Shadow
     private long lastTickTime;
+
     private WrappedBlockEntityTickInvokerAccessor tickWrapper = null;
     private BlockEntityTickInvoker sleepingTicker = null;
+
+    @Override
+    public WrappedBlockEntityTickInvokerAccessor getTickWrapper() {
+        return tickWrapper;
+    }
+
+    @Override
+    public void setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper) {
+        this.tickWrapper = tickWrapper;
+    }
+
+    @Override
+    public BlockEntityTickInvoker getSleepingTicker() {
+        return sleepingTicker;
+    }
+
+    @Override
+    public void setSleepingTicker(BlockEntityTickInvoker sleepingTicker) {
+        this.sleepingTicker = sleepingTicker;
+    }
 
     public HopperBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -54,21 +75,13 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
         }
     }
 
-    private void startSleeping() {
-        if (this.tickWrapper == null) {
-            return;
+    @Override
+    public boolean startSleeping() {
+        if (SleepingBlockEntity.super.startSleeping()) {
+            this.lastTickTime = Long.MAX_VALUE;
+            return true;
         }
-        this.lastTickTime = Long.MAX_VALUE;
-        this.sleepingTicker = this.tickWrapper.getWrapped();
-        this.tickWrapper.setWrapped(SleepingBlockEntity.SLEEPING_BLOCK_ENTITY_TICKER);
-    }
-
-    private void wakeUpInNextTick() {
-        if (this.sleepingTicker == null || this.tickWrapper == null || this.world == null) {
-            return;
-        }
-        this.tickWrapper.setWrapped(new SleepUntilTimeBlockEntityTickInvoker(this, this.world.getTime() + 1, this.sleepingTicker));
-        this.sleepingTicker = null;
+        return false;
     }
 
     @Inject(
@@ -88,23 +101,5 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
         if (this.sleepingTicker != null && state.get(HopperBlock.ENABLED)) {
             this.wakeUpNow();
         }
-    }
-
-    private void wakeUpNow() {
-        this.setTicker(this.sleepingTicker);
-        this.sleepingTicker = null;
-    }
-
-    @Override
-    public void setWrappedInvoker(WrappedBlockEntityTickInvokerAccessor wrappedBlockEntityTickInvoker) {
-        this.tickWrapper = wrappedBlockEntityTickInvoker;
-    }
-
-    @Override
-    public void setTicker(BlockEntityTickInvoker ticker) {
-        if (this.tickWrapper == null) {
-            return;
-        }
-        this.tickWrapper.setWrapped(ticker);
     }
 }
