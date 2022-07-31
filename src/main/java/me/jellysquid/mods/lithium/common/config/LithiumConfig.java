@@ -151,7 +151,7 @@ public class LithiumConfig {
         this.addRuleDependency("entity.collisions.fluid", "chunk", true);
         this.addRuleDependency("entity.collisions.fluid", "chunk.block_counting", true);
 
-        this.addRuleDependency("block_entity_ticking.world_border", "util.world_border_listener", true);
+        this.addRuleDependency("world.block_entity_ticking.world_border", "util.world_border_listener", true);
 
     }
 
