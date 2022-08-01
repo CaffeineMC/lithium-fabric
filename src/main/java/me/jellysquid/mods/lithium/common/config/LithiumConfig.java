@@ -131,6 +131,11 @@ public class LithiumConfig {
         this.addMixinRule("world", true);
         this.addMixinRule("world.block_entity_retrieval", true);
         this.addMixinRule("world.block_entity_ticking", true);
+        this.addMixinRule("world.block_entity_ticking.sleeping", true);
+        this.addMixinRule("world.block_entity_ticking.sleeping.brewing_stand", true);
+        this.addMixinRule("world.block_entity_ticking.sleeping.campfire", true);
+        this.addMixinRule("world.block_entity_ticking.sleeping.furnace", true);
+        this.addMixinRule("world.block_entity_ticking.sleeping.hopper", true);
         this.addMixinRule("world.block_entity_ticking.support_cache", false); //have to check whether the cached state bugfix fixes any detectable vanilla bugs first
         this.addMixinRule("world.block_entity_ticking.world_border", true);
         this.addMixinRule("world.chunk_access", true);
