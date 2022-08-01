@@ -49,7 +49,7 @@ public abstract class WorldChunkMixin {
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private void fixCachedState(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir, int i, int j, ChunkSection chunkSection, boolean bl, int k, int l, int m, BlockState blockState, Block block, BlockEntity blockEntity) {
+    private void fixCachedState(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir, int i, ChunkSection chunkSection, boolean bl, int j, int k, int l, BlockState blockState, Block block, BlockEntity blockEntity) {
         BlockState blockState1 = this.getBlockState(pos);
         if (blockState1 != state) {
             //noinspection deprecation
