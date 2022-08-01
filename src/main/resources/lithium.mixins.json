@@ -158,6 +158,7 @@
     "world.block_entity_ticking.sleeping.WorldMixin",
     "world.block_entity_ticking.sleeping.WrappedBlockEntityTickInvokerAccessor",
     "world.block_entity_ticking.sleeping.brewing_stand.BrewingStandBlockEntityMixin",
+    "world.block_entity_ticking.sleeping.campfire.CampfireBlockEntityMixin",
     "world.block_entity_ticking.sleeping.furnace.AbstractFurnaceBlockEntityMixin",
     "world.block_entity_ticking.sleeping.hopper.HopperBlockEntityMixin",
     "world.block_entity_ticking.support_cache.BlockEntityMixin",
