@@ -67,23 +67,25 @@ public class CampfireBlockEntityMixin extends BlockEntity implements SleepingBlo
     }
 
     @Inject(
-            method = {"litServerTick", "unlitServerTick"},
+            method = "unlitServerTick",
             at = @At("RETURN" ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private static void trySleep(World world, BlockPos pos, BlockState state, CampfireBlockEntity campfire, CallbackInfo ci, boolean hadProgress) {
+    private static void trySleepUnlit(World world, BlockPos pos, BlockState state, CampfireBlockEntity campfire, CallbackInfo ci, boolean hadProgress) {
         if (!hadProgress) {
             CampfireBlockEntityMixin self = (CampfireBlockEntityMixin) (Object) campfire;
-            for (int value : self.cookingTimes) {
-                if (value != 0) {
-                    return;
-                }
-            }
-            for (ItemStack itemStack : self.itemsBeingCooked) {
-                if (!itemStack.isEmpty()) {
-                    return;
-                }
-            }
+            self.startSleeping();
+        }
+    }
+
+    @Inject(
+            method = "litServerTick",
+            at = @At("RETURN" ),
+            locals = LocalCapture.CAPTURE_FAILHARD
+    )
+    private static void trySleepLit(World world, BlockPos pos, BlockState state, CampfireBlockEntity campfire, CallbackInfo ci, boolean hadProgress) {
+        if (!hadProgress) {
+            CampfireBlockEntityMixin self = (CampfireBlockEntityMixin) (Object) campfire;
             self.startSleeping();
         }
     }
