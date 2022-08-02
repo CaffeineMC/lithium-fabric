@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.collections.blockentity_tickers;
+package me.jellysquid.mods.lithium.mixin.collections.block_entity_tickers;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.util.math.BlockPos;
