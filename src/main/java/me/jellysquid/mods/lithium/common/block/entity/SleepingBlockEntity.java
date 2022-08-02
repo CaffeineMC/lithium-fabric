@@ -44,13 +44,13 @@ public interface SleepingBlockEntity {
         return true;
     }
 
-    default void wakeUpInNextTick() {
+    default void sleepOnlyCurrentTick() {
         BlockEntityTickInvoker sleepingTicker = this.getSleepingTicker();
         WrappedBlockEntityTickInvokerAccessor tickWrapper = this.getTickWrapper();
-        World world = this.getWorld();
-        if (sleepingTicker == null || tickWrapper == null || world == null) {
-            return;
+        if (sleepingTicker == null) {
+            sleepingTicker = tickWrapper.getWrapped();
         }
+        World world = this.getWorld();
         tickWrapper.callSetWrapped(new SleepUntilTimeBlockEntityTickInvoker((BlockEntity) this, world.getTime() + 1, sleepingTicker));
         this.setSleepingTicker(null);
     }

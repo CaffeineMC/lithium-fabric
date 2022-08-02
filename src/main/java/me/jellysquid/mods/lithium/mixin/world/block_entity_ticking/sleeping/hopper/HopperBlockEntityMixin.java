@@ -98,8 +98,12 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
             at = @At("HEAD" )
     )
     private void wakeUpOnCooldownSet(int transferCooldown, CallbackInfo ci) {
-        if (this.sleepingTicker != null && transferCooldown > 0) {
-            this.wakeUpInNextTick();
+        if (transferCooldown == 7) {
+            if (this.lastTickTime == Long.MAX_VALUE) {
+                this.sleepOnlyCurrentTick();
+            }
+        } else if (transferCooldown > 0 && this.sleepingTicker != null) {
+            this.wakeUpNow();
         }
     }
 
