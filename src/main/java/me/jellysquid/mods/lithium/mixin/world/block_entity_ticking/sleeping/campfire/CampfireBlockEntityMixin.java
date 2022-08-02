@@ -8,6 +8,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.CampfireBlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -60,15 +61,23 @@ public class CampfireBlockEntityMixin extends BlockEntity implements SleepingBlo
 
     @Inject(
             method = "addItem",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/DefaultedList;set(ILjava/lang/Object;)Ljava/lang/Object;" )
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/DefaultedList;set(ILjava/lang/Object;)Ljava/lang/Object;")
     )
     private void wakeUpOnAddItem(Entity user, ItemStack stack, int cookTime, CallbackInfoReturnable<Boolean> cir) {
         this.wakeUpNow();
     }
 
     @Inject(
+            method = "readNbt",
+            at = @At(value = "RETURN")
+    )
+    private void wakeUpOnReadNbt(NbtCompound nbt, CallbackInfo ci) {
+        this.wakeUpNow();
+    }
+
+    @Inject(
             method = "unlitServerTick",
-            at = @At("RETURN" ),
+            at = @At("RETURN"),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     private static void trySleepUnlit(World world, BlockPos pos, BlockState state, CampfireBlockEntity campfire, CallbackInfo ci, boolean hadProgress) {
