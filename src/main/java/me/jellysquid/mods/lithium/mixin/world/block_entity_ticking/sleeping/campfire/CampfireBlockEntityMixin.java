@@ -9,13 +9,10 @@ import net.minecraft.block.entity.CampfireBlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.BlockEntityTickInvoker;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -25,12 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(CampfireBlockEntity.class)
 public class CampfireBlockEntityMixin extends BlockEntity implements SleepingBlockEntity {
 
-    @Shadow
-    @Final
-    private int[] cookingTimes;
-    @Shadow
-    @Final
-    private DefaultedList<ItemStack> itemsBeingCooked;
     private WrappedBlockEntityTickInvokerAccessor tickWrapper = null;
     private BlockEntityTickInvoker sleepingTicker = null;
 
@@ -46,6 +37,7 @@ public class CampfireBlockEntityMixin extends BlockEntity implements SleepingBlo
     @Override
     public void setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper) {
         this.tickWrapper = tickWrapper;
+        this.sleepingTicker = null;
     }
 
     @Override

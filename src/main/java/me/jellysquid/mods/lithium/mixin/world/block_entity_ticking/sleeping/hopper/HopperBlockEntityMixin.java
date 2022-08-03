@@ -5,7 +5,6 @@ import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityMovementListener;
 import me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.WrappedBlockEntityTickInvokerAccessor;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.HopperBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.HopperBlockEntity;
@@ -41,6 +40,7 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
     @Override
     public void setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper) {
         this.tickWrapper = tickWrapper;
+        this.sleepingTicker = null;
     }
 
     @Override
@@ -104,15 +104,6 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
                 this.sleepOnlyCurrentTick();
             }
         } else if (transferCooldown > 0 && this.sleepingTicker != null) {
-            this.wakeUpNow();
-        }
-    }
-
-    @SuppressWarnings("deprecation" )
-    @Override
-    public void setCachedState(BlockState state) {
-        super.setCachedState(state);
-        if (this.sleepingTicker != null && state.get(HopperBlock.ENABLED)) {
             this.wakeUpNow();
         }
     }

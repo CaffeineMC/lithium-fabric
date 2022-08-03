@@ -36,6 +36,7 @@ public class BrewingStandBlockEntityMixin extends BlockEntity implements Sleepin
     @Override
     public void setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper) {
         this.tickWrapper = tickWrapper;
+        this.sleepingTicker = null;
     }
 
     @Override
