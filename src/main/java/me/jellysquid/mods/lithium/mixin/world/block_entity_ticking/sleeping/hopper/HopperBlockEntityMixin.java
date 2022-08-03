@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.hop
 
 import me.jellysquid.mods.lithium.common.block.entity.SleepingBlockEntity;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeListener;
+import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityMovementListener;
 import me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.WrappedBlockEntityTickInvokerAccessor;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HopperBlock;
@@ -24,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.function.BooleanSupplier;
 
 @Mixin(HopperBlockEntity.class)
-public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlockEntity, InventoryChangeListener {
+public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlockEntity, InventoryChangeListener, NearbyEntityMovementListener {
 
     @Shadow
     private long lastTickTime;
@@ -133,6 +134,11 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
 
     @Override
     public void handleComparatorAdded(Inventory inventory) {
+        this.wakeUpNow();
+    }
+
+    @Override
+    public void handleEntityMovement(Class<?> category) {
         this.wakeUpNow();
     }
 }

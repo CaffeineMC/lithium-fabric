@@ -5,6 +5,7 @@ import me.jellysquid.mods.lithium.common.block.entity.SleepingBlockEntity;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeListener;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_comparator_tracking.ComparatorTracker;
+import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityMovementListener;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.SectionedInventoryEntityMovementTracker;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.SectionedItemEntityMovementTracker;
 import me.jellysquid.mods.lithium.common.hopper.*;
@@ -669,10 +670,14 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     }
 
     private void checkSleepingConditions() {
+        //TODO check sleeping conditions less often, otherwise this might be quite expensive
         if (this instanceof SleepingBlockEntity thisSleepingBlockEntity) {
             if (this instanceof InventoryChangeListener thisListener) {
                 if (this instanceof InventoryChangeTracker thisTracker) {
-                    InventoryChangeTracker extractTracker = null;
+                    boolean listenToExtractTracker = false;
+                    boolean listenToInsertTracker = false;
+                    boolean listenToExtractEntities = false;
+                    boolean listenToInsertEntities = false;
 
                     LithiumStackList lithiumStackList = InventoryHelper.getLithiumStackList(this);
                     long modCount = lithiumStackList.getModCount();
@@ -680,16 +685,25 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                         this.modCountBeforePreviousTransferAttempt = modCount;
                         return;
                     }
-                    if (this.extractionMode != HopperCachingState.BlockInventory.BLOCK_STATE && !this.isFull()) {
+                    boolean full = this.isFull();
+                    if (this.extractionMode != HopperCachingState.BlockInventory.BLOCK_STATE && !full) {
                         if (this.extractionMode == HopperCachingState.BlockInventory.BLOCK_ENTITY) {
                             Inventory blockInventory = this.extractBlockInventory;
                             if (this.extractStackList != null &&
-                                    blockInventory instanceof InventoryChangeTracker inventoryChangeTracker) {
+                                    blockInventory instanceof InventoryChangeTracker) {
                                 if (!this.extractStackList.maybeSendsComparatorUpdatesOnFailedExtract() || (blockInventory instanceof ComparatorTracker comparatorTracker && !comparatorTracker.hasAnyComparatorNearby())) {
-                                    extractTracker = inventoryChangeTracker;
+                                    listenToExtractTracker = true;
                                 } else {
                                     return;
                                 }
+                            } else {
+                                return;
+                            }
+                        } else if (this.extractionMode == HopperCachingState.BlockInventory.NO_BLOCK_INVENTORY) {
+                            if (this instanceof NearbyEntityMovementListener &&
+                                    this.extractInventoryEntityFailedSearchTime == this.lastTickTime &&
+                                    this.collectItemEntityAttemptTime == this.lastTickTime) {
+                                listenToExtractEntities = true;
                             } else {
                                 return;
                             }
@@ -700,17 +714,33 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                     if (this.insertionMode != HopperCachingState.BlockInventory.BLOCK_STATE && !this.isEmpty()) {
                         if (this.insertionMode == HopperCachingState.BlockInventory.BLOCK_ENTITY) {
                             Inventory blockInventory = this.insertBlockInventory;
-                            if (this.insertStackList != null && blockInventory instanceof InventoryChangeTracker inventoryChangeTracker) {
-                                inventoryChangeTracker.listenOnce(thisListener);
+                            if (this.insertStackList != null && blockInventory instanceof InventoryChangeTracker) {
+                                listenToInsertTracker = true;
                             } else {
                                 return;
+                            }
+                        } else if (this.insertionMode == HopperCachingState.BlockInventory.NO_BLOCK_INVENTORY) {
+                            if (this instanceof NearbyEntityMovementListener &&
+                                    this.insertInventoryEntityFailedSearchTime == this.lastTickTime) {
+                                listenToInsertEntities = true;
                             }
                         } else {
                             return;
                         }
                     }
-                    if (extractTracker != null) {
-                        extractTracker.listenOnce(thisListener);
+
+                    if (listenToExtractTracker) {
+                        ((InventoryChangeTracker) this.extractBlockInventory).listenOnce(thisListener);
+                    }
+                    if (listenToInsertTracker) {
+                        ((InventoryChangeTracker) this.insertBlockInventory).listenOnce(thisListener);
+                    }
+                    if (listenToInsertEntities) {
+                        this.insertInventoryEntityTracker.listenToEntityMovementOnce((NearbyEntityMovementListener) this);
+                    }
+                    if (listenToExtractEntities) {
+                        this.extractInventoryEntityTracker.listenToEntityMovementOnce((NearbyEntityMovementListener) this);
+                        this.collectItemEntityTracker.listenToEntityMovementOnce((NearbyEntityMovementListener) this);
                     }
                     thisTracker.listenOnce(thisListener);
                     thisSleepingBlockEntity.startSleeping();

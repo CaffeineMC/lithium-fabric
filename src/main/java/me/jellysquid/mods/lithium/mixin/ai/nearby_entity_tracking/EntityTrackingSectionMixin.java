@@ -21,6 +21,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.ArrayList;
+
 @Mixin(EntityTrackingSection.class)
 public abstract class EntityTrackingSectionMixin<T extends EntityLike> implements EntityTrackerSection, PositionedEntityTrackingSection {
     @Shadow
@@ -34,6 +36,7 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
 
     private final ReferenceOpenHashSet<NearbyEntityListener> nearbyEntityListeners = new ReferenceOpenHashSet<>(0);
     private final ReferenceOpenHashSet<SectionedEntityMovementTracker<?, ?>> sectionVisibilityListeners = new ReferenceOpenHashSet<>(0);
+    private ArrayList<SectionedEntityMovementTracker<?, ?>> entityMovementListeners = null;
     private final long[] lastEntityMovementByType = new long[EntityTrackerEngine.NUM_MOVEMENT_NOTIFYING_CLASSES];
 
     @Override
@@ -75,7 +78,7 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
     }
 
     @Override
-    public void updateMovementTimestamps(int notificationMask, long time) {
+    public void trackEntityMovement(int notificationMask, long time) {
         long[] lastEntityMovementByType = this.lastEntityMovementByType;
         int size = lastEntityMovementByType.length;
         int mask;
@@ -83,6 +86,14 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
             lastEntityMovementByType[i] = time;
             mask = 0xffff_fffe << i;
             i = Integer.numberOfTrailingZeros(notificationMask & mask);
+        }
+
+        ArrayList<SectionedEntityMovementTracker<?, ?>> entityMovementListeners = this.entityMovementListeners;
+        if (entityMovementListeners != null && !entityMovementListeners.isEmpty()) {
+            for (int i = entityMovementListeners.size() - 1; i >= 0; i--) {
+                SectionedEntityMovementTracker<?, ?> sectionedEntityMovementTracker = entityMovementListeners.remove(i);
+                sectionedEntityMovementTracker.emitEntityMovement(notificationMask);
+            }
         }
     }
 
@@ -147,5 +158,20 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
             }
         }
         return newStatus;
+    }
+
+    @Override
+    public <S, E extends EntityLike> void listenToMovementOnce(SectionedEntityMovementTracker<E, S> listener) {
+        if (this.entityMovementListeners == null) {
+            this.entityMovementListeners = new ArrayList<>();
+        }
+        this.entityMovementListeners.add(listener);
+    }
+
+    @Override
+    public <S, E extends EntityLike> void removeListenToMovementOnce(SectionedEntityMovementTracker<E, S> listener) {
+        if (this.entityMovementListeners != null) {
+            this.entityMovementListeners.remove(listener);
+        }
     }
 }

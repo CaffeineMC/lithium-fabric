@@ -25,11 +25,14 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
 
     private long maxChangeTime;
 
+    private ArrayList<NearbyEntityMovementListener> nearbyEntityMovementListeners;
+
     public SectionedEntityMovementTracker(WorldSectionBox interactionChunks, Class<S> clazz) {
         this.clazz = clazz;
         this.trackedWorldSections = interactionChunks;
         this.trackedClass = EntityTrackerEngine.MOVEMENT_NOTIFYING_ENTITY_CLASSES.indexOf(clazz);
         assert this.trackedClass != -1;
+        this.nearbyEntityMovementListeners = null;
     }
 
     @Override
@@ -117,6 +120,9 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
             EntityTrackingSection<E> section = sections.get(i);
             EntityTrackerSection sectionAccess = (EntityTrackerSection) section;
             sectionAccess.removeListener(cache, this);
+            if (this.nearbyEntityMovementListeners != null && !this.nearbyEntityMovementListeners.isEmpty()) {
+                ((EntityTrackerSection) section).removeListenToMovementOnce(this);
+            }
         }
         this.setChanged(world.getTime());
     }
@@ -129,6 +135,10 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
         //noinspection SuspiciousMethodCalls
         this.sectionVisible[this.sortedSections.lastIndexOf(section)] = true;
         this.sectionChangeCounters.add(section.getMovementTimestampArray());
+
+        if (this.nearbyEntityMovementListeners != null && !this.nearbyEntityMovementListeners.isEmpty()) {
+            section.listenToMovementOnce(this);
+        }
     }
 
     public void onSectionLeftRange(EntityTrackerSection section) {
@@ -136,6 +146,10 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
         //noinspection SuspiciousMethodCalls
         this.sectionVisible[this.sortedSections.indexOf(section)] = false;
         this.sectionChangeCounters.remove(section.getMovementTimestampArray());
+
+        if (this.nearbyEntityMovementListeners != null && !this.nearbyEntityMovementListeners.isEmpty()) {
+            section.removeListenToMovementOnce(this);
+        }
     }
 
     /**
@@ -144,6 +158,30 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
     private void setChanged(long atTime) {
         if (atTime > this.maxChangeTime) {
             this.maxChangeTime = atTime;
+        }
+    }
+
+    public void listenToEntityMovementOnce(NearbyEntityMovementListener listener) {
+        if (this.nearbyEntityMovementListeners == null) {
+            this.nearbyEntityMovementListeners = new ArrayList<>();
+        }
+        if (this.nearbyEntityMovementListeners.isEmpty()) {
+            for (EntityTrackingSection<E> eEntityTrackingSection : this.sortedSections) {
+                ((EntityTrackerSection) eEntityTrackingSection).listenToMovementOnce(this);
+            }
+        }
+        this.nearbyEntityMovementListeners.add(listener);
+    }
+
+    public void emitEntityMovement(int classMask) {
+        if ((classMask & (1 << this.trackedClass)) != 0) {
+            ArrayList<NearbyEntityMovementListener> nearbyEntityMovementListeners = this.nearbyEntityMovementListeners;
+            if (nearbyEntityMovementListeners != null) {
+                for (int i = nearbyEntityMovementListeners.size() - 1; i >= 0; i--) {
+                    NearbyEntityMovementListener nearbyEntityMovementListener = nearbyEntityMovementListeners.remove(i);
+                    nearbyEntityMovementListener.handleEntityMovement(this.clazz);
+                }
+            }
         }
     }
 }

@@ -40,6 +40,8 @@ public class BlockEntityMixin implements ComparatorTracker {
 
     byte comparatorsNearby = UNKNOWN;
 
+    //TODO either use the location of the comparators or use only 3 states (uninitalized, present, absent)
+
 
     @Override
     public void onComparatorAdded(Direction direction, int offset) {

@@ -96,7 +96,7 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
 
     private void notifyMovementListeners() {
         if (this.notificationMask != 0) {
-            ((EntityTrackerSection) this.section).updateMovementTimestamps(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
+            ((EntityTrackerSection) this.section).trackEntityMovement(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
         }
     }
 }
