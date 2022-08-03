@@ -33,7 +33,9 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
         if (this instanceof Inventory) {
             this.beforeMoveOnRailPos = this.getPos();
             EntityChangeListener changeListener = ((EntityAccessor) this).getChangeListener();
-            this.beforeMoveOnRailNotificationMask = ((ToggleableMovementTracker) changeListener).setNotificationMask(0);
+            if (changeListener instanceof ToggleableMovementTracker toggleableMovementTracker) {
+                this.beforeMoveOnRailNotificationMask = toggleableMovementTracker.setNotificationMask(0);
+            }
         }
     }
 
@@ -44,10 +46,12 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
     private void notifyMovementListeners(BlockPos pos, BlockState state, CallbackInfo ci) {
         if (this instanceof Inventory) {
             EntityChangeListener changeListener = ((EntityAccessor) this).getChangeListener();
-            this.beforeMoveOnRailNotificationMask = ((ToggleableMovementTracker) changeListener).setNotificationMask(this.beforeMoveOnRailNotificationMask);
+            if (changeListener instanceof ToggleableMovementTracker toggleableMovementTracker) {
+                this.beforeMoveOnRailNotificationMask = toggleableMovementTracker.setNotificationMask(this.beforeMoveOnRailNotificationMask);
 
-            if (!this.beforeMoveOnRailPos.equals(this.getPos())) {
-                changeListener.updateEntityPosition();
+                if (!this.beforeMoveOnRailPos.equals(this.getPos())) {
+                    changeListener.updateEntityPosition();
+                }
             }
             this.beforeMoveOnRailPos = null;
         }
