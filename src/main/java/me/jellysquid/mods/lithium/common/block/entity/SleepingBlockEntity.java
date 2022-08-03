@@ -24,8 +24,6 @@ public interface SleepingBlockEntity {
         }
     };
 
-    World getWorld();
-
     WrappedBlockEntityTickInvokerAccessor getTickWrapper();
 
     void setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper);
@@ -50,7 +48,7 @@ public interface SleepingBlockEntity {
         if (sleepingTicker == null) {
             sleepingTicker = tickWrapper.getWrapped();
         }
-        World world = this.getWorld();
+        World world = ((BlockEntity) this).getWorld();
         tickWrapper.callSetWrapped(new SleepUntilTimeBlockEntityTickInvoker((BlockEntity) this, world.getTime() + 1, sleepingTicker));
         this.setSleepingTicker(null);
     }
