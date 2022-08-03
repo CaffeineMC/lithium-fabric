@@ -7,12 +7,13 @@ import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.
 import me.jellysquid.mods.lithium.common.hopper.InventoryHelper;
 import me.jellysquid.mods.lithium.common.hopper.LithiumStackList;
 import net.minecraft.block.entity.LockableContainerBlockEntity;
+import net.minecraft.inventory.Inventory;
 import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.ArrayList;
 
 @Mixin(LockableContainerBlockEntity.class)
-public abstract class LockableContainerBlockEntityMixin implements InventoryChangeTracker, LithiumInventory {
+public abstract class LockableContainerBlockEntityMixin implements InventoryChangeTracker, Inventory {
     ArrayList<InventoryChangeListener> inventoryChangeListeners = null;
 
     @Override
@@ -65,7 +66,7 @@ public abstract class LockableContainerBlockEntityMixin implements InventoryChan
             this.inventoryChangeListeners = new ArrayList<>(1);
         }
         if (this.inventoryChangeListeners.isEmpty()) {
-            LithiumStackList lithiumStackList = InventoryHelper.getLithiumStackList(this);
+            LithiumStackList lithiumStackList = InventoryHelper.getLithiumStackList((LithiumInventory) this);
             lithiumStackList.setInventoryModificationCallback(this);
         }
         this.inventoryChangeListeners.add(inventoryChangeListener);
