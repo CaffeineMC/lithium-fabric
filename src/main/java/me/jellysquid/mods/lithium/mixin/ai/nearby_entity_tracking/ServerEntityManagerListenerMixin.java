@@ -4,6 +4,7 @@ import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngine;
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerSection;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerMulti;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerProvider;
+import me.jellysquid.mods.lithium.common.entity.tracker.nearby.ToggleableMovementTracker;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerEntityManager;
 import net.minecraft.util.math.BlockPos;
@@ -21,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(targets = "net/minecraft/server/world/ServerEntityManager$Listener")
-public class ServerEntityManagerListenerMixin<T extends EntityLike> {
+public class ServerEntityManagerListenerMixin<T extends EntityLike> implements ToggleableMovementTracker {
     @Shadow
     private EntityTrackingSection<T> section;
     @Shadow
@@ -98,5 +99,12 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
         if (this.notificationMask != 0) {
             ((EntityTrackerSection) this.section).trackEntityMovement(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
         }
+    }
+
+    @Override
+    public int setNotificationMask(int notificationMask) {
+        int oldNotificationMask = this.notificationMask;
+        this.notificationMask = notificationMask;
+        return oldNotificationMask;
     }
 }
