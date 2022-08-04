@@ -30,8 +30,7 @@ public class ComparatorTracking {
         }
     }
 
-    public static byte findNearbyComparators(World world, BlockPos pos) {
-        byte comparatorsNearby = 0;
+    public static boolean findNearbyComparators(World world, BlockPos pos) {
         BlockPos.Mutable searchPos = new BlockPos.Mutable();
         for (Direction searchDirection : DirectionConstants.HORIZONTAL) {
             for (int searchOffset = 1; searchOffset <= 2; searchOffset++) {
@@ -39,10 +38,10 @@ public class ComparatorTracking {
                 searchPos.move(searchDirection, searchOffset);
                 BlockState blockState = world.getBlockState(searchPos);
                 if (blockState.isOf(Blocks.COMPARATOR)) {
-                    comparatorsNearby = (byte) (comparatorsNearby | (1 << ((searchDirection.getId() - 2) * 2 + (searchOffset - 1))));
+                    return true;
                 }
             }
         }
-        return comparatorsNearby;
+        return false;
     }
 }
