@@ -71,5 +71,4 @@ public class StackListReplacementTracking {
             this.emitStackListReplaced();
         }
     }
-
 }

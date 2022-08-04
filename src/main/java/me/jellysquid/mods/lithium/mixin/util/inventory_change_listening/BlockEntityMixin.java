@@ -12,7 +12,7 @@ public class BlockEntityMixin {
 
     @Inject(
             method = "markRemoved",
-            at = @At("RETURN" )
+            at = @At("RETURN")
     )
     private void updateStackListTracking(CallbackInfo ci) {
         if (this instanceof InventoryChangeTracker inventoryChangeTracker) {

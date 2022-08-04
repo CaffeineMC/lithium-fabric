@@ -127,6 +127,7 @@ public class LithiumConfig {
         this.addMixinRule("util", true);
         this.addMixinRule("util.entity_section_position", true);
         this.addMixinRule("util.world_border_listener", true);
+        this.addMixinRule("util.inventory_change_listening", true);
         this.addMixinRule("util.inventory_comparator_tracking", true);
 
         this.addMixinRule("world", true);
@@ -154,6 +155,7 @@ public class LithiumConfig {
         this.addRuleDependency("block.hopper", "ai.nearby_entity_tracking", true);
         this.addRuleDependency("block.hopper", "world", true);
         this.addRuleDependency("block.hopper", "world.block_entity_retrieval", true);
+        this.addRuleDependency("block.hopper", "util.inventory_change_listening", true);
 
         this.addRuleDependency("util.inventory_comparator_tracking", "world.block_entity_retrieval", true);
 
@@ -193,7 +195,9 @@ public class LithiumConfig {
 
         // Check dependencies several times, because one iteration may disable a rule required by another rule
         // This terminates because each additional iteration will disable one or more rules, and there is only a finite number of rules
+        //noinspection StatementWithEmptyBody
         while (config.applyDependencies()) {
+            //noinspection UnnecessarySemicolon
             ;
         }
 

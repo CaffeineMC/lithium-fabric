@@ -1,14 +1,11 @@
 package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.hopper;
 
 import me.jellysquid.mods.lithium.common.block.entity.SleepingBlockEntity;
-import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeListener;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityMovementListener;
 import me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.WrappedBlockEntityTickInvokerAccessor;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.HopperBlockEntity;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.BlockEntityTickInvoker;
@@ -24,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.function.BooleanSupplier;
 
 @Mixin(HopperBlockEntity.class)
-public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlockEntity, InventoryChangeListener, NearbyEntityMovementListener {
+public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlockEntity {
 
     @Shadow
     private long lastTickTime;
@@ -109,30 +106,5 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
         } else if (transferCooldown > 0 && this.sleepingTicker != null) {
             this.wakeUpNow();
         }
-    }
-
-    @Override
-    public void handleStackListReplaced(Inventory inventory) {
-        this.wakeUpNow();
-    }
-
-    @Override
-    public void handleInventoryContentModified(Inventory inventory) {
-        this.wakeUpNow();
-    }
-
-    @Override
-    public void handleInventoryRemoved(Inventory inventory) {
-        this.wakeUpNow();
-    }
-
-    @Override
-    public void handleComparatorAdded(Inventory inventory) {
-        this.wakeUpNow();
-    }
-
-    @Override
-    public void handleEntityMovement(Class<?> category) {
-        this.wakeUpNow();
     }
 }

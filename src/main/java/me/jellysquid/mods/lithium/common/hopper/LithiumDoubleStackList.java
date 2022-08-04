@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.common.hopper;
 
+import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
 import me.jellysquid.mods.lithium.mixin.block.hopper.DoubleInventoryAccessor;
 import net.minecraft.inventory.DoubleInventory;
 import net.minecraft.inventory.Inventory;
@@ -126,5 +127,10 @@ public class LithiumDoubleStackList extends LithiumStackList {
     @Override
     public int size() {
         return this.first.size() + this.second.size();
+    }
+
+    public void setInventoryModificationCallback(InventoryChangeTracker inventoryModificationCallback) {
+        this.first.setInventoryModificationCallback(inventoryModificationCallback);
+        this.second.setInventoryModificationCallback(inventoryModificationCallback);
     }
 }

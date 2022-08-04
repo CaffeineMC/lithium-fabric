@@ -3,9 +3,7 @@ package me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking
 import net.minecraft.inventory.Inventory;
 
 public interface InventoryChangeListener {
-    default void handleStackListReplaced(Inventory inventory) {
-        this.handleInventoryContentModified(inventory);
-    }
+    void handleStackListReplaced(Inventory inventory);
 
     void handleInventoryContentModified(Inventory inventory);
 

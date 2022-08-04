@@ -24,9 +24,6 @@ import net.minecraft.util.collection.DefaultedList;
  * same type would work fine (changing the acceptance condition only happens when changing the inventory contents here).
  * However, an inventory which accepts an item only if a certain block is near its position will need to signal this
  * change to hoppers by calling {@link LithiumDefaultedList#changedInteractionConditions()}.
- * If the change cannot be detected with reasonable effort, the inventory will need to call
- * {@link LithiumDefaultedList#setUnstableInteractionConditions()} inside its implementation
- * of setInventoryLithium(DefaultedList) after successfully casting the DefaultedList to LithiumDefaultedList.
  *
  * @author 2No2Name
  */
@@ -46,26 +43,6 @@ public interface LithiumInventory extends Inventory {
      * @param inventory inventory stack list
      */
     void setInventoryLithium(DefaultedList<ItemStack> inventory);
-
-    /**
-     * Controls the inventory caching of hoppers.
-     * Hoppers update their cache after the removedCounter of the cached inventory increases.
-     * <p>
-     * Modded inventories most likely do not need to override this method:
-     * <p>
-     * Entity inventories are never cached, so they do not need to implement this method.
-     * Inventories that are created using a block implementing {@link net.minecraft.block.InventoryProvider}
-     * must change their BlockState when they become invalid instead.
-     * {@link net.minecraft.block.entity.BlockEntity} inventories also do not need to implement this method.
-     * Inventories that never become invalid (e.g. by unloading, destroying, being replaced with a new object)
-     * do not need to implement this method.
-     *
-     * @return the removedCounter of the LithiumInventory
-     */
-    default int getRemovedCountLithium() {
-        //Already implemented for BlockEntity and DoubleInventory
-        return 0;
-    }
 
     /**
      * Generates the loot like a hopper access would do in vanilla.

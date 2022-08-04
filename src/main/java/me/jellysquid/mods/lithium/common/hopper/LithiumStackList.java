@@ -72,6 +72,7 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
         this.occupiedSlots = 0;
         this.fullSlots = 0;
         int size = this.size();
+        //noinspection ForLoopReplaceableByForEach
         for (int i = 0; i < size; i++) {
             ItemStack stack = this.get(i);
             if (!stack.isEmpty()) {
@@ -255,6 +256,9 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
 
 
     public void setInventoryModificationCallback(InventoryChangeTracker inventoryModificationCallback) {
+        if (this.inventoryModificationCallback != null && this.inventoryModificationCallback != inventoryModificationCallback) {
+            this.inventoryModificationCallback.emitCallbackReplaced();
+        }
         this.inventoryModificationCallback = inventoryModificationCallback;
     }
 }

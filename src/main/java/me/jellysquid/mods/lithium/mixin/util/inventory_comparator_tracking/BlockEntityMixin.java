@@ -49,7 +49,7 @@ public class BlockEntityMixin implements ComparatorTracker {
             this.hasComparators = 1;
 
             if (this instanceof InventoryChangeTracker inventoryChangeTracker) {
-                inventoryChangeTracker.emitComparatorAdded();
+                inventoryChangeTracker.emitFirstComparatorAdded();
             }
         }
     }

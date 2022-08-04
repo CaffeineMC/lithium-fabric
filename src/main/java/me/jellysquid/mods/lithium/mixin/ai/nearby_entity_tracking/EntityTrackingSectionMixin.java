@@ -85,8 +85,6 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
         int mask;
         for (int entityClassIndex = Integer.numberOfTrailingZeros(notificationMask); entityClassIndex < size; ) {
             lastEntityMovementByType[entityClassIndex] = time;
-            mask = 0xffff_fffe << entityClassIndex;
-            entityClassIndex = Integer.numberOfTrailingZeros(notificationMask & mask);
 
             ArrayList<SectionedEntityMovementTracker<?, ?>> entityMovementListeners = this.entityMovementListenersByType[entityClassIndex];
             if (entityMovementListeners != null) {
@@ -95,6 +93,9 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
                     sectionedEntityMovementTracker.emitEntityMovement(notificationMask, this);
                 }
             }
+
+            mask = 0xffff_fffe << entityClassIndex;
+            entityClassIndex = Integer.numberOfTrailingZeros(notificationMask & mask);
         }
     }
 

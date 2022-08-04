@@ -1,10 +1,10 @@
 package me.jellysquid.mods.lithium.mixin.util.inventory_change_listening;
 
 
-import me.jellysquid.mods.lithium.api.inventory.LithiumInventory;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeEmitter;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeListener;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
-import me.jellysquid.mods.lithium.common.hopper.InventoryHelper;
 import me.jellysquid.mods.lithium.common.hopper.LithiumStackList;
 import net.minecraft.block.entity.LockableContainerBlockEntity;
 import net.minecraft.inventory.Inventory;
@@ -13,30 +13,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import java.util.ArrayList;
 
 @Mixin(LockableContainerBlockEntity.class)
-public abstract class LockableContainerBlockEntityMixin implements InventoryChangeTracker, Inventory {
+public abstract class LockableContainerBlockEntityMixin implements InventoryChangeEmitter, Inventory {
     ArrayList<InventoryChangeListener> inventoryChangeListeners = null;
-
-    @Override
-    public void emitStackListReplaced() {
-        ArrayList<InventoryChangeListener> inventoryChangeListeners = this.inventoryChangeListeners;
-        if (inventoryChangeListeners != null) {
-            for (int i = inventoryChangeListeners.size() - 1; i >= 0; i--) {
-                InventoryChangeListener inventoryChangeListener = inventoryChangeListeners.remove(i);
-                inventoryChangeListener.handleStackListReplaced(this);
-            }
-        }
-    }
-
-    @Override
-    public void emitRemoved() {
-        ArrayList<InventoryChangeListener> inventoryChangeListeners = this.inventoryChangeListeners;
-        if (inventoryChangeListeners != null) {
-            for (int i = inventoryChangeListeners.size() - 1; i >= 0; i--) {
-                InventoryChangeListener inventoryChangeListener = inventoryChangeListeners.remove(i);
-                inventoryChangeListener.handleInventoryRemoved(this);
-            }
-        }
-    }
+    ReferenceOpenHashSet<InventoryChangeListener> inventoryHandlingTypeListeners = null;
 
     @Override
     public void emitContentModified() {
@@ -50,7 +29,31 @@ public abstract class LockableContainerBlockEntityMixin implements InventoryChan
     }
 
     @Override
-    public void emitComparatorAdded() {
+    public void emitStackListReplaced() {
+        ReferenceOpenHashSet<InventoryChangeListener> listeners = this.inventoryHandlingTypeListeners;
+        if (listeners != null && !listeners.isEmpty()) {
+            listeners.forEach(inventoryChangeListener -> inventoryChangeListener.handleStackListReplaced(this));
+        }
+
+        if (this instanceof InventoryChangeListener listener) {
+            listener.handleStackListReplaced(this);
+        }
+    }
+
+    @Override
+    public void emitRemoved() {
+        ReferenceOpenHashSet<InventoryChangeListener> listeners = this.inventoryHandlingTypeListeners;
+        if (listeners != null && !listeners.isEmpty()) {
+            listeners.forEach(listener -> listener.handleInventoryRemoved(this));
+        }
+
+        if (this instanceof InventoryChangeListener listener) {
+            listener.handleInventoryRemoved(this);
+        }
+    }
+
+    @Override
+    public void emitFirstComparatorAdded() {
         ArrayList<InventoryChangeListener> inventoryChangeListeners = this.inventoryChangeListeners;
         if (inventoryChangeListeners != null) {
             for (int i = inventoryChangeListeners.size() - 1; i >= 0; i--) {
@@ -61,15 +64,27 @@ public abstract class LockableContainerBlockEntityMixin implements InventoryChan
     }
 
     @Override
-    public void listenOnce(InventoryChangeListener inventoryChangeListener) {
+    public void forwardContentChangeOnce(InventoryChangeListener inventoryChangeListener, LithiumStackList stackList, InventoryChangeTracker thisTracker) {
         if (this.inventoryChangeListeners == null) {
             this.inventoryChangeListeners = new ArrayList<>(1);
         }
-        if (this.inventoryChangeListeners.isEmpty()) {
-            LithiumStackList lithiumStackList = InventoryHelper.getLithiumStackList((LithiumInventory) this);
-            lithiumStackList.setInventoryModificationCallback(this);
-        }
+        stackList.setInventoryModificationCallback(thisTracker);
         this.inventoryChangeListeners.add(inventoryChangeListener);
 
+    }
+
+    @Override
+    public void forwardMajorInventoryChanges(InventoryChangeListener inventoryChangeListener) {
+        if (this.inventoryHandlingTypeListeners == null) {
+            this.inventoryHandlingTypeListeners = new ReferenceOpenHashSet<>(1);
+        }
+        this.inventoryHandlingTypeListeners.add(inventoryChangeListener);
+    }
+
+    @Override
+    public void stopForwardingMajorInventoryChanges(InventoryChangeListener inventoryChangeListener) {
+        if (this.inventoryHandlingTypeListeners != null) {
+            this.inventoryHandlingTypeListeners.remove(inventoryChangeListener);
+        }
     }
 }
