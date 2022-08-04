@@ -29,6 +29,9 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
     @Shadow
     private long lastTickTime;
 
+    @Shadow
+    private native boolean needsCooldown();
+
     private WrappedBlockEntityTickInvokerAccessor tickWrapper = null;
     private BlockEntityTickInvoker sleepingTicker = null;
 
@@ -72,7 +75,7 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
             at = @At(value = "RETURN", ordinal = 2)
     )
     private static void sleepIfBranchNotRemembered(World world, BlockPos pos, BlockState state, HopperBlockEntity blockEntity, BooleanSupplier booleanSupplier, CallbackInfoReturnable<Boolean> cir) {
-        if (booleanSupplier != null) {
+        if (booleanSupplier != null && !((HopperBlockEntityMixin) (Object) blockEntity).needsCooldown()) {
             //When this code is reached, rememberBranch(BooleanSupplier) wasn't reached. Therefore the hopper is locked and not on cooldown.
             ((HopperBlockEntityMixin) (Object) blockEntity).startSleeping();
         }

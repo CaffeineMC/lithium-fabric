@@ -118,6 +118,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             hopperBlockEntity.initExtractInventoryTracker(world);
         }
         if (hopperBlockEntity.extractInventoryEntityTracker.isUnchangedSince(hopperBlockEntity.extractInventoryEntityFailedSearchTime)) {
+            hopperBlockEntity.extractInventoryEntityFailedSearchTime = hopperBlockEntity.lastTickTime;
             return null;
         }
         hopperBlockEntity.extractInventoryEntityFailedSearchTime = Long.MIN_VALUE;
@@ -293,6 +294,9 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     @Shadow
     protected abstract boolean isFull();
 
+    @Shadow
+    protected abstract boolean needsCooldown();
+
     @Override
     public void onNeighborUpdate(boolean above) {
         //Clear the block inventory cache (composter inventories and no inventory present) on block update / observer update
@@ -325,6 +329,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         long modCount = InventoryHelper.getLithiumStackList(hopperBlockEntity).getModCount();
         if ((hopperBlockEntity.collectItemEntityTrackerWasEmpty || hopperBlockEntity.myModCountAtLastItemCollect == modCount) &&
                 hopperBlockEntity.collectItemEntityTracker.isUnchangedSince(hopperBlockEntity.collectItemEntityAttemptTime)) {
+            hopperBlockEntity.collectItemEntityAttemptTime = hopperBlockEntity.lastTickTime;
             return Collections.emptyList();
         }
         hopperBlockEntity.myModCountAtLastItemCollect = modCount;
@@ -504,6 +509,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             this.initInsertInventoryTracker(world, hopperState);
         }
         if (this.insertInventoryEntityTracker.isUnchangedSince(this.insertInventoryEntityFailedSearchTime)) {
+            this.insertInventoryEntityFailedSearchTime = this.lastTickTime;
             return null;
         }
         this.insertInventoryEntityFailedSearchTime = Long.MIN_VALUE;
@@ -670,6 +676,9 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     }
 
     private void checkSleepingConditions() {
+        if (this.needsCooldown()) {
+            return;
+        }
         //TODO check sleeping conditions less often, otherwise this might be quite expensive
         if (this instanceof SleepingBlockEntity thisSleepingBlockEntity) {
             if (this instanceof InventoryChangeListener thisListener) {
