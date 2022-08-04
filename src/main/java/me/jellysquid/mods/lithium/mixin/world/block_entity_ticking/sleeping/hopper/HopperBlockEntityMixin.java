@@ -43,7 +43,7 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
     @Override
     public void setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper) {
         this.tickWrapper = tickWrapper;
-        this.sleepingTicker = null;
+        this.setSleepingTicker(null);
     }
 
     @Override

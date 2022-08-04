@@ -37,7 +37,7 @@ public class CampfireBlockEntityMixin extends BlockEntity implements SleepingBlo
     @Override
     public void setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper) {
         this.tickWrapper = tickWrapper;
-        this.sleepingTicker = null;
+        this.setSleepingTicker(null);
     }
 
     @Override

@@ -38,7 +38,7 @@ public abstract class AbstractFurnaceBlockEntityMixin extends BlockEntity implem
     @Override
     public void setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper) {
         this.tickWrapper = tickWrapper;
-        this.sleepingTicker = null;
+        this.setSleepingTicker(null);
     }
 
     @Override
