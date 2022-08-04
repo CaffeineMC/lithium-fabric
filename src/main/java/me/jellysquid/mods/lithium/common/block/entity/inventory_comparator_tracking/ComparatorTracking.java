@@ -39,7 +39,7 @@ public class ComparatorTracking {
                 searchPos.move(searchDirection, searchOffset);
                 BlockState blockState = world.getBlockState(searchPos);
                 if (blockState.isOf(Blocks.COMPARATOR)) {
-                    comparatorsNearby = (byte) (comparatorsNearby | (1 << (searchDirection.getId() * 2 + (searchOffset - 1))));
+                    comparatorsNearby = (byte) (comparatorsNearby | (1 << ((searchDirection.getId() - 2) * 2 + (searchOffset - 1))));
                 }
             }
         }

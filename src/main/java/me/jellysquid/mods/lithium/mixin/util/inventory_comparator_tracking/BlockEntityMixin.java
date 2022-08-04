@@ -3,7 +3,9 @@ package me.jellysquid.mods.lithium.mixin.util.inventory_comparator_tracking;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_comparator_tracking.ComparatorTracker;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_comparator_tracking.ComparatorTracking;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -38,7 +40,15 @@ public class BlockEntityMixin implements ComparatorTracker {
     //00 = no comparator nearby
     //11 never occurs (!) -> allows having a code for unknown
 
-    byte comparatorsNearby = UNKNOWN;
+    byte comparatorsNearby;
+
+    @Inject(
+            method = "<init>",
+            at = @At("RETURN")
+    )
+    private void init(BlockEntityType<?> type, BlockPos pos, BlockState state, CallbackInfo ci) {
+        this.comparatorsNearby = UNKNOWN;
+    }
 
     //TODO either use the location of the comparators or use only 3 states (uninitalized, present, absent)
 
@@ -47,7 +57,7 @@ public class BlockEntityMixin implements ComparatorTracker {
     public void onComparatorAdded(Direction direction, int offset) {
         byte comparatorsNearby = this.comparatorsNearby;
         if (comparatorsNearby != UNKNOWN && direction.getAxis() != Direction.Axis.Y && offset >= 1 && offset <= 2) {
-            this.comparatorsNearby = (byte) (comparatorsNearby | (1 << (direction.getId() * 2 + (offset - 1))));
+            this.comparatorsNearby = (byte) (comparatorsNearby | (1 << ((direction.getId() - 2) * 2 + (offset - 1))));
         }
 
         if (this instanceof InventoryChangeTracker inventoryChangeTracker) {
