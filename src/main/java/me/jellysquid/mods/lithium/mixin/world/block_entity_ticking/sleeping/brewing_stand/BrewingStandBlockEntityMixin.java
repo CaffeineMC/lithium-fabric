@@ -49,10 +49,14 @@ public class BrewingStandBlockEntityMixin extends BlockEntity implements Sleepin
         this.sleepingTicker = sleepingTicker;
     }
 
-    @Inject(method = "tick", at = @At("HEAD" ))
+    @Inject(method = "tick", at = @At("HEAD"))
     private static void checkSleep(World world, BlockPos pos, BlockState state, BrewingStandBlockEntity blockEntity, CallbackInfo ci) {
         ((BrewingStandBlockEntityMixin) (Object) blockEntity).checkSleep();
+    }
 
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/BrewingStandBlockEntity;markDirty(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V"))
+    private static void wakeUpOnMarkDirty(World world, BlockPos pos, BlockState state, BrewingStandBlockEntity blockEntity, CallbackInfo ci) {
+        ((BrewingStandBlockEntityMixin) (Object) blockEntity).wakeUpNow();
     }
 
     private void checkSleep() {
@@ -61,7 +65,7 @@ public class BrewingStandBlockEntityMixin extends BlockEntity implements Sleepin
         }
     }
 
-    @Inject(method = "readNbt", at = @At("RETURN" ))
+    @Inject(method = "readNbt", at = @At("RETURN"))
     private void wakeUpAfterFromTag(CallbackInfo ci) {
         if (this.isSleeping() && this.world != null && !this.world.isClient()) {
             this.wakeUpNow();
