@@ -21,7 +21,7 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
     ArrayList<EntityTrackingSection<E>> sortedSections;
     boolean[] sectionVisible;
     private int timesRegistered;
-    private ArrayList<long[]> sectionChangeCounters;
+    private final ArrayList<EntityTrackerSection> sectionsNotListeningTo;
 
     private long maxChangeTime;
 
@@ -33,6 +33,7 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
         this.trackedClass = EntityTrackerEngine.MOVEMENT_NOTIFYING_ENTITY_CLASSES.indexOf(clazz);
         assert this.trackedClass != -1;
         this.nearbyEntityMovementListeners = null;
+        this.sectionsNotListeningTo = new ArrayList<>();
     }
 
     @Override
@@ -58,18 +59,22 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
         if (lastCheckedTime <= this.maxChangeTime) {
             return false;
         }
-        ArrayList<long[]> sectionChangeCounters = this.sectionChangeCounters;
-        int trackedClass = this.trackedClass;
-        //noinspection ForLoopReplaceableByForEach
-        for (int i = 0, numCounters = sectionChangeCounters.size(); i < numCounters; i++) {
-            // >= instead of > is required here, as changes may occur in the same tick but after the last check
-            long sectionChangeTime = sectionChangeCounters.get(i)[trackedClass];
-            if (lastCheckedTime <= sectionChangeTime) {
-                this.setChanged(sectionChangeTime);
-                return false;
-            }
+        if (!this.sectionsNotListeningTo.isEmpty()) {
+            this.setChanged(this.listenToAllSectionsAndGetMaxChangeTime());
+            return lastCheckedTime > this.maxChangeTime;
         }
         return true;
+    }
+
+    private long listenToAllSectionsAndGetMaxChangeTime() {
+        long maxChangeTime = Long.MIN_VALUE;
+        ArrayList<EntityTrackerSection> notListeningTo = this.sectionsNotListeningTo;
+        for (int i = notListeningTo.size() - 1; i >= 0; i--) {
+            EntityTrackerSection entityTrackerSection = notListeningTo.remove(i);
+            entityTrackerSection.listenToMovementOnce(this, this.trackedClass);
+            maxChangeTime = Math.max(maxChangeTime, entityTrackerSection.getChangeTime(this.trackedClass));
+        }
+        return maxChangeTime;
     }
 
     public void register(ServerWorld world) {
@@ -79,7 +84,6 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
             //noinspection unchecked
             SectionedEntityCache<E> cache = ((ServerEntityManagerAccessor<E>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
 
-            this.sectionChangeCounters = new ArrayList<>();
             WorldSectionBox trackedSections = this.trackedWorldSections;
             int size = trackedSections.numSections();
             assert size > 0;
@@ -120,8 +124,8 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
             EntityTrackingSection<E> section = sections.get(i);
             EntityTrackerSection sectionAccess = (EntityTrackerSection) section;
             sectionAccess.removeListener(cache, this);
-            if (this.nearbyEntityMovementListeners != null && !this.nearbyEntityMovementListeners.isEmpty()) {
-                ((EntityTrackerSection) section).removeListenToMovementOnce(this);
+            if (!this.sectionsNotListeningTo.remove(section)) {
+                ((EntityTrackerSection) section).removeListenToMovementOnce(this, this.trackedClass);
             }
         }
         this.setChanged(world.getTime());
@@ -133,22 +137,21 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
     public void onSectionEnteredRange(EntityTrackerSection section) {
         this.setChanged(this.trackedWorldSections.world().getTime());
         //noinspection SuspiciousMethodCalls
-        this.sectionVisible[this.sortedSections.lastIndexOf(section)] = true;
-        this.sectionChangeCounters.add(section.getMovementTimestampArray());
+        int sectionIndex = this.sortedSections.lastIndexOf(section);
+        this.sectionVisible[sectionIndex] = true;
 
-        if (this.nearbyEntityMovementListeners != null && !this.nearbyEntityMovementListeners.isEmpty()) {
-            section.listenToMovementOnce(this);
-        }
+        this.sectionsNotListeningTo.add(section);
     }
 
     public void onSectionLeftRange(EntityTrackerSection section) {
         this.setChanged(this.trackedWorldSections.world().getTime());
         //noinspection SuspiciousMethodCalls
-        this.sectionVisible[this.sortedSections.indexOf(section)] = false;
-        this.sectionChangeCounters.remove(section.getMovementTimestampArray());
+        int sectionIndex = this.sortedSections.lastIndexOf(section);
 
-        if (this.nearbyEntityMovementListeners != null && !this.nearbyEntityMovementListeners.isEmpty()) {
-            section.removeListenToMovementOnce(this);
+        this.sectionVisible[sectionIndex] = false;
+
+        if (!this.sectionsNotListeningTo.remove(section)) {
+            section.removeListenToMovementOnce(this, this.trackedClass);
         }
     }
 
@@ -165,23 +168,24 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
         if (this.nearbyEntityMovementListeners == null) {
             this.nearbyEntityMovementListeners = new ArrayList<>();
         }
-        if (this.nearbyEntityMovementListeners.isEmpty()) {
-            for (EntityTrackingSection<E> eEntityTrackingSection : this.sortedSections) {
-                ((EntityTrackerSection) eEntityTrackingSection).listenToMovementOnce(this);
-            }
-        }
         this.nearbyEntityMovementListeners.add(listener);
+
+        if (!this.sectionsNotListeningTo.isEmpty()) {
+            this.setChanged(this.listenToAllSectionsAndGetMaxChangeTime());
+        }
+
     }
 
-    public void emitEntityMovement(int classMask) {
+    public void emitEntityMovement(int classMask, EntityTrackerSection section) {
         if ((classMask & (1 << this.trackedClass)) != 0) {
-            ArrayList<NearbyEntityMovementListener> nearbyEntityMovementListeners = this.nearbyEntityMovementListeners;
-            if (nearbyEntityMovementListeners != null) {
-                for (int i = nearbyEntityMovementListeners.size() - 1; i >= 0; i--) {
-                    NearbyEntityMovementListener nearbyEntityMovementListener = nearbyEntityMovementListeners.remove(i);
-                    nearbyEntityMovementListener.handleEntityMovement(this.clazz);
+            ArrayList<NearbyEntityMovementListener> listeners = this.nearbyEntityMovementListeners;
+            if (listeners != null) {
+                for (int i = listeners.size() - 1; i >= 0; i--) {
+                    NearbyEntityMovementListener listener = listeners.remove(i);
+                    listener.handleEntityMovement(this.clazz);
                 }
             }
+            this.sectionsNotListeningTo.add(section);
         }
     }
 }

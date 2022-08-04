@@ -18,7 +18,9 @@ public interface EntityTrackerSection {
 
     long[] getMovementTimestampArray();
 
-    <S, E extends EntityLike> void listenToMovementOnce(SectionedEntityMovementTracker<E, S> listener);
+    long getChangeTime(int trackedClass);
 
-    <S, E extends EntityLike> void removeListenToMovementOnce(SectionedEntityMovementTracker<E, S> listener);
+    <S, E extends EntityLike> void listenToMovementOnce(SectionedEntityMovementTracker<E, S> listener, int trackedClass);
+
+    <S, E extends EntityLike> void removeListenToMovementOnce(SectionedEntityMovementTracker<E, S> listener, int trackedClass);
 }

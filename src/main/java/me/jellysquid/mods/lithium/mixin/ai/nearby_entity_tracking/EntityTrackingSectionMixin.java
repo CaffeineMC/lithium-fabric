@@ -36,7 +36,8 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
 
     private final ReferenceOpenHashSet<NearbyEntityListener> nearbyEntityListeners = new ReferenceOpenHashSet<>(0);
     private final ReferenceOpenHashSet<SectionedEntityMovementTracker<?, ?>> sectionVisibilityListeners = new ReferenceOpenHashSet<>(0);
-    private ArrayList<SectionedEntityMovementTracker<?, ?>> entityMovementListeners = null;
+    @SuppressWarnings("unchecked")
+    private final ArrayList<SectionedEntityMovementTracker<?, ?>>[] entityMovementListenersByType = new ArrayList[EntityTrackerEngine.NUM_MOVEMENT_NOTIFYING_CLASSES];
     private final long[] lastEntityMovementByType = new long[EntityTrackerEngine.NUM_MOVEMENT_NOTIFYING_CLASSES];
 
     @Override
@@ -82,23 +83,29 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
         long[] lastEntityMovementByType = this.lastEntityMovementByType;
         int size = lastEntityMovementByType.length;
         int mask;
-        for (int i = Integer.numberOfTrailingZeros(notificationMask); i < size; ) {
-            lastEntityMovementByType[i] = time;
-            mask = 0xffff_fffe << i;
-            i = Integer.numberOfTrailingZeros(notificationMask & mask);
-        }
+        for (int entityClassIndex = Integer.numberOfTrailingZeros(notificationMask); entityClassIndex < size; ) {
+            lastEntityMovementByType[entityClassIndex] = time;
+            mask = 0xffff_fffe << entityClassIndex;
+            entityClassIndex = Integer.numberOfTrailingZeros(notificationMask & mask);
 
-        ArrayList<SectionedEntityMovementTracker<?, ?>> entityMovementListeners = this.entityMovementListeners;
-        if (entityMovementListeners != null && !entityMovementListeners.isEmpty()) {
-            for (int i = entityMovementListeners.size() - 1; i >= 0; i--) {
-                SectionedEntityMovementTracker<?, ?> sectionedEntityMovementTracker = entityMovementListeners.remove(i);
-                sectionedEntityMovementTracker.emitEntityMovement(notificationMask);
+            ArrayList<SectionedEntityMovementTracker<?, ?>> entityMovementListeners = this.entityMovementListenersByType[entityClassIndex];
+            if (entityMovementListeners != null) {
+                for (int listIndex = entityMovementListeners.size() - 1; listIndex >= 0; listIndex--) {
+                    SectionedEntityMovementTracker<?, ?> sectionedEntityMovementTracker = entityMovementListeners.remove(listIndex);
+                    sectionedEntityMovementTracker.emitEntityMovement(notificationMask, this);
+                }
             }
         }
     }
 
+    @Override
     public long[] getMovementTimestampArray() {
         return this.lastEntityMovementByType;
+    }
+
+    @Override
+    public long getChangeTime(int trackedClass) {
+        return this.lastEntityMovementByType[trackedClass];
     }
 
     @Inject(method = "isEmpty()Z", at = @At(value = "HEAD"), cancellable = true)
@@ -161,17 +168,17 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
     }
 
     @Override
-    public <S, E extends EntityLike> void listenToMovementOnce(SectionedEntityMovementTracker<E, S> listener) {
-        if (this.entityMovementListeners == null) {
-            this.entityMovementListeners = new ArrayList<>();
+    public <S, E extends EntityLike> void listenToMovementOnce(SectionedEntityMovementTracker<E, S> listener, int trackedClass) {
+        if (this.entityMovementListenersByType[trackedClass] == null) {
+            this.entityMovementListenersByType[trackedClass] = new ArrayList<>();
         }
-        this.entityMovementListeners.add(listener);
+        this.entityMovementListenersByType[trackedClass].add(listener);
     }
 
     @Override
-    public <S, E extends EntityLike> void removeListenToMovementOnce(SectionedEntityMovementTracker<E, S> listener) {
-        if (this.entityMovementListeners != null) {
-            this.entityMovementListeners.remove(listener);
+    public <S, E extends EntityLike> void removeListenToMovementOnce(SectionedEntityMovementTracker<E, S> listener, int trackedClass) {
+        if (this.entityMovementListenersByType[trackedClass] != null) {
+            this.entityMovementListenersByType[trackedClass].remove(listener);
         }
     }
 }
