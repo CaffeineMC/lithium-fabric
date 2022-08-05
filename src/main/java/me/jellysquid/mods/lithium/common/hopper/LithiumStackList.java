@@ -2,7 +2,6 @@ package me.jellysquid.mods.lithium.common.hopper;
 
 import me.jellysquid.mods.lithium.api.inventory.LithiumDefaultedList;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
-import me.jellysquid.mods.lithium.common.block.entity.inventory_comparator_tracking.ComparatorTracker;
 import me.jellysquid.mods.lithium.mixin.block.hopper.DefaultedListAccessor;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventory;
@@ -227,13 +226,11 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
      * @param inventory       the blockentity / inventory that this stacklist is inside
      */
     public void runComparatorUpdatePatternOnFailedExtract(LithiumStackList masterStackList, Inventory inventory) {
-        if (!(inventory instanceof ComparatorTracker comparatorTracker) || comparatorTracker.hasAnyComparatorNearby()) {
-            if (inventory instanceof BlockEntity) {
-                if (this.cachedComparatorUpdatePattern == null) {
-                    this.cachedComparatorUpdatePattern = HopperHelper.determineComparatorUpdatePattern(inventory, masterStackList);
-                }
-                this.cachedComparatorUpdatePattern.apply((BlockEntity) inventory, masterStackList);
+        if (inventory instanceof BlockEntity) {
+            if (this.cachedComparatorUpdatePattern == null) {
+                this.cachedComparatorUpdatePattern = HopperHelper.determineComparatorUpdatePattern(inventory, masterStackList);
             }
+            this.cachedComparatorUpdatePattern.apply((BlockEntity) inventory, masterStackList);
         }
     }
 

@@ -220,7 +220,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
 
         if (hopperStackList.getModCount() == hopperBlockEntity.myModCountAtLastExtract) {
             if (fromStackList.getModCount() == hopperBlockEntity.extractStackListModCount) {
-                if (!(from instanceof ComparatorTracker comparatorTracker) || !comparatorTracker.hasAnyComparatorNearby()) {
+                if (!(from instanceof ComparatorTracker comparatorTracker) || comparatorTracker.hasAnyComparatorNearby()) {
                     //noinspection CollectionAddedToSelf
                     fromStackList.runComparatorUpdatePatternOnFailedExtract(fromStackList, from);
                 }
