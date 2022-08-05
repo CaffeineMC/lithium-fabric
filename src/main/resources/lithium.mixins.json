@@ -55,6 +55,7 @@
     "block.flatten_states.AbstractBlockStateMixin",
     "block.flatten_states.FluidStateMixin",
     "block.hopper.AbstractMinecartEntityMixin",
+    "block.hopper.ChestBoatEntityMixin",
     "block.hopper.ComposterBlockComposterInventoryMixin",
     "block.hopper.DefaultedListAccessor",
     "block.hopper.DoubleInventoryAccessor",
