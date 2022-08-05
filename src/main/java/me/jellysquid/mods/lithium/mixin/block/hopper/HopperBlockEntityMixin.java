@@ -99,7 +99,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     private Box insertInventoryEntityBox;
     private long insertInventoryEntityFailedSearchTime;
 
-    private long modCountBeforePreviousTransferAttempt = Long.MIN_VALUE;
+    private boolean shouldCheckSleep;
 
     @Redirect(method = "extract(Lnet/minecraft/world/World;Lnet/minecraft/block/entity/Hopper;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getInputInventory(Lnet/minecraft/world/World;Lnet/minecraft/block/entity/Hopper;)Lnet/minecraft/inventory/Inventory;"))
     private static Inventory getExtractInventory(World world, Hopper hopper) {
@@ -120,6 +120,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             return null;
         }
         hopperBlockEntity.extractInventoryEntityFailedSearchTime = Long.MIN_VALUE;
+        hopperBlockEntity.shouldCheckSleep = false;
 
         List<Inventory> inventoryEntities = hopperBlockEntity.extractInventoryEntityTracker.getEntities(hopperBlockEntity.extractInventoryEntityBox);
         if (inventoryEntities.isEmpty()) {
@@ -334,6 +335,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             return Collections.emptyList();
         }
         hopperBlockEntity.myModCountAtLastItemCollect = modCount;
+        hopperBlockEntity.shouldCheckSleep = false;
 
         List<ItemEntity> itemEntities = hopperBlockEntity.collectItemEntityTracker.getEntities(hopperBlockEntity.collectItemEntityBoxes);
         hopperBlockEntity.collectItemEntityAttemptTime = hopperBlockEntity.lastTickTime;
@@ -529,6 +531,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             return null;
         }
         this.insertInventoryEntityFailedSearchTime = Long.MIN_VALUE;
+        this.shouldCheckSleep = false;
 
         List<Inventory> inventoryEntities = this.insertInventoryEntityTracker.getEntities(this.insertInventoryEntityBox);
         if (inventoryEntities.isEmpty()) {
@@ -613,7 +616,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     }
 
     private void invalidateCachedData() {
-        this.modCountBeforePreviousTransferAttempt = Long.MIN_VALUE;
+        this.shouldCheckSleep = false;
         this.invalidateInsertionData();
         this.invalidateExtractionData();
     }
@@ -696,6 +699,10 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         if (this.needsCooldown()) {
             return;
         }
+        if (!this.shouldCheckSleep) {
+            this.shouldCheckSleep = true;
+            return;
+        }
         //TODO check sleeping conditions less often, otherwise this might be quite expensive
         if (this instanceof SleepingBlockEntity thisSleepingBlockEntity) {
             if (this instanceof InventoryChangeTracker thisTracker) {
@@ -705,13 +712,8 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                 boolean listenToInsertEntities = false;
 
                 LithiumStackList thisStackList = InventoryHelper.getLithiumStackList(this);
-                long modCount = thisStackList.getModCount();
-                if (this.modCountBeforePreviousTransferAttempt != modCount) {
-                    this.modCountBeforePreviousTransferAttempt = modCount;
-                    return;
-                }
-                boolean full = this.isFull();
-                if (this.extractionMode != HopperCachingState.BlockInventory.BLOCK_STATE && !full) {
+
+                if (this.extractionMode != HopperCachingState.BlockInventory.BLOCK_STATE && !this.isFull()) {
                     if (this.extractionMode == HopperCachingState.BlockInventory.REMOVAL_TRACKING_BLOCK_ENTITY) {
                         Inventory blockInventory = this.extractBlockInventory;
                         if (this.extractStackList != null &&
@@ -725,11 +727,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                             return;
                         }
                     } else if (this.extractionMode == HopperCachingState.BlockInventory.NO_BLOCK_INVENTORY) {
-                        if (this.extractInventoryEntityFailedSearchTime == this.lastTickTime && this.collectItemEntityAttemptTime == this.lastTickTime) {
-                            listenToExtractEntities = true;
-                        } else {
-                            return;
-                        }
+                        listenToExtractEntities = true;
                     } else {
                         return;
                     }
@@ -743,9 +741,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                             return;
                         }
                     } else if (this.insertionMode == HopperCachingState.BlockInventory.NO_BLOCK_INVENTORY) {
-                        if (this.insertInventoryEntityFailedSearchTime == this.lastTickTime) {
-                            listenToInsertEntities = true;
-                        }
+                        listenToInsertEntities = true;
                     } else {
                         return;
                     }
