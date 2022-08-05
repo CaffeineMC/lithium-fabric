@@ -57,15 +57,14 @@ attempt can be skipped, as it is guaranteed to fail like the previous attempt. S
 Entity present last time, and no Inventory Entities have moved or appeared, the hopper does not need to search for
 Inventory Entities.
 
+# Comparator Caching
+
+Block entities lazily initialize whether there is any comparator near them. Placing a comparator updates the value for
+nearby block entities. Breaking a comparator does not reset it until the block entity is reloaded.
+
 ## Further Development
 
-These ideas are not implemented in Lithium so far:
-
-Cache whether any comparator can be updated from a given inventory. This could be used to skip the comparator updates.
-This might be hard to do over chunk boundaries, but the inner 12x12 of a chunk is probably safe.
-
-Cache whether a LithiumStackList is empty or full. Do not forget directional behavior of SidedInventories. This could
-speed up the empty and full inventory checks.
+If any bugs show up, they will need to be fixed.
 
 ## How Lithium hoppers work different from vanilla
 
@@ -93,11 +92,6 @@ speed up the empty and full inventory checks.
         - Parent Stack list
             - Only used when stack lists is a double chest half
             - Set when double stack list is created when double inventory is accessed by a hopper
-
-- Block Entities:
-    - Times removed from the world (int)
-        - usually 0, but mods like Movable Block Entities might add Block Entities to the world after removing them
-        - also increased when chests change their BlockState
 
 - Lithium Sectioned Entity Movement Trackers:
     - Certain classes of Entities are configured to be tracked: Inventory and ItemEntity
@@ -139,6 +133,7 @@ speed up the empty and full inventory checks.
             - UNKNOWN: Not yet determined
             - BLOCK_STATE: Composter or similar
             - BLOCK_ENTITY: Block Entity inventory or double chest
+            - REMOVAL_TRACKING_BLOCK_ENTITY: Block Entity inventory or double chest but with inventory tracking
             - NO_BLOCK_INVENTORY: Interact with entities
         - Current insertion / extraction inventory (only block inventories)
         - Current expected block entity removal count for each current insertion / extraction inventory (only
@@ -171,6 +166,9 @@ speed up the empty and full inventory checks.
         - BLOCK_ENTITY:
             - check the expected removal count of the block entity, invalidate the cache if it changed
             - use the cached inventory if not invalidated, otherwise UNKNOWN cache state
+        - REMOVAL_TRACKING_BLOCK_ENTITY
+            - use the cached inventory. Subscribe to the cached inventory for major changes (removed from world) and
+              invalidate the cache when handling those events if necessary.
         - NO_BLOCK_INVENTORY:
             - skip interacting with block inventory
         - Hopper receives a block/observer update from top or hopper's face:
@@ -192,3 +190,26 @@ speed up the empty and full inventory checks.
               tracker guarantees that no item entity positions changed since the last search
             - Get item entities, update the stored modification counter, the search timestamp and whether the search box
               is empty.
+
+        - Hopper decides to sleep at the end of it ticking if:
+            - The hopper is not on cooldown
+            - The hopper inventory wasn't modified during the current hopper ticking
+            - When querying inventory entities: No inventory entity was found in the interaction area and no inventory
+              entity moved in the nearby chunk sections in the last and current tick
+            - When interacting with inventory blocks: The inventory block is blockstate-based (composter) or supports
+              inventory change tracking (double inventory + vanilla block entities).
+            - When interacting with item entities: No item entity changed in the nearby chunk sections in the last and
+              current tick
+            - When extracting from a block entity: The hopper is not constantly sending comparator updates around the
+              block entity that it is extracting from, or the comparator updates are not detectable, because there are
+              no comparators within 2 blocks horizontal distance around the block entity (comparator rotation or block
+              in between are not checked)
+        - Hopper starts sleeping by subscribing to the relevant tracked inventories and subscribing to the relevant
+          entity trackers. It also subscribes to itself for inventory changes.
+        - When the hopper receives any event from the subscribed trackers, it will wake up and invalidate cached
+          information if needed (e.g. inventory removal event -> invalidate cached data for this inventory)
+        - When the hopper is set on cooldown it wakes up. However, to handle the 7gt/8gt cooldown case when being set to
+          cooldown when receiving an item from another hopper, the hopper will receive a 7gt cooldown but only wake up
+          in the next gametick.
+        - More hopper sleeping capabilities in the general block entity sleeping code (Locked & Not on cooldown
+          sleeping)
