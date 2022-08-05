@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.api.inventory;
 
 import net.minecraft.block.entity.LootableContainerBlockEntity;
-import net.minecraft.entity.vehicle.StorageMinecartEntity;
+import net.minecraft.entity.vehicle.VehicleInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
@@ -54,8 +54,8 @@ public interface LithiumInventory extends Inventory {
         if (this instanceof LootableContainerBlockEntity) {
             ((LootableContainerBlockEntity) this).checkLootInteraction(null);
         }
-        if (this instanceof StorageMinecartEntity) {
-            ((StorageMinecartEntity) this).generateInventoryLoot(null);
+        if (this instanceof VehicleInventory) {
+            ((VehicleInventory) this).generateInventoryLoot(null);
         }
     }
 }
