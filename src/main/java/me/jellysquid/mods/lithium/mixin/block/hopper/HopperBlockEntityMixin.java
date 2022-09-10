@@ -754,10 +754,19 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                     ((InventoryChangeTracker) this.insertBlockInventory).listenForContentChangesOnce(this.insertStackList, this);
                 }
                 if (listenToInsertEntities) {
+                    if (this.insertInventoryEntityTracker == null) {
+                        this.initInsertInventoryTracker(this.world, this.getCachedState());
+                    }
                     this.insertInventoryEntityTracker.listenToEntityMovementOnce(this);
                 }
                 if (listenToExtractEntities) {
+                    if (this.extractInventoryEntityTracker == null) {
+                        this.initExtractInventoryTracker(this.world);
+                    }
                     this.extractInventoryEntityTracker.listenToEntityMovementOnce(this);
+                    if (this.collectItemEntityTracker == null) {
+                        this.initCollectItemEntityTracker();
+                    }
                     this.collectItemEntityTracker.listenToEntityMovementOnce(this);
                 }
                 thisTracker.listenForContentChangesOnce(thisStackList, this);
