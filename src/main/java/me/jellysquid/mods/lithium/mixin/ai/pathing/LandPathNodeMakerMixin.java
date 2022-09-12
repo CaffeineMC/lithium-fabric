@@ -13,7 +13,9 @@ import net.minecraft.world.CollisionView;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Determining the type of node offered by a block state is a very slow operation due to the nasty chain of tag,
@@ -27,8 +29,8 @@ public abstract class LandPathNodeMakerMixin {
      * @reason Use optimized implementation
      * @author JellySquid
      */
-    @Overwrite
-    public static PathNodeType getCommonNodeType(BlockView blockView, BlockPos blockPos) {
+    @Inject(method = "getCommonNodeType", at = @At("HEAD"), cancellable = true)
+    private static void getCommonNodeType(BlockView blockView, BlockPos blockPos, CallbackInfoReturnable<PathNodeType> cir) {
         BlockState blockState = blockView.getBlockState(blockPos);
         PathNodeType type = PathNodeCache.getPathNodeType(blockState);
 
@@ -39,23 +41,25 @@ public abstract class LandPathNodeMakerMixin {
             // It should be safe to perform it last in actuality and take advantage of the cache for fluid types as well
             // since fluids will always pass this check.
             if (!blockState.canPathfindThrough(blockView, blockPos, NavigationType.LAND)) {
-                return PathNodeType.BLOCKED;
+                cir.setReturnValue(PathNodeType.BLOCKED);
+                return;
             }
 
             // All checks succeed, this path node really is open!
-            return type;
+            cir.setReturnValue(type);
+            return;
         }
 
         // Return the cached value since we found an obstacle earlier
-        return type;
+        cir.setReturnValue(type);
     }
 
     /**
      * @reason Use optimized implementation which avoids scanning blocks for dangers where possible
      * @author JellySquid
      */
-    @Overwrite
-    public static PathNodeType getNodeTypeFromNeighbors(BlockView world, BlockPos.Mutable pos, PathNodeType type) {
+    @Inject(method = "getNodeTypeFromNeighbors", at = @At("HEAD"), cancellable = true)
+    private static void getNodeTypeFromNeighbors(BlockView world, BlockPos.Mutable pos, PathNodeType type, CallbackInfoReturnable<PathNodeType> cir) {
         int x = pos.getX();
         int y = pos.getY();
         int z = pos.getZ();
@@ -82,7 +86,8 @@ public abstract class LandPathNodeMakerMixin {
             // section is empty or contains any dangerous blocks within the palette. If not, we can assume any checks
             // against this chunk section will always fail, allowing us to fast-exit.
             if (section == null || PathNodeCache.isSectionSafeAsNeighbor(section)) {
-                return type;
+                cir.setReturnValue(type);
+                return;
             }
         }
 
@@ -121,12 +126,13 @@ public abstract class LandPathNodeMakerMixin {
                     PathNodeType neighborType = PathNodeCache.getNeighborPathNodeType(state);
 
                     if (neighborType != PathNodeType.OPEN) {
-                        return neighborType;
+                        cir.setReturnValue(neighborType);
+                        return;
                     }
                 }
             }
         }
 
-        return type;
+        cir.setReturnValue(type);
     }
 }

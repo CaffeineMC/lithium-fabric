@@ -1,9 +1,8 @@
 package me.jellysquid.mods.lithium.mixin.ai.pathing;
 
-import me.jellysquid.mods.lithium.api.pathing.BlockPathingBehavior;
 import me.jellysquid.mods.lithium.common.ai.pathing.BlockStatePathingCache;
+import me.jellysquid.mods.lithium.common.ai.pathing.PathNodeDefaults;
 import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import org.apache.commons.lang3.Validate;
@@ -21,25 +20,30 @@ public abstract class AbstractBlockStateMixin implements BlockStatePathingCache 
     @Inject(method = "initShapeCache()V", at = @At("RETURN"))
     private void init(CallbackInfo ci) {
         BlockState state = this.asBlockState();
-        BlockPathingBehavior behavior = (BlockPathingBehavior) this.getBlock();
+        PathNodeType fabricPathNodeType = null;
+        PathNodeType fabricNeighborPathNodeType = null;
 
-        this.pathNodeType = Validate.notNull(behavior.getPathNodeType(state));
-        this.pathNodeTypeNeighbor = Validate.notNull(behavior.getPathNodeTypeAsNeighbor(state));
+        // todo after fabric-api is updated, add it "as reference" (not dependency), and use this "if", when loaded.
+        // This will load custom node types provided by other mods.
+        //if (state instanceof FabricAbstractBlockState fstate) {
+        //    fabricPathNodeType = fstate.getPathNodeType();
+        //    fabricNeighborPathNodeType = fstate.getNeighborPathNodeType();
+        //}
+
+        this.pathNodeType = fabricPathNodeType != null ? fabricPathNodeType : Validate.notNull(PathNodeDefaults.getNodeType(state));
+        this.pathNodeTypeNeighbor = fabricNeighborPathNodeType != null ? fabricNeighborPathNodeType : Validate.notNull(PathNodeDefaults.getNeighborNodeType(state));
     }
 
     @Override
-    public PathNodeType getPathNodeType() {
+    public PathNodeType getLithiumPathNodeType() {
         return this.pathNodeType;
     }
 
     @Override
-    public PathNodeType getNeighborPathNodeType() {
+    public PathNodeType getLithiumNeighborPathNodeType() {
         return this.pathNodeTypeNeighbor;
     }
 
     @Shadow
     protected abstract BlockState asBlockState();
-
-    @Shadow
-    public abstract Block getBlock();
 }

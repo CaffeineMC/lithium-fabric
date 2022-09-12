@@ -14,11 +14,11 @@ public abstract class PathNodeCache {
     }
 
     public static PathNodeType getPathNodeType(BlockState state) {
-        return ((BlockStatePathingCache) state).getPathNodeType();
+        return ((BlockStatePathingCache) state).getLithiumPathNodeType();
     }
 
     public static PathNodeType getNeighborPathNodeType(AbstractBlock.AbstractBlockState state) {
-        return ((BlockStatePathingCache) state).getNeighborPathNodeType();
+        return ((BlockStatePathingCache) state).getLithiumNeighborPathNodeType();
     }
 
     /**
