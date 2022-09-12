@@ -126,7 +126,7 @@ public class LithiumConfig {
 
         this.addMixinRule("util", true);
         this.addMixinRule("util.entity_section_position", true);
-        this.addMixinRule("util.world_border_listener", true);
+        this.addMixinRule("util.world_border_listener", false); //Disabled due to memory leak
         this.addMixinRule("util.inventory_change_listening", true);
         this.addMixinRule("util.inventory_comparator_tracking", true);
 
@@ -140,7 +140,7 @@ public class LithiumConfig {
         this.addMixinRule("world.block_entity_ticking.sleeping.hopper", true);
         this.addMixinRule("world.block_entity_ticking.sleeping.shulker_box", true);
         this.addMixinRule("world.block_entity_ticking.support_cache", false); //have to check whether the cached state bugfix fixes any detectable vanilla bugs first
-        this.addMixinRule("world.block_entity_ticking.world_border", true);
+        this.addMixinRule("world.block_entity_ticking.world_border", false); //Disabled due to memory leak
         this.addMixinRule("world.chunk_access", true);
         this.addMixinRule("world.chunk_tickets", true);
         this.addMixinRule("world.chunk_ticking", true);
