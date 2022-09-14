@@ -52,7 +52,7 @@ public class BlockStateFlags {
             PATH_NOT_OPEN = new TrackedBlockStatePredicate(allFlags.size()) {
                 @Override
                 public boolean test(BlockState operand) {
-                    return PathNodeCache.getNeighborPathNodeType(operand) != PathNodeType.OPEN;
+                    return PathNodeCache.getCachedNeighborPathNodeType(operand) != PathNodeType.OPEN;
                 }
             };
             allFlags.add(PATH_NOT_OPEN);

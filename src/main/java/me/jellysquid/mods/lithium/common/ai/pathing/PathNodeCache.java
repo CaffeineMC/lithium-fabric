@@ -2,23 +2,54 @@ package me.jellysquid.mods.lithium.common.ai.pathing;
 
 import me.jellysquid.mods.lithium.common.block.BlockCountingSection;
 import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
-import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.pathing.PathNodeType;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.chunk.ChunkSection;
+import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class PathNodeCache {
     private static boolean isChunkSectionDangerousNeighbor(ChunkSection section) {
         return section.getBlockStateContainer()
-                .hasAny(state -> getNeighborPathNodeType(state) != PathNodeType.OPEN);
+                .hasAny(state -> getCachedNeighborPathNodeType(state) != PathNodeType.OPEN);
     }
 
-    public static PathNodeType getPathNodeType(BlockState state) {
-        return ((BlockStatePathingCache) state).getLithiumPathNodeType();
+    @Nullable
+    public static PathNodeType getCachedPathNodeType(BlockState state) {
+        return ((BlockStatePathingCache) state).getCachedPathNodeType();
     }
 
-    public static PathNodeType getNeighborPathNodeType(AbstractBlock.AbstractBlockState state) {
-        return ((BlockStatePathingCache) state).getLithiumNeighborPathNodeType();
+    @Nullable
+    public static PathNodeType getCachedNeighborPathNodeType(BlockState state) {
+        return ((BlockStatePathingCache) state).getCachedNeighborPathNodeType();
+    }
+
+    public static PathNodeType getOrCachePathNodeType(BlockState state, BlockView world, BlockPos pos) {
+        PathNodeType type = getCachedPathNodeType(state);
+        if (type == null) {
+            //Not cached, need to cache.
+            //todo add support for fapi path node types api.
+            type = Validate.notNull(PathNodeDefaults.getNodeType(state));
+            //todo if the node type is dynamic, don't cache because it cannot be cached.
+            ((BlockStatePathingCache) state).setCachedPathNodeType(type);
+        }
+
+        return type;
+    }
+
+    public static PathNodeType getOrCacheNeighborPathNodeType(BlockState state, BlockView world, BlockPos pos) {
+        PathNodeType type = getCachedNeighborPathNodeType(state);
+        if (type == null) {
+            //Not cached, need to cache.
+            //todo add support for fapi path node types api.
+            type = Validate.notNull(PathNodeDefaults.getNeighborNodeType(state));
+            //todo if the node type is dynamic, don't cache because it cannot be cached.
+            ((BlockStatePathingCache) state).setCachedNeighborPathNodeType(type);
+        }
+
+        return type;
     }
 
     /**

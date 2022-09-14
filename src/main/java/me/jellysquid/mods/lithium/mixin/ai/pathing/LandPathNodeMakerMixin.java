@@ -32,7 +32,7 @@ public abstract class LandPathNodeMakerMixin {
     @Inject(method = "getCommonNodeType", at = @At("HEAD"), cancellable = true)
     private static void getCommonNodeType(BlockView blockView, BlockPos blockPos, CallbackInfoReturnable<PathNodeType> cir) {
         BlockState blockState = blockView.getBlockState(blockPos);
-        PathNodeType type = PathNodeCache.getPathNodeType(blockState);
+        PathNodeType type = PathNodeCache.getOrCachePathNodeType(blockState, blockView, blockPos);
 
         // If the node type is open, it means that we were unable to determine a more specific type, so we need
         // to check the fallback path.
@@ -123,7 +123,7 @@ public abstract class LandPathNodeMakerMixin {
                         continue;
                     }
 
-                    PathNodeType neighborType = PathNodeCache.getNeighborPathNodeType(state);
+                    PathNodeType neighborType = PathNodeCache.getOrCacheNeighborPathNodeType(state, world, pos);
 
                     if (neighborType != PathNodeType.OPEN) {
                         cir.setReturnValue(neighborType);
