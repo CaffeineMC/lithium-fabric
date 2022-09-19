@@ -690,20 +690,20 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     )
     private static void checkSleepingConditions(World world, BlockPos pos, BlockState state, HopperBlockEntity blockEntity, CallbackInfo ci) {
         ((HopperBlockEntityMixin) (Object) blockEntity).checkSleepingConditions();
-        //TODO only check this when not powered, currently the condition is checked twice when becoming powered or something
-
     }
 
     private void checkSleepingConditions() {
         if (this.needsCooldown()) {
             return;
         }
-        if (!this.shouldCheckSleep) {
-            this.shouldCheckSleep = true;
-            return;
-        }
-        //TODO check sleeping conditions less often, otherwise this might be quite expensive
         if (this instanceof SleepingBlockEntity thisSleepingBlockEntity) {
+            if (thisSleepingBlockEntity.isSleeping()) {
+                return;
+            }
+            if (!this.shouldCheckSleep) {
+                this.shouldCheckSleep = true;
+                return;
+            }
             if (this instanceof InventoryChangeTracker thisTracker) {
                 boolean listenToExtractTracker = false;
                 boolean listenToInsertTracker = false;

@@ -80,6 +80,10 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
 
     @Override
     public boolean startSleeping() {
+        if (this.isSleeping()) {
+            return false;
+        }
+
         WrappedBlockEntityTickInvokerAccessor tickWrapper = this.getTickWrapper();
         if (tickWrapper != null) {
             this.setSleepingTicker(tickWrapper.getWrapped());
@@ -102,6 +106,8 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
         if (transferCooldown == 7) {
             if (this.lastTickTime == Long.MAX_VALUE) {
                 this.sleepOnlyCurrentTick();
+            } else {
+                this.wakeUpNow();
             }
         } else if (transferCooldown > 0 && this.sleepingTicker != null) {
             this.wakeUpNow();

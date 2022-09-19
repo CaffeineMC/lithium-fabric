@@ -33,6 +33,10 @@ public interface SleepingBlockEntity {
     void setSleepingTicker(BlockEntityTickInvoker sleepingTicker);
 
     default boolean startSleeping() {
+        if (this.isSleeping()) {
+            return false;
+        }
+
         WrappedBlockEntityTickInvokerAccessor tickWrapper = this.getTickWrapper();
         if (tickWrapper == null) {
             return false;
