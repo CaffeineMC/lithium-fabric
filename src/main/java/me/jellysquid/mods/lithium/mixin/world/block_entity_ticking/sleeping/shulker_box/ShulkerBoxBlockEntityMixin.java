@@ -18,6 +18,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class ShulkerBoxBlockEntityMixin implements SleepingBlockEntity {
     @Shadow
     private ShulkerBoxBlockEntity.AnimationStage animationStage;
+    @Shadow
+    private float animationProgress;
+    @Shadow
+    private float prevAnimationProgress;
     private WrappedBlockEntityTickInvokerAccessor tickWrapper = null;
     private BlockEntityTickInvoker sleepingTicker = null;
 
@@ -53,14 +57,10 @@ public class ShulkerBoxBlockEntityMixin implements SleepingBlockEntity {
 
     @Inject(
             method = "updateAnimation",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/block/entity/ShulkerBoxBlockEntity;updateNeighborStates(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V",
-                    ordinal = 1
-            )
+            at = @At(value = "RETURN")
     )
     private void sleepOnAnimationEnd(World world, BlockPos pos, BlockState state, CallbackInfo ci) {
-        if (this.animationStage == ShulkerBoxBlockEntity.AnimationStage.CLOSED) {
+        if (this.animationStage == ShulkerBoxBlockEntity.AnimationStage.CLOSED && this.prevAnimationProgress == 0.0f && this.animationProgress == 0.0f) {
             this.startSleeping();
         }
     }
