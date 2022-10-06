@@ -17,7 +17,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
@@ -47,10 +46,9 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> implements T
         this.notifyMovementListeners();
     }
 
-    @ModifyVariable(method = "updateEntityPosition()V", at = @At("RETURN"))
-    private long updateEntityTrackerEngine(long sectionPos) {
+    @Inject(method = "updateEntityPosition()V", at = @At("RETURN"))
+    private void updateEntityTrackerEngine(CallbackInfo ci) {
         this.notifyMovementListeners();
-        return sectionPos;
     }
 
     @Inject(

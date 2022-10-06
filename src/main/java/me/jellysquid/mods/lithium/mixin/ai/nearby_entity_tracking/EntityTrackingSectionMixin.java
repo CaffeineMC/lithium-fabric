@@ -128,14 +128,13 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
         }
     }
 
-    @ModifyVariable(method = "remove(Lnet/minecraft/world/entity/EntityLike;)Z", at = @At("RETURN"), argsOnly = true)
-    private T onEntityRemoved(final T entityLike) {
+    @Inject(method = "remove(Lnet/minecraft/world/entity/EntityLike;)Z", at = @At("RETURN"))
+    private void onEntityRemoved(T entityLike, CallbackInfoReturnable<Boolean> cir) {
         if (this.status.shouldTrack() && !this.nearbyEntityListeners.isEmpty() && entityLike instanceof Entity entity) {
             for (NearbyEntityListener nearbyEntityListener : this.nearbyEntityListeners) {
                 nearbyEntityListener.onEntityLeftRange(entity);
             }
         }
-        return entityLike;
     }
 
     @ModifyVariable(method = "swapStatus(Lnet/minecraft/world/entity/EntityTrackingStatus;)Lnet/minecraft/world/entity/EntityTrackingStatus;", at = @At(value = "HEAD"), argsOnly = true)

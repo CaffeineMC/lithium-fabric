@@ -21,8 +21,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -128,8 +128,8 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
         }
     }
 
-    @ModifyVariable(method = "remove(Lnet/minecraft/world/entity/EntityLike;)Z", at = @At("RETURN"), argsOnly = true)
-    private T onEntityRemoved(final T entityLike) {
+    @Inject(method = "remove(Lnet/minecraft/world/entity/EntityLike;)Z", at = @At("RETURN"))
+    private void onEntityRemoved(T entityLike, CallbackInfoReturnable<Boolean> cir) {
         if (this.pushableEntities != null) {
             if (!this.status.shouldTrack()) {
                 this.stopFilteringPushableEntities();
@@ -137,7 +137,6 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
                 this.pushableEntities.remove((Entity) entityLike);
             }
         }
-        return entityLike;
     }
 
     /**
