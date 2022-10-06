@@ -49,6 +49,7 @@ public class WorldHelper {
         return entityView.getOtherEntities(collidingEntity, box);
     }
 
+    //Requires chunk.entity_class_groups
     public static SectionedEntityCache<Entity> getEntityCacheOrNull(World world) {
         if (world instanceof ClientWorldAccessor) {
             //noinspection unchecked
