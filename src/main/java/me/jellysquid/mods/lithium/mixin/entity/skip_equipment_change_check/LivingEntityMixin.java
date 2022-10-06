@@ -6,18 +6,26 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Map;
+import java.util.function.Predicate;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements EquipmentEntity {
+
+    private static final Predicate<ItemStack> DYNAMIC_EQUIPMENT = item -> item.isOf(Items.CROSSBOW);
+
+    @Shadow
+    public abstract boolean isHolding(Predicate<ItemStack> predicate);
 
     private boolean equipmentChanged = true;
 
@@ -50,7 +58,8 @@ public abstract class LivingEntityMixin extends Entity implements EquipmentEntit
     )
     private void resetEquipmentChanged(CallbackInfo ci) {
         //Not implemented for player entities and modded entities, fallback to never skipping inventory comparison
-        if (this instanceof EquipmentTrackingEntity) {
+        //Work around dynamic items that are changed while holding them (only crossbow in 1.19.2)
+        if (this instanceof EquipmentTrackingEntity && !this.isHolding(DYNAMIC_EQUIPMENT)) {
             this.equipmentChanged = false;
         }
     }
