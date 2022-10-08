@@ -3,7 +3,7 @@ package me.jellysquid.mods.lithium.mixin.entity.collisions.unpushable_cramming;
 import me.jellysquid.mods.lithium.common.entity.pushable.BlockCachingEntity;
 import me.jellysquid.mods.lithium.common.entity.pushable.EntityPushablePredicate;
 import me.jellysquid.mods.lithium.common.entity.pushable.PushableEntityClassGroup;
-import me.jellysquid.mods.lithium.common.util.collections.MaskedList;
+import me.jellysquid.mods.lithium.common.util.collections.ReferenceMaskedList;
 import me.jellysquid.mods.lithium.common.world.ClimbingMobCachingSection;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -40,7 +40,7 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
      * and therefore cannot be pushed (only applied to some entity types) are hidden by the mask until the cache is cleared.
      */
     @Unique
-    private MaskedList<Entity> pushableEntities;
+    private ReferenceMaskedList<Entity> pushableEntities;
 
     @Override
     public void collectPushableEntities(World world, Entity except, Box box, EntityPushablePredicate<? super Entity> entityPushablePredicate, ArrayList<Entity> entities) {
@@ -69,7 +69,7 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
     }
 
     private void startFilteringPushableEntities() {
-        this.pushableEntities = new MaskedList<>();
+        this.pushableEntities = new ReferenceMaskedList<>();
         for (T entity : this.collection) {
             this.onStartClimbingCachingEntity((Entity) entity);
         }
