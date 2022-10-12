@@ -141,6 +141,7 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
         this.sectionVisible[sectionIndex] = true;
 
         this.sectionsNotListeningTo.add(section);
+        this.notifyAllListeners();
     }
 
     public void onSectionLeftRange(EntityTrackerSection section) {
@@ -152,6 +153,7 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
 
         if (!this.sectionsNotListeningTo.remove(section)) {
             section.removeListenToMovementOnce(this, this.trackedClass);
+            this.notifyAllListeners();
         }
     }
 
@@ -178,14 +180,18 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
 
     public void emitEntityMovement(int classMask, EntityTrackerSection section) {
         if ((classMask & (1 << this.trackedClass)) != 0) {
-            ArrayList<NearbyEntityMovementListener> listeners = this.nearbyEntityMovementListeners;
-            if (listeners != null) {
-                for (int i = listeners.size() - 1; i >= 0; i--) {
-                    NearbyEntityMovementListener listener = listeners.remove(i);
-                    listener.handleEntityMovement(this.clazz);
-                }
-            }
+            this.notifyAllListeners();
             this.sectionsNotListeningTo.add(section);
+        }
+    }
+
+    private void notifyAllListeners() {
+        ArrayList<NearbyEntityMovementListener> listeners = this.nearbyEntityMovementListeners;
+        if (listeners != null) {
+            for (int i = listeners.size() - 1; i >= 0; i--) {
+                NearbyEntityMovementListener listener = listeners.remove(i);
+                listener.handleEntityMovement(this.clazz);
+            }
         }
     }
 }
