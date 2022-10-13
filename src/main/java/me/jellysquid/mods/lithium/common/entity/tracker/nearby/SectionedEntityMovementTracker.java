@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
 
 import it.unimi.dsi.fastutil.HashCommon;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngine;
 import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerSection;
 import me.jellysquid.mods.lithium.common.util.tuples.WorldSectionBox;
@@ -25,7 +26,7 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
 
     private long maxChangeTime;
 
-    private ArrayList<NearbyEntityMovementListener> nearbyEntityMovementListeners;
+    private ReferenceOpenHashSet<NearbyEntityMovementListener> nearbyEntityMovementListeners;
 
     public SectionedEntityMovementTracker(WorldSectionBox interactionChunks, Class<S> clazz) {
         this.clazz = clazz;
@@ -168,7 +169,7 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
 
     public void listenToEntityMovementOnce(NearbyEntityMovementListener listener) {
         if (this.nearbyEntityMovementListeners == null) {
-            this.nearbyEntityMovementListeners = new ArrayList<>();
+            this.nearbyEntityMovementListeners = new ReferenceOpenHashSet<>();
         }
         this.nearbyEntityMovementListeners.add(listener);
 
@@ -186,12 +187,12 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
     }
 
     private void notifyAllListeners() {
-        ArrayList<NearbyEntityMovementListener> listeners = this.nearbyEntityMovementListeners;
+        ReferenceOpenHashSet<NearbyEntityMovementListener> listeners = this.nearbyEntityMovementListeners;
         if (listeners != null) {
-            for (int i = listeners.size() - 1; i >= 0; i--) {
-                NearbyEntityMovementListener listener = listeners.remove(i);
+            for (NearbyEntityMovementListener listener : listeners) {
                 listener.handleEntityMovement(this.clazz);
             }
+            listeners.clear();
         }
     }
 }
