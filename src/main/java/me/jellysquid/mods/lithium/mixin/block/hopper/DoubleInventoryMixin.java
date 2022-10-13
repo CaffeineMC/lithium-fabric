@@ -18,8 +18,6 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import java.util.ArrayList;
-
 @Mixin(DoubleInventory.class)
 public abstract class DoubleInventoryMixin implements LithiumInventory, InventoryChangeTracker, InventoryChangeEmitter, InventoryChangeListener, ComparatorTracker {
     @Shadow
@@ -35,17 +33,17 @@ public abstract class DoubleInventoryMixin implements LithiumInventory, Inventor
 
     private LithiumStackList cachedList;
 
-    ArrayList<InventoryChangeListener> inventoryChangeListeners = null;
+    ReferenceOpenHashSet<InventoryChangeListener> inventoryChangeListeners = null;
     ReferenceOpenHashSet<InventoryChangeListener> inventoryHandlingTypeListeners = null;
 
     @Override
     public void emitContentModified() {
-        ArrayList<InventoryChangeListener> inventoryChangeListeners = this.inventoryChangeListeners;
+        ReferenceOpenHashSet<InventoryChangeListener> inventoryChangeListeners = this.inventoryChangeListeners;
         if (inventoryChangeListeners != null) {
-            for (int i = inventoryChangeListeners.size() - 1; i >= 0; i--) {
-                InventoryChangeListener inventoryChangeListener = inventoryChangeListeners.remove(i);
+            for (InventoryChangeListener inventoryChangeListener : inventoryChangeListeners) {
                 inventoryChangeListener.handleInventoryContentModified(this);
             }
+            inventoryChangeListeners.clear();
         }
     }
 
@@ -67,19 +65,19 @@ public abstract class DoubleInventoryMixin implements LithiumInventory, Inventor
 
     @Override
     public void emitFirstComparatorAdded() {
-        ArrayList<InventoryChangeListener> inventoryChangeListeners = this.inventoryChangeListeners;
+        ReferenceOpenHashSet<InventoryChangeListener> inventoryChangeListeners = this.inventoryChangeListeners;
         if (inventoryChangeListeners != null) {
-            for (int i = inventoryChangeListeners.size() - 1; i >= 0; i--) {
-                InventoryChangeListener inventoryChangeListener = inventoryChangeListeners.remove(i);
+            for (InventoryChangeListener inventoryChangeListener : inventoryChangeListeners) {
                 inventoryChangeListener.handleComparatorAdded(this);
             }
+            inventoryChangeListeners.clear();
         }
     }
 
     @Override
     public void forwardContentChangeOnce(InventoryChangeListener inventoryChangeListener, LithiumStackList stackList, InventoryChangeTracker thisTracker) {
         if (this.inventoryChangeListeners == null) {
-            this.inventoryChangeListeners = new ArrayList<>(1);
+            this.inventoryChangeListeners = new ReferenceOpenHashSet<>(1);
         }
         stackList.setInventoryModificationCallback(thisTracker);
         this.inventoryChangeListeners.add(inventoryChangeListener);
