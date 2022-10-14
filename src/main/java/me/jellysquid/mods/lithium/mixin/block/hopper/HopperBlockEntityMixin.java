@@ -5,6 +5,7 @@ import me.jellysquid.mods.lithium.common.block.entity.SleepingBlockEntity;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeListener;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_comparator_tracking.ComparatorTracker;
+import me.jellysquid.mods.lithium.common.compat.fabric_transfer_api_v1.FabricTransferApiCompat;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityMovementListener;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.SectionedInventoryEntityMovementTracker;
 import me.jellysquid.mods.lithium.common.entity.tracker.nearby.SectionedItemEntityMovementTracker;
@@ -726,6 +727,9 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                             return;
                         }
                     } else if (this.extractionMode == HopperCachingState.BlockInventory.NO_BLOCK_INVENTORY) {
+                        if (FabricTransferApiCompat.FABRIC_TRANSFER_API_V_1_PRESENT && FabricTransferApiCompat.canHopperInteractWithApiInventory((HopperBlockEntity) (Object) this, this.getCachedState(), true)) {
+                            return;
+                        }
                         listenToExtractEntities = true;
                     } else {
                         return;
@@ -740,6 +744,9 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                             return;
                         }
                     } else if (this.insertionMode == HopperCachingState.BlockInventory.NO_BLOCK_INVENTORY) {
+                        if (FabricTransferApiCompat.FABRIC_TRANSFER_API_V_1_PRESENT && FabricTransferApiCompat.canHopperInteractWithApiInventory((HopperBlockEntity) (Object) this, this.getCachedState(), false)) {
+                            return;
+                        }
                         listenToInsertEntities = true;
                     } else {
                         return;
