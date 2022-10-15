@@ -78,7 +78,14 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation 'com.github.2No2Name:McTester:v0.3.1'
     modImplementation 'com.github.astei:lazydfu:0.1.2'
-    modCompileOnly "net.fabricmc.fabric-api:fabric-transfer-api-v1:${project.fabric_transfer_api_version}"
+
+    Set<String> fabricApiModulesCompileOnly = [
+            "fabric-transfer-api-v1"
+    ]
+    // Add each fabric api module as a compile only dependency
+     fabricApiModulesCompileOnly.forEach {
+        modCompileOnly(fabricApi.module(it, "${project.fabric_version}"))
+    }
 }
 
 processResources {
