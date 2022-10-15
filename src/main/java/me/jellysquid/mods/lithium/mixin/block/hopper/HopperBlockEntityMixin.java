@@ -33,6 +33,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -151,21 +152,28 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
      * @reason Adding the inventory caching into the static method using mixins seems to be unfeasible without temporarily storing state in static fields.
      */
     @SuppressWarnings("JavadocReference")
-    @Redirect(method = "insertAndExtract(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/entity/HopperBlockEntity;Ljava/util/function/BooleanSupplier;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;insert(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/inventory/Inventory;)Z"))
-    private static boolean lithiumInsert(World world, BlockPos pos, BlockState hopperState, Inventory hopper) {
-        HopperBlockEntityMixin hopperBlockEntity = (HopperBlockEntityMixin) hopper;
-        Inventory insertInventory = hopperBlockEntity.getInsertInventory(world, hopperState);
-        if (insertInventory == null) {
-            //call the vanilla code, but with target inventory nullify (mixin above) to allow other mods inject features
+    @Inject(
+            cancellable = true,
+            method = "insert(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/inventory/Inventory;)Z",
+            at = @At(
+                    value = "INVOKE", shift = At.Shift.BEFORE,
+                    target = "Lnet/minecraft/block/entity/HopperBlockEntity;isInventoryFull(Lnet/minecraft/inventory/Inventory;Lnet/minecraft/util/math/Direction;)Z"
+            ), locals = LocalCapture.CAPTURE_FAILHARD
+    )
+    private static void lithiumInsert(World world, BlockPos pos, BlockState hopperState, Inventory hopper, CallbackInfoReturnable<Boolean> cir, Inventory insertInventory, Direction direction) {
+        if (insertInventory == null || !(hopper instanceof HopperBlockEntity)) {
+            //call the vanilla code to allow other mods inject features
             //e.g. carpet mod allows hoppers to insert items into wool blocks
-            return insert(world, pos, hopperState, hopper);
+            return;
         }
+        HopperBlockEntityMixin hopperBlockEntity = (HopperBlockEntityMixin) hopper;
 
         LithiumStackList hopperStackList = InventoryHelper.getLithiumStackList(hopperBlockEntity);
         if (hopperBlockEntity.insertInventory == insertInventory && hopperStackList.getModCount() == hopperBlockEntity.myModCountAtLastInsert) {
             if (hopperBlockEntity.insertStackList != null && hopperBlockEntity.insertStackList.getModCount() == hopperBlockEntity.insertStackListModCount) {
 //                ComparatorUpdatePattern.NO_UPDATE.apply(hopperBlockEntity, hopperStackList); //commented because it's a noop, Hoppers do not send useless comparator updates
-                return false;
+                cir.setReturnValue(false);
+                return;
             }
         }
 
@@ -189,7 +197,8 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                             receivingHopper.setTransferCooldown(k);
                         }
                         insertInventory.markDirty();
-                        return true;
+                        cir.setReturnValue(true);
+                        return;
                     }
                 }
             }
@@ -198,7 +207,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         if (hopperBlockEntity.insertStackList != null) {
             hopperBlockEntity.insertStackListModCount = hopperBlockEntity.insertStackList.getModCount();
         }
-        return false;
+        cir.setReturnValue(false);
     }
 
     /**
@@ -315,6 +324,19 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     @Redirect(method = "insert(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/inventory/Inventory;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getOutputInventory(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/inventory/Inventory;"))
     private static Inventory nullify(World world, BlockPos pos, BlockState state) {
         return null;
+    }
+
+    @ModifyVariable(
+            method = "insert(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/inventory/Inventory;)Z",
+            at = @At(
+                    value = "INVOKE_ASSIGN",
+                    target = "Lnet/minecraft/block/entity/HopperBlockEntity;getOutputInventory(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/inventory/Inventory;"
+            ),
+            ordinal = 1
+    )
+    private static Inventory getLithiumOutputInventory(Inventory inventory, World world, BlockPos pos, BlockState hopperState, Inventory hopper) {
+        HopperBlockEntityMixin hopperBlockEntity = (HopperBlockEntityMixin) hopper;
+        return hopperBlockEntity.getInsertInventory(world, hopperState);
     }
 
     @Redirect(method = "extract(Lnet/minecraft/world/World;Lnet/minecraft/block/entity/Hopper;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getInputItemEntities(Lnet/minecraft/world/World;Lnet/minecraft/block/entity/Hopper;)Ljava/util/List;"))
