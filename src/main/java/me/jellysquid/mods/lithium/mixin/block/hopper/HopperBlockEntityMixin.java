@@ -47,7 +47,7 @@ import java.util.Objects;
 import static net.minecraft.block.entity.HopperBlockEntity.getInputItemEntities;
 
 
-@Mixin(HopperBlockEntity.class)
+@Mixin(value = HopperBlockEntity.class, priority = 950)
 public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopper, UpdateReceiver, LithiumInventory, InventoryChangeListener, NearbyEntityMovementListener {
 
     public HopperBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -57,9 +57,6 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     @Shadow
     @Nullable
     private static native Inventory getInputInventory(World world, Hopper hopper);
-
-    @Shadow
-    private static native boolean insert(World world, BlockPos pos, BlockState state, Inventory inventory);
 
     @Shadow
     protected abstract boolean isDisabled();
