@@ -27,8 +27,9 @@ public abstract class AbstractBlockStateMixin implements BlockStatePathingCache 
         SingleBlockBlockView blockView = SingleBlockBlockView.of(state, BlockPos.ORIGIN);
         try {
             this.pathNodeType = Validate.notNull(LandPathNodeMaker.getCommonNodeType(blockView, BlockPos.ORIGIN));
-        } catch (SingleBlockBlockView.SingleBlockViewException e) {
+        } catch (SingleBlockBlockView.SingleBlockViewException | ClassCastException e) {
             //This is usually hit by shulker boxes, as their hitbox depends on the block entity, and the node type depends on the hitbox
+            //Also catch ClassCastException in case some modded code casts BlockView to ChunkCache
             this.pathNodeType = null;
         }
         try {
@@ -37,7 +38,7 @@ public abstract class AbstractBlockStateMixin implements BlockStatePathingCache 
             if (this.pathNodeTypeNeighbor == null) {
                 this.pathNodeTypeNeighbor = PathNodeType.OPEN;
             }
-        } catch (SingleBlockBlockView.SingleBlockViewException e) {
+        } catch (SingleBlockBlockView.SingleBlockViewException | ClassCastException e) {
             this.pathNodeTypeNeighbor = null;
         }
     }
