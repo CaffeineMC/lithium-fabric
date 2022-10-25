@@ -15,19 +15,24 @@ import org.jetbrains.annotations.NotNull;
 public class LithiumDoubleStackList extends LithiumStackList {
     private final LithiumStackList first;
     private final LithiumStackList second;
+    final LithiumDoubleInventory doubleInventory;
 
     private long signalStrengthChangeCount;
 
-    public LithiumDoubleStackList(LithiumStackList first, LithiumStackList second, int maxCountPerStack) {
+    public LithiumDoubleStackList(LithiumDoubleInventory doubleInventory, LithiumStackList first, LithiumStackList second, int maxCountPerStack) {
         super(maxCountPerStack);
         this.first = first;
         this.second = second;
+        this.doubleInventory = doubleInventory;
     }
 
-    public static LithiumStackList getOrCreate(LithiumStackList first, LithiumStackList second, int maxCountPerStack) {
+    public static LithiumDoubleStackList getOrCreate(LithiumDoubleInventory doubleInventory, LithiumStackList first, LithiumStackList second, int maxCountPerStack) {
         LithiumDoubleStackList parentStackList = first.parent;
-        if (parentStackList == null || parentStackList != second.parent) {
-            parentStackList = new LithiumDoubleStackList(first, second, maxCountPerStack);
+        if (parentStackList == null || parentStackList != second.parent || parentStackList.first != first || parentStackList.second != second) {
+            if (parentStackList != null) {
+                parentStackList.doubleInventory.emitRemoved();
+            }
+            parentStackList = new LithiumDoubleStackList(doubleInventory, first, second, maxCountPerStack);
             first.parent = parentStackList;
             second.parent = parentStackList;
         }

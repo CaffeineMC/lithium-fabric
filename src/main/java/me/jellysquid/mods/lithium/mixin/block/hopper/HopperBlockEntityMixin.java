@@ -491,6 +491,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
 
         //No Cached Inventory: Get like vanilla and cache
         blockInventory = HopperHelper.vanillaGetBlockInventory(world, this.getPos().up());
+        blockInventory = HopperHelper.replaceDoubleInventory(blockInventory);
         this.cacheExtractBlockInventory(blockInventory);
         return blockInventory;
     }
@@ -529,6 +530,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         //No Cached Inventory: Get like vanilla and cache
         Direction direction = hopperState.get(HopperBlock.FACING);
         blockInventory = HopperHelper.vanillaGetBlockInventory(world, this.getPos().offset(direction));
+        blockInventory = HopperHelper.replaceDoubleInventory(blockInventory);
         this.cacheInsertBlockInventory(blockInventory);
         return blockInventory;
     }
