@@ -134,9 +134,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             if (inventory != hopperBlockEntity.extractInventory || hopperBlockEntity.extractStackList != extractInventoryStackList) {
                 //not caching the inventory (NO_BLOCK_INVENTORY prevents it)
                 //make change counting on the entity inventory possible, without caching it as block inventory
-                hopperBlockEntity.extractInventory = optimizedInventory;
-                hopperBlockEntity.extractStackList = extractInventoryStackList;
-                hopperBlockEntity.extractStackListModCount = hopperBlockEntity.extractStackList.getModCount() - 1;
+                hopperBlockEntity.cacheExtractLithiumInventory(optimizedInventory);
             }
         }
         return inventory;
@@ -369,6 +367,14 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
      */
     private void cacheInsertBlockInventory(Inventory insertInventory) {
         assert !(insertInventory instanceof Entity);
+        if (insertInventory instanceof LithiumInventory optimizedInventory) {
+            this.cacheInsertLithiumInventory(optimizedInventory);
+        } else {
+            this.insertInventory = null;
+            this.insertStackList = null;
+            this.insertStackListModCount = 0;
+        }
+
         if (insertInventory instanceof BlockEntity || insertInventory instanceof DoubleInventory) {
             this.insertBlockInventory = insertInventory;
             if (insertInventory instanceof InventoryChangeTracker) {
@@ -386,21 +392,20 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                 this.insertionMode = HopperCachingState.BlockInventory.BLOCK_STATE;
             }
         }
-
-        if (insertInventory instanceof LithiumInventory optimizedInventory) {
-            this.cacheInsertLithiumInventory(optimizedInventory);
-        } else {
-            this.insertInventory = null;
-            this.insertStackList = null;
-            this.insertStackListModCount = 0;
-        }
     }
 
     private void cacheInsertLithiumInventory(LithiumInventory optimizedInventory) {
-        this.insertInventory = optimizedInventory;
         LithiumStackList insertInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
+        this.insertInventory = optimizedInventory;
         this.insertStackList = insertInventoryStackList;
         this.insertStackListModCount = insertInventoryStackList.getModCount() - 1;
+    }
+
+    private void cacheExtractLithiumInventory(LithiumInventory optimizedInventory) {
+        LithiumStackList extractInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
+        this.extractInventory = optimizedInventory;
+        this.extractStackList = extractInventoryStackList;
+        this.extractStackListModCount = extractInventoryStackList.getModCount() - 1;
     }
 
     /**
@@ -427,6 +432,14 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
      */
     private void cacheExtractBlockInventory(Inventory extractInventory) {
         assert !(extractInventory instanceof Entity);
+        if (extractInventory instanceof LithiumInventory optimizedInventory) {
+            this.cacheExtractLithiumInventory(optimizedInventory);
+        } else {
+            this.extractInventory = null;
+            this.extractStackList = null;
+            this.extractStackListModCount = 0;
+        }
+
         if (extractInventory instanceof BlockEntity || extractInventory instanceof DoubleInventory) {
             this.extractBlockInventory = extractInventory;
             if (extractInventory instanceof InventoryChangeTracker) {
@@ -443,17 +456,6 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                 this.extractBlockInventory = extractInventory;
                 this.extractionMode = HopperCachingState.BlockInventory.BLOCK_STATE;
             }
-        }
-
-        if (extractInventory instanceof LithiumInventory optimizedInventory) {
-            this.extractInventory = optimizedInventory;
-            LithiumStackList extractInventoryStackList = InventoryHelper.getLithiumStackList(optimizedInventory);
-            this.extractStackList = extractInventoryStackList;
-            this.extractStackListModCount = extractInventoryStackList.getModCount() - 1;
-        } else {
-            this.extractInventory = null;
-            this.extractStackList = null;
-            this.extractStackListModCount = 0;
         }
     }
 
