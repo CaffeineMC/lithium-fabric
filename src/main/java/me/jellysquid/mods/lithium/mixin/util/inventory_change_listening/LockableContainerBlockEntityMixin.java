@@ -57,7 +57,9 @@ public abstract class LockableContainerBlockEntityMixin implements InventoryChan
     }
 
     private void invalidateChangeListening() {
-        this.inventoryChangeListeners.clear();
+        if (this.inventoryChangeListeners != null) {
+            this.inventoryChangeListeners.clear();
+        }
 
         LithiumStackList lithiumStackList = InventoryHelper.getLithiumStackListOrNull((LithiumInventory) this);
         if (lithiumStackList != null && this instanceof InventoryChangeTracker inventoryChangeTracker) {

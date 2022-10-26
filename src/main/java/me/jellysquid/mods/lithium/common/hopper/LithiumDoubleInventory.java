@@ -86,7 +86,9 @@ public class LithiumDoubleInventory extends DoubleInventory implements LithiumIn
     }
 
     private void invalidateChangeListening() {
-        this.inventoryChangeListeners.clear();
+        if (this.inventoryChangeListeners != null) {
+            this.inventoryChangeListeners.clear();
+        }
 
         LithiumStackList lithiumStackList = InventoryHelper.getLithiumStackListOrNull(this);
         if (lithiumStackList != null) {
