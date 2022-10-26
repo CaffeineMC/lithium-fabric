@@ -805,22 +805,6 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     }
 
     @Override
-    public void handleStackListReplaced(Inventory inventory) {
-        if (this instanceof SleepingBlockEntity) {
-            ((SleepingBlockEntity) this).wakeUpNow();
-        }
-        if (inventory == this.insertBlockInventory) {
-            this.invalidateBlockInsertionData();
-        }
-        if (inventory == this.extractBlockInventory) {
-            this.invalidateBlockExtractionData();
-        }
-        if (inventory == this) {
-            this.invalidateCachedData();
-        }
-    }
-
-    @Override
     public void handleInventoryContentModified(Inventory inventory) {
         if (this instanceof SleepingBlockEntity sleepingBlockEntity) {
             sleepingBlockEntity.wakeUpNow();

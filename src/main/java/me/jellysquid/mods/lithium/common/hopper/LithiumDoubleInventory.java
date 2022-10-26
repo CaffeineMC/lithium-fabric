@@ -135,12 +135,6 @@ public class LithiumDoubleInventory extends DoubleInventory implements LithiumIn
     }
 
     @Override
-    public void handleStackListReplaced(Inventory inventory) {
-        //This inventory object becomes invalid if any of the children stacklists are replaced!
-        this.emitRemoved();
-    }
-
-    @Override
     public void handleInventoryContentModified(Inventory inventory) {
         this.emitContentModified();
     }
