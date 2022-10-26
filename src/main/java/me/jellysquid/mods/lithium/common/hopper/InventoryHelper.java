@@ -13,6 +13,14 @@ public class InventoryHelper {
         return upgradeToLithiumStackList(inventory);
     }
 
+    public static LithiumStackList getLithiumStackListOrNull(LithiumInventory inventory) {
+        DefaultedList<ItemStack> stackList = inventory.getInventoryLithium();
+        if (stackList instanceof LithiumStackList lithiumStackList) {
+            return lithiumStackList;
+        }
+        return null;
+    }
+
     private static LithiumStackList upgradeToLithiumStackList(LithiumInventory inventory) {
         //generate loot to avoid any problems with directly accessing the inventory slots
         //the loot that is generated here is not generated earlier than in vanilla, because vanilla generates loot

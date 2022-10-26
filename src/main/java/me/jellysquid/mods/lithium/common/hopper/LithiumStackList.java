@@ -8,6 +8,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.MathHelper;
+import org.jetbrains.annotations.NotNull;
 
 public class LithiumStackList extends DefaultedList<ItemStack> implements LithiumDefaultedList {
     final int maxCountPerStack;
@@ -252,10 +253,17 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
     }
 
 
-    public void setInventoryModificationCallback(InventoryChangeTracker inventoryModificationCallback) {
+    public void setInventoryModificationCallback(@NotNull InventoryChangeTracker inventoryModificationCallback) {
         if (this.inventoryModificationCallback != null && this.inventoryModificationCallback != inventoryModificationCallback) {
             this.inventoryModificationCallback.emitCallbackReplaced();
         }
         this.inventoryModificationCallback = inventoryModificationCallback;
+    }
+
+    public void removeInventoryModificationCallback(@NotNull InventoryChangeTracker inventoryModificationCallback) {
+        if (this.inventoryModificationCallback != null && this.inventoryModificationCallback == inventoryModificationCallback) {
+            this.inventoryModificationCallback.emitCallbackReplaced();
+            this.inventoryModificationCallback = null;
+        }
     }
 }

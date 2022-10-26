@@ -71,6 +71,8 @@ public class LithiumDoubleInventory extends DoubleInventory implements LithiumIn
         if (listeners != null && !listeners.isEmpty()) {
             listeners.forEach(inventoryChangeListener -> inventoryChangeListener.handleStackListReplaced(this));
         }
+
+        this.invalidateChangeListening();
     }
 
     @Override
@@ -78,6 +80,17 @@ public class LithiumDoubleInventory extends DoubleInventory implements LithiumIn
         ReferenceOpenHashSet<InventoryChangeListener> listeners = this.inventoryHandlingTypeListeners;
         if (listeners != null && !listeners.isEmpty()) {
             listeners.forEach(listener -> listener.handleInventoryRemoved(this));
+        }
+
+        this.invalidateChangeListening();
+    }
+
+    private void invalidateChangeListening() {
+        this.inventoryChangeListeners.clear();
+
+        LithiumStackList lithiumStackList = InventoryHelper.getLithiumStackListOrNull(this);
+        if (lithiumStackList != null) {
+            lithiumStackList.removeInventoryModificationCallback(this);
         }
     }
 

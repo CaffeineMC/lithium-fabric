@@ -134,8 +134,13 @@ public class LithiumDoubleStackList extends LithiumStackList {
         return this.first.size() + this.second.size();
     }
 
-    public void setInventoryModificationCallback(InventoryChangeTracker inventoryModificationCallback) {
+    public void setInventoryModificationCallback(@NotNull InventoryChangeTracker inventoryModificationCallback) {
         this.first.setInventoryModificationCallback(inventoryModificationCallback);
         this.second.setInventoryModificationCallback(inventoryModificationCallback);
+    }
+
+    public void removeInventoryModificationCallback(@NotNull InventoryChangeTracker inventoryModificationCallback) {
+        this.first.removeInventoryModificationCallback(inventoryModificationCallback);
+        this.second.removeInventoryModificationCallback(inventoryModificationCallback);
     }
 }

@@ -2,9 +2,11 @@ package me.jellysquid.mods.lithium.mixin.util.inventory_change_listening;
 
 
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
+import me.jellysquid.mods.lithium.api.inventory.LithiumInventory;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeEmitter;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeListener;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
+import me.jellysquid.mods.lithium.common.hopper.InventoryHelper;
 import me.jellysquid.mods.lithium.common.hopper.LithiumStackList;
 import net.minecraft.block.entity.LockableContainerBlockEntity;
 import net.minecraft.inventory.Inventory;
@@ -36,6 +38,8 @@ public abstract class LockableContainerBlockEntityMixin implements InventoryChan
         if (this instanceof InventoryChangeListener listener) {
             listener.handleStackListReplaced(this);
         }
+
+        this.invalidateChangeListening();
     }
 
     @Override
@@ -47,6 +51,17 @@ public abstract class LockableContainerBlockEntityMixin implements InventoryChan
 
         if (this instanceof InventoryChangeListener listener) {
             listener.handleInventoryRemoved(this);
+        }
+
+        this.invalidateChangeListening();
+    }
+
+    private void invalidateChangeListening() {
+        this.inventoryChangeListeners.clear();
+
+        LithiumStackList lithiumStackList = InventoryHelper.getLithiumStackListOrNull((LithiumInventory) this);
+        if (lithiumStackList != null && this instanceof InventoryChangeTracker inventoryChangeTracker) {
+            lithiumStackList.removeInventoryModificationCallback(inventoryChangeTracker);
         }
     }
 
