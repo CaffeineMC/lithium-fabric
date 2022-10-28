@@ -631,7 +631,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     public void setCachedState(BlockState state) {
         BlockState cachedState = this.getCachedState();
         super.setCachedState(state);
-        if (state.get(HopperBlock.FACING) != cachedState.get(HopperBlock.FACING)) {
+        if (this.world != null && !this.world.isClient() && state.get(HopperBlock.FACING) != cachedState.get(HopperBlock.FACING)) {
             this.invalidateCachedData();
         }
     }
@@ -651,14 +651,15 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                 this.insertInventoryEntityFailedSearchTime = 0L;
             }
         }
-        this.invalidateBlockInsertionData();
-    }
 
-    private void invalidateBlockInsertionData() {
         if (this.insertionMode == HopperCachingState.BlockInventory.REMOVAL_TRACKING_BLOCK_ENTITY) {
             assert this.insertBlockInventory != null;
             ((InventoryChangeTracker) this.insertBlockInventory).stopListenForMajorInventoryChanges(this);
         }
+        this.invalidateBlockInsertionData();
+    }
+
+    private void invalidateBlockInsertionData() {
         this.insertionMode = HopperCachingState.BlockInventory.UNKNOWN;
         this.insertBlockInventory = null;
         this.insertInventory = null;
@@ -685,14 +686,14 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                 this.collectItemEntityTrackerWasEmpty = false;
             }
         }
-        this.invalidateBlockExtractionData();
-    }
-
-    private void invalidateBlockExtractionData() {
         if (this.extractionMode == HopperCachingState.BlockInventory.REMOVAL_TRACKING_BLOCK_ENTITY) {
             assert this.extractBlockInventory != null;
             ((InventoryChangeTracker) this.extractBlockInventory).stopListenForMajorInventoryChanges(this);
         }
+        this.invalidateBlockExtractionData();
+    }
+
+    private void invalidateBlockExtractionData() {
         this.extractionMode = HopperCachingState.BlockInventory.UNKNOWN;
         this.extractBlockInventory = null;
         this.extractInventory = null;

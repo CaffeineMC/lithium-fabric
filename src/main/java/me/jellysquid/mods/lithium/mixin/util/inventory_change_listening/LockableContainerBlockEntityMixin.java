@@ -32,7 +32,10 @@ public abstract class LockableContainerBlockEntityMixin implements InventoryChan
     public void emitStackListReplaced() {
         ReferenceArraySet<InventoryChangeListener> listeners = this.inventoryHandlingTypeListeners;
         if (listeners != null && !listeners.isEmpty()) {
-            listeners.forEach(inventoryChangeListener -> inventoryChangeListener.handleStackListReplaced(this));
+            for (InventoryChangeListener inventoryChangeListener : listeners) {
+                inventoryChangeListener.handleStackListReplaced(this);
+            }
+            listeners.clear();
         }
 
         if (this instanceof InventoryChangeListener listener) {
@@ -46,7 +49,10 @@ public abstract class LockableContainerBlockEntityMixin implements InventoryChan
     public void emitRemoved() {
         ReferenceArraySet<InventoryChangeListener> listeners = this.inventoryHandlingTypeListeners;
         if (listeners != null && !listeners.isEmpty()) {
-            listeners.forEach(listener -> listener.handleInventoryRemoved(this));
+            for (InventoryChangeListener listener : listeners) {
+                listener.handleInventoryRemoved(this);
+            }
+            listeners.clear();
         }
 
         if (this instanceof InventoryChangeListener listener) {
