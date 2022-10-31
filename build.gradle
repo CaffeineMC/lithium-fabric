@@ -3,6 +3,7 @@ import net.fabricmc.loom.task.RemapJarTask
 plugins {
     id 'fabric-loom' version '0.12-SNAPSHOT'
     id 'maven-publish'
+    id 'net.caffeinemc.mixin-config-plugin' version '1.0-SNAPSHOT'
 }
 
 loom {
@@ -11,6 +12,7 @@ loom {
 }
 
 apply plugin: 'fabric-loom'
+apply plugin: 'net.caffeinemc.mixin-config-plugin'
 
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
@@ -86,7 +88,22 @@ dependencies {
      fabricApiModulesCompileOnly.forEach {
         modCompileOnly(fabricApi.module(it, "${project.fabric_version}"))
     }
+
+    compileOnly 'net.caffeinemc:mixin-config-plugin:1.0-SNAPSHOT'
 }
+
+createMixinConfig {
+    inputFiles = file(compileJava.getDestinationDirectory())
+    includeFiles = file("src/main/java/me/jellysquid/mods/lithium")
+    outputDirectory = file("src/main/resources/assets/lithium/")
+    outputDirectoryForSummaryDocument = file(".")
+    mixinParentPackage = "me.jellysquid.mods.lithium"
+    modShortName = "Lithium"
+}
+
+jar.dependsOn createMixinConfig
+processResources.dependsOn createMixinConfig
+createMixinConfig.dependsOn compileJava
 
 processResources {
     inputs.property "version", project.version
