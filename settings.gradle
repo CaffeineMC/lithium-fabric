@@ -8,4 +8,6 @@ pluginManagement {
     }
 }
 
+includeBuild "components/mixin-config-plugin"
+
 rootProject.name = "lithium-fabric"
