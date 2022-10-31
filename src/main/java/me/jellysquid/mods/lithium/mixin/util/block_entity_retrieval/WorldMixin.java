@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.world.block_entity_retrieval;
+package me.jellysquid.mods.lithium.mixin.util.block_entity_retrieval;
 
 import me.jellysquid.mods.lithium.common.world.blockentity.BlockEntityGetter;
 import net.minecraft.block.entity.BlockEntity;
