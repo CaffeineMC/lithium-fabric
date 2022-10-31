@@ -1,0 +1,24 @@
+
+apply plugin: "java"
+apply plugin: "java-gradle-plugin"
+
+archivesBaseName = 'mixin-config-plugin'
+version = '1.0-SNAPSHOT'
+group = 'net.caffeinemc'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+}
+
+gradlePlugin {
+    // Define the plugin
+    plugins {
+        compiler {
+            id = 'net.caffeinemc.mixin-config-plugin'
+            implementationClass = 'net.caffeinemc.gradle.GradleMixinConfigPlugin'
+        }
+    }
+}
