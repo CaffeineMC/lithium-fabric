@@ -156,7 +156,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             ), locals = LocalCapture.CAPTURE_FAILHARD
     )
     private static void lithiumInsert(World world, BlockPos pos, BlockState hopperState, Inventory hopper, CallbackInfoReturnable<Boolean> cir, Inventory insertInventory, Direction direction) {
-        if (insertInventory == null || !(hopper instanceof HopperBlockEntity)) {
+        if (insertInventory == null || !(hopper instanceof HopperBlockEntity) || hopper instanceof SidedInventory) {
             //call the vanilla code to allow other mods inject features
             //e.g. carpet mod allows hoppers to insert items into wool blocks
             return;
