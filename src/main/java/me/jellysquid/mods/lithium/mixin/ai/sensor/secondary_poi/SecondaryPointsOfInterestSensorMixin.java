@@ -18,7 +18,7 @@ public class SecondaryPointsOfInterestSensorMixin {
             cancellable = true
     )
     private void skipUselessSense(ServerWorld serverWorld, VillagerEntity villagerEntity, CallbackInfo ci) {
-        if (villagerEntity.getVillagerData().getProfession().secondaryJobSites().isEmpty()) {
+        if (villagerEntity.getVillagerData().getProfession().getSecondaryJobSites().isEmpty()) {
             villagerEntity.getBrain().forget(MemoryModuleType.SECONDARY_JOB_SITE);
             ci.cancel();
         }

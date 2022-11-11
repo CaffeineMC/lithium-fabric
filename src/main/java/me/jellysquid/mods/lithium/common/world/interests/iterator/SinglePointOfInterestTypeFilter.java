@@ -1,19 +1,17 @@
 package me.jellysquid.mods.lithium.common.world.interests.iterator;
 
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.poi.PointOfInterestType;
 
 import java.util.function.Predicate;
 
-public record SinglePointOfInterestTypeFilter(
-        RegistryEntry<PointOfInterestType> type) implements Predicate<RegistryEntry<PointOfInterestType>> {
+public record SinglePointOfInterestTypeFilter(PointOfInterestType type) implements Predicate<PointOfInterestType> {
 
     @Override
-    public boolean test(RegistryEntry<PointOfInterestType> other) {
+    public boolean test(PointOfInterestType other) {
         return this.type == other;
     }
 
-    public RegistryEntry<PointOfInterestType> getType() {
+    public PointOfInterestType getType() {
         return this.type;
     }
 }
