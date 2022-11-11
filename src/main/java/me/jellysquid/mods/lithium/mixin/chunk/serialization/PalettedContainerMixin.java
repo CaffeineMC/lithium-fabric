@@ -59,7 +59,7 @@ public abstract class PalettedContainerMixin<T> {
      * @author JellySquid
      */
     @Overwrite
-    public PalettedContainer.Serialized<T> serialize(IndexedIterable<T> idList, PalettedContainer.PaletteProvider provider) {
+    private PalettedContainer.Serialized<T> write(IndexedIterable<T> idList, PalettedContainer.PaletteProvider provider) {
         this.lock();
 
         // The palette that will be serialized
