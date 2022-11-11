@@ -27,14 +27,13 @@ public abstract class WorldMixin implements HeightLimitView {
     private int height;
     private int topYInclusive;
 
-    @SuppressWarnings("rawtypes")
     @Inject(
             method = "<init>",
             at = @At("RETURN")
     )
-    private void initHeightCache(MutableWorldProperties properties, RegistryKey registryRef, RegistryEntry dimension, Supplier supplier, boolean isClient, boolean debugWorld, long seed, int maxChainedNeighborUpdates, CallbackInfo ci) {
-        this.height = this.getDimension().height();
-        this.bottomY = this.getDimension().minY();
+    private void initHeightCache(MutableWorldProperties properties, RegistryKey<?> registryRef, RegistryEntry<?> registryEntry, Supplier<?> profiler, boolean isClient, boolean debugWorld, long seed, CallbackInfo ci) {
+        this.height = this.getDimension().getHeight();
+        this.bottomY = this.getDimension().getMinimumY();
         this.topYInclusive = this.bottomY + this.height - 1;
     }
 

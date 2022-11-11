@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.api.inventory;
 
 import net.minecraft.block.entity.LootableContainerBlockEntity;
-import net.minecraft.entity.vehicle.VehicleInventory;
+import net.minecraft.entity.vehicle.StorageMinecartEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
@@ -45,6 +45,26 @@ public interface LithiumInventory extends Inventory {
     void setInventoryLithium(DefaultedList<ItemStack> inventory);
 
     /**
+     * Controls the inventory caching of hoppers.
+     * Hoppers update their cache after the removedCounter of the cached inventory increases.
+     * <p>
+     * Modded inventories most likely do not need to override this method:
+     * <p>
+     * Entity inventories are never cached, so they do not need to implement this method.
+     * Inventories that are created using a block implementing {@link net.minecraft.block.InventoryProvider}
+     * must change their BlockState when they become invalid instead.
+     * {@link net.minecraft.block.entity.BlockEntity} inventories also do not need to implement this method.
+     * Inventories that never become invalid (e.g. by unloading, destroying, being replaced with a new object)
+     * do not need to implement this method.
+     *
+     * @return the removedCounter of the LithiumInventory
+     */
+    default int getRemovedCountLithium() {
+        //Already implemented for BlockEntity and DoubleInventory
+        return 0;
+    }
+
+    /**
      * Generates the loot like a hopper access would do in vanilla.
      * <p>
      * If a modded inventory has custom loot generation code, it will be required to override this
@@ -54,8 +74,8 @@ public interface LithiumInventory extends Inventory {
         if (this instanceof LootableContainerBlockEntity) {
             ((LootableContainerBlockEntity) this).checkLootInteraction(null);
         }
-        if (this instanceof VehicleInventory) {
-            ((VehicleInventory) this).generateInventoryLoot(null);
+        if (this instanceof StorageMinecartEntity) {
+            ((StorageMinecartEntity) this).generateLoot(null);
         }
     }
 }

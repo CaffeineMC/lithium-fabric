@@ -54,7 +54,6 @@ public abstract class LivingEntityMixin extends Entity {
             )
     )
     private EntityAttributeInstance doDelayedBlockStateAirTest(LivingEntity instance, EntityAttribute attribute) {
-        //noinspection deprecation
         return this.getLandingBlockState().isAir() ? null : this.getAttributeInstance(attribute);
     }
 }
