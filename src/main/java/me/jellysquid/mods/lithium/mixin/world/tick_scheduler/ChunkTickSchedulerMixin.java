@@ -121,8 +121,8 @@ public class ChunkTickSchedulerMixin<T> {
         return (time << 4L) | (priority.ordinal() & 15);
     }
 
-    private void updateNextTickQueue(boolean elementRemoved) {
-        if (elementRemoved && this.nextTickQueue != null && this.nextTickQueue.isEmpty()) {
+    private void updateNextTickQueue(boolean checkEmpty) {
+        if (checkEmpty && this.nextTickQueue != null && this.nextTickQueue.isEmpty()) {
             OrderedTickQueue<T> removed = this.tickQueuesByTimeAndPriority.remove(this.tickQueuesByTimeAndPriority.firstLongKey());
             if (removed != this.nextTickQueue) {
                 throw new IllegalStateException("Next tick queue doesn't have the lowest key!");
@@ -215,6 +215,7 @@ public class ChunkTickSchedulerMixin<T> {
                 tickQueueIterator.remove();
             }
         }
+        this.updateNextTickQueue(false);
     }
 
     /**
