@@ -101,8 +101,8 @@ public class OrderedTickQueue<T> extends AbstractQueue<OrderedTick<T>> {
             //This is rare but may happen in bulk
             //Sorting later needs O(n*log(n)) time, but it only needs to happen when unordered insertion needs to happen
             //Therefore it is better than n times log(n) time of the PriorityQueue that happens on ordered insertion too
+            OrderedTick<T> firstTick = this.isSorted ? this.size() > 0 ? this.arr[this.firstIndex] : null : this.unsortedPeekResult;
             this.isSorted = false;
-            OrderedTick<T> firstTick = this.size() > 0 ? this.arr[this.firstIndex] : null;
             this.unsortedPeekResult = firstTick == null || tick.subTickOrder() < firstTick.subTickOrder() ? tick : firstTick;
         } else {
             this.currentMaxSubTickOrder = tick.subTickOrder();
