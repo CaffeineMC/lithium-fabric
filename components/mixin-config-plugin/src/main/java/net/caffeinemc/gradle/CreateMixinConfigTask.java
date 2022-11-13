@@ -14,10 +14,10 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static net.caffeinemc.gradle.GradleMixinConfigPlugin.LOGGER;
 
@@ -26,6 +26,8 @@ public abstract class CreateMixinConfigTask extends DefaultTask {
 
     @Option(option = "mixinParentPackage", description = "The parent of the mixin package. Mixins will be printed relative to the package.")
     String mixinParentPackage;
+    @Option(option = "mixinPackagePrefix", description = "Name of the mixin package relative to the mixinParentPackage.")
+    String mixinPackage = "mixin";
     @Option(option = "modShortName", description = "Short name of the mod.")
     String modShortName;
     @Option(option = "outputDirectoryForSummaryDocument", description = "Output directory for the summary markdown with all mixin rules and descriptions.")
@@ -45,10 +47,10 @@ public abstract class CreateMixinConfigTask extends DefaultTask {
         var inputSourceSet = this.getInputFiles().get().getAsFile().toPath();
         var outputDirectory = this.getOutputDirectory().get().getAsFile().toPath();
 
-        Stream<Path> inputFileStream;
+        List<Path> inputFiles;
 
         try {
-            inputFileStream = Files.walk(inputSourceSet);
+            inputFiles = Files.walk(inputSourceSet).collect(Collectors.toList());
         } catch (IOException e) {
             throw new RuntimeException("Failed to walk input directory", e);
         }
@@ -60,14 +62,23 @@ public abstract class CreateMixinConfigTask extends DefaultTask {
             e.printStackTrace();
         }
         ClassLoader loader = new URLClassLoader(new URL[]{url}, MixinConfigOption.class.getClassLoader());
-
-        List<MixinRuleRepresentation> sortedMixinConfigOptions = inputFileStream
-                .filter(inputFile -> inputFile.endsWith("package-info.class"))
-                .filter(inputFile -> inputFile.startsWith(inputSourceSet))
-                .map(inputFile -> {
+        HashSet<String> mixinPackages = new HashSet<>();
+        HashSet<String> mixinOptions = new HashSet<>();
+        List<MixinRuleRepresentation> sortedMixinConfigOptions = inputFiles.stream().filter(path -> path.toFile().isFile())
+                .map((Path inputFile) -> {
+                    boolean isPackageInfo = inputFile.endsWith("package-info.class");
                     Path inputPackagePath = inputSourceSet.relativize(inputFile.getParent());
                     String inputPackageName = inputPackagePath.toString().replaceAll(inputPackagePath.getFileSystem().getSeparator(), ".");
                     String inputPackageClassName = inputPackageName + ".package-info";
+                    if (inputPackageName.startsWith(mixinParentPackage + "." + mixinPackage + ".")) {
+                        inputPackageName = inputPackageName.substring(mixinParentPackage.length() + 1);
+                    } else {
+                        return null;
+                    }
+                    if (!isPackageInfo) {
+                        mixinPackages.add(inputPackageName);
+                        return null;
+                    }
                     try {
                         Package inputPackage = loader.loadClass(inputPackageClassName).getPackage();
                         MixinConfigOption[] inputPackageAnnotations = inputPackage.getAnnotationsByType(MixinConfigOption.class);
@@ -76,9 +87,7 @@ public abstract class CreateMixinConfigTask extends DefaultTask {
                         }
                         if (inputPackageAnnotations.length > 0) {
                             MixinConfigOption option = inputPackageAnnotations[0];
-                            if (inputPackageName.startsWith(mixinParentPackage + ".")) {
-                                inputPackageName = inputPackageName.substring(mixinParentPackage.length() + 1);
-                            }
+                            mixinOptions.add(inputPackageName);
                             return new MixinRuleRepresentation(inputPackageName, option);
                         }
                     } catch (ClassNotFoundException e) {
@@ -88,6 +97,15 @@ public abstract class CreateMixinConfigTask extends DefaultTask {
                 }).filter(Objects::nonNull)
                 .sorted(Comparator.comparing(MixinRuleRepresentation::path))
                 .collect(Collectors.toList());
+
+        mixinPackages.removeAll(mixinOptions);
+        StringBuilder errorMessage = new StringBuilder();
+        for (String packageName : mixinPackages) {
+            errorMessage.append("Mixin Package ").append(mixinPackage).append(".").append(packageName).append(" contains files without corresponding MixinConfigOption annotation in a package-info.java file!\n");
+        }
+        if (!errorMessage.isEmpty()) {
+            throw new IllegalStateException(String.valueOf(errorMessage));
+        }
 
         try {
             DefaultConfigCreator.writeDefaultConfig(this.modShortName, outputDirectory.resolve(this.modShortName.toLowerCase() + "-mixin-config-default.properties").toFile(), sortedMixinConfigOptions);
