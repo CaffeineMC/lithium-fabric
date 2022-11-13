@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.ai.poi.poi.tasks;
+package me.jellysquid.mods.lithium.mixin.ai.poi.tasks;
 
 import me.jellysquid.mods.lithium.common.util.POIRegistryEntries;
 import me.jellysquid.mods.lithium.common.world.interests.iterator.SinglePointOfInterestTypeFilter;
