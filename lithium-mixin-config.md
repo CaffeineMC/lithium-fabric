@@ -51,7 +51,7 @@ Implements a faster POI search
 (default: `true`)  
 Portal search uses the faster POI search  
   
-### `mixin.ai.poi.poi.tasks`
+### `mixin.ai.poi.tasks`
 (default: `true`)  
 Mob Tasks which search for POIs use the optimized POI search  
   
@@ -291,6 +291,10 @@ Accesses entities of the correct type directly instead of accessing all nearby e
 (default: `true`)  
 Skips repeated checks whether the equipment of an entity changed. Instead equipment updates are detected  
   
+### `mixin.entity.skip_fire_check`
+(default: `true`)  
+Skip searching for fire sources in the burn time countdown logic when they are not on fire and the result does not make a difference.  
+  
 ### `mixin.gen`
 (default: `true`)  
 Various world generation optimizations  
@@ -318,6 +322,10 @@ Avoids indirection and inlines several functions
 ### `mixin.math.fast_util`
 (default: `true`)  
 Avoid indirection and inline several functions in Direction, Axis and Box code  
+  
+### `mixin.math.sine_lut`
+(default: `true`)  
+Reduces the sine table size to reduce memory usage and increase access speed  
   
 ### `mixin.profiler`
 (default: `true`)  
