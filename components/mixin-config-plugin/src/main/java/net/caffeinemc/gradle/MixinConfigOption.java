@@ -13,5 +13,5 @@ public @interface MixinConfigOption {
 
     MixinConfigDependency[] depends() default {};
 
-    String description() default "";
+    String description();
 }
