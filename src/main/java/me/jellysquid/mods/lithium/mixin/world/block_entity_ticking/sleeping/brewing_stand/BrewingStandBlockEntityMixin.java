@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.bre
 import me.jellysquid.mods.lithium.common.block.entity.SleepingBlockEntity;
 import me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.WrappedBlockEntityTickInvokerAccessor;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.BrewingStandBlockEntity;
@@ -51,7 +52,7 @@ public class BrewingStandBlockEntityMixin extends BlockEntity implements Sleepin
 
     @Inject(method = "tick", at = @At("HEAD"))
     private static void checkSleep(World world, BlockPos pos, BlockState state, BrewingStandBlockEntity blockEntity, CallbackInfo ci) {
-        ((BrewingStandBlockEntityMixin) (Object) blockEntity).checkSleep();
+        ((BrewingStandBlockEntityMixin) (Object) blockEntity).checkSleep(state);
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/BrewingStandBlockEntity;markDirty(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V"))
@@ -59,8 +60,8 @@ public class BrewingStandBlockEntityMixin extends BlockEntity implements Sleepin
         ((BrewingStandBlockEntityMixin) (Object) blockEntity).wakeUpNow();
     }
 
-    private void checkSleep() {
-        if (this.brewTime == 0 && this.world != null) {
+    private void checkSleep(BlockState state) {
+        if (this.brewTime == 0 && state.isOf(Blocks.BREWING_STAND) && this.world != null) {
             this.startSleeping();
         }
     }

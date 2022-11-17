@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.fur
 import me.jellysquid.mods.lithium.common.block.entity.SleepingBlockEntity;
 import me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.WrappedBlockEntityTickInvokerAccessor;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -53,11 +54,11 @@ public abstract class AbstractFurnaceBlockEntityMixin extends BlockEntity implem
 
     @Inject(method = "tick", at = @At("RETURN" ))
     private static void checkSleep(World world, BlockPos pos, BlockState state, AbstractFurnaceBlockEntity blockEntity, CallbackInfo ci) {
-        ((AbstractFurnaceBlockEntityMixin) (Object) blockEntity).checkSleep();
+        ((AbstractFurnaceBlockEntityMixin) (Object) blockEntity).checkSleep(state);
     }
 
-    private void checkSleep() {
-        if (!this.isBurning() && this.cookTime == 0 && this.world != null) {
+    private void checkSleep(BlockState state) {
+        if (!this.isBurning() && this.cookTime == 0 && (state.isOf(Blocks.FURNACE) || state.isOf(Blocks.BLAST_FURNACE) || state.isOf(Blocks.SMOKER)) && this.world != null) {
             this.startSleeping();
         }
     }
