@@ -99,11 +99,8 @@ public class LithiumDoubleInventory extends DoubleInventory implements LithiumIn
     @Override
     public void emitFirstComparatorAdded() {
         ReferenceOpenHashSet<InventoryChangeListener> inventoryChangeListeners = this.inventoryChangeListeners;
-        if (inventoryChangeListeners != null) {
-            for (InventoryChangeListener inventoryChangeListener : inventoryChangeListeners) {
-                inventoryChangeListener.handleComparatorAdded(this);
-            }
-            inventoryChangeListeners.clear();
+        if (inventoryChangeListeners != null && !inventoryChangeListeners.isEmpty()) {
+            inventoryChangeListeners.removeIf(inventoryChangeListener -> inventoryChangeListener.handleComparatorAdded(this));
         }
     }
 
@@ -160,8 +157,9 @@ public class LithiumDoubleInventory extends DoubleInventory implements LithiumIn
     }
 
     @Override
-    public void handleComparatorAdded(Inventory inventory) {
+    public boolean handleComparatorAdded(Inventory inventory) {
         this.emitFirstComparatorAdded();
+        return this.inventoryChangeListeners.isEmpty();
     }
 
     @Override

@@ -76,11 +76,8 @@ public abstract class LockableContainerBlockEntityMixin implements InventoryChan
     @Override
     public void emitFirstComparatorAdded() {
         ReferenceArraySet<InventoryChangeListener> inventoryChangeListeners = this.inventoryChangeListeners;
-        if (inventoryChangeListeners != null) {
-            for (InventoryChangeListener inventoryChangeListener : inventoryChangeListeners) {
-                inventoryChangeListener.handleComparatorAdded(this);
-            }
-            inventoryChangeListeners.clear();
+        if (inventoryChangeListeners != null && !inventoryChangeListeners.isEmpty()) {
+            inventoryChangeListeners.removeIf(inventoryChangeListener -> inventoryChangeListener.handleComparatorAdded(this));
         }
     }
 

@@ -829,10 +829,12 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     }
 
     @Override
-    public void handleComparatorAdded(Inventory inventory) {
+    public boolean handleComparatorAdded(Inventory inventory) {
         if (inventory == this.extractBlockInventory && this instanceof SleepingBlockEntity sleepingBlockEntity) {
             sleepingBlockEntity.wakeUpNow();
+            return true;
         }
+        return false;
     }
 
     @Override

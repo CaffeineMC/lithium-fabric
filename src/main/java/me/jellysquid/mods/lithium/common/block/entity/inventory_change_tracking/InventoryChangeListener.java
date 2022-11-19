@@ -11,5 +11,5 @@ public interface InventoryChangeListener {
 
     void handleInventoryRemoved(Inventory inventory);
 
-    void handleComparatorAdded(Inventory inventory);
+    boolean handleComparatorAdded(Inventory inventory);
 }
