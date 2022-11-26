@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.world.interests;
 
-import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.poi.PointOfInterest;
 import net.minecraft.world.poi.PointOfInterestStorage;
 import net.minecraft.world.poi.PointOfInterestType;

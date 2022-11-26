@@ -5,7 +5,7 @@ import me.jellysquid.mods.lithium.common.ai.pathing.PathNodeCache;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.pathing.PathNodeType;
-import net.minecraft.tag.FluidTags;
+import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.world.chunk.ChunkSection;
 
 import java.util.ArrayList;

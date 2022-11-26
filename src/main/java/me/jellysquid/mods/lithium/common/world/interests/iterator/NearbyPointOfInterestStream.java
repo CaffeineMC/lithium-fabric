@@ -9,7 +9,7 @@ import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageSecti
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.poi.PointOfInterest;
 import net.minecraft.world.poi.PointOfInterestSet;
 import net.minecraft.world.poi.PointOfInterestStorage;

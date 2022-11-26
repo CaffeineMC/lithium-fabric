@@ -7,8 +7,8 @@ import me.jellysquid.mods.lithium.common.block.TrackedBlockStatePredicate;
 import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.tag.FluidTags;
-import net.minecraft.tag.TagKey;
+import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -33,7 +33,7 @@ public abstract class EntityMixin {
     protected Object2DoubleMap<TagKey<Fluid>> fluidHeight;
 
     @Inject(
-            method = "updateMovementInFluid(Lnet/minecraft/tag/TagKey;D)Z",
+            method = "updateMovementInFluid",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/Entity;isPushedByFluids()Z",

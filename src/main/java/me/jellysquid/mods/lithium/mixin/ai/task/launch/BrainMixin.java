@@ -9,6 +9,7 @@ import net.minecraft.entity.ai.brain.Activity;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
+import net.minecraft.entity.ai.brain.task.MultiTickTask;
 import net.minecraft.entity.ai.brain.task.Task;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.annotation.Debug;
@@ -85,7 +86,7 @@ public class BrainMixin<E extends LivingEntity> {
         for (Map<Activity, Set<Task<? super E>>> map : this.tasks.values()) {
             for (Set<Task<? super E>> set : map.values()) {
                 for (Task<? super E> task : set) {
-                    list.addOrSet(task, task.getStatus() == Task.Status.RUNNING);
+                    list.addOrSet(task, task.getStatus() == MultiTickTask.Status.RUNNING);
                 }
             }
         }
@@ -100,7 +101,7 @@ public class BrainMixin<E extends LivingEntity> {
     private void startTasks(ServerWorld world, E entity) {
         long startTime = world.getTime();
         for (Task<? super E> task : this.getPossibleTasks()) {
-            if (task.getStatus() == Task.Status.STOPPED) {
+            if (task.getStatus() == MultiTickTask.Status.STOPPED) {
                 task.tryStarting(world, entity, startTime);
             }
         }
@@ -179,7 +180,7 @@ public class BrainMixin<E extends LivingEntity> {
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     private void removeTaskIfStopped(ServerWorld world, E entity, CallbackInfo ci, long l, Iterator<?> it, Task<? super E> task) {
-        if (this.runningTasks != null && task.getStatus() != Task.Status.RUNNING) {
+        if (this.runningTasks != null && task.getStatus() != MultiTickTask.Status.RUNNING) {
             this.runningTasks.setVisible(task, false);
         }
     }
@@ -193,7 +194,7 @@ public class BrainMixin<E extends LivingEntity> {
             )
     )
     private Task<? super E> addStartedTasks(Task<? super E> task) {
-        if (this.runningTasks != null && task.getStatus() == Task.Status.RUNNING) {
+        if (this.runningTasks != null && task.getStatus() == MultiTickTask.Status.RUNNING) {
             this.runningTasks.setVisible(task, true);
         }
         return task;

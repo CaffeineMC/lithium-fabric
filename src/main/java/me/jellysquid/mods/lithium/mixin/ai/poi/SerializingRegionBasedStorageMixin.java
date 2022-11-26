@@ -10,7 +10,7 @@ import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageSecti
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.storage.SerializingRegionBasedStorage;
 import org.spongepowered.asm.mixin.Final;
