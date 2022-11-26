@@ -88,6 +88,13 @@ public class WorldHelper {
 
     public static boolean areNeighborsWithinSameChunk(BlockPos pos) {
         int localX = pos.getX() & 15;
+        int localZ = pos.getZ() & 15;
+
+        return localX > 0 && localZ > 0 && localX < 15 && localZ < 15;
+    }
+
+    public static boolean areNeighborsWithinSameChunkSection(BlockPos pos) {
+        int localX = pos.getX() & 15;
         int localY = pos.getY() & 15;
         int localZ = pos.getZ() & 15;
 

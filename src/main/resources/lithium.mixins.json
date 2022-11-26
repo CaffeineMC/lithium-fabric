@@ -73,6 +73,7 @@
     "block.hopper.ItemStackMixin",
     "block.hopper.ScreenHandlerMixin",
     "block.hopper.TypeFilterableListMixin",
+    "block.hopper.WorldMixin",
     "block.moving_block_shapes.PistonBlockEntityMixin",
     "block.moving_block_shapes.VoxelShapeMixin",
     "block.redstone_wire.RedstoneWireBlockMixin",

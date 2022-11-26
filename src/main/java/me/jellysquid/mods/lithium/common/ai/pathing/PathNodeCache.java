@@ -58,7 +58,7 @@ public abstract class PathNodeCache {
 
         // Check that all the block's neighbors are within the same chunk column. If so, we can isolate all our block
         // reads to just one chunk and avoid hits against the server chunk manager.
-        if (world instanceof CollisionView && WorldHelper.areNeighborsWithinSameChunk(pos)) {
+        if (world instanceof CollisionView && WorldHelper.areNeighborsWithinSameChunkSection(pos)) {
             // If the y-coordinate is within bounds, we can cache the chunk section. Otherwise, the if statement to check
             // if the cached chunk section was initialized will early-exit.
             if (!world.isOutOfHeightLimit(y)) {
