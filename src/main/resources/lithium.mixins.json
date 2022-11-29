@@ -183,6 +183,8 @@
     "world.chunk_access.ServerChunkManagerMixin",
     "world.chunk_access.WorldMixin",
     "world.chunk_tickets.SortedArraySetMixin",
+    "world.combined_heightmap_update.HeightmapAccessor",
+    "world.combined_heightmap_update.WorldChunkMixin",
     "world.explosions.ExplosionMixin",
     "world.inline_block_access.WorldChunkMixin",
     "world.inline_block_access.WorldMixin",

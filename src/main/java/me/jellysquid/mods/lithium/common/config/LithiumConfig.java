@@ -144,6 +144,7 @@ public class LithiumConfig {
         this.addMixinRule("world.chunk_access", true);
         this.addMixinRule("world.chunk_tickets", true);
         this.addMixinRule("world.chunk_ticking", true);
+        this.addMixinRule("world.combined_heightmap_update", true);
         this.addMixinRule("world.explosions", true);
         this.addMixinRule("world.inline_block_access", true);
         this.addMixinRule("world.inline_height", true);
