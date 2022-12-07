@@ -8,7 +8,7 @@ import me.jellysquid.mods.lithium.common.world.ClimbingMobCachingSection;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
-import net.minecraft.tag.BlockTags;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;

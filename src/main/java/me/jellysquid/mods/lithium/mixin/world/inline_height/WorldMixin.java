@@ -1,8 +1,8 @@
 package me.jellysquid.mods.lithium.mixin.world.inline_height;
 
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;

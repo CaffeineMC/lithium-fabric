@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.world.interests.iterator;
 
-import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.poi.PointOfInterestType;
 
 import java.util.function.Predicate;

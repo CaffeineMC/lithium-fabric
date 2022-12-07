@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.common.world.interests;
 
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.poi.PointOfInterest;
 import net.minecraft.world.poi.PointOfInterestStorage;

@@ -5,7 +5,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.task.CompositeTask;
-import net.minecraft.entity.ai.brain.task.Task;
+import net.minecraft.entity.ai.brain.task.MultiTickTask;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.WeightedList;
 import org.spongepowered.asm.mixin.Final;
@@ -19,7 +19,7 @@ import java.util.Set;
 public class CompositeTaskMixin<E extends LivingEntity> {
     @Shadow
     @Final
-    private WeightedList<Task<? super E>> tasks;
+    private WeightedList<MultiTickTask<? super E>> tasks;
 
     @Shadow
     @Final
@@ -31,8 +31,8 @@ public class CompositeTaskMixin<E extends LivingEntity> {
      */
     @Overwrite
     public boolean shouldKeepRunning(ServerWorld world, E entity, long time) {
-        for (Task<? super E> task : WeightedListIterable.cast(this.tasks)) {
-            if (task.getStatus() == Task.Status.RUNNING) {
+        for (MultiTickTask<? super E> task : WeightedListIterable.cast(this.tasks)) {
+            if (task.getStatus() == MultiTickTask.Status.RUNNING) {
                 if (task.shouldKeepRunning(world, entity, time)) {
                     return true;
                 }
@@ -48,8 +48,8 @@ public class CompositeTaskMixin<E extends LivingEntity> {
      */
     @Overwrite
     public void keepRunning(ServerWorld world, E entity, long time) {
-        for (Task<? super E> task : WeightedListIterable.cast(this.tasks)) {
-            if (task.getStatus() == Task.Status.RUNNING) {
+        for (MultiTickTask<? super E> task : WeightedListIterable.cast(this.tasks)) {
+            if (task.getStatus() == MultiTickTask.Status.RUNNING) {
                 task.tick(world, entity, time);
             }
         }
@@ -61,8 +61,8 @@ public class CompositeTaskMixin<E extends LivingEntity> {
      */
     @Overwrite
     public void finishRunning(ServerWorld world, E entity, long time) {
-        for (Task<? super E> task : WeightedListIterable.cast(this.tasks)) {
-            if (task.getStatus() == Task.Status.RUNNING) {
+        for (MultiTickTask<? super E> task : WeightedListIterable.cast(this.tasks)) {
+            if (task.getStatus() == MultiTickTask.Status.RUNNING) {
                 task.stop(world, entity, time);
             }
         }

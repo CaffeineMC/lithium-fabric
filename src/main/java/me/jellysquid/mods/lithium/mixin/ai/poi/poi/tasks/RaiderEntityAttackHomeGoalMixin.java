@@ -2,9 +2,9 @@ package me.jellysquid.mods.lithium.mixin.ai.poi.poi.tasks;
 
 import me.jellysquid.mods.lithium.common.util.POIRegistryEntries;
 import me.jellysquid.mods.lithium.common.world.interests.iterator.SinglePointOfInterestTypeFilter;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.poi.PointOfInterestStorage;
 import net.minecraft.world.poi.PointOfInterestType;
 import org.spongepowered.asm.mixin.Mixin;
