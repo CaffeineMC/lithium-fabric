@@ -104,7 +104,7 @@ public class LithiumConfig {
         this.addMixinRule("entity.skip_fire_check", true);
 
         this.addMixinRule("gen", true);
-        this.addMixinRule("gen.cached_generator_settings", true);
+        this.addMixinRule("gen.cached_generator_settings", false);
         this.addMixinRule("gen.chunk_region", true);
 
         this.addMixinRule("item", true);

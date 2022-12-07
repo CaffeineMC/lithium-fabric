@@ -45,6 +45,6 @@ public class NoiseChunkGeneratorMixin {
             )
     )
     private void hookConstructor(BiomeSource biomeSource, RegistryEntry<ChunkGeneratorSettings> settings, CallbackInfo ci) {
-        this.cachedSeaLevel = this.settings.value().seaLevel();
+        this.cachedSeaLevel = this.settings.value().seaLevel(); //TODO FIX Crash due to early access of registry
     }
 }
