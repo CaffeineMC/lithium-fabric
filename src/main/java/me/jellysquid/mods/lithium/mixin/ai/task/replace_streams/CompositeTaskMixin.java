@@ -6,6 +6,7 @@ import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.task.CompositeTask;
 import net.minecraft.entity.ai.brain.task.MultiTickTask;
+import net.minecraft.entity.ai.brain.task.Task;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.WeightedList;
 import org.spongepowered.asm.mixin.Final;
@@ -16,42 +17,34 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.Set;
 
 @Mixin(CompositeTask.class)
-public class CompositeTaskMixin<E extends LivingEntity> {
+public abstract class CompositeTaskMixin<E extends LivingEntity> {
     @Shadow
     @Final
-    private WeightedList<MultiTickTask<? super E>> tasks;
+    private WeightedList<Task<? super E>> tasks;
 
     @Shadow
     @Final
     private Set<MemoryModuleType<?>> memoriesToForgetWhenStopped;
 
-    /**
-     * @reason Replace stream code with traditional iteration
-     * @author JellySquid
-     */
-    @Overwrite
-    public boolean shouldKeepRunning(ServerWorld world, E entity, long time) {
-        for (MultiTickTask<? super E> task : WeightedListIterable.cast(this.tasks)) {
-            if (task.getStatus() == MultiTickTask.Status.RUNNING) {
-                if (task.shouldKeepRunning(world, entity, time)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
+    @Shadow
+    private MultiTickTask.Status status;
 
     /**
      * @reason Replace stream code with traditional iteration
-     * @author JellySquid
+     * @author JellySquid, IMS, 2No2Name
      */
     @Overwrite
-    public void keepRunning(ServerWorld world, E entity, long time) {
-        for (MultiTickTask<? super E> task : WeightedListIterable.cast(this.tasks)) {
+    public final void tick(ServerWorld world, E entity, long time) {
+        boolean hasOneTaskRunning = false;
+        for (Task<? super E> task : WeightedListIterable.cast(this.tasks)) {
             if (task.getStatus() == MultiTickTask.Status.RUNNING) {
                 task.tick(world, entity, time);
+                hasOneTaskRunning |= task.getStatus() == MultiTickTask.Status.RUNNING;
             }
+        }
+
+        if (!hasOneTaskRunning) {
+            this.stop(world, entity, time);
         }
     }
 
@@ -60,8 +53,9 @@ public class CompositeTaskMixin<E extends LivingEntity> {
      * @author JellySquid
      */
     @Overwrite
-    public void finishRunning(ServerWorld world, E entity, long time) {
-        for (MultiTickTask<? super E> task : WeightedListIterable.cast(this.tasks)) {
+    public final void stop(ServerWorld world, E entity, long time) {
+        this.status = MultiTickTask.Status.STOPPED;
+        for (Task<? super E> task : WeightedListIterable.cast(this.tasks)) {
             if (task.getStatus() == MultiTickTask.Status.RUNNING) {
                 task.stop(world, entity, time);
             }

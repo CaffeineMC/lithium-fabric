@@ -10,6 +10,7 @@ import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.task.MultiTickTask;
+import net.minecraft.entity.ai.brain.task.Task;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.annotation.Debug;
 import org.spongepowered.asm.mixin.Final;
@@ -30,14 +31,14 @@ public class BrainMixin<E extends LivingEntity> {
 
     @Shadow
     @Final
-    private Map<Integer, Map<Activity, Set<MultiTickTask<? super E>>>> tasks;
+    private Map<Integer, Map<Activity, Set<Task<? super E>>>> tasks;
 
     @Shadow
     @Final
     private Set<Activity> possibleActivities;
 
-    private ArrayList<MultiTickTask<? super E>> possibleTasks;
-    private MaskedList<MultiTickTask<? super E>> runningTasks;
+    private ArrayList<Task<? super E>> possibleTasks;
+    private MaskedList<Task<? super E>> runningTasks;
 
     private void onTasksChanged() {
         this.runningTasks = null;
@@ -50,14 +51,14 @@ public class BrainMixin<E extends LivingEntity> {
 
     private void initPossibleTasks() {
         this.possibleTasks = new ArrayList<>();
-        for (Map<Activity, Set<MultiTickTask<? super E>>> map : this.tasks.values()) {
-            for (Map.Entry<Activity, Set<MultiTickTask<? super E>>> entry : map.entrySet()) {
+        for (Map<Activity, Set<Task<? super E>>> map : this.tasks.values()) {
+            for (Map.Entry<Activity, Set<Task<? super E>>> entry : map.entrySet()) {
                 Activity activity = entry.getKey();
                 if (!this.possibleActivities.contains(activity)) {
                     continue;
                 }
-                Set<MultiTickTask<? super E>> set = entry.getValue();
-                for (MultiTickTask<? super E> task : set) {
+                Set<Task<? super E>> set = entry.getValue();
+                for (Task<? super E> task : set) {
                     //noinspection UseBulkOperation
                     this.possibleTasks.add(task);
                 }
@@ -65,14 +66,14 @@ public class BrainMixin<E extends LivingEntity> {
         }
     }
 
-    private ArrayList<MultiTickTask<? super E>> getPossibleTasks() {
+    private ArrayList<Task<? super E>> getPossibleTasks() {
         if (this.possibleTasks == null) {
             this.initPossibleTasks();
         }
         return this.possibleTasks;
     }
 
-    private MaskedList<MultiTickTask<? super E>> getCurrentlyRunningTasks() {
+    private MaskedList<Task<? super E>> getCurrentlyRunningTasks() {
         if (this.runningTasks == null) {
             this.initCurrentlyRunningTasks();
         }
@@ -80,11 +81,11 @@ public class BrainMixin<E extends LivingEntity> {
     }
 
     private void initCurrentlyRunningTasks() {
-        MaskedList<MultiTickTask<? super E>> list = new MaskedList<>(new ObjectArrayList<>(), false);
+        MaskedList<Task<? super E>> list = new MaskedList<>(new ObjectArrayList<>(), false);
 
-        for (Map<Activity, Set<MultiTickTask<? super E>>> map : this.tasks.values()) {
-            for (Set<MultiTickTask<? super E>> set : map.values()) {
-                for (MultiTickTask<? super E> task : set) {
+        for (Map<Activity, Set<Task<? super E>>> map : this.tasks.values()) {
+            for (Set<Task<? super E>> set : map.values()) {
+                for (Task<? super E> task : set) {
                     list.addOrSet(task, task.getStatus() == MultiTickTask.Status.RUNNING);
                 }
             }
@@ -99,7 +100,7 @@ public class BrainMixin<E extends LivingEntity> {
     @Overwrite
     private void startTasks(ServerWorld world, E entity) {
         long startTime = world.getTime();
-        for (MultiTickTask<? super E> task : this.getPossibleTasks()) {
+        for (Task<? super E> task : this.getPossibleTasks()) {
             if (task.getStatus() == MultiTickTask.Status.STOPPED) {
                 task.tryStarting(world, entity, startTime);
             }
@@ -113,7 +114,7 @@ public class BrainMixin<E extends LivingEntity> {
     @Overwrite
     @Deprecated
     @Debug
-    public List<MultiTickTask<? super E>> getRunningTasks() {
+    public List<Task<? super E>> getRunningTasks() {
         return this.getCurrentlyRunningTasks();
     }
 
@@ -130,7 +131,7 @@ public class BrainMixin<E extends LivingEntity> {
             method = "setTaskList(Lnet/minecraft/entity/ai/brain/Activity;Lcom/google/common/collect/ImmutableList;Ljava/util/Set;Ljava/util/Set;)V",
             at = @At("RETURN")
     )
-    private void reinitializeTasksSorted(Activity activity, ImmutableList<? extends Pair<Integer, ? extends MultiTickTask<?>>> indexedTasks, Set<Pair<MemoryModuleType<?>, MemoryModuleState>> requiredMemories, Set<MemoryModuleType<?>> forgettingMemories, CallbackInfo ci) {
+    private void reinitializeTasksSorted(Activity activity, ImmutableList<? extends Pair<Integer, ? extends Task<?>>> indexedTasks, Set<Pair<MemoryModuleType<?>, MemoryModuleState>> requiredMemories, Set<MemoryModuleType<?>> forgettingMemories, CallbackInfo ci) {
         this.onTasksChanged();
     }
 
@@ -163,7 +164,7 @@ public class BrainMixin<E extends LivingEntity> {
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private void removeStoppedTask(ServerWorld world, E entity, CallbackInfo ci, long l, Iterator<?> it, MultiTickTask<? super E> task) {
+    private void removeStoppedTask(ServerWorld world, E entity, CallbackInfo ci, long l, Iterator<?> it, Task<? super E> task) {
         if (this.runningTasks != null) {
             this.runningTasks.setVisible(task, false);
         }
@@ -178,7 +179,7 @@ public class BrainMixin<E extends LivingEntity> {
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private void removeTaskIfStopped(ServerWorld world, E entity, CallbackInfo ci, long l, Iterator<?> it, MultiTickTask<? super E> task) {
+    private void removeTaskIfStopped(ServerWorld world, E entity, CallbackInfo ci, long l, Iterator<?> it, Task<? super E> task) {
         if (this.runningTasks != null && task.getStatus() != MultiTickTask.Status.RUNNING) {
             this.runningTasks.setVisible(task, false);
         }
@@ -192,7 +193,7 @@ public class BrainMixin<E extends LivingEntity> {
                     shift = At.Shift.AFTER
             )
     )
-    private MultiTickTask<? super E> addStartedTasks(MultiTickTask<? super E> task) {
+    private Task<? super E> addStartedTasks(Task<? super E> task) {
         if (this.runningTasks != null && task.getStatus() == MultiTickTask.Status.RUNNING) {
             this.runningTasks.setVisible(task, true);
         }

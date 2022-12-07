@@ -33,7 +33,7 @@ public abstract class EntityMixin {
     protected Object2DoubleMap<TagKey<Fluid>> fluidHeight;
 
     @Inject(
-            method = "updateMovementInFluid(Lnet/minecraft/tag/TagKey;D)Z",
+            method = "updateMovementInFluid(Lnet/minecraft/registry/tag/TagKey;D)Z",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/Entity;isPushedByFluids()Z",

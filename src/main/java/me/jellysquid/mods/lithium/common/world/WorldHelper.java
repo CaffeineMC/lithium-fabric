@@ -10,6 +10,7 @@ import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.ServerEntityMa
 import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.ServerWorldAccessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.collection.TypeFilterableList;
+import net.minecraft.util.function.LazyIterationConsumer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.EntityView;
@@ -76,6 +77,7 @@ public class WorldHelper {
                     }
                 }
             }
+            return LazyIterationConsumer.NextIteration.CONTINUE;
         });
         return entities;
     }

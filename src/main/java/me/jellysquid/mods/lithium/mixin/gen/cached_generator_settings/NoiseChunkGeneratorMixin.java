@@ -1,6 +1,5 @@
 package me.jellysquid.mods.lithium.mixin.gen.cached_generator_settings;
 
-import net.minecraft.registry.Registry;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
@@ -18,7 +17,7 @@ public class NoiseChunkGeneratorMixin {
 
     @Shadow
     @Final
-    protected RegistryEntry<ChunkGeneratorSettings> settings;
+    private RegistryEntry<ChunkGeneratorSettings> settings;
     private int cachedSeaLevel;
 
     /**
@@ -36,16 +35,16 @@ public class NoiseChunkGeneratorMixin {
     /**
      * Initialize the cache early in the ctor to avoid potential future problems with uninitialized usages
      */
-    @SuppressWarnings("rawtypes")
     @Inject(
             method = "<init>",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/util/registry/RegistryEntry;value()Ljava/lang/Object;",
+                    target = "Lcom/google/common/base/Suppliers;memoize(Lcom/google/common/base/Supplier;)Lcom/google/common/base/Supplier;",
+                    remap = false,
                     shift = At.Shift.BEFORE
             )
     )
-    private void hookConstructor(Registry structureSetRegistry, Registry noiseRegistry, BiomeSource populationSource, RegistryEntry registryEntry, CallbackInfo ci) {
+    private void hookConstructor(BiomeSource biomeSource, RegistryEntry<ChunkGeneratorSettings> settings, CallbackInfo ci) {
         this.cachedSeaLevel = this.settings.value().seaLevel();
     }
 }

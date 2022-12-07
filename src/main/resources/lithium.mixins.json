@@ -33,7 +33,7 @@
     "ai.sensor.secondary_poi.SecondaryPointsOfInterestSensorMixin",
     "ai.task.launch.BrainMixin",
     "ai.task.memory_change_counting.BrainMixin",
-    "ai.task.memory_change_counting.TaskMixin",
+    "ai.task.memory_change_counting.MultiTickTaskMixin",
     "ai.task.replace_streams.CompositeTaskMixin",
     "ai.task.replace_streams.WeightedListMixin",
     "alloc.blockstate.StateMixin",

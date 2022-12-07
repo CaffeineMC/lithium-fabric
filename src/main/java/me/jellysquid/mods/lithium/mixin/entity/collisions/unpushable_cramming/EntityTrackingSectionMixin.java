@@ -10,6 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.collection.TypeFilterableList;
+import net.minecraft.util.function.LazyIterationConsumer;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import net.minecraft.world.entity.EntityLike;
@@ -43,7 +44,7 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
     private ReferenceMaskedList<Entity> pushableEntities;
 
     @Override
-    public void collectPushableEntities(World world, Entity except, Box box, EntityPushablePredicate<? super Entity> entityPushablePredicate, ArrayList<Entity> entities) {
+    public LazyIterationConsumer.NextIteration collectPushableEntities(World world, Entity except, Box box, EntityPushablePredicate<? super Entity> entityPushablePredicate, ArrayList<Entity> entities) {
         Iterator<?> entityIterator;
         if (this.pushableEntities != null) {
             entityIterator = this.pushableEntities.iterator();
@@ -66,6 +67,7 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
         if (this.pushableEntities == null && i >= 25 && i >= (j * 2)) {
             this.startFilteringPushableEntities();
         }
+        return LazyIterationConsumer.NextIteration.CONTINUE;
     }
 
     private void startFilteringPushableEntities() {
