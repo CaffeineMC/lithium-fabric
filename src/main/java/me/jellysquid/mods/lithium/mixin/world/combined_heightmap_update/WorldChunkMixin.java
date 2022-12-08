@@ -62,7 +62,7 @@ public abstract class WorldChunkMixin extends Chunk {
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private void updateHeightmapsCombined(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir, int i, ChunkSection chunkSection, boolean bl, int x, int y, int z, BlockState blockState, Block block) {
+    private void updateHeightmapsCombined(BlockPos pos, BlockState state, boolean moved, CallbackInfoReturnable<BlockState> cir, int y, ChunkSection chunkSection, boolean bl, int x, int yMod16, int z, BlockState blockState, Block block) {
         Heightmap heightmap0 = this.heightmaps.get(Heightmap.Type.MOTION_BLOCKING);
         Heightmap heightmap1 = this.heightmaps.get(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES);
         Heightmap heightmap2 = this.heightmaps.get(Heightmap.Type.OCEAN_FLOOR);
