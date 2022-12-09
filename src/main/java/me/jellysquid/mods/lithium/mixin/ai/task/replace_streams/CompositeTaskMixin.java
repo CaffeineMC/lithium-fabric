@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.Set;
 
 @Mixin(CompositeTask.class)
-public abstract class CompositeTaskMixin<E extends LivingEntity> {
+public abstract class CompositeTaskMixin<E extends LivingEntity> implements Task<E> {
     @Shadow
     @Final
     private WeightedList<Task<? super E>> tasks;
@@ -33,6 +33,7 @@ public abstract class CompositeTaskMixin<E extends LivingEntity> {
      * @reason Replace stream code with traditional iteration
      * @author JellySquid, IMS, 2No2Name
      */
+    @Override
     @Overwrite
     public final void tick(ServerWorld world, E entity, long time) {
         boolean hasOneTaskRunning = false;
@@ -52,6 +53,7 @@ public abstract class CompositeTaskMixin<E extends LivingEntity> {
      * @reason Replace stream code with traditional iteration
      * @author JellySquid
      */
+    @Override
     @Overwrite
     public final void stop(ServerWorld world, E entity, long time) {
         this.status = MultiTickTask.Status.STOPPED;
