@@ -171,6 +171,7 @@
     "util.inventory_comparator_tracking.ComparatorBlockMixin",
     "util.world_border_listener.WorldBorderMixin",
     "world.block_entity_retrieval.WorldMixin",
+    "world.block_entity_ticking.sleeping.ServerWorldMixin",
     "world.block_entity_ticking.sleeping.WorldChunkMixin",
     "world.block_entity_ticking.sleeping.WorldMixin",
     "world.block_entity_ticking.sleeping.WrappedBlockEntityTickInvokerAccessor",
