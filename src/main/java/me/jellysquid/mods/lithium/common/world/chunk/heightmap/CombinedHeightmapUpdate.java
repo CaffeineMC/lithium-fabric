@@ -45,7 +45,7 @@ public class CombinedHeightmapUpdate {
         if (heightmap0 != null) {
             if (blockPredicate0.test(state)) {
                 if (y >= height0) {
-                    ((HeightmapAccessor) heightmap0).setHeight(x, z, y + 1);
+                    ((HeightmapAccessor) heightmap0).callSet(x, z, y + 1);
                 }
                 heightmap0 = null;
                 heightmapsToUpdate--;
@@ -57,7 +57,7 @@ public class CombinedHeightmapUpdate {
         if (heightmap1 != null) {
             if (blockPredicate1.test(state)) {
                 if (y >= height1) {
-                    ((HeightmapAccessor) heightmap1).setHeight(x, z, y + 1);
+                    ((HeightmapAccessor) heightmap1).callSet(x, z, y + 1);
                 }
                 heightmap1 = null;
                 heightmapsToUpdate--;
@@ -69,7 +69,7 @@ public class CombinedHeightmapUpdate {
         if (heightmap2 != null) {
             if (blockPredicate2.test(state)) {
                 if (y >= height2) {
-                    ((HeightmapAccessor) heightmap2).setHeight(x, z, y + 1);
+                    ((HeightmapAccessor) heightmap2).callSet(x, z, y + 1);
                 }
                 heightmap2 = null;
                 heightmapsToUpdate--;
@@ -81,7 +81,7 @@ public class CombinedHeightmapUpdate {
         if (heightmap3 != null) {
             if (blockPredicate3.test(state)) {
                 if (y >= height3) {
-                    ((HeightmapAccessor) heightmap3).setHeight(x, z, y + 1);
+                    ((HeightmapAccessor) heightmap3).callSet(x, z, y + 1);
                 }
                 heightmap3 = null;
                 heightmapsToUpdate--;
@@ -103,37 +103,37 @@ public class CombinedHeightmapUpdate {
             mutable.set(x, searchY, z);
             BlockState blockState = worldChunk.getBlockState(mutable);
             if (heightmap0 != null && blockPredicate0.test(blockState)) {
-                ((HeightmapAccessor) heightmap0).setHeight(x, z, searchY + 1);
+                ((HeightmapAccessor) heightmap0).callSet(x, z, searchY + 1);
                 heightmap0 = null;
                 heightmapsToUpdate--;
             }
             if (heightmap1 != null && blockPredicate1.test(blockState)) {
-                ((HeightmapAccessor) heightmap1).setHeight(x, z, searchY + 1);
+                ((HeightmapAccessor) heightmap1).callSet(x, z, searchY + 1);
                 heightmap1 = null;
                 heightmapsToUpdate--;
             }
             if (heightmap2 != null && blockPredicate2.test(blockState)) {
-                ((HeightmapAccessor) heightmap2).setHeight(x, z, searchY + 1);
+                ((HeightmapAccessor) heightmap2).callSet(x, z, searchY + 1);
                 heightmap2 = null;
                 heightmapsToUpdate--;
             }
             if (heightmap3 != null && blockPredicate3.test(blockState)) {
-                ((HeightmapAccessor) heightmap3).setHeight(x, z, searchY + 1);
+                ((HeightmapAccessor) heightmap3).callSet(x, z, searchY + 1);
                 heightmap3 = null;
                 heightmapsToUpdate--;
             }
         }
         if (heightmap0 != null) {
-            ((HeightmapAccessor) heightmap0).setHeight(x, z, bottomY);
+            ((HeightmapAccessor) heightmap0).callSet(x, z, bottomY);
         }
         if (heightmap1 != null) {
-            ((HeightmapAccessor) heightmap1).setHeight(x, z, bottomY);
+            ((HeightmapAccessor) heightmap1).callSet(x, z, bottomY);
         }
         if (heightmap2 != null) {
-            ((HeightmapAccessor) heightmap2).setHeight(x, z, bottomY);
+            ((HeightmapAccessor) heightmap2).callSet(x, z, bottomY);
         }
         if (heightmap3 != null) {
-            ((HeightmapAccessor) heightmap3).setHeight(x, z, bottomY);
+            ((HeightmapAccessor) heightmap3).callSet(x, z, bottomY);
         }
     }
 }
