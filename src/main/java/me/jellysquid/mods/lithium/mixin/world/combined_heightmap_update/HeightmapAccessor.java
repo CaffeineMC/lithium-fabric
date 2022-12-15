@@ -10,8 +10,8 @@ import java.util.function.Predicate;
 
 @Mixin(Heightmap.class)
 public interface HeightmapAccessor {
-    @Invoker("set")
-    void setHeight(int x, int z, int height);
+    @Invoker
+    void callSet(int x, int z, int height);
     @Accessor("blockPredicate")
     Predicate<BlockState> getBlockPredicate();
 }
