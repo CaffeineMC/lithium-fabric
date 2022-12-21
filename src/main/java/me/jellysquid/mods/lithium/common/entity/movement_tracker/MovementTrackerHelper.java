@@ -1,6 +1,8 @@
 package me.jellysquid.mods.lithium.common.entity.movement_tracker;
 
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import me.jellysquid.mods.lithium.api.inventory.LithiumInventory;
+import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.world.entity.EntityLike;
@@ -20,7 +22,11 @@ public abstract class MovementTrackerHelper {
     public static final int NUM_MOVEMENT_NOTIFYING_CLASSES;
 
     static {
-        MOVEMENT_NOTIFYING_ENTITY_CLASSES = List.of(ItemEntity.class, Inventory.class);
+        if (LithiumInventory.class.isAssignableFrom(HopperBlockEntity.class)) {
+            MOVEMENT_NOTIFYING_ENTITY_CLASSES = List.of(ItemEntity.class, Inventory.class);
+        } else {
+            MOVEMENT_NOTIFYING_ENTITY_CLASSES = List.of();
+        }
 
         CLASS_2_NOTIFY_MASK = new Reference2IntOpenHashMap<>();
         CLASS_2_NOTIFY_MASK.defaultReturnValue(-1);
