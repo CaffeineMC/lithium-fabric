@@ -1,8 +1,8 @@
-package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
+package me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking;
 
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.MovementTrackerCache;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.SectionedEntityMovementTracker;
+import me.jellysquid.mods.lithium.common.entity.movement_tracker.MovementTrackerCache;
+import me.jellysquid.mods.lithium.common.entity.movement_tracker.SectionedEntityMovementTracker;
 import net.minecraft.world.entity.EntityLike;
 import net.minecraft.world.entity.SectionedEntityCache;
 import org.spongepowered.asm.mixin.Mixin;

@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.util.entity_section_position;
 
-import me.jellysquid.mods.lithium.common.entity.tracker.PositionedEntityTrackingSection;
+import me.jellysquid.mods.lithium.common.entity.PositionedEntityTrackingSection;
 import net.minecraft.world.entity.EntityTrackingSection;
 import org.spongepowered.asm.mixin.Mixin;
 

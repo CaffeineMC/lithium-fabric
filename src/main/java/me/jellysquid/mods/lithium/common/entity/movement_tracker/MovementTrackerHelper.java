@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.entity.tracker;
+package me.jellysquid.mods.lithium.common.entity.movement_tracker;
 
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.minecraft.entity.ItemEntity;
@@ -14,7 +14,7 @@ import java.util.List;
  * watched area. This removes the necessity to constantly poll the world for nearby entities each tick and generally
  * provides a sizable boost to performance of hoppers.
  */
-public abstract class EntityTrackerEngine {
+public abstract class MovementTrackerHelper {
     public static final List<Class<?>> MOVEMENT_NOTIFYING_ENTITY_CLASSES;
     public static volatile Reference2IntOpenHashMap<Class<? extends EntityLike>> CLASS_2_NOTIFY_MASK;
     public static final int NUM_MOVEMENT_NOTIFYING_CLASSES;

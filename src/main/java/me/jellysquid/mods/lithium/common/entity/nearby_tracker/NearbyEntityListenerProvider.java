@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
+package me.jellysquid.mods.lithium.common.entity.nearby_tracker;
 
 import org.jetbrains.annotations.Nullable;
 

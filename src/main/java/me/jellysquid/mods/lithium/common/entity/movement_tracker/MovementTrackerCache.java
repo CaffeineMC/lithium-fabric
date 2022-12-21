@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
+package me.jellysquid.mods.lithium.common.entity.movement_tracker;
 
 public interface MovementTrackerCache {
     void remove(SectionedEntityMovementTracker<?, ?> tracker);

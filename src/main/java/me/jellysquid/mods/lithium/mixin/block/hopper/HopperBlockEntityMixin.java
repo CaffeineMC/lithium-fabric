@@ -6,9 +6,9 @@ import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_comparator_tracking.ComparatorTracker;
 import me.jellysquid.mods.lithium.common.compat.fabric_transfer_api_v1.FabricTransferApiCompat;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityMovementListener;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.SectionedInventoryEntityMovementTracker;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.SectionedItemEntityMovementTracker;
+import me.jellysquid.mods.lithium.common.entity.movement_tracker.SectionedEntityMovementListener;
+import me.jellysquid.mods.lithium.common.entity.movement_tracker.SectionedInventoryEntityMovementTracker;
+import me.jellysquid.mods.lithium.common.entity.movement_tracker.SectionedItemEntityMovementTracker;
 import me.jellysquid.mods.lithium.common.hopper.*;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HopperBlock;
@@ -48,7 +48,7 @@ import static net.minecraft.block.entity.HopperBlockEntity.getInputItemEntities;
 
 
 @Mixin(value = HopperBlockEntity.class, priority = 950)
-public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopper, UpdateReceiver, LithiumInventory, InventoryChangeListener, NearbyEntityMovementListener {
+public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopper, UpdateReceiver, LithiumInventory, InventoryChangeListener, SectionedEntityMovementListener {
 
     public HopperBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);

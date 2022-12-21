@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
+package me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerEntityManager;

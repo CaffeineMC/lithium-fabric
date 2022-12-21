@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.block.hopper;
 
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.ToggleableMovementTracker;
+import me.jellysquid.mods.lithium.common.entity.movement_tracker.ToggleableMovementTracker;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;

@@ -1,6 +1,5 @@
-package me.jellysquid.mods.lithium.common.entity.tracker.nearby;
+package me.jellysquid.mods.lithium.common.entity.nearby_tracker;
 
-import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerSection;
 import me.jellysquid.mods.lithium.common.util.tuples.Range6Int;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.collection.TypeFilterableList;
@@ -11,10 +10,6 @@ import net.minecraft.world.entity.EntityLike;
 import net.minecraft.world.entity.EntityTrackingSection;
 import net.minecraft.world.entity.SectionedEntityCache;
 
-/**
- * The main interface used to receive events from the
- * {@link me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngine} of a world.
- */
 public interface NearbyEntityListener {
     Range6Int EMPTY_RANGE = new Range6Int(0, 0, 0, -1, -1, -1);
     /**
@@ -36,7 +31,7 @@ public interface NearbyEntityListener {
                         if (after == null || !after.contains(pos.set(x, y, z))) {
                             long sectionPos = ChunkSectionPos.asLong(x, y, z);
                             EntityTrackingSection<? extends EntityLike> trackingSection = entityCache.getTrackingSection(sectionPos);
-                            ((EntityTrackerSection) trackingSection).removeListener(entityCache, this);
+                            ((NearbyEntityListenerSection) trackingSection).removeListener(entityCache, this);
                             if (trackingSection.isEmpty()) {
                                 entityCache.removeSection(sectionPos);
                             }
@@ -50,7 +45,7 @@ public interface NearbyEntityListener {
                 for (int y = after.getMinY(); y <= after.getMaxY(); y++) {
                     for (int z = after.getMinZ(); z <= after.getMaxZ(); z++) {
                         if (before == null || !before.contains(pos.set(x, y, z))) {
-                            ((EntityTrackerSection) entityCache.getTrackingSection(ChunkSectionPos.asLong(x, y, z))).addListener(this);
+                            ((NearbyEntityListenerSection) entityCache.getTrackingSection(ChunkSectionPos.asLong(x, y, z))).addListener(this);
                         }
                     }
                 }
