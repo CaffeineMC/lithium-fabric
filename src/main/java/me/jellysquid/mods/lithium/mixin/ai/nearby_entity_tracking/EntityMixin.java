@@ -1,8 +1,8 @@
 package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListener;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerMulti;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerProvider;
+import me.jellysquid.mods.lithium.common.entity.nearby_tracker.NearbyEntityListener;
+import me.jellysquid.mods.lithium.common.entity.nearby_tracker.NearbyEntityListenerMulti;
+import me.jellysquid.mods.lithium.common.entity.nearby_tracker.NearbyEntityListenerProvider;
 import net.minecraft.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;

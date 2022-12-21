@@ -1,10 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 
-import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerEngine;
-import me.jellysquid.mods.lithium.common.entity.tracker.EntityTrackerSection;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerMulti;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.NearbyEntityListenerProvider;
-import me.jellysquid.mods.lithium.common.entity.tracker.nearby.ToggleableMovementTracker;
+import me.jellysquid.mods.lithium.common.entity.nearby_tracker.NearbyEntityListenerMulti;
+import me.jellysquid.mods.lithium.common.entity.nearby_tracker.NearbyEntityListenerProvider;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerEntityManager;
 import net.minecraft.util.math.BlockPos;
@@ -21,9 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(targets = "net/minecraft/server/world/ServerEntityManager$Listener")
-public class ServerEntityManagerListenerMixin<T extends EntityLike> implements ToggleableMovementTracker {
-    @Shadow
-    private EntityTrackingSection<T> section;
+public class ServerEntityManagerListenerMixin<T extends EntityLike> {
     @Shadow
     @Final
     private T entity;
@@ -35,21 +30,6 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> implements T
 
     @Shadow
     private long sectionPos;
-
-    private int notificationMask;
-
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(ServerEntityManager<?> outer, T entityLike, long l, EntityTrackingSection<T> entityTrackingSection, CallbackInfo ci) {
-        this.notificationMask = EntityTrackerEngine.getNotificationMask(this.entity.getClass());
-
-        //Fix #284 Summoned inventory minecarts do not immediately notify hoppers of their presence when created using summon command
-        this.notifyMovementListeners();
-    }
-
-    @Inject(method = "updateEntityPosition()V", at = @At("RETURN"))
-    private void updateEntityTrackerEngine(CallbackInfo ci) {
-        this.notifyMovementListeners();
-    }
 
     @Inject(
             method = "updateEntityPosition()V",
@@ -71,7 +51,6 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> implements T
                     ChunkSectionPos.from(newPos)
             );
         }
-        this.notifyMovementListeners();
     }
 
     @Inject(
@@ -90,19 +69,5 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> implements T
                     null
             );
         }
-        this.notifyMovementListeners();
-    }
-
-    private void notifyMovementListeners() {
-        if (this.notificationMask != 0) {
-            ((EntityTrackerSection) this.section).trackEntityMovement(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
-        }
-    }
-
-    @Override
-    public int setNotificationMask(int notificationMask) {
-        int oldNotificationMask = this.notificationMask;
-        this.notificationMask = notificationMask;
-        return oldNotificationMask;
     }
 }
