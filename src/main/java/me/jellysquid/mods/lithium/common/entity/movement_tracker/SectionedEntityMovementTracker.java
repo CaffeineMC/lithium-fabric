@@ -3,7 +3,7 @@ package me.jellysquid.mods.lithium.common.entity.movement_tracker;
 import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.util.tuples.WorldSectionBox;
-import me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking.ServerEntityManagerAccessor;
+import me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking.ServerEntityManagerAccessor;
 import me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking.ServerWorldAccessor;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.ChunkSectionPos;
