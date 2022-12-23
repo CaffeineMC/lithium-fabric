@@ -53,8 +53,25 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
     }
 
     private void onEntryRemoved(long key, Optional<R> value) {
-        // NO-OP... vanilla never removes anything, leaking entries.
-        // We might want to fix this.
+        int y = Pos.SectionYIndex.fromSectionCoord(this.world, ChunkSectionPos.unpackY(key));
+
+        // We only care about items belonging to a valid sub-chunk
+        if (y < 0 || y >= Pos.SectionYIndex.getNumYSections(this.world)) {
+            return;
+        }
+
+        int x = ChunkSectionPos.unpackX(key);
+        int z = ChunkSectionPos.unpackZ(key);
+
+        long pos = ChunkPos.toLong(x, z);
+        BitSet flags = this.columns.get(pos);
+
+        if (flags != null) {
+            flags.clear(y);
+            if (flags.isEmpty()) {
+                this.columns.remove(pos);
+            }
+        }
     }
 
     private void onEntryAdded(long key, Optional<R> value) {
