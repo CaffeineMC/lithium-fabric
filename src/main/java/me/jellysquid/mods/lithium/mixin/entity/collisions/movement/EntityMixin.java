@@ -14,14 +14,10 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Mixin(Entity.class)
 public class EntityMixin {
-    private static final List<VoxelShape> GET_ENTITIES_LATER = Collections.unmodifiableList(new ArrayList<>());
-
     @Redirect(
             method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;",
             at = @At(
@@ -30,7 +26,20 @@ public class EntityMixin {
             )
     )
     private List<VoxelShape> getEntitiesLater(World world, Entity entity, Box box) {
-        return GET_ENTITIES_LATER;
+        return List.of();
+    }
+
+
+    @Redirect(
+            method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/Entity;adjustMovementForCollisions(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Lnet/minecraft/world/World;Ljava/util/List;)Lnet/minecraft/util/math/Vec3d;"
+            ),
+            require = 5
+    )
+    private static Vec3d adjustMovmentForCollisionsGetEntitiesLater(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, List<VoxelShape> collisions) {
+        return lithiumCollideMultiAxisMovement(entity, movement, entityBoundingBox, world, true, collisions);
     }
 
     /**
@@ -39,10 +48,10 @@ public class EntityMixin {
      */
     @Overwrite
     public static Vec3d adjustMovementForCollisions(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, List<VoxelShape> collisions) {
-        return lithiumCollideMultiAxisMovement(entity, movement, entityBoundingBox, world, collisions == GET_ENTITIES_LATER);
+        return lithiumCollideMultiAxisMovement(entity, movement, entityBoundingBox, world, false, collisions);
     }
 
-    private static Vec3d lithiumCollideMultiAxisMovement(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, boolean getEntityCollisions) {
+    private static Vec3d lithiumCollideMultiAxisMovement(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, boolean getEntityCollisions, List<VoxelShape> otherCollisions) {
         //vanilla order: entities, worldborder, blocks. It is unknown whether changing this order changes the result regarding the confusing 1e-7 VoxelShape margin behavior. Not yet investigated
         double velX = movement.x;
         double velY = movement.y;
@@ -50,6 +59,7 @@ public class EntityMixin {
         boolean isVerticalOnly = velX == 0 && velZ == 0;
         Box movementSpace;
         if (isVerticalOnly) {
+            //Reduced collision volume optimization for entities that are just standing around
             if (velY < 0) {
                 movementSpace = new Box(entityBoundingBox.minX, entityBoundingBox.minY + velY, entityBoundingBox.minZ, entityBoundingBox.maxX, entityBoundingBox.minY, entityBoundingBox.maxZ);
             } else {
@@ -65,7 +75,10 @@ public class EntityMixin {
         if (velY != 0.0) {
             velY = VoxelShapes.calculateMaxOffset(Direction.Axis.Y, entityBoundingBox, blockCollisions, velY);
             if (velY != 0.0) {
-                if (getEntityCollisions) {
+                if (!otherCollisions.isEmpty()) {
+                    velY = VoxelShapes.calculateMaxOffset(Direction.Axis.Y, entityBoundingBox, otherCollisions, velY);
+                }
+                if (velY != 0.0 && getEntityCollisions) {
                     entityWorldBorderCollisions = LithiumEntityCollisions.getEntityWorldBorderCollisions(world, entity, movementSpace, entity != null);
                     velY = VoxelShapes.calculateMaxOffset(Direction.Axis.Y, entityBoundingBox, entityWorldBorderCollisions, velY);
                 }
@@ -78,10 +91,14 @@ public class EntityMixin {
         if (velXSmallerVelZ) {
             velZ = VoxelShapes.calculateMaxOffset(Direction.Axis.Z, entityBoundingBox, blockCollisions, velZ);
             if (velZ != 0.0) {
-                if (entityWorldBorderCollisions == null && getEntityCollisions) {
-                    entityWorldBorderCollisions = LithiumEntityCollisions.getEntityWorldBorderCollisions(world, entity, movementSpace, entity != null);
+                if (!otherCollisions.isEmpty()) {
+                    velZ = VoxelShapes.calculateMaxOffset(Direction.Axis.Z, entityBoundingBox, otherCollisions, velZ);
                 }
-                if (getEntityCollisions) {
+                if (velZ != 0.0 && getEntityCollisions) {
+                    if (entityWorldBorderCollisions == null) {
+                        entityWorldBorderCollisions = LithiumEntityCollisions.getEntityWorldBorderCollisions(world, entity, movementSpace, entity != null);
+                    }
+
                     velZ = VoxelShapes.calculateMaxOffset(Direction.Axis.Z, entityBoundingBox, entityWorldBorderCollisions, velZ);
                 }
                 if (velZ != 0.0) {
@@ -92,10 +109,14 @@ public class EntityMixin {
         if (velX != 0.0) {
             velX = VoxelShapes.calculateMaxOffset(Direction.Axis.X, entityBoundingBox, blockCollisions, velX);
             if (velX != 0.0) {
-                if (entityWorldBorderCollisions == null && getEntityCollisions) {
-                    entityWorldBorderCollisions = LithiumEntityCollisions.getEntityWorldBorderCollisions(world, entity, movementSpace, entity != null);
+                if (!otherCollisions.isEmpty()) {
+                    velX = VoxelShapes.calculateMaxOffset(Direction.Axis.X, entityBoundingBox, otherCollisions, velX);
                 }
-                if (getEntityCollisions) {
+                if (velX != 0.0 && getEntityCollisions) {
+                    if (entityWorldBorderCollisions == null) {
+                        entityWorldBorderCollisions = LithiumEntityCollisions.getEntityWorldBorderCollisions(world, entity, movementSpace, entity != null);
+                    }
+
                     velX = VoxelShapes.calculateMaxOffset(Direction.Axis.X, entityBoundingBox, entityWorldBorderCollisions, velX);
                 }
                 if (velX != 0.0) {
@@ -105,12 +126,17 @@ public class EntityMixin {
         }
         if (!velXSmallerVelZ && velZ != 0.0) {
             velZ = VoxelShapes.calculateMaxOffset(Direction.Axis.Z, entityBoundingBox, blockCollisions, velZ);
-            if (velZ != 0.0 && getEntityCollisions) {
-                if (entityWorldBorderCollisions == null) {
-                    entityWorldBorderCollisions = LithiumEntityCollisions.getEntityWorldBorderCollisions(world, entity, movementSpace, entity != null);
+            if (velZ != 0.0) {
+                if (!otherCollisions.isEmpty()) {
+                    velZ = VoxelShapes.calculateMaxOffset(Direction.Axis.Z, entityBoundingBox, otherCollisions, velZ);
                 }
+                if (velZ != 0.0 && getEntityCollisions) {
+                    if (entityWorldBorderCollisions == null) {
+                        entityWorldBorderCollisions = LithiumEntityCollisions.getEntityWorldBorderCollisions(world, entity, movementSpace, entity != null);
+                    }
 
-                velZ = VoxelShapes.calculateMaxOffset(Direction.Axis.Z, entityBoundingBox, entityWorldBorderCollisions, velZ);
+                    velZ = VoxelShapes.calculateMaxOffset(Direction.Axis.Z, entityBoundingBox, entityWorldBorderCollisions, velZ);
+                }
             }
         }
         return new Vec3d(velX, velY, velZ);
