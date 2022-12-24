@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.block.hopper;
 
+import me.jellysquid.mods.lithium.api.inventory.LithiumCooldownReceivingInventory;
 import me.jellysquid.mods.lithium.api.inventory.LithiumInventory;
 import me.jellysquid.mods.lithium.common.block.entity.SleepingBlockEntity;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeListener;
@@ -172,7 +173,17 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
             }
         }
 
-        boolean insertInventoryWasEmptyHopperNotDisabled = insertInventory instanceof HopperBlockEntityMixin && !((HopperBlockEntityMixin) insertInventory).isDisabled() && hopperBlockEntity.insertStackList != null && hopperBlockEntity.insertStackList.getOccupiedSlots() == 0;
+        boolean insertInventoryWasEmptyHopperNotDisabled = insertInventory instanceof HopperBlockEntityMixin &&
+                !((HopperBlockEntityMixin) insertInventory).isDisabled() && hopperBlockEntity.insertStackList != null &&
+                hopperBlockEntity.insertStackList.getOccupiedSlots() == 0;
+
+        boolean insertInventoryHandlesModdedCooldown =
+                ((LithiumCooldownReceivingInventory) insertInventory).canReceiveTransferCooldown() &&
+                        hopperBlockEntity.insertStackList != null ?
+                        hopperBlockEntity.insertStackList.getOccupiedSlots() == 0 :
+                        insertInventory.isEmpty();
+
+
         //noinspection ConstantConditions
         if (!(hopperBlockEntity.insertInventory == insertInventory && hopperBlockEntity.insertStackList.getFullSlots() == hopperBlockEntity.insertStackList.size())) {
             Direction fromDirection = hopperState.get(HopperBlock.FACING).getOpposite();
@@ -190,6 +201,9 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                                 k = 7;
                             }
                             receivingHopper.setTransferCooldown(k);
+                        }
+                        if (insertInventoryHandlesModdedCooldown) {
+                            ((LithiumCooldownReceivingInventory) insertInventory).setTransferCooldown(hopperBlockEntity.lastTickTime);
                         }
                         insertInventory.markDirty();
                         cir.setReturnValue(true);

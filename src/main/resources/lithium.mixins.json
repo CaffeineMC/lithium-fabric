@@ -70,6 +70,7 @@
     "block.hopper.InventoryAccessors$InventoryAccessorHopperBlockEntity",
     "block.hopper.InventoryAccessors$InventoryAccessorShulkerBoxBlockEntity",
     "block.hopper.InventoryAccessors$InventoryAccessorStorageMinecartEntity",
+    "block.hopper.InventoryMixin",
     "block.hopper.ItemStackMixin",
     "block.hopper.ScreenHandlerMixin",
     "block.hopper.TypeFilterableListMixin",
