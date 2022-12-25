@@ -38,7 +38,7 @@ public class EntityMixin {
             ),
             require = 5
     )
-    private static Vec3d adjustMovmentForCollisionsGetEntitiesLater(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, List<VoxelShape> collisions) {
+    private Vec3d adjustMovementForCollisionsGetEntitiesLater(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, List<VoxelShape> collisions) {
         return lithiumCollideMultiAxisMovement(entity, movement, entityBoundingBox, world, true, collisions);
     }
 
