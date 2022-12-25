@@ -7,14 +7,14 @@ Each category below includes a list of options which can be changed by the user.
 
 ### Editing the configuration file
 
-All configuration options are simple key-value pairs. In other words, you first specify the option's name, followed by the desired value, like so:
+Before editing the configuration file, take a backup of your minecraft worlds!
+All configuration options are simple key-value pairs. In other words, you first specify the option's name, followed by
+the desired value, like so:
 
 ```properties
 mixin.ai.pathing=false
 mixin.gen.biome_noise_cache=false
 ```
-
-The remarks after the `#` are comments and exist for your own book-keeping. As such, you don't need to include them, but you might want to include a note as to why you're modifying a default value.
 
 # Configuration options
 ### `mixin.ai`
@@ -22,9 +22,10 @@ The remarks after the `#` are comments and exist for your own book-keeping. As s
 Mob AI optimizations  
   
 ### `mixin.ai.nearby_entity_tracking`
-(default: `true`)  
+
+(default: `false`)  
 Event-based system for tracking nearby entities.
-  
+
 Requirements:
 - `mixin.util.entity_section_position=true`  
   
@@ -131,7 +132,8 @@ BlockStates store their FluidState directly and whether they are empty
 (default: `true`)  
 Reduces hopper lag using caching, notification systems and BlockEntity sleeping  
 Requirements:
-- `mixin.ai.nearby_entity_tracking=true`
+
+- `mixin.util.entity_movement_tracking=true`
 - `mixin.util.block_entity_retrieval=true`
 - `mixin.util.inventory_change_listening=true`  
   
@@ -300,8 +302,10 @@ Skip searching for fire sources in the burn time countdown logic when they are n
 Various world generation optimizations  
   
 ### `mixin.gen.cached_generator_settings`
-(default: `true`)  
-World generator settings cache the sea level  
+
+(default: `false`)  
+World generator settings cache the sea level
+
   
 ### `mixin.gen.chunk_region`
 (default: `true`)  
@@ -357,25 +361,40 @@ Merging and intersecting VoxelShapes is optimized using faster position list mer
   
 ### `mixin.shapes.specialized_shapes`
 (default: `true`)  
-Specialized VoxelShape implementations are used for cuboid and empty shapes. Collisions with those shapes are optimized using a cuboid specific implementation  
-  
+Specialized VoxelShape implementations are used for cuboid and empty shapes. Collisions with those shapes are optimized
+using a cuboid specific implementation
+
 ### `mixin.util`
+
 (default: `true`)  
-Various utilities for other mixins  
-  
+Various utilities for other mixins
+
 ### `mixin.util.block_entity_retrieval`
+
 (default: `true`)  
-Allows access to existing BlockEntities without creating new ones  
-  
+Allows access to existing BlockEntities without creating new ones
+
+### `mixin.util.entity_movement_tracking`
+
+(default: `true`)  
+System to notify subscribers of certain entity sections about position changes of certain entity types.  
+Requirements:
+
+- `mixin.util.entity_section_position=true`
+
 ### `mixin.util.entity_section_position`
+
 (default: `true`)  
-Entity sections store their position  
-  
+Entity sections store their position
+
 ### `mixin.util.inventory_change_listening`
+
 (default: `true`)  
-Certain BlockEntity Inventories emit updates to their listeners when their stack list is changed or the inventory becomes invalid  
-  
+Certain BlockEntity Inventories emit updates to their listeners when their stack list is changed or the inventory
+becomes invalid
+
 ### `mixin.util.inventory_comparator_tracking`
+
 (default: `true`)  
 BlockEntity Inventories update their listeners when a comparator is placed near them  
 Requirements:
@@ -425,25 +444,36 @@ BlockEntity ticking caches whether the BlockEntity can exist in the BlockState a
 (default: `true`)  
 Avoids repeatedly testing whether the BlockEntity is inside the world border by caching the test result and listening for world border changes  
 Requirements:
-- `mixin.util.world_border_listener=true`  
-  
+
+- `mixin.util.world_border_listener=true`
+
 ### `mixin.world.chunk_access`
+
 (default: `true`)  
-Several changes to the chunk manager to speed up chunk access  
-  
+Several changes to the chunk manager to speed up chunk access
+
 ### `mixin.world.chunk_tickets`
+
 (default: `true`)  
-Improves the chunk ticket sets by speeding up the removal of chunk tickets  
-  
+Improves the chunk ticket sets by speeding up the removal of chunk tickets
+
+### `mixin.world.combined_heightmap_update`
+
+(default: `true`)  
+The four vanilla heightmaps are updated using a combined block search instead of searching blocks separately.
+
 ### `mixin.world.explosions`
+
 (default: `true`)  
-Various improvements to explosions, e.g. not accessing blocks along an explosion ray multiple times  
-  
+Various improvements to explosions, e.g. not accessing blocks along an explosion ray multiple times
+
 ### `mixin.world.inline_block_access`
+
 (default: `true`)  
-Faster block and fluid access due to inlining and reduced method size  
-  
+Faster block and fluid access due to inlining and reduced method size
+
 ### `mixin.world.inline_height`
+
 (default: `true`)  
 Reduces indirection by inlining world height access methods  
   
