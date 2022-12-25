@@ -9,7 +9,7 @@
 @MixinConfigOption(
         description = "Reduces hopper lag using caching, notification systems and BlockEntity sleeping",
         depends = {
-                @MixinConfigDependency(dependencyPath = "mixin.ai.nearby_entity_tracking"),
+                @MixinConfigDependency(dependencyPath = "mixin.util.entity_movement_tracking"),
                 @MixinConfigDependency(dependencyPath = "mixin.util.block_entity_retrieval"),
                 @MixinConfigDependency(dependencyPath = "mixin.util.inventory_change_listening")
         }

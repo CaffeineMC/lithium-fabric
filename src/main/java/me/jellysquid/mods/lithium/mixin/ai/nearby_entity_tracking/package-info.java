@@ -4,7 +4,8 @@
                 """,
         depends = {
                 @MixinConfigDependency(dependencyPath = "mixin.util.entity_section_position")
-        }
+        },
+        enabled = false //Disabled, because mspt increase in normal worlds has been measured consistently
 )
 package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 
