@@ -53,14 +53,13 @@ public class DefaultConfigCreator {
 
                             ### Editing the configuration file
 
+                            Before editing the configuration file, take a backup of your minecraft worlds!
                             All configuration options are simple key-value pairs. In other words, you first specify the option's name, followed by the desired value, like so:
 
                             ```properties
                             mixin.ai.pathing=false
                             mixin.gen.biome_noise_cache=false
                             ```
-
-                            The remarks after the `#` are comments and exist for your own book-keeping. As such, you don't need to include them, but you might want to include a note as to why you're modifying a default value.
 
                             # Configuration options
                             """);
