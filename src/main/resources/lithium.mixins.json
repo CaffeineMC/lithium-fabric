@@ -200,6 +200,7 @@
     "world.inline_height.WorldChunkMixin",
     "world.inline_height.WorldMixin",
     "world.player_chunk_tick.ThreadedAnvilChunkStorageMixin",
+    "world.temperature_cache.BiomeMixin",
     "world.tick_scheduler.ChunkTickSchedulerMixin"
   ],
   "client": [
