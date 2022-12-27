@@ -7,6 +7,7 @@ Each category below includes a list of options which can be changed by the user.
 
 ### Editing the configuration file
 
+Before editing the configuration file, take a backup of your minecraft worlds!
 All configuration options are simple key-value pairs. In other words, you first specify the option's name, followed by the desired value, like so:
 
 ```properties
@@ -14,15 +15,13 @@ mixin.ai.pathing=false
 mixin.gen.biome_noise_cache=false
 ```
 
-The remarks after the `#` are comments and exist for your own book-keeping. As such, you don't need to include them, but you might want to include a note as to why you're modifying a default value.
-
 # Configuration options
 ### `mixin.ai`
 (default: `true`)  
 Mob AI optimizations  
   
 ### `mixin.ai.nearby_entity_tracking`
-(default: `true`)  
+(default: `false`)  
 Event-based system for tracking nearby entities.
   
 Requirements:
@@ -131,7 +130,7 @@ BlockStates store their FluidState directly and whether they are empty
 (default: `true`)  
 Reduces hopper lag using caching, notification systems and BlockEntity sleeping  
 Requirements:
-- `mixin.ai.nearby_entity_tracking=true`
+- `mixin.util.entity_movement_tracking=true`
 - `mixin.util.block_entity_retrieval=true`
 - `mixin.util.inventory_change_listening=true`  
   
@@ -300,7 +299,7 @@ Skip searching for fire sources in the burn time countdown logic when they are n
 Various world generation optimizations  
   
 ### `mixin.gen.cached_generator_settings`
-(default: `true`)  
+(default: `false`)  
 World generator settings cache the sea level  
   
 ### `mixin.gen.chunk_region`
@@ -366,6 +365,12 @@ Various utilities for other mixins
 ### `mixin.util.block_entity_retrieval`
 (default: `true`)  
 Allows access to existing BlockEntities without creating new ones  
+  
+### `mixin.util.entity_movement_tracking`
+(default: `true`)  
+System to notify subscribers of certain entity sections about position changes of certain entity types.  
+Requirements:
+- `mixin.util.entity_section_position=true`  
   
 ### `mixin.util.entity_section_position`
 (default: `true`)  
@@ -435,6 +440,10 @@ Several changes to the chunk manager to speed up chunk access
 (default: `true`)  
 Improves the chunk ticket sets by speeding up the removal of chunk tickets  
   
+### `mixin.world.combined_heightmap_update`
+(default: `true`)  
+The four vanilla heightmaps are updated using a combined block search instead of searching blocks separately.  
+  
 ### `mixin.world.explosions`
 (default: `true`)  
 Various improvements to explosions, e.g. not accessing blocks along an explosion ray multiple times  
@@ -450,6 +459,10 @@ Reduces indirection by inlining world height access methods
 ### `mixin.world.player_chunk_tick`
 (default: `true`)  
 Batches sending chunks to player together by replacing the corresponding code  
+  
+### `mixin.world.temperature_cache`
+(default: `true`)  
+Removes the 1024 entry biome temperature cache hash map because the cache seems to be slow and rarely hit.  
   
 ### `mixin.world.tick_scheduler`
 (default: `true`)  
