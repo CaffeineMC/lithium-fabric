@@ -59,8 +59,16 @@ public class EntityMixin {
         boolean isVerticalOnly = velX == 0 && velZ == 0;
         Box movementSpace;
         if (isVerticalOnly) {
-            //Reduced collision volume optimization for entities that are just standing around
             if (velY < 0) {
+                //Check block directly below center of entity first
+                VoxelShape voxelShape = LithiumEntityCollisions.getCollisionShapeBelowEntity(world, entity, entityBoundingBox);
+                if (voxelShape != null) {
+                    double v = voxelShape.calculateMaxDistance(Direction.Axis.Y, entityBoundingBox, velY);
+                    if (v == 0) {
+                        return Vec3d.ZERO;
+                    }
+                }
+                //Reduced collision volume optimization for entities that are just standing around
                 movementSpace = new Box(entityBoundingBox.minX, entityBoundingBox.minY + velY, entityBoundingBox.minZ, entityBoundingBox.maxX, entityBoundingBox.minY, entityBoundingBox.maxZ);
             } else {
                 movementSpace = new Box(entityBoundingBox.minX, entityBoundingBox.maxY, entityBoundingBox.minZ, entityBoundingBox.maxX, entityBoundingBox.maxY + velY, entityBoundingBox.maxZ);
