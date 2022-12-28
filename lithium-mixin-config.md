@@ -150,10 +150,6 @@ BlockNeighborGroups used in fluid code cache their hashcode
 (default: `true`)  
 Various world chunk optimizations  
   
-### `mixin.chunk.block_counting`
-(default: `true`)  
-Chunk sections count certain blocks inside them and provide a method to quickly check whether a chunk contains any of these blocks  
-  
 ### `mixin.chunk.entity_class_groups`
 (default: `true`)  
 Allow grouping entity classes for faster entity access, e.g. boats and shulkers  
@@ -365,6 +361,10 @@ Various utilities for other mixins
 ### `mixin.util.block_entity_retrieval`
 (default: `true`)  
 Allows access to existing BlockEntities without creating new ones  
+  
+### `mixin.util.block_tracking`
+(default: `true`)  
+Chunk sections count certain blocks inside them and provide a method to quickly check whether a chunk contains any of these blocks  
   
 ### `mixin.util.entity_movement_tracking`
 (default: `true`)  
