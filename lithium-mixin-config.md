@@ -221,6 +221,8 @@ Various entity collision optimizations
 ### `mixin.entity.collisions.fluid`
 (default: `true`)  
 Skips being pushed by fluids when the nearby chunk sections do not contain this fluid  
+Requirements:
+- `mixin.util.block_tracking=true`  
   
 ### `mixin.entity.collisions.intersection`
 (default: `true`)  
