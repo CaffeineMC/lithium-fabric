@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.chunk.block_counting;
+package me.jellysquid.mods.lithium.mixin.util.block_tracking;
 
 import me.jellysquid.mods.lithium.common.block.BlockCountingSection;
 import me.jellysquid.mods.lithium.common.block.BlockStateFlagHolder;
