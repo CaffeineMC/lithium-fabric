@@ -6,8 +6,10 @@ pluginManagement {
         }
         gradlePluginPortal()
     }
+
+    includeBuild "components/mixin-config-plugin"
 }
 
-includeBuild "components/mixin-config-plugin"
+include ":components:mixin-config-plugin"
 
 rootProject.name = "lithium-fabric"

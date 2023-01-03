@@ -1,5 +1,6 @@
 package net.caffeinemc.gradle;
 
+import java.util.regex.Pattern;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.tasks.InputDirectory;
@@ -68,7 +69,7 @@ public abstract class CreateMixinConfigTask extends DefaultTask {
                 .map((Path inputFile) -> {
                     boolean isPackageInfo = inputFile.endsWith("package-info.class");
                     Path inputPackagePath = inputSourceSet.relativize(inputFile.getParent());
-                    String inputPackageName = inputPackagePath.toString().replaceAll(inputPackagePath.getFileSystem().getSeparator(), ".");
+                    String inputPackageName = inputPackagePath.toString().replaceAll(Pattern.quote(inputPackagePath.getFileSystem().getSeparator()), ".");
                     String inputPackageClassName = inputPackageName + ".package-info";
                     if (inputPackageName.startsWith(mixinParentPackage + "." + mixinPackage + ".")) {
                         inputPackageName = inputPackageName.substring(mixinParentPackage.length() + 1);

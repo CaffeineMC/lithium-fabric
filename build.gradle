@@ -79,7 +79,7 @@ dependencies {
 
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation 'com.github.2No2Name:McTester:v0.3.1'
-    modImplementation 'com.github.astei:lazydfu:0.1.2'
+//    modImplementation 'com.github.astei:lazydfu:0.1.3'
 
     Set<String> fabricApiModulesCompileOnly = [
             "fabric-transfer-api-v1"
@@ -89,7 +89,7 @@ dependencies {
         modCompileOnly(fabricApi.module(it, "${project.fabric_version}"))
     }
 
-    compileOnly 'net.caffeinemc:mixin-config-plugin:1.0-SNAPSHOT'
+    compileOnly project(":components:mixin-config-plugin")
 }
 
 createMixinConfig {
