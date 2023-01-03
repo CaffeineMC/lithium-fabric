@@ -228,7 +228,7 @@ Requirements:
 (default: `true`)  
 Uses faster block access for block collisions and delayed entity access with grouped boat/shulker for entity collisions when available  
 Requirements:
-- `mixin.chunk.block_counting=true`  
+- `mixin.util.block_tracking=true`  
   
 ### `mixin.entity.collisions.movement`
 (default: `true`)  
