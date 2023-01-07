@@ -194,6 +194,9 @@ public class LithiumEntityCollisions {
         int x = MathHelper.floor(entityBoundingBox.minX + (entityBoundingBox.maxX - entityBoundingBox.minX) / 2);
         int y = MathHelper.floor(entityBoundingBox.minY);
         int z = MathHelper.floor(entityBoundingBox.minZ + (entityBoundingBox.maxZ - entityBoundingBox.minZ) / 2);
+        if (world.isOutOfHeightLimit(y)) {
+            return null;
+        }
         Chunk chunk = (Chunk) world.getChunkAsView(Pos.ChunkCoord.fromBlockCoord(x), Pos.ChunkCoord.fromBlockCoord(z));
         if (chunk != null) {
             ChunkSection cachedChunkSection = chunk.getSectionArray()[Pos.SectionYIndex.fromBlockCoord(world, y)];
