@@ -36,12 +36,7 @@ public class LithiumEntityCollisions {
      * VoxelShape system.
      */
     public static List<VoxelShape> getBlockCollisions(CollisionView world, Entity entity, Box box) {
-        ArrayList<VoxelShape> shapes = new ArrayList<>();
-        ChunkAwareBlockCollisionSweeper sweeper = new ChunkAwareBlockCollisionSweeper(world, entity, box);
-        while (sweeper.hasNext()) {
-            shapes.add(sweeper.next());
-        }
-        return shapes;
+        return new ChunkAwareBlockCollisionSweeper(world, entity, box).collectAll();
     }
 
     /***
