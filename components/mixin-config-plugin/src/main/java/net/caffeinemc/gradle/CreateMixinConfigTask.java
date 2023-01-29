@@ -17,6 +17,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static net.caffeinemc.gradle.GradleMixinConfigPlugin.LOGGER;
@@ -68,7 +69,7 @@ public abstract class CreateMixinConfigTask extends DefaultTask {
                 .map((Path inputFile) -> {
                     boolean isPackageInfo = inputFile.endsWith("package-info.class");
                     Path inputPackagePath = inputSourceSet.relativize(inputFile.getParent());
-                    String inputPackageName = inputPackagePath.toString().replaceAll(inputPackagePath.getFileSystem().getSeparator(), ".");
+                    String inputPackageName = inputPackagePath.toString().replaceAll(Pattern.quote(inputPackagePath.getFileSystem().getSeparator()), ".");
                     String inputPackageClassName = inputPackageName + ".package-info";
                     if (inputPackageName.startsWith(mixinParentPackage + "." + mixinPackage + ".")) {
                         inputPackageName = inputPackageName.substring(mixinParentPackage.length() + 1);
