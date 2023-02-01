@@ -403,7 +403,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                 this.insertionMode = HopperCachingState.BlockInventory.NO_BLOCK_INVENTORY;
             } else {
                 this.insertBlockInventory = insertInventory;
-                this.insertionMode = HopperCachingState.BlockInventory.BLOCK_STATE;
+                this.insertionMode = insertInventory instanceof BlockStateOnlyInventory ? HopperCachingState.BlockInventory.BLOCK_STATE : HopperCachingState.BlockInventory.UNKNOWN;
             }
         }
     }
@@ -468,7 +468,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                 this.extractionMode = HopperCachingState.BlockInventory.NO_BLOCK_INVENTORY;
             } else {
                 this.extractBlockInventory = extractInventory;
-                this.extractionMode = HopperCachingState.BlockInventory.BLOCK_STATE;
+                this.extractionMode = extractInventory instanceof BlockStateOnlyInventory ? HopperCachingState.BlockInventory.BLOCK_STATE : HopperCachingState.BlockInventory.UNKNOWN;
             }
         }
     }
