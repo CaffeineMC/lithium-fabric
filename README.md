@@ -96,7 +96,7 @@ projects. The basic overview is provided here for those familiar.
 - JDK 17
     - You can either install this through a package manager such as [Chocolatey](https://chocolatey.org/) on Windows
       or [SDKMAN!](https://sdkman.io/) on other platforms. If you'd prefer to not use a package manager, you can always
-      grab the installers or packages directly from [AdoptOpenJDK](https://adoptopenjdk.net/).
+      grab the installers or packages directly from [Adoptium](https://adoptium.net/).
 - Gradle 7 or newer (optional)
     - The [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html#sec:using_wrapper) is provided
       in this repository can be used instead of installing a suitable version of Gradle yourself. However, if you are
