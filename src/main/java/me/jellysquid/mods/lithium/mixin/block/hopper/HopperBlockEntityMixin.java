@@ -29,6 +29,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -639,13 +640,17 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     }
 
     //Cached data invalidation:
-
     @SuppressWarnings("deprecation")
+    @Intrinsic
     @Override
     public void setCachedState(BlockState state) {
-        BlockState cachedState = this.getCachedState();
         super.setCachedState(state);
-        if (this.world != null && !this.world.isClient() && state.get(HopperBlock.FACING) != cachedState.get(HopperBlock.FACING)) {
+    }
+
+    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
+    @Inject(method = "setCachedState(Lnet/minecraft/block/BlockState;)V", at = @At("HEAD"))
+    private void invalidateOnSetCachedState(BlockState state, CallbackInfo ci) {
+        if (this.world != null && !this.world.isClient() && state.get(HopperBlock.FACING) != this.getCachedState().get(HopperBlock.FACING)) {
             this.invalidateCachedData();
         }
     }
