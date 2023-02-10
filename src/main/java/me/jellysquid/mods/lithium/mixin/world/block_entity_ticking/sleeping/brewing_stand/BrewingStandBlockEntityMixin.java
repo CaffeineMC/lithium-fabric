@@ -10,6 +10,7 @@ import net.minecraft.block.entity.BrewingStandBlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.BlockEntityTickInvoker;
+import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -74,9 +75,15 @@ public class BrewingStandBlockEntityMixin extends BlockEntity implements Sleepin
     }
 
     @Override
+    @Intrinsic
     public void markDirty() {
         super.markDirty();
-        if (this.isSleeping() && this.world != null && !this.world.isClient()) {
+    }
+
+    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
+    @Inject(method = "markDirty()V", at = @At("RETURN"))
+    private void wakeOnMarkDirty(CallbackInfo ci) {
+        if (this.isSleeping() && this.world != null && !this.world.isClient) {
             this.wakeUpNow();
         }
     }
