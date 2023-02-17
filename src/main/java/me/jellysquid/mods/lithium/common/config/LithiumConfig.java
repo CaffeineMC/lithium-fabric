@@ -194,6 +194,9 @@ public class LithiumConfig {
     }
 
     private void applyModOverride(ModMetadata meta, String name, CustomValue value) {
+        if (!name.startsWith("mixin.")) {
+            name = getMixinRuleName(name);
+        }
         Option option = this.options.get(name);
 
         if (option == null) {
