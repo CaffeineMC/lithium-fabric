@@ -317,9 +317,9 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     protected abstract boolean needsCooldown();
 
     @Override
-    public void onNeighborUpdate(boolean above) {
+    public void invalidateCacheOnNeighborUpdate(boolean fromAbove) {
         //Clear the block inventory cache (composter inventories and no inventory present) on block update / observer update
-        if (above) {
+        if (fromAbove) {
             if (this.extractionMode == HopperCachingState.BlockInventory.NO_BLOCK_INVENTORY || this.extractionMode == HopperCachingState.BlockInventory.BLOCK_STATE) {
                 this.invalidateBlockExtractionData();
             }
@@ -330,6 +330,13 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         }
     }
 
+    @Override
+    public void invalidateCacheOnNeighborUpdate(Direction fromDirection) {
+        boolean fromAbove = fromDirection == Direction.UP;
+        if (fromAbove || this.getCachedState().get(HopperBlock.FACING) == fromDirection) {
+            this.invalidateCacheOnNeighborUpdate(fromAbove);
+        }
+    }
 
     @Redirect(method = "insert(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/inventory/Inventory;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getOutputInventory(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/inventory/Inventory;"))
     private static Inventory nullify(World world, BlockPos pos, BlockState state) {

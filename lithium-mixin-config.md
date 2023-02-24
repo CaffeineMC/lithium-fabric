@@ -134,6 +134,12 @@ Requirements:
 - `mixin.util.block_entity_retrieval=true`
 - `mixin.util.inventory_change_listening=true`  
   
+### `mixin.block.hopper.worldedit_compat`
+(default: `true`)  
+Send updates to hoppers when adding inventory block entities to chunks when world edit is loaded. Fixes the issue of hoppers not noticing when inventories are placed using worldedit without any block updates.  
+Requirements:
+- `mixin.util.block_entity_retrieval=true`  
+  
 ### `mixin.block.moving_block_shapes`
 (default: `true`)  
 Moving blocks and retracting pistons avoid calculating their VoxelShapes by reusing previously created VoxelShapes.  

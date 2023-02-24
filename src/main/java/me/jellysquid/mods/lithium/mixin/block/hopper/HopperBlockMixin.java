@@ -52,7 +52,7 @@ public abstract class HopperBlockMixin extends BlockWithEntity {
         if (above || posFrom.getX() == myPos.getX() + facing.getOffsetX() && posFrom.getY() == myPos.getY() + facing.getOffsetY() && posFrom.getZ() == myPos.getZ() + facing.getOffsetZ()) {
             BlockEntity hopper = ((BlockEntityGetter) world).getLoadedExistingBlockEntity(myPos);
             if (hopper instanceof UpdateReceiver updateReceiver) {
-                updateReceiver.onNeighborUpdate(above);
+                updateReceiver.invalidateCacheOnNeighborUpdate(above);
             }
         }
     }
@@ -64,7 +64,7 @@ public abstract class HopperBlockMixin extends BlockWithEntity {
             for (Direction direction : DIRECTIONS) {
                 BlockEntity hopper = ((BlockEntityGetter) world).getLoadedExistingBlockEntity(pos.offset(direction));
                 if (hopper instanceof UpdateReceiver updateReceiver) {
-                    updateReceiver.onNeighborUpdate(direction == Direction.DOWN);
+                    updateReceiver.invalidateCacheOnNeighborUpdate(direction == Direction.DOWN);
                 }
             }
         }

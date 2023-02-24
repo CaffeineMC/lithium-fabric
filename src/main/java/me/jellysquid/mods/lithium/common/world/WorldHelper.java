@@ -102,4 +102,8 @@ public class WorldHelper {
 
         return localX > 0 && localY > 0 && localZ > 0 && localX < 15 && localY < 15 && localZ < 15;
     }
+
+    public static boolean arePosWithinSameChunk(BlockPos pos1, BlockPos pos2) {
+        return pos1.getX() >> 4 == pos2.getX() >> 4 && pos1.getZ() >> 4 == pos2.getZ() >> 4;
+    }
 }

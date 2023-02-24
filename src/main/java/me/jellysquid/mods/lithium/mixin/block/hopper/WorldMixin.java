@@ -45,7 +45,7 @@ public class WorldMixin {
                     //Directly get the block entity instead of getting the block state first. Maybe that is faster, maybe not.
                     BlockEntity hopper = blockEntities != null ? blockEntities.get(offsetPos) : ((BlockEntityGetter) this).getLoadedExistingBlockEntity(offsetPos);
                     if (hopper instanceof UpdateReceiver updateReceiver) {
-                        updateReceiver.onNeighborUpdate(direction == Direction.DOWN);
+                        updateReceiver.invalidateCacheOnNeighborUpdate(direction == Direction.DOWN);
                     }
                 }
             }
