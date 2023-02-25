@@ -149,7 +149,7 @@ public abstract class ServerChunkManagerMixin {
                 // The holder is absent and we weren't asked to create anything, so return null
                 return null;
             }
-        } else if (((ChunkHolderExtended) holder).updateLastAccessTime(this.time)) {
+        } else if (create && ((ChunkHolderExtended) holder).updateLastAccessTime(this.time)) {
             // Only create a new chunk ticket if one hasn't already been submitted this tick
             // This maintains vanilla behavior (preventing chunks from being immediately unloaded) while also
             // eliminating the cost of submitting a ticket for most chunk fetches
