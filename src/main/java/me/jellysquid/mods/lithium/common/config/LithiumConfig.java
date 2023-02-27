@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.common.config;
 
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import me.jellysquid.mods.lithium.common.compat.worldedit.WorldEditCompat;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.CustomValue;
@@ -26,6 +27,13 @@ public class LithiumConfig {
 
     private final Map<String, Option> options = new HashMap<>();
     private final Set<Option> optionsWithDependencies = new ObjectLinkedOpenHashSet<>();
+
+    private void applyLithiumCompat() {
+        Option option = this.options.get("mixin.block.hopper.worldedit_compat");
+        if (!option.isEnabled() && WorldEditCompat.WORLD_EDIT_PRESENT) {
+            option.addModOverride(true, "lithium-fabric");
+        }
+    }
 
     private LithiumConfig() {
         // Defines the default rules which can be configured by the user or other mods.
@@ -95,6 +103,7 @@ public class LithiumConfig {
                 LOGGER.warn("Could not write default configuration file", e);
             }
         }
+        config.applyLithiumCompat();
 
         config.applyModOverrides();
 
