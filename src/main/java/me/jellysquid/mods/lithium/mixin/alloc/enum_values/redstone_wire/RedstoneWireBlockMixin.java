@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.alloc.enum_values;
+package me.jellysquid.mods.lithium.mixin.alloc.enum_values.redstone_wire;
 
 import me.jellysquid.mods.lithium.common.util.DirectionConstants;
 import net.minecraft.block.RedstoneWireBlock;

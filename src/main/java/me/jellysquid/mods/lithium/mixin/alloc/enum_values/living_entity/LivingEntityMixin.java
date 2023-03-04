@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.alloc.enum_values;
+package me.jellysquid.mods.lithium.mixin.alloc.enum_values.living_entity;
 
 import me.jellysquid.mods.lithium.common.util.EquipmentSlotConstants;
 import net.minecraft.entity.EquipmentSlot;
