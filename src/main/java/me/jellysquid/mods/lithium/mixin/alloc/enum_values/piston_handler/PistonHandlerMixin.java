@@ -1,17 +1,17 @@
-package me.jellysquid.mods.lithium.mixin.alloc.enum_values;
+package me.jellysquid.mods.lithium.mixin.alloc.enum_values.piston_handler;
 
 import me.jellysquid.mods.lithium.common.util.DirectionConstants;
-import net.minecraft.block.PistonBlock;
+import net.minecraft.block.piston.PistonHandler;
 import net.minecraft.util.math.Direction;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(PistonBlock.class)
-public class PistonBlockMixin {
+@Mixin(PistonHandler.class)
+public class PistonHandlerMixin {
 
     @Redirect(
-            method = "shouldExtend(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction;)Z",
+            method = "tryMoveAdjacentBlock(Lnet/minecraft/util/math/BlockPos;)Z",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/util/math/Direction;values()[Lnet/minecraft/util/math/Direction;"

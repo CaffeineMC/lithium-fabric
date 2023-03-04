@@ -110,6 +110,22 @@ Entity trackers use a fastutil set for storing players instead of an IdentityHas
 (default: `true`)  
 Avoid `Enum#values()` array copy in frequently called code  
   
+### `mixin.alloc.enum_values.living_entity`
+(default: `true`)  
+Avoid `Enum#values()` array copy in frequently called code  
+  
+### `mixin.alloc.enum_values.piston_block`
+(default: `true`)  
+Avoid `Enum#values()` array copy in frequently called code  
+  
+### `mixin.alloc.enum_values.piston_handler`
+(default: `true`)  
+Avoid `Enum#values()` array copy in frequently called code  
+  
+### `mixin.alloc.enum_values.redstone_wire`
+(default: `true`)  
+Avoid `Enum#values()` array copy in frequently called code  
+  
 ### `mixin.alloc.explosion_behavior`
 (default: `true`)  
 Remove lambda allocation in frequently called block blast resistance calculation in explosion code  
