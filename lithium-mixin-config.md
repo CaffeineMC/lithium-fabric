@@ -124,7 +124,7 @@ Optimizations related to blocks
   
 ### `mixin.block.flatten_states`
 (default: `true`)  
-FluidStates store directly whether they are empty  
+BlockStates store their FluidState directly and whether they are empty  
   
 ### `mixin.block.hopper`
 (default: `true`)  
