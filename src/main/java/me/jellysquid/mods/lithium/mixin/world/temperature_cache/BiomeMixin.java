@@ -18,7 +18,7 @@ public abstract class BiomeMixin {
      */
     @Deprecated
     @Overwrite
-    private float getTemperature(BlockPos blockPos) {
+    public float getTemperature(BlockPos blockPos) {
         return this.computeTemperature(blockPos);
     }
 }
