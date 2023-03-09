@@ -220,6 +220,10 @@ The expensive check to see if a TypeFilterableList can be filtered by a specific
 (default: `true`)  
 Copy entity hashmap instead of duplicating the list using iteration  
   
+### `mixin.collections.fluid_submersion`
+(default: `true`)  
+Use ReferenceArraySet instead of HashSet to store the fluids the entity is currently submerged in.  
+  
 ### `mixin.collections.gamerules`
 (default: `true`)  
 Uses fastutil hashmaps for gamerules  

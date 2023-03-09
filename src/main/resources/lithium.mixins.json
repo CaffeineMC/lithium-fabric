@@ -98,6 +98,7 @@
     "collections.entity_by_type.TypeFilterableListMixin",
     "collections.entity_filtering.TypeFilterableListMixin",
     "collections.entity_ticking.EntityListMixin",
+    "collections.fluid_submersion.EntityMixin",
     "collections.gamerules.GameRulesMixin",
     "collections.goals.GoalSelectorMixin",
     "collections.mob_spawning.PoolMixin",
