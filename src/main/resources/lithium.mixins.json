@@ -158,6 +158,8 @@
     "util.block_entity_retrieval.WorldMixin",
     "util.block_tracking.AbstractBlockStateMixin",
     "util.block_tracking.ChunkSectionMixin",
+    "util.chunk_access.ChunkCacheMixin",
+    "util.chunk_access.WorldViewMixin",
     "util.entity_movement_tracking.EntityTrackingSectionMixin",
     "util.entity_movement_tracking.SectionedEntityCacheMixin",
     "util.entity_movement_tracking.ServerEntityManagerAccessor",
