@@ -16,8 +16,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.CollisionView;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.chunk.ChunkStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +44,7 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
      */
     private final VoxelShape shape;
 
-    private final CollisionView view;
+    private final World world;
 
     private final ShapeContext context;
 
@@ -68,16 +70,16 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
     private Chunk cachedChunk;
     private ChunkSection cachedChunkSection;
 
-    public ChunkAwareBlockCollisionSweeper(CollisionView view, Entity entity, Box box) {
+    public ChunkAwareBlockCollisionSweeper(World world, Entity entity, Box box) {
         this.box = box;
         this.shape = VoxelShapes.cuboid(box);
         this.context = entity == null ? ShapeContext.absent() : ShapeContext.of(entity);
-        this.view = view;
+        this.world = world;
 
         this.minX = MathHelper.floor(box.minX - EPSILON);
         this.maxX = MathHelper.floor(box.maxX + EPSILON);
-        this.minY = MathHelper.clamp(MathHelper.floor(box.minY - EPSILON), Pos.BlockCoord.getMinY(this.view), Pos.BlockCoord.getMaxYInclusive(this.view));
-        this.maxY = MathHelper.clamp(MathHelper.floor(box.maxY + EPSILON), Pos.BlockCoord.getMinY(this.view), Pos.BlockCoord.getMaxYInclusive(this.view));
+        this.minY = MathHelper.clamp(MathHelper.floor(box.minY - EPSILON), Pos.BlockCoord.getMinY(this.world), Pos.BlockCoord.getMaxYInclusive(this.world));
+        this.maxY = MathHelper.clamp(MathHelper.floor(box.maxY + EPSILON), Pos.BlockCoord.getMinY(this.world), Pos.BlockCoord.getMaxYInclusive(this.world));
         this.minZ = MathHelper.floor(box.minZ - EPSILON);
         this.maxZ = MathHelper.floor(box.maxZ + EPSILON);
 
@@ -104,16 +106,16 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
                 //note: this.minX, maxX etc are not expanded, so there are lots of +1 and -1 around.
                 if (
                         this.cachedChunk != null &&
-                        this.chunkYIndex < Pos.SectionYIndex.getMaxYSectionIndexInclusive(this.view) &&
-                        this.chunkYIndex < Pos.SectionYIndex.fromBlockCoord(this.view,expandMax(this.maxY))
+                        this.chunkYIndex < Pos.SectionYIndex.getMaxYSectionIndexInclusive(this.world) &&
+                        this.chunkYIndex < Pos.SectionYIndex.fromBlockCoord(this.world,expandMax(this.maxY))
                 ) {
                     this.chunkYIndex++;
                     this.cachedChunkSection = this.cachedChunk.getSectionArray()[this.chunkYIndex];
                 } else {
                     this.chunkYIndex = MathHelper.clamp(
-                            Pos.SectionYIndex.fromBlockCoord(this.view, expandMin(this.minY)),
-                            Pos.SectionYIndex.getMinYSectionIndex(this.view),
-                            Pos.SectionYIndex.getMaxYSectionIndexInclusive(this.view)
+                            Pos.SectionYIndex.fromBlockCoord(this.world, expandMin(this.minY)),
+                            Pos.SectionYIndex.getMinYSectionIndex(this.world),
+                            Pos.SectionYIndex.getMaxYSectionIndexInclusive(this.world)
                     );
 
                     if (this.chunkX < Pos.ChunkCoord.fromBlockCoord(expandMax(this.maxX))) {
@@ -129,7 +131,7 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
                         }
                     }
                     //Casting to Chunk is not checked, together with other mods this could cause a ClassCastException
-                    this.cachedChunk = (Chunk) this.view.getChunkAsView(this.chunkX, this.chunkZ);
+                    this.cachedChunk = this.world.getChunk(this.chunkX, this.chunkZ, ChunkStatus.FULL, false);
                     if (this.cachedChunk != null) {
                         this.cachedChunkSection = this.cachedChunk.getSectionArray()[this.chunkYIndex];
                     }
@@ -142,11 +144,11 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
             int sizeExtension = this.sectionOversizedBlocks ? 1 : 0;
 
             this.cEndX = Math.min(this.maxX + sizeExtension, Pos.BlockCoord.getMaxInSectionCoord(this.chunkX));
-            int cEndY = Math.min(this.maxY + sizeExtension, Pos.BlockCoord.getMaxYInSectionIndex(this.view, this.chunkYIndex));
+            int cEndY = Math.min(this.maxY + sizeExtension, Pos.BlockCoord.getMaxYInSectionIndex(this.world, this.chunkYIndex));
             this.cEndZ = Math.min(this.maxZ + sizeExtension, Pos.BlockCoord.getMaxInSectionCoord(this.chunkZ));
 
             this.cStartX = Math.max(this.minX - sizeExtension, Pos.BlockCoord.getMinInSectionCoord(this.chunkX));
-            int cStartY = Math.max(this.minY - sizeExtension, Pos.BlockCoord.getMinYInSectionIndex(this.view, this.chunkYIndex));
+            int cStartY = Math.max(this.minY - sizeExtension, Pos.BlockCoord.getMinYInSectionIndex(this.world, this.chunkYIndex));
             this.cStartZ = Math.max(this.minZ - sizeExtension, Pos.BlockCoord.getMinInSectionCoord(this.chunkZ));
             this.cX = this.cStartX;
             this.cY = cStartY;
@@ -215,7 +217,7 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
 
             this.pos.set(x, y, z);
 
-            VoxelShape collisionShape = state.getCollisionShape(this.view, this.pos, this.context);
+            VoxelShape collisionShape = state.getCollisionShape(this.world, this.pos, this.context);
 
             if (collisionShape != VoxelShapes.empty() && collisionShape != null /*collisionShape should never be null, but we received crash reports.*/) {
                 VoxelShape collidedShape = getCollidedShape(this.box, this.shape, collisionShape, x, y, z);

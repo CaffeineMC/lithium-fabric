@@ -104,7 +104,7 @@
     "collections.mob_spawning.PoolMixin",
     "collections.mob_spawning.SpawnSettingsMixin",
     "entity.collisions.fluid.EntityMixin",
-    "entity.collisions.intersection.CollisionViewMixin",
+    "entity.collisions.intersection.WorldMixin",
     "entity.collisions.movement.EntityMixin",
     "entity.collisions.suffocation.EntityMixin",
     "entity.collisions.unpushable_cramming.AbstractMinecartEntityMixin",
