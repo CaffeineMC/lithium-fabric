@@ -66,9 +66,6 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     @Shadow
     private long lastTickTime;
 
-    @Shadow
-    private static native boolean canExtract(Inventory inv, ItemStack stack, int slot, Direction facing);
-
     private long myModCountAtLastInsert, myModCountAtLastExtract, myModCountAtLastItemCollect;
 
     private HopperCachingState.BlockInventory insertionMode = HopperCachingState.BlockInventory.UNKNOWN;
@@ -255,7 +252,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         for (int i = 0; i < fromSize; i++) {
             int fromSlot = availableSlots != null ? availableSlots[i] : i;
             ItemStack itemStack = fromStackList.get(fromSlot);
-            if (!itemStack.isEmpty() && canExtract(from, itemStack, fromSlot, Direction.DOWN)) {
+            if (!itemStack.isEmpty() && canExtract(to , from, itemStack, fromSlot, Direction.DOWN)) {
                 //calling removeStack is necessary due to its side effects (markDirty in LootableContainerBlockEntity)
                 ItemStack takenItem = from.removeStack(fromSlot, 1);
                 assert !takenItem.isEmpty();
@@ -315,6 +312,9 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
 
     @Shadow
     protected abstract boolean needsCooldown();
+
+    @Shadow
+    private static native boolean canExtract(Inventory hopperInventory, Inventory fromInventory, ItemStack stack, int slot, Direction facing);
 
     @Override
     public void invalidateCacheOnNeighborUpdate(boolean fromAbove) {
