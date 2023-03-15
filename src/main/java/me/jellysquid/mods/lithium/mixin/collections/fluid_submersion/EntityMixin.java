@@ -3,7 +3,7 @@ package me.jellysquid.mods.lithium.mixin.collections.fluid_submersion;
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.registry.tag.TagKey;
+import net.minecraft.tag.TagKey;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
