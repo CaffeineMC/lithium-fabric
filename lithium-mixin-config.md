@@ -41,6 +41,8 @@ A faster code path is used for determining what kind of path-finding node type i
 given block. Additionally, a faster chunk cache will be used for accessing blocks while evaluating
 paths.
   
+Requirements:
+- `mixin.util.chunk_access=true`  
   
 ### `mixin.ai.poi`
 (default: `true`)  
@@ -254,11 +256,14 @@ Requirements:
 (default: `true`)  
 Uses faster block access for block collisions and delayed entity access with grouped boat/shulker for entity collisions when available  
 Requirements:
-- `mixin.util.block_tracking=true`  
+- `mixin.util.block_tracking=true`
+- `mixin.util.chunk_access=true`  
   
 ### `mixin.entity.collisions.movement`
 (default: `true`)  
 Entity movement uses optimized block access and optimized and delayed entity access  
+Requirements:
+- `mixin.util.chunk_access=true`  
   
 ### `mixin.entity.collisions.suffocation`
 (default: `true`)  
@@ -393,6 +398,10 @@ Allows access to existing BlockEntities without creating new ones
 ### `mixin.util.block_tracking`
 (default: `true`)  
 Chunk sections count certain blocks inside them and provide a method to quickly check whether a chunk contains any of these blocks  
+  
+### `mixin.util.chunk_access`
+(default: `true`)  
+Access chunks of worlds, chunk caches and chunk regions directly.  
   
 ### `mixin.util.entity_movement_tracking`
 (default: `true`)  
