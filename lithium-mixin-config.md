@@ -447,6 +447,14 @@ BlockEntity sleeping for inactive brewing stands
 (default: `true`)  
 BlockEntity sleeping for inactive campfires  
   
+### `mixin.world.block_entity_ticking.sleeping.campfire.lit`
+(default: `true`)  
+BlockEntity sleeping for inactive lit campfires  
+  
+### `mixin.world.block_entity_ticking.sleeping.campfire.unlit`
+(default: `true`)  
+BlockEntity sleeping for inactive unlit campfires  
+  
 ### `mixin.world.block_entity_ticking.sleeping.furnace`
 (default: `true`)  
 BlockEntity sleeping for inactive furnaces  
