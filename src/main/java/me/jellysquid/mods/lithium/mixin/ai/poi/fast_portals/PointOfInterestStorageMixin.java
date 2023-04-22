@@ -55,12 +55,16 @@ public abstract class PointOfInterestStorageMixin extends SerializingRegionBased
 
     @Unique
     private void lithium$preloadChunkIfAnySubChunkContainsPOI(WorldView worldView, int x, int z, int minSubChunk, int maxSubChunk) {
+        var chunkPos = new ChunkPos(x, z);
+        var longChunkPos = chunkPos.toLong();
+
+        if (this.preloadedChunks.contains(longChunkPos)) return;
+
         for (int y = minSubChunk; y < maxSubChunk; y++) {
             var sectionPos = ChunkSectionPos.from(x, y, z);
             var section = this.get(sectionPos.asLong());
             if (section.map(PointOfInterestSet::isValid).orElse(false)) {
-                var chunk = sectionPos.toChunkPos();
-                if (this.preloadedChunks.add(chunk.toLong())) {
+                if (this.preloadedChunks.add(longChunkPos)) {
                     worldView.getChunk(x, z, ChunkStatus.EMPTY);
                 }
                 break;
