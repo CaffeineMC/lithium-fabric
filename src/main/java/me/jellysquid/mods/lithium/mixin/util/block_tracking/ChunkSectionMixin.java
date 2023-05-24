@@ -6,6 +6,7 @@ import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
 import me.jellysquid.mods.lithium.common.block.TrackedBlockStatePredicate;
 import net.minecraft.block.BlockState;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.Util;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.PalettedContainer;
 import org.spongepowered.asm.mixin.Final;
@@ -69,7 +70,7 @@ public abstract class ChunkSectionMixin implements BlockCountingSection {
 
         if (this.countsByFlagFuture == null) {
             PalettedContainer<BlockState> blockStateContainer = this.blockStateContainer;
-            this.countsByFlagFuture = CompletableFuture.supplyAsync(() -> calculateLithiumCounts(blockStateContainer));
+            this.countsByFlagFuture = CompletableFuture.supplyAsync(() -> calculateLithiumCounts(blockStateContainer), Util.getMainWorkerExecutor());
         }
         return false;
     }
