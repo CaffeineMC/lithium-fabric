@@ -335,10 +335,6 @@ World generator settings cache the sea level
 (default: `true`)  
 An optimized chunk cache is used for world population features which avoids array indirection and complex logic  
   
-### `mixin.item`
-(default: `true`)  
-Item stacks use the cached empty flag  
-  
 ### `mixin.math`
 (default: `true`)  
 Various math optimizations  
