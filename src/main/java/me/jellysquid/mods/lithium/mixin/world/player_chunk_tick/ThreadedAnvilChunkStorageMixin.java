@@ -80,7 +80,7 @@ public abstract class ThreadedAnvilChunkStorageMixin {
 
         // We can only send chunks if the world matches. This hoists a check that
         // would otherwise be performed every time we try to send a chunk over.
-        if (player.world == this.world) {
+        if (player.getWorld() == this.world) {
             this.sendChunks(oldPos, player);
         }
     }

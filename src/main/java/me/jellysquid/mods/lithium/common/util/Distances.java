@@ -1,13 +1,13 @@
 package me.jellysquid.mods.lithium.common.util;
 
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.util.math.ChunkSectionPos;
 
 public class Distances {
 
     public static double getMinChunkToBlockDistanceL2Sq(BlockPos origin, int chunkX, int chunkZ) {
-        int chunkMinX = ChunkSection.blockCoordFromChunkCoord(chunkX);
-        int chunkMinZ = ChunkSection.blockCoordFromChunkCoord(chunkZ);
+        int chunkMinX = ChunkSectionPos.getBlockCoord(chunkX);
+        int chunkMinZ = ChunkSectionPos.getBlockCoord(chunkZ);
 
         int xDistance = origin.getX() - chunkMinX;
         if (xDistance > 0) {

@@ -178,7 +178,7 @@ public abstract class ServerChunkManagerMixin {
 
         // Create a future to load the chunk if none exists
         if (loadFuture == null) {
-            if (ChunkHolder.getTargetStatusForLevel(holder.getLevel()).isAtLeast(status)) {
+            if (ChunkLevels.getStatus(holder.getLevel()).isAtLeast(status)) {
                 // Create a new future which upgrades the chunk from the previous status level to the desired one
                 CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> mergedFuture = this.threadedAnvilChunkStorage.getChunk(holder, status);
 

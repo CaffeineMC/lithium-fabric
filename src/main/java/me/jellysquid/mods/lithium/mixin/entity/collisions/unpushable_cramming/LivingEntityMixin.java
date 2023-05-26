@@ -75,7 +75,7 @@ public abstract class LivingEntityMixin extends Entity implements BlockCachingEn
     }
 
     private void updateClimbingMobCachingSection(BlockState newState) {
-        SectionedEntityCache<Entity> entityCacheOrNull = WorldHelper.getEntityCacheOrNull(this.world);
+        SectionedEntityCache<Entity> entityCacheOrNull = WorldHelper.getEntityCacheOrNull(this.getWorld());
         if (entityCacheOrNull != null) {
             EntityTrackingSection<Entity> trackingSection = entityCacheOrNull.findTrackingSection(ChunkSectionPos.toLong(this.getBlockPos()));
             if (trackingSection != null) {

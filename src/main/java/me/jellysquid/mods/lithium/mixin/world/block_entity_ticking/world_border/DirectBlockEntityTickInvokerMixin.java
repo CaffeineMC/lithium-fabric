@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.world_border;
 
 import me.jellysquid.mods.lithium.common.world.listeners.WorldBorderListenerOnce;
-import net.minecraft.server.world.ChunkHolder;
+import net.minecraft.server.world.ChunkLevelType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -38,7 +38,7 @@ public abstract class DirectBlockEntityTickInvokerMixin implements WorldBorderLi
         if (this.isInsideWorldBorder()) {
             World world = this.worldChunk.getWorld();
             if (world instanceof ServerWorld serverWorld) {
-                return this.worldChunk.getLevelType().isAfter(ChunkHolder.LevelType.TICKING) && serverWorld.isChunkLoaded(ChunkPos.toLong(pos));
+                return this.worldChunk.getLevelType().isAfter(ChunkLevelType.BLOCK_TICKING) && serverWorld.isChunkLoaded(ChunkPos.toLong(pos));
             }
             return true;
         } else {

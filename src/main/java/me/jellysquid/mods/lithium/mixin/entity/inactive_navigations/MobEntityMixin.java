@@ -63,11 +63,11 @@ public abstract class MobEntityMixin extends Entity implements NavigatingEntity 
         if (this.isRegisteredToWorld()) {
             EntityNavigation navigation = this.getNavigation();
             if (this.registeredNavigation != navigation) {
-                ((ServerWorldExtended) this.world).setNavigationInactive((MobEntity) (Object) this);
+                ((ServerWorldExtended) this.getWorld()).setNavigationInactive((MobEntity) (Object) this);
                 this.registeredNavigation = navigation;
 
                 if (navigation.getCurrentPath() != null) {
-                    ((ServerWorldExtended) this.world).setNavigationActive((MobEntity) (Object) this);
+                    ((ServerWorldExtended) this.getWorld()).setNavigationActive((MobEntity) (Object) this);
                 }
             }
         }

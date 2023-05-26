@@ -17,6 +17,8 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class HopperHelper {
 
     private static final VoxelShape CACHED_INPUT_VOLUME = Hopper.INPUT_AREA_SHAPE;
@@ -88,13 +90,17 @@ public class HopperHelper {
                 ItemStack singleItem = transferStack.split(1);
                 to.setStack(targetSlot, singleItem);
                 return true; //caller needs to call to.markDirty()
-            } else if (toStack.isOf(transferStack.getItem()) && toStack.getMaxCount() > (toCount = toStack.getCount()) && to.getMaxCountPerStack() > toCount && ItemStack.areNbtEqual(toStack, transferStack)) {
+            } else if (toStack.isOf(transferStack.getItem()) && toStack.getMaxCount() > (toCount = toStack.getCount()) && to.getMaxCountPerStack() > toCount && areNbtEqual(toStack, transferStack)) {
                 transferStack.decrement(1);
                 toStack.increment(1);
                 return true; //caller needs to call to.markDirty()
             }
         }
         return false;
+    }
+
+    private static boolean areNbtEqual(ItemStack stack1, ItemStack stack2) {
+        return Objects.equals(stack1.getNbt(), stack2.getNbt());
     }
 
     private static int calculateReducedSignalStrength(float contentWeight, int inventorySize, int inventoryMaxCountPerStack, int numOccupiedSlots, int itemStackCount, int itemStackMaxCount) {

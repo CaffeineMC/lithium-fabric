@@ -137,7 +137,6 @@
     "entity.skip_fire_check.EntityMixin",
     "gen.cached_generator_settings.NoiseChunkGeneratorMixin",
     "gen.chunk_region.ChunkRegionMixin",
-    "item.ItemStackMixin",
     "math.fast_blockpos.BlockPosMixin",
     "math.fast_blockpos.DirectionMixin",
     "math.fast_util.AxisCycleDirectionMixin$BackwardMixin",

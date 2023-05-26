@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.block.hopper;
 
 import me.jellysquid.mods.lithium.common.hopper.UpdateReceiver;
+import me.jellysquid.mods.lithium.common.util.DirectionConstants;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import me.jellysquid.mods.lithium.common.world.blockentity.BlockEntityGetter;
 import net.minecraft.block.Block;
@@ -10,9 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -22,10 +21,6 @@ import java.util.Map;
 
 @Mixin(World.class)
 public class WorldMixin {
-
-    @Shadow
-    @Final
-    private static Direction[] DIRECTIONS;
 
     @Inject(
             method = "setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;II)Z",
@@ -40,7 +35,7 @@ public class WorldMixin {
             //Small performance improvement when getting block entities within the same chunk.
             Map<BlockPos, BlockEntity> blockEntities = WorldHelper.areNeighborsWithinSameChunk(pos) ? worldChunk.getBlockEntities() : null;
             if (blockState != blockState2 && (blockEntities == null || !blockEntities.isEmpty())) {
-                for (Direction direction : DIRECTIONS) {
+                for (Direction direction : DirectionConstants.ALL) {
                     BlockPos offsetPos = pos.offset(direction);
                     //Directly get the block entity instead of getting the block state first. Maybe that is faster, maybe not.
                     BlockEntity hopper = blockEntities != null ? blockEntities.get(offsetPos) : ((BlockEntityGetter) this).getLoadedExistingBlockEntity(offsetPos);
