@@ -12,6 +12,7 @@
     "ai.nearby_entity_tracking.ServerEntityManagerAccessor",
     "ai.nearby_entity_tracking.ServerEntityManagerListenerMixin",
     "ai.nearby_entity_tracking.ServerEntityManagerMixin",
+    "ai.nearby_entity_tracking.ServerWorldAccessor",
     "ai.nearby_entity_tracking.goals.FleeEntityGoalMixin",
     "ai.nearby_entity_tracking.goals.LookAtEntityGoalMixin",
     "ai.pathing.AbstractBlockStateMixin",

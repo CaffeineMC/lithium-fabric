@@ -1,7 +1,13 @@
 package me.jellysquid.mods.lithium.common.entity.nearby_tracker;
 
 import me.jellysquid.mods.lithium.common.util.tuples.Range6Int;
+import me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking.ServerEntityManagerAccessor;
+import me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking.ServerWorldAccessor;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.world.entity.EntityLike;
+import net.minecraft.world.entity.SectionedEntityCache;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,15 +20,30 @@ public class NearbyEntityListenerMulti implements NearbyEntityListener {
     private final List<NearbyEntityListener> listeners = new ArrayList<>(4);
     private Range6Int range = null;
 
-    public void addListener(NearbyEntityListener listener) {
-        if (this.range != null) {
-            throw new IllegalStateException("Cannot add sublisteners after listening range was set!");
-        }
-        this.listeners.add(listener);
+    public <T extends LivingEntity> void addListener(NearbyEntityTracker<T> tracker) {
+        this.listeners.add(tracker);
+        this.updateRange(tracker);
     }
 
-    public void removeListener(NearbyEntityListener listener) {
-        this.listeners.remove(listener);
+    public <T extends LivingEntity> void removeListener(NearbyEntityTracker<T> tracker) {
+        this.listeners.remove(tracker);
+        this.updateRange(tracker);
+    }
+
+    private <S extends EntityLike, T extends LivingEntity> void updateRange(NearbyEntityTracker<T> tracker) {
+        if (this.range == null) {
+            return;
+        }
+        Range6Int updatedRange = this.calculateRange();
+        if (!this.range.equals(updatedRange)) {
+            this.range = updatedRange;
+
+            //noinspection unchecked
+            SectionedEntityCache<S> entityCache = ((ServerEntityManagerAccessor<S>)((ServerWorldAccessor)tracker.getEntity().getWorld()).getEntityManager()).getCache();
+            ChunkSectionPos chunkPos = ChunkSectionPos.from(tracker.getEntity().getBlockPos());
+
+            this.updateChunkRegistrations(entityCache, chunkPos, this.range, chunkPos, updatedRange);
+        }
     }
 
     @Override
@@ -30,11 +51,12 @@ public class NearbyEntityListenerMulti implements NearbyEntityListener {
         if (this.range != null) {
             return this.range;
         }
-        return this.calculateRange();
+        return this.range = this.calculateRange();
     }
+
     private Range6Int calculateRange() {
         if (this.listeners.isEmpty()) {
-            return this.range = EMPTY_RANGE;
+            return EMPTY_RANGE;
         }
         int positiveX = -1;
         int positiveY = -1;
@@ -53,7 +75,7 @@ public class NearbyEntityListenerMulti implements NearbyEntityListener {
             negativeZ = Math.max(chunkRange.negativeZ(), negativeZ);
 
         }
-        return this.range = new Range6Int(positiveX, positiveY, positiveZ, negativeX, negativeY, negativeZ);
+        return new Range6Int(positiveX, positiveY, positiveZ, negativeX, negativeY, negativeZ);
     }
 
     @Override

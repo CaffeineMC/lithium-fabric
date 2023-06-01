@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 
 import me.jellysquid.mods.lithium.common.entity.nearby_tracker.NearbyEntityListenerMulti;
 import me.jellysquid.mods.lithium.common.entity.nearby_tracker.NearbyEntityListenerProvider;
+import me.jellysquid.mods.lithium.common.util.tuples.Range6Int;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerEntityManager;
 import net.minecraft.util.math.BlockPos;
@@ -40,15 +41,16 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private void onAddEntity(CallbackInfo ci, BlockPos blockPos, long newPos, EntityTrackingStatus entityTrackingStatus, EntityTrackingSection<T> entityTrackingSection) {
+    private void onUpdateEntityPosition(CallbackInfo ci, BlockPos blockPos, long newPos, EntityTrackingStatus entityTrackingStatus, EntityTrackingSection<T> entityTrackingSection) {
         NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) this.entity).getListener();
         if (listener != null)
         {
+            Range6Int chunkRange = listener.getChunkRange();
             //noinspection unchecked
-            listener.forEachChunkInRangeChange(
+            listener.updateChunkRegistrations(
                     ((ServerEntityManagerAccessor<T>) this.manager).getCache(),
-                    ChunkSectionPos.from(this.sectionPos),
-                    ChunkSectionPos.from(newPos)
+                    ChunkSectionPos.from(this.sectionPos), chunkRange,
+                    ChunkSectionPos.from(newPos), chunkRange
             );
         }
     }
@@ -63,10 +65,9 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
         NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) this.entity).getListener();
         if (listener != null) {
             //noinspection unchecked
-            listener.forEachChunkInRangeChange(
+            listener.removeFromAllChunksInRange(
                     ((ServerEntityManagerAccessor<T>) this.manager).getCache(),
-                    ChunkSectionPos.from(this.sectionPos),
-                    null
+                    ChunkSectionPos.from(this.sectionPos)
             );
         }
     }

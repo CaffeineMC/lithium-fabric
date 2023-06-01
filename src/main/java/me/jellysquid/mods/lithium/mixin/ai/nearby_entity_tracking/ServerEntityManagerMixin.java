@@ -30,9 +30,8 @@ public abstract class ServerEntityManagerMixin<T extends EntityLike> {
     private void onAddEntity(T entity, boolean existing, CallbackInfoReturnable<Boolean> cir) {
         NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) entity).getListener();
         if (listener != null) {
-            listener.forEachChunkInRangeChange(
+            listener.addToAllChunksInRange(
                     this.cache,
-                    null,
                     ChunkSectionPos.from(entity.getBlockPos())
             );
         }
