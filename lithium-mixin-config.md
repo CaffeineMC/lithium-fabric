@@ -50,7 +50,7 @@ Implements a faster POI search
   
 ### `mixin.ai.poi.fast_portals`
 (default: `true`)  
-Portal search uses the faster POI search  
+Portal search uses the faster POI search and optimized loaded state caching  
   
 ### `mixin.ai.poi.tasks`
 (default: `true`)  
