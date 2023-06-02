@@ -47,7 +47,8 @@ public abstract class ThreadedAnvilChunkStorageMixin {
 
         boolean isWatchingWorld = this.playerChunkWatchingManager.isWatchDisabled(player);
         boolean doesNotGenerateChunks = this.doesNotGenerateChunks(player);
-        boolean movedSections = !newPos.equals(oldPos);
+        boolean movedChunks = oldPos.getX() != newPos.getX() || oldPos.getZ() != newPos.getZ();
+        boolean movedSections = movedChunks || oldPos.getY() != newPos.getY();
 
         if (movedSections || isWatchingWorld != doesNotGenerateChunks) {
             // Notify the client that the chunk map origin has changed. This must happen before any chunk payloads are sent.
@@ -69,18 +70,15 @@ public abstract class ThreadedAnvilChunkStorageMixin {
                 this.playerChunkWatchingManager.enableWatch(player);
             }
 
-            long oldChunkPos = ChunkPos.toLong(oldPos.getX(), oldPos.getZ());
-            long newChunkPos = ChunkPos.toLong(newPos.getX(), newPos.getZ());
-
-            this.playerChunkWatchingManager.movePlayer(oldChunkPos, newChunkPos, player);
-        } else {
-            // The player hasn't changed locations and isn't changing dimensions
-            return;
+            if (movedChunks) {
+                long oldChunkPos = ChunkPos.toLong(oldPos.getX(), oldPos.getZ());
+                long newChunkPos = ChunkPos.toLong(newPos.getX(), newPos.getZ());
+                this.playerChunkWatchingManager.movePlayer(oldChunkPos, newChunkPos, player);
+            }
         }
-
         // We can only send chunks if the world matches. This hoists a check that
         // would otherwise be performed every time we try to send a chunk over.
-        if (player.getWorld() == this.world) {
+        if (movedChunks && player.getWorld() == this.world) {
             this.sendChunks(oldPos, player);
         }
     }
@@ -94,7 +92,7 @@ public abstract class ThreadedAnvilChunkStorageMixin {
 
         int watchRadius = this.watchDistance;
         int watchRadiusIncr = watchRadius + 1;
-        int watchDiameter = watchRadius * 2;
+        int watchDiameter = watchRadiusIncr * 2;
 
         if (Math.abs(oldCenterX - newCenterX) <= watchDiameter && Math.abs(oldCenterZ - newCenterZ) <= watchDiameter) {
             int minX = Math.min(newCenterX, oldCenterX) - watchRadiusIncr;

@@ -125,7 +125,7 @@ public abstract class ServerChunkManagerMixin {
      */
     private Chunk getChunkBlocking(int x, int z, ChunkStatus status, boolean create) {
         final long key = ChunkPos.toLong(x, z);
-        final int level = 33 + ChunkStatus.getDistanceFromFull(status);
+        final int level = ChunkLevels.getLevelFromStatus(status);
 
         ChunkHolder holder = this.getChunkHolder(key);
 
