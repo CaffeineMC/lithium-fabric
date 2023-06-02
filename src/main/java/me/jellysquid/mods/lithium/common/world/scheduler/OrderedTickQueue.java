@@ -5,9 +5,6 @@ import net.minecraft.world.tick.OrderedTick;
 
 import java.util.*;
 
-/**
-
- */
 public class OrderedTickQueue<T> extends AbstractQueue<OrderedTick<T>> {
     private static final int INITIAL_CAPACITY = 16;
     private static final Comparator<OrderedTick<?>> COMPARATOR = Comparator.comparingLong(OrderedTick::subTickOrder);
@@ -115,15 +112,13 @@ public class OrderedTickQueue<T> extends AbstractQueue<OrderedTick<T>> {
         return this.lastIndexExclusive - this.firstIndex;
     }
 
-    private void resize(int size) {
-        // Only compact the array if it is completely empty or is less than 50% filled
-        if (size == 0 || size < this.arr.length / 2) {
+    private void handleCompaction(int size) {
+        // Only compact the array if it is less than 50% filled
+        if (this.arr.length > INITIAL_CAPACITY && size < this.arr.length / 2) {
             this.arr = copyArray(this.arr, size);
         } else {
             // Fill the unused array elements with nulls to release our references to the elements in it
-            for (int i = size; i < this.arr.length; i++) {
-                this.arr[i] = null;
-            }
+            Arrays.fill(this.arr, size, this.arr.length, null);
         }
 
         this.firstIndex = 0;
@@ -158,7 +153,7 @@ public class OrderedTickQueue<T> extends AbstractQueue<OrderedTick<T>> {
             }
             src++;
         }
-        this.resize(dst);
+        this.handleCompaction(dst);
     }
 
     public OrderedTick<T> getTickAtIndex(int index) {
@@ -177,7 +172,7 @@ public class OrderedTickQueue<T> extends AbstractQueue<OrderedTick<T>> {
 
     @SuppressWarnings("unchecked")
     private static <T> OrderedTick<T>[] copyArray(OrderedTick<T>[] src, int size) {
-        final OrderedTick<T>[] copy = new OrderedTick[size];
+        final OrderedTick<T>[] copy = new OrderedTick[Math.max(INITIAL_CAPACITY, size)];
 
         if (size != 0) {
             System.arraycopy(src, 0, copy, 0, Math.min(src.length, size));
