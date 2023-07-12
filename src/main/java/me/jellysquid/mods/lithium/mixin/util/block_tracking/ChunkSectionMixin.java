@@ -1,9 +1,8 @@
 package me.jellysquid.mods.lithium.mixin.util.block_tracking;
 
-import me.jellysquid.mods.lithium.common.block.BlockCountingSection;
-import me.jellysquid.mods.lithium.common.block.BlockStateFlagHolder;
-import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
-import me.jellysquid.mods.lithium.common.block.TrackedBlockStatePredicate;
+import me.jellysquid.mods.lithium.common.block.*;
+import me.jellysquid.mods.lithium.common.entity.block_tracking.ChunkSectionChangeCallback;
+import me.jellysquid.mods.lithium.common.entity.block_tracking.SectionedBlockChangeTracker;
 import net.minecraft.block.BlockState;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Util;
@@ -32,19 +31,21 @@ import java.util.concurrent.Future;
  * @author 2No2Name
  */
 @Mixin(ChunkSection.class)
-public abstract class ChunkSectionMixin implements BlockCountingSection {
+public abstract class ChunkSectionMixin implements BlockCountingSection, BlockListeningSection {
 
     @Shadow
     @Final
     private PalettedContainer<BlockState> blockStateContainer;
     @Unique
     private short[] countsByFlag = null;
-    private CompletableFuture<short[]> countsByFlagFuture;
+    private CompletableFuture<short[]> countsByFlagFuture; //TODO get rid of this field somehow, it just feels wrong to have it
+    private ChunkSectionChangeCallback changeListener;
+    private short listeningMask;
 
     @Override
     public boolean anyMatch(TrackedBlockStatePredicate trackedBlockStatePredicate, boolean fallback) {
         if (this.countsByFlag == null) {
-            if (!tryInitializeCountsByFlag()) {
+            if (!this.tryInitializeCountsByFlag()) {
                 return fallback;
             }
         }
@@ -151,11 +152,44 @@ public abstract class ChunkSectionMixin implements BlockCountingSection {
 
         //no need to update indices that did not change
         int flagsXOR = prevFlags ^ flags;
-        int i;
-        while ((i = Integer.numberOfTrailingZeros(flagsXOR)) < 32) {
+        //we need to iterate over indices that changed or are in the listeningMask
+        int iterateFlags = flagsXOR | (this.listeningMask & (prevFlags | flags));
+        int flagIndex;
+
+        while ((flagIndex = Integer.numberOfTrailingZeros(iterateFlags)) < 32) {
+            int flagBit = 1 << flagIndex;
             //either count up by one (prevFlag not set) or down by one (prevFlag set)
-            countsByFlag[i] += 1 - (((prevFlags >>> i) & 1) << 1);
-            flagsXOR &= ~(1 << i);
+            if ((flagsXOR & flagBit) != 0) {
+                countsByFlag[flagIndex] += 1 - (((prevFlags >>> flagIndex) & 1) << 1);
+            }
+            if ((this.listeningMask & flagBit) != 0) {
+                this.listeningMask = this.changeListener.onBlockChange(flagIndex, this);
+            }
+            iterateFlags &= ~flagBit;
         }
+    }
+
+    @Override
+    public void addToCallback(ListeningBlockStatePredicate blockGroup, SectionedBlockChangeTracker tracker) {
+        if (this.changeListener == null) {
+            this.changeListener = new ChunkSectionChangeCallback();
+        }
+
+        this.listeningMask = this.changeListener.addTracker(tracker, blockGroup);
+    }
+
+    @Override
+    public void removeFromCallback(ListeningBlockStatePredicate blockGroup, SectionedBlockChangeTracker tracker) {
+        if (this.changeListener != null) {
+            this.listeningMask = this.changeListener.removeTracker(tracker, blockGroup);
+        }
+    }
+
+    private boolean isListening(ListeningBlockStatePredicate blockGroup) {
+        return (this.listeningMask & (1 << blockGroup.getIndex())) != 0;
+    }
+
+    public void invalidateSection() {
+        //TODO on section unload, unregister all kinds of stuff
     }
 }

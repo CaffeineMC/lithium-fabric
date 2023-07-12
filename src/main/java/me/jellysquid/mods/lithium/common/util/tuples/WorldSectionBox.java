@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.common.util.tuples;
 
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 //Y values use coordinates, not indices (y=0 -> chunkY=0)
@@ -18,7 +19,47 @@ public record WorldSectionBox(World world, int chunkX1, int chunkY1, int chunkZ1
         return new WorldSectionBox(world, minX, minY, minZ, maxX, maxY, maxZ);
     }
 
+    //Relevant block box: Entity hitbox expanded to all blocks it touches. Then expand the resulting box by 1 block in each direction.
+    //Include all chunk sections that contain blocks inside the expanded box.
+    public static WorldSectionBox relevantExpandedBlocksBox(World world, Box box) {
+        int minX = ChunkSectionPos.getSectionCoord(MathHelper.floor(box.minX) - 1);
+        int minY = ChunkSectionPos.getSectionCoord(MathHelper.floor(box.minY) - 1);
+        int minZ = ChunkSectionPos.getSectionCoord(MathHelper.floor(box.minZ) - 1);
+        int maxX = ChunkSectionPos.getSectionCoord(MathHelper.floor(box.maxX) + 1) + 1;
+        int maxY = ChunkSectionPos.getSectionCoord(MathHelper.floor(box.maxY) + 1) + 1;
+        int maxZ = ChunkSectionPos.getSectionCoord(MathHelper.floor(box.maxZ) + 1) + 1;
+        return new WorldSectionBox(world, minX, minY, minZ, maxX, maxY, maxZ);
+    }
+    //Like relevant blocks, but not expanded, because fluids never exceed the 1x1x1 volume of a block
+    public static WorldSectionBox relevantFluidBox(World world, Box box) {
+        int minX = ChunkSectionPos.getSectionCoord(MathHelper.floor(box.minX));
+        int minY = ChunkSectionPos.getSectionCoord(MathHelper.floor(box.minY));
+        int minZ = ChunkSectionPos.getSectionCoord(MathHelper.floor(box.minZ));
+        int maxX = ChunkSectionPos.getSectionCoord(MathHelper.floor(box.maxX)) + 1;
+        int maxY = ChunkSectionPos.getSectionCoord(MathHelper.floor(box.maxY)) + 1;
+        int maxZ = ChunkSectionPos.getSectionCoord(MathHelper.floor(box.maxZ)) + 1;
+        return new WorldSectionBox(world, minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
     public int numSections() {
         return (this.chunkX2 - this.chunkX1) * (this.chunkY2 - this.chunkY1) * (this.chunkZ2 - this.chunkZ1);
+    }
+
+    public boolean matchesRelevantBlocksBox(Box box) {
+        return ChunkSectionPos.getSectionCoord(MathHelper.floor(box.minX) - 1) == this.chunkX1 &&
+                ChunkSectionPos.getSectionCoord(MathHelper.floor(box.minY) - 1) == this.chunkY1 &&
+                ChunkSectionPos.getSectionCoord(MathHelper.floor(box.minZ) - 1) == this.chunkZ1 &&
+                ChunkSectionPos.getSectionCoord(MathHelper.ceil(box.maxX) + 1) + 1 == this.chunkX2 &&
+                ChunkSectionPos.getSectionCoord(MathHelper.ceil(box.maxY) + 1) + 1 == this.chunkY2 &&
+                ChunkSectionPos.getSectionCoord(MathHelper.ceil(box.maxZ) + 1) + 1 == this.chunkZ2;
+    }
+
+    public boolean matchesRelevantFluidBox(Box box) {
+        return ChunkSectionPos.getSectionCoord(MathHelper.floor(box.minX)) == this.chunkX1 &&
+                ChunkSectionPos.getSectionCoord(MathHelper.floor(box.minY)) == this.chunkY1 &&
+                ChunkSectionPos.getSectionCoord(MathHelper.floor(box.minZ)) == this.chunkZ1 &&
+                ChunkSectionPos.getSectionCoord(MathHelper.ceil(box.maxX)) + 1 == this.chunkX2 &&
+                ChunkSectionPos.getSectionCoord(MathHelper.ceil(box.maxY)) + 1 == this.chunkY2 &&
+                ChunkSectionPos.getSectionCoord(MathHelper.ceil(box.maxZ)) + 1 == this.chunkZ2;
     }
 }

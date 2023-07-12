@@ -223,7 +223,7 @@ The expensive check to see if a TypeFilterableList can be filtered by a specific
 Copy entity hashmap instead of duplicating the list using iteration  
   
 ### `mixin.collections.fluid_submersion`
-(default: `true`)  
+(default: `false`)  
 Use ReferenceArraySet instead of HashSet to store the fluids the entity is currently submerged in.  
   
 ### `mixin.collections.gamerules`
@@ -247,7 +247,7 @@ Various entity optimizations
 Various entity collision optimizations  
   
 ### `mixin.entity.collisions.fluid`
-(default: `true`)  
+(default: `false`)  
 Skips being pushed by fluids when the nearby chunk sections do not contain this fluid  
 Requirements:
 - `mixin.util.block_tracking=true`  
@@ -323,6 +323,20 @@ Skips repeated checks whether the equipment of an entity changed. Instead equipm
 (default: `true`)  
 Skip searching for fire sources in the burn time countdown logic when they are not on fire and the result does not make a difference.  
   
+### `mixin.experimental`
+(default: `true`)  
+Various experimental optimizations  
+  
+### `mixin.experimental.entity`
+(default: `true`)  
+Experimental entity optimizations  
+  
+### `mixin.experimental.entity.fluid_caching`
+(default: `true`)  
+Use block listening system to allow skipping entity fluid current checks when the entity is not touching the respective fluid  
+Requirements:
+- `mixin.util.block_tracking.block_listening=true`  
+  
 ### `mixin.gen`
 (default: `true`)  
 Various world generation optimizations  
@@ -394,6 +408,10 @@ Allows access to existing BlockEntities without creating new ones
 ### `mixin.util.block_tracking`
 (default: `true`)  
 Chunk sections count certain blocks inside them and provide a method to quickly check whether a chunk contains any of these blocks  
+  
+### `mixin.util.block_tracking.block_listening`
+(default: `true`)  
+Chunk sections can notify registered listeners about certain blocks being placed or broken  
   
 ### `mixin.util.chunk_access`
 (default: `true`)  

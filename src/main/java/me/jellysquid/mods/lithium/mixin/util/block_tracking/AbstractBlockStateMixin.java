@@ -24,8 +24,9 @@ public class AbstractBlockStateMixin implements BlockStateFlagHolder {
 
         int flags = 0;
 
-        for (int i = 0; i < BlockStateFlags.ALL_FLAGS.length; i++) {
-            if (BlockStateFlags.ALL_FLAGS[i].test((BlockState) (Object) this)) {
+        for (int i = 0; i < BlockStateFlags.FLAGS.length; i++) {
+            //noinspection ConstantConditions
+            if (BlockStateFlags.FLAGS[i].test((BlockState) (Object) this)) {
                 flags |= 1 << i;
             }
         }
