@@ -109,8 +109,8 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
         int prevFlags = ((BlockStateFlagHolder) oldState).getAllFlags();
         int flags = ((BlockStateFlagHolder) newState).getAllFlags();
 
-        //no need to update indices that did not change
-        int flagsXOR = prevFlags ^ flags;
+        //no need to update indices that did not change, XOR returns the differences
+        int flagsXOR = prevFlags ^ flags; //We could do this to avoid iterating Listening Flags: & -(1 << BlockStateFlags.NUM_LISTENING_FLAGS);
         //we need to iterate over indices that changed or are in the listeningMask
         int iterateFlags = flagsXOR | (this.listeningMask & (prevFlags | flags));
         int flagIndex;
