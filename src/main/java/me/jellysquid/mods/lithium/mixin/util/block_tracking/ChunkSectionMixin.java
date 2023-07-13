@@ -5,7 +5,6 @@ import me.jellysquid.mods.lithium.common.entity.block_tracking.ChunkSectionChang
 import me.jellysquid.mods.lithium.common.entity.block_tracking.SectionedBlockChangeTracker;
 import net.minecraft.block.BlockState;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Util;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.PalettedContainer;
 import org.spongepowered.asm.mixin.Final;
@@ -18,11 +17,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Keep track of how many blocks that meet certain criteria are in this chunk section.
@@ -38,48 +32,26 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
     private PalettedContainer<BlockState> blockStateContainer;
     @Unique
     private short[] countsByFlag = null;
-    private CompletableFuture<short[]> countsByFlagFuture; //TODO get rid of this field somehow, it just feels wrong to have it
     private ChunkSectionChangeCallback changeListener;
     private short listeningMask;
 
     @Override
-    public boolean anyMatch(TrackedBlockStatePredicate trackedBlockStatePredicate, boolean fallback) {
+    public boolean mayContainAny(TrackedBlockStatePredicate trackedBlockStatePredicate) {
         if (this.countsByFlag == null) {
-            if (!this.tryInitializeCountsByFlag()) {
-                return fallback;
-            }
+            fastInitClientCounts();
         }
         return this.countsByFlag[trackedBlockStatePredicate.getIndex()] != (short) 0;
     }
 
-    /**
-     * Compute the block state counts using a future using a thread pool to avoid lagging the rendering thread.
-     * Before modifying the block data, we join the future or discard it.
-     *
-     * @return Whether the block counts short array is initialized.
-     */
-    private boolean tryInitializeCountsByFlag() {
-        Future<short[]> countsByFlagFuture = this.countsByFlagFuture;
-        if (countsByFlagFuture != null && countsByFlagFuture.isDone()) {
-            try {
-                this.countsByFlag = countsByFlagFuture.get();
-                return true;
-            } catch (InterruptedException | ExecutionException | CancellationException e) {
-                this.countsByFlagFuture = null;
+    private void fastInitClientCounts() {
+        this.countsByFlag = new short[BlockStateFlags.NUM_FLAGS];
+        for (TrackedBlockStatePredicate trackedBlockStatePredicate : BlockStateFlags.FLAGS) {
+            if (this.blockStateContainer.hasAny(trackedBlockStatePredicate)) {
+                //We haven't counted, so we just set the count so high that it never incorrectly reaches 0.
+                //For most situations, this overestimation does not hurt client performance compared to correct counting,
+                this.countsByFlag[trackedBlockStatePredicate.getIndex()] = 16 * 16 * 16;
             }
         }
-
-        if (this.countsByFlagFuture == null) {
-            PalettedContainer<BlockState> blockStateContainer = this.blockStateContainer;
-            this.countsByFlagFuture = CompletableFuture.supplyAsync(() -> calculateLithiumCounts(blockStateContainer), Util.getMainWorkerExecutor());
-        }
-        return false;
-    }
-
-    private static short[] calculateLithiumCounts(PalettedContainer<BlockState> blockStateContainer) {
-        short[] countsByFlag = new short[BlockStateFlags.NUM_FLAGS];
-        blockStateContainer.count((BlockState state, int count) -> addToFlagCount(countsByFlag, state, count));
-        return countsByFlag;
     }
 
     @Redirect(
@@ -112,25 +84,12 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
     }
 
     @Inject(
-            method = "setBlockState(IIILnet/minecraft/block/BlockState;Z)Lnet/minecraft/block/BlockState;",
-            at = @At(value = "HEAD")
-    )
-    private void joinFuture(int x, int y, int z, BlockState state, boolean lock, CallbackInfoReturnable<BlockState> cir) {
-        if (this.countsByFlagFuture != null) {
-            this.countsByFlag = this.countsByFlagFuture.join();
-            this.countsByFlagFuture = null;
-        }
-    }
-
-    @Inject(
             method = "readDataPacket",
             at = @At(value = "HEAD")
     )
     private void resetData(PacketByteBuf buf, CallbackInfo ci) {
         this.countsByFlag = null;
-        this.countsByFlagFuture = null;
     }
-
 
     @Inject(
             method = "setBlockState(IIILnet/minecraft/block/BlockState;Z)Lnet/minecraft/block/BlockState;",

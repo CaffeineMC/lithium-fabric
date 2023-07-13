@@ -62,7 +62,7 @@ public abstract class EntityMixin {
                 Chunk chunk = this.world.getChunk(chunkX, chunkZ);
                 for (int chunkYIndex = chunkYIndex1; chunkYIndex <= chunkYIndex2; chunkYIndex++) {
                     ChunkSection section = chunk.getSectionArray()[chunkYIndex];
-                    if (((BlockCountingSection) section).anyMatch(blockStateFlag, true)) {
+                    if (((BlockCountingSection) section).mayContainAny(blockStateFlag)) {
                         //fluid found, cannot skip code
                         return;
                     }
