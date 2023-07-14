@@ -1,7 +1,7 @@
 import net.fabricmc.loom.task.RemapJarTask
 
 plugins {
-    id 'fabric-loom' version '1.0-SNAPSHOT'
+    id 'fabric-loom' version '1.3-SNAPSHOT'
     id 'maven-publish'
     id 'net.caffeinemc.mixin-config-plugin' version '1.0-SNAPSHOT'
 }
@@ -44,6 +44,12 @@ sourceSets {
             compileClasspath += api.output
             runtimeClasspath += api.output
         }
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
@@ -132,19 +138,19 @@ tasks.withType(Jar) {
 }
 
 task apiJar(type: Jar) {
-    classifier "api-dev"
+    archiveClassifier.set("api-dev")
 
     from sourceSets.api.output
 }
 
 task remapApiJar(type: RemapJarTask) {
-    classifier "api"
+    archiveClassifier.set("api")
 
     input = apiJar.archiveFile.get().asFile
     addNestedDependencies = false
 }
 
-prepareRemapApiJar.dependsOn(apiJar)
+remapApiJar.dependsOn(apiJar)
 
 publishing {
     publications {
@@ -160,3 +166,10 @@ publishing {
     }
 }
 build.dependsOn remapApiJar
+
+afterEvaluate {
+    loom.runs.configureEach {
+        // https://fabricmc.net/wiki/tutorial:mixin_hotswaps
+        vmArg "-javaagent:${ configurations.compileClasspath.find { it.name.contains("sponge-mixin") } }"
+    }
+}
