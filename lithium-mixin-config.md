@@ -334,6 +334,12 @@ Use block listening system to allow skipping stuff in entity code
 Requirements:
 - `mixin.util.block_tracking.block_listening=true`  
   
+### `mixin.experimental.entity.block_caching.block_touching`
+(default: `true`)  
+Use the block listening system to skip block touching (like cactus touching).  
+Requirements:
+- `mixin.util.block_tracking.block_listening=true`  
+  
 ### `mixin.experimental.entity.block_caching.suffocation`
 (default: `true`)  
 Use the block listening system to cache the entity suffocation check.  

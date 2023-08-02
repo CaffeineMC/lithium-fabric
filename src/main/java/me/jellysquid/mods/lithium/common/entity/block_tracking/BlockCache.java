@@ -89,6 +89,14 @@ public final class BlockCache {
         }
     }
 
+    public boolean canSkipBlockTouching() {
+        return this.isTracking() && this.canSkipBlockTouching;
+    }
+
+    public void setCanSkipBlockTouching(boolean value) {
+        this.canSkipBlockTouching = value;
+    }
+
     public byte getIsSuffocating() {
         if (this.isTracking()) {
             return this.cachedIsSuffocating;
