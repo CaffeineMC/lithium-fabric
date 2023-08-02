@@ -316,10 +316,6 @@ Accesses entities of the correct type directly instead of accessing all nearby e
 (default: `true`)  
 Skips repeated checks whether the equipment of an entity changed. Instead equipment updates are detected  
   
-### `mixin.entity.skip_fire_check`
-(default: `true`)  
-Skip searching for fire sources in the burn time countdown logic when they are not on fire and the result does not make a difference.  
-  
 ### `mixin.experimental`
 (default: `true`)  
 Various experimental optimizations  
@@ -339,6 +335,10 @@ Requirements:
 Use the block listening system to skip block touching (like cactus touching).  
 Requirements:
 - `mixin.util.block_tracking.block_listening=true`  
+  
+### `mixin.experimental.entity.block_caching.fire_lava_touching`
+(default: `true`)  
+Skip searching for fire or lava in the burn time countdown logic when they are not on fire and the result does not make a difference. Also use the block listening system to cache whether the entity is touching fire or lava.  
   
 ### `mixin.experimental.entity.block_caching.fluid_pushing`
 (default: `true`)  

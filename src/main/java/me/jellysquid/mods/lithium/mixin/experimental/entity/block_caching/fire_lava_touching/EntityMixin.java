@@ -1,5 +1,7 @@
-package me.jellysquid.mods.lithium.mixin.entity.skip_fire_check;
+package me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching.fire_lava_touching;
 
+import me.jellysquid.mods.lithium.common.entity.block_tracking.BlockCache;
+import me.jellysquid.mods.lithium.common.entity.block_tracking.BlockCacheProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -17,7 +19,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 @Mixin(Entity.class)
-public abstract class EntityMixin {
+public abstract class EntityMixin implements BlockCacheProvider {
     @Shadow
     private int fireTicks;
 
@@ -40,7 +42,7 @@ public abstract class EntityMixin {
                     target = "Lnet/minecraft/world/World;getStatesInBoxIfLoaded(Lnet/minecraft/util/math/Box;)Ljava/util/stream/Stream;"
             )
     )
-    private Stream<BlockState> skipFireTestIfResultDoesNotMatter(World world, Box box) {
+    private Stream<BlockState> skipFireTestIfResultDoesNotMatterOrIsCached(World world, Box box) {
         // Skip scanning the blocks around the entity touches by returning null when the result does not matter
         // Return null when there is no fire / lava => the branch of noneMatch is not taken
         // Otherwise return anything non-null. Here: Stream.empty. See skipNullStream(...) below.
@@ -48,6 +50,16 @@ public abstract class EntityMixin {
         // [VanillaCopy] the fire / lava check and the side effects (this.fireTicks) and their conditions needed to be copied. This might affect compatibility with other mods.
         if ((this.fireTicks > 0 || this.fireTicks == -this.getBurningDuration()) && (!this.wasOnFire || !this.inPowderSnow && !this.isWet())) {
             return null;
+        }
+
+
+        BlockCache bc = this.getUpdatedBlockCache((Entity)(Object)this);
+
+        byte cachedTouchingFireLava = bc.getIsTouchingFireLava();
+        if (cachedTouchingFireLava == (byte) 0) {
+            return null;
+        } else if (cachedTouchingFireLava == (byte) 1) {
+            return Stream.empty();
         }
 
         int minX = MathHelper.floor(box.minX);
@@ -66,6 +78,7 @@ public abstract class EntityMixin {
                             blockPos.set(x, y, z);
                             BlockState state = world.getBlockState(blockPos);
                             if (state.isIn(BlockTags.FIRE) || state.isOf(Blocks.LAVA)) {
+                                bc.setCachedTouchingFireLava(true);
                                 return Stream.empty();
                             }
                         }
@@ -73,6 +86,7 @@ public abstract class EntityMixin {
                 }
             }
         }
+        bc.setCachedTouchingFireLava(false);
         return null;
     }
 

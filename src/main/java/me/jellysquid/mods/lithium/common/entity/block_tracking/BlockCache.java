@@ -108,6 +108,17 @@ public final class BlockCache {
         this.fluidType2FluidHeightMap.put(fluid, fluidHeight);
     }
 
+    public byte getIsTouchingFireLava() {
+        if (this.isTracking()) {
+            return this.cachedTouchingFireLava;
+        }
+        return (byte) -1;
+    }
+
+    public void setCachedTouchingFireLava(boolean b) {
+        this.cachedTouchingFireLava = b ? (byte) 1 : (byte) 0;
+    }
+
     public byte getIsSuffocating() {
         if (this.isTracking()) {
             return this.cachedIsSuffocating;
