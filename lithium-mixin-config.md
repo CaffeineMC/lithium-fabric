@@ -332,6 +332,12 @@ Various experimental optimizations
 (default: `true`)  
 Experimental entity optimizations  
   
+### `mixin.experimental.entity.block_caching`
+(default: `true`)  
+Use block listening system to allow skipping stuff in entity code  
+Requirements:
+- `mixin.util.block_tracking.block_listening=true`  
+  
 ### `mixin.experimental.spawning`
 (default: `true`)  
 Experimental optimizations to spawning conditions. Reorders the iteration over entities to match the chunks and chunk sections, reducing the number of cache misses.  

@@ -190,6 +190,6 @@ public class SectionedBlockChangeTracker {
     //Do not modify, used for deduplication of instances
     @Override
     public int hashCode() {
-        return this.trackedWorldSections.hashCode() ^ this.blockGroup.hashCode();
+        return this.getClass().hashCode() ^ this.trackedWorldSections.hashCode() ^ this.blockGroup.hashCode();
     }
 }
