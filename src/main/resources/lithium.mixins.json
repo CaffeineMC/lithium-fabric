@@ -138,6 +138,7 @@
     "entity.skip_fire_check.EntityMixin",
     "experimental.entity.block_caching.EntityMixin",
     "experimental.entity.block_caching.block_touching.EntityMixin",
+    "experimental.entity.block_caching.fluid_pushing.EntityMixin",
     "experimental.entity.block_caching.suffocation.EntityMixin",
     "experimental.spawning.EntityTrackingSectionAccessor",
     "experimental.spawning.SectionedEntityCacheMixin",

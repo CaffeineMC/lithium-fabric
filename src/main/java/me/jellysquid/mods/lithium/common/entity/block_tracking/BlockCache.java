@@ -97,6 +97,17 @@ public final class BlockCache {
         this.canSkipBlockTouching = value;
     }
 
+    public double getStationaryFluidHeightOrDefault(TagKey<Fluid> fluid, double defaultValue) {
+        if (this.isTracking()) {
+            return this.fluidType2FluidHeightMap.getOrDefault(fluid, defaultValue);
+        }
+        return defaultValue;
+    }
+
+    public void setCachedFluidHeight(TagKey<Fluid> fluid, double fluidHeight) {
+        this.fluidType2FluidHeightMap.put(fluid, fluidHeight);
+    }
+
     public byte getIsSuffocating() {
         if (this.isTracking()) {
             return this.cachedIsSuffocating;

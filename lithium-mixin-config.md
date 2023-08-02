@@ -340,6 +340,12 @@ Use the block listening system to skip block touching (like cactus touching).
 Requirements:
 - `mixin.util.block_tracking.block_listening=true`  
   
+### `mixin.experimental.entity.block_caching.fluid_pushing`
+(default: `true`)  
+Use the block listening system to cache entity fluid interaction when not touching fluid currents.  
+Requirements:
+- `mixin.util.block_tracking.block_listening=true`  
+  
 ### `mixin.experimental.entity.block_caching.suffocation`
 (default: `true`)  
 Use the block listening system to cache the entity suffocation check.  
