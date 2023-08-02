@@ -44,8 +44,8 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
     }
 
     private void fastInitClientCounts() {
-        this.countsByFlag = new short[BlockStateFlags.NUM_FLAGS];
-        for (TrackedBlockStatePredicate trackedBlockStatePredicate : BlockStateFlags.FLAGS) {
+        this.countsByFlag = new short[BlockStateFlags.NUM_TRACKED_FLAGS];
+        for (TrackedBlockStatePredicate trackedBlockStatePredicate : BlockStateFlags.TRACKED_FLAGS) {
             if (this.blockStateContainer.hasAny(trackedBlockStatePredicate)) {
                 //We haven't counted, so we just set the count so high that it never incorrectly reaches 0.
                 //For most situations, this overestimation does not hurt client performance compared to correct counting,
@@ -71,7 +71,7 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
     private static void addToFlagCount(short[] countsByFlag, BlockState state, int change) {
         int flags = ((BlockStateFlagHolder) state).getAllFlags();
         int i;
-        while ((i = Integer.numberOfTrailingZeros(flags)) < 32) {
+        while ((i = Integer.numberOfTrailingZeros(flags)) < 32 && i < countsByFlag.length) {
             //either count up by one (prevFlag not set) or down by one (prevFlag set)
             countsByFlag[i] += change;
             flags &= ~(1 << i);
@@ -80,7 +80,7 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
 
     @Inject(method = "calculateCounts()V", at = @At("HEAD"))
     private void createFlagCounters(CallbackInfo ci) {
-        this.countsByFlag = new short[BlockStateFlags.NUM_FLAGS];
+        this.countsByFlag = new short[BlockStateFlags.NUM_TRACKED_FLAGS];
     }
 
     @Inject(
@@ -109,13 +109,16 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
         int prevFlags = ((BlockStateFlagHolder) oldState).getAllFlags();
         int flags = ((BlockStateFlagHolder) newState).getAllFlags();
 
-        //no need to update indices that did not change, XOR returns the differences
-        int flagsXOR = prevFlags ^ flags; //We could do this to avoid iterating Listening Flags: & -(1 << BlockStateFlags.NUM_LISTENING_FLAGS);
+        int flagsXOR = prevFlags ^ flags;
         //we need to iterate over indices that changed or are in the listeningMask
-        int iterateFlags = flagsXOR | (this.listeningMask & (prevFlags | flags));
+        //Some Listening Flags are sensitive to both the previous and the new block. Others are only sensitive to
+        //blocks that are different according to the predicate (XOR). For XOR, the block counting needs to be updated
+        //as well.
+        int iterateFlags = (~BlockStateFlags.LISTENING_MASK_OR & flagsXOR) |
+                (BlockStateFlags.LISTENING_MASK_OR & this.listeningMask & (prevFlags | flags));
         int flagIndex;
 
-        while ((flagIndex = Integer.numberOfTrailingZeros(iterateFlags)) < 32) {
+        while ((flagIndex = Integer.numberOfTrailingZeros(iterateFlags)) < 32 && flagIndex < countsByFlag.length) {
             int flagBit = 1 << flagIndex;
             //either count up by one (prevFlag not set) or down by one (prevFlag set)
             if ((flagsXOR & flagBit) != 0) {
