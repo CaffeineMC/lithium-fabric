@@ -37,3 +37,7 @@ accessible class net/minecraft/world/border/WorldBorder$Area
 accessible method net/minecraft/entity/ai/pathing/LandPathNodeMaker getCommonNodeType (Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/entity/ai/pathing/PathNodeType;
 
 accessible method net/minecraft/world/poi/PointOfInterestSet isValid ()Z
+
+accessible method net/minecraft/util/collection/SortedArraySet <init> (ILjava/util/Comparator;)V
+
+accessible field net/minecraft/server/world/ChunkTicket tickCreated J

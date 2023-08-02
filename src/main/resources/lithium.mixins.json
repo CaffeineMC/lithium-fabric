@@ -135,6 +135,7 @@
     "entity.skip_equipment_change_check.ArmorStandEntityMixin",
     "entity.skip_equipment_change_check.LivingEntityMixin",
     "entity.skip_equipment_change_check.MobEntityMixin",
+    "experimental.chunk_tickets.ChunkTicketManagerMixin",
     "experimental.entity.block_caching.EntityMixin",
     "experimental.entity.block_caching.block_support.EntityMixin",
     "experimental.entity.block_caching.block_touching.EntityMixin",

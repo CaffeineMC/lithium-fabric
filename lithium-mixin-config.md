@@ -320,6 +320,10 @@ Skips repeated checks whether the equipment of an entity changed. Instead equipm
 (default: `true`)  
 Various experimental optimizations  
   
+### `mixin.experimental.chunk_tickets`
+(default: `true`)  
+Only check positions with expiring tickets during ticket expiration. Can cause reordering of chunk unloading when unloading more than approximately two billion chunks at once.  
+  
 ### `mixin.experimental.entity`
 (default: `true`)  
 Experimental entity optimizations  
