@@ -331,12 +331,6 @@ Various experimental optimizations
 (default: `true`)  
 Experimental entity optimizations  
   
-### `mixin.experimental.entity.fluid_caching`
-(default: `true`)  
-Use block listening system to allow skipping entity fluid current checks when the entity is not touching the respective fluid  
-Requirements:
-- `mixin.util.block_tracking.block_listening=true`  
-  
 ### `mixin.experimental.spawning`
 (default: `true`)  
 Experimental optimizations to spawning conditions. Reorders the iteration over entities to match the chunks and chunk sections, reducing the number of cache misses.  

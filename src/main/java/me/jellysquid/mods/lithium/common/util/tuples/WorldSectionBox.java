@@ -54,12 +54,4 @@ public record WorldSectionBox(World world, int chunkX1, int chunkY1, int chunkZ1
                 ChunkSectionPos.getSectionCoord(MathHelper.ceil(box.maxZ) + 1) + 1 == this.chunkZ2;
     }
 
-    public boolean matchesRelevantFluidBox(Box box) {
-        return ChunkSectionPos.getSectionCoord(MathHelper.floor(box.minX)) == this.chunkX1 &&
-                ChunkSectionPos.getSectionCoord(MathHelper.floor(box.minY)) == this.chunkY1 &&
-                ChunkSectionPos.getSectionCoord(MathHelper.floor(box.minZ)) == this.chunkZ1 &&
-                ChunkSectionPos.getSectionCoord(MathHelper.ceil(box.maxX)) + 1 == this.chunkX2 &&
-                ChunkSectionPos.getSectionCoord(MathHelper.ceil(box.maxY)) + 1 == this.chunkY2 &&
-                ChunkSectionPos.getSectionCoord(MathHelper.ceil(box.maxZ)) + 1 == this.chunkZ2;
-    }
 }
