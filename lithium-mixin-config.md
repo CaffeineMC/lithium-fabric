@@ -266,10 +266,6 @@ Entity movement uses optimized block access and optimized and delayed entity acc
 Requirements:
 - `mixin.util.chunk_access=true`  
   
-### `mixin.entity.collisions.suffocation`
-(default: `true`)  
-Avoids stream code in suffocation check  
-  
 ### `mixin.entity.collisions.unpushable_cramming`
 (default: `true`)  
 In chunks with many mobs in ladders a separate list of pushable entities for cramming tests is used  
@@ -335,6 +331,12 @@ Experimental entity optimizations
 ### `mixin.experimental.entity.block_caching`
 (default: `true`)  
 Use block listening system to allow skipping stuff in entity code  
+Requirements:
+- `mixin.util.block_tracking.block_listening=true`  
+  
+### `mixin.experimental.entity.block_caching.suffocation`
+(default: `true`)  
+Use the block listening system to cache the entity suffocation check.  
 Requirements:
 - `mixin.util.block_tracking.block_listening=true`  
   

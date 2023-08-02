@@ -88,4 +88,15 @@ public final class BlockCache {
             this.tracker.unregister();
         }
     }
+
+    public byte getIsSuffocating() {
+        if (this.isTracking()) {
+            return this.cachedIsSuffocating;
+        }
+        return (byte) -1;
+    }
+
+    public void setCachedIsSuffocating(boolean b) {
+        this.cachedIsSuffocating = b ? (byte) 1 : (byte) 0;
+    }
 }
