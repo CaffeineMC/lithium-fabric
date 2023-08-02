@@ -337,6 +337,10 @@ Use block listening system to allow skipping entity fluid current checks when th
 Requirements:
 - `mixin.util.block_tracking.block_listening=true`  
   
+### `mixin.experimental.spawning`
+(default: `true`)  
+Experimental optimizations to spawning conditions. Reorders the iteration over entities to match the chunks and chunk sections, reducing the number of cache misses.  
+  
 ### `mixin.gen`
 (default: `true`)  
 Various world generation optimizations  
