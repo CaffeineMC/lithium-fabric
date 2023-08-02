@@ -129,4 +129,12 @@ public final class BlockCache {
     public void setCachedIsSuffocating(boolean b) {
         this.cachedIsSuffocating = b ? (byte) 1 : (byte) 0;
     }
+
+    public boolean canSkipSupportingBlockSearch() {
+        return this.isTracking() && this.canSkipSupportingBlockSearch;
+    }
+
+    public void setCanSkipSupportingBlockSearch(boolean canSkip) {
+        this.canSkipSupportingBlockSearch = canSkip;
+    }
 }

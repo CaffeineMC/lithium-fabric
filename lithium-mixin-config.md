@@ -330,6 +330,12 @@ Use block listening system to allow skipping stuff in entity code
 Requirements:
 - `mixin.util.block_tracking.block_listening=true`  
   
+### `mixin.experimental.entity.block_caching.block_support`
+(default: `true`)  
+Use the block listening system to skip supporting block search (used for honey block pushing, velocity modifiers like soulsand, etc)  
+Requirements:
+- `mixin.util.block_tracking.block_listening=true`  
+  
 ### `mixin.experimental.entity.block_caching.block_touching`
 (default: `true`)  
 Use the block listening system to skip block touching (like cactus touching).  
