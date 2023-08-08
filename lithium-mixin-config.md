@@ -528,6 +528,14 @@ Several changes to the chunk manager to speed up chunk access
 (default: `true`)  
 Improves the chunk ticket sets by speeding up the removal of chunk tickets  
   
+### `mixin.world.chunk_ticking`
+(default: `true`)  
+Various optimizations to chunk ticking  
+  
+### `mixin.world.chunk_ticking.spread_ice`
+(default: `true`)  
+Access FluidState through already known BlockState instead of accessing the world again.  
+  
 ### `mixin.world.combined_heightmap_update`
 (default: `true`)  
 The four vanilla heightmaps are updated using a combined block search instead of searching blocks separately.  

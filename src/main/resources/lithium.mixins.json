@@ -212,6 +212,7 @@
     "world.chunk_access.ServerChunkManagerMixin",
     "world.chunk_access.WorldMixin",
     "world.chunk_tickets.SortedArraySetMixin",
+    "world.chunk_ticking.spread_ice.BiomeMixin",
     "world.combined_heightmap_update.HeightmapAccessor",
     "world.combined_heightmap_update.WorldChunkMixin",
     "world.explosions.ExplosionMixin",
