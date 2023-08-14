@@ -60,7 +60,6 @@ public final class BlockCache {
                 if (this.isTracking() && !this.tracker.matchesMovedBox(boundingBox)) {
                     this.tracker.unregister();
                     this.tracker = null;
-                    this.resetCachedInfo();
                 }
                 this.resetTrackedPos(boundingBox);
             }
@@ -72,6 +71,7 @@ public final class BlockCache {
     public void resetTrackedPos(Box boundingBox) {
         this.trackedPos = boundingBox;
         this.initDelay = 0;
+        this.resetCachedInfo();
     }
 
     public void resetCachedInfo() {
