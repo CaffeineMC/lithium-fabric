@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin implements BlockCacheProvider {
+    private static final Stream<BlockState> EMPTY_BLOCKSTATE_STREAM = Stream.empty();
     @Shadow
     private int fireTicks;
 
@@ -59,7 +60,7 @@ public abstract class EntityMixin implements BlockCacheProvider {
         if (cachedTouchingFireLava == (byte) 0) {
             return null;
         } else if (cachedTouchingFireLava == (byte) 1) {
-            return Stream.empty();
+            return EMPTY_BLOCKSTATE_STREAM;
         }
 
         int minX = MathHelper.floor(box.minX);
@@ -79,7 +80,7 @@ public abstract class EntityMixin implements BlockCacheProvider {
                             BlockState state = world.getBlockState(blockPos);
                             if (state.isIn(BlockTags.FIRE) || state.isOf(Blocks.LAVA)) {
                                 bc.setCachedTouchingFireLava(true);
-                                return Stream.empty();
+                                return EMPTY_BLOCKSTATE_STREAM;
                             }
                         }
                     }
