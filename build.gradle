@@ -2,35 +2,34 @@ import net.fabricmc.loom.task.RemapJarTask
 
 plugins {
     id 'fabric-loom' version '1.3-SNAPSHOT'
-    id 'maven-publish'
+
+    // Vineflower is a fork of the FernFlower decompiler which contains many enhancements and bug fixes, and generally
+    // produces much better source code. The Minecraft sources can be decompiled using it with the
+    // "genSourcesWithVineflower" task.
+    // (Note: Quiltflower was renamed to Vineflower in early July 2023.)
+    id 'io.github.juuxel.loom-vineflower' version '1.11.0'
+
+    // This dependency is only used to determine the state of the Git working tree so that build artifacts can be
+    // more easily identified. TODO: Lazily load GrGit via a service only when builds are performed.
+    id 'org.ajoberstar.grgit' version '5.0.0'
+
+    // Mixin config plugin is a subproject for creating lithium's settings from annotations in each mixin package.
     id 'net.caffeinemc.mixin-config-plugin' version '1.0-SNAPSHOT'
 }
+
+apply from: "${rootProject.projectDir}/gradle/fabric.gradle"
+apply from: "${rootProject.projectDir}/gradle/java.gradle"
+
+apply plugin: 'net.caffeinemc.mixin-config-plugin'
 
 loom {
     accessWidenerPath = file("src/main/resources/lithium.accesswidener")
     mixin.defaultRefmapName = "mixins.lithium.refmap.json"
 }
 
-apply plugin: 'fabric-loom'
-apply plugin: 'net.caffeinemc.mixin-config-plugin'
-
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
 group = project.maven_group
-version = project.mod_version
+version = "${project.mod_version}${getVersionMetadata()}"
 archivesBaseName = "${project.name}-mc${project.minecraft_version}"
-
-def build_release = System.getenv("BUILD_RELEASE") == "true"
-def build_id = System.getenv("BUILD_ID")
-
-if (!build_release) {
-    version += "-SNAPSHOT"
-}
-
-if (build_id != null) {
-    version += "+build.${build_id}"
-}
 
 sourceSets {
     api {
@@ -47,18 +46,25 @@ sourceSets {
     }
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
+tasks.register('apiJar', Jar) {
+    archiveClassifier.set "api-dev"
+
+    from sourceSets.api.output
 }
 
-repositories {
-    allprojects {
-        repositories {
-            maven { url 'https://jitpack.io' }
-        }
-    }
+tasks.register('remapApiJar', RemapJarTask) {
+    dependsOn apiJar
+    archiveClassifier.set("api")
+
+    input = apiJar.archiveFile.get().asFile
+    addNestedDependencies = false
+}
+
+build.dependsOn remapApiJar
+
+jar {
+    from sourceSets.api.output.classesDirs
+    from sourceSets.api.output.resourcesDir
 }
 
 loom {
@@ -77,6 +83,15 @@ loom {
     }
 }
 
+
+
+repositories {
+    allprojects {
+        repositories {
+            maven { url 'https://jitpack.io' }
+        }
+    }
+}
 
 dependencies {
     //to change the versions see the gradle.properties file
@@ -110,63 +125,35 @@ jar.dependsOn createMixinConfig
 processResources.dependsOn createMixinConfig
 createMixinConfig.dependsOn compileJava
 
-processResources {
-    inputs.property "version", project.version
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
+def getVersionMetadata() {
+    // CI builds only
+    if (project.hasProperty("build.release")) {
+        return "" // no tag whatsoever
     }
+
+    if (grgit != null) {
+        def head = grgit.head()
+        def id = head.abbreviatedId
+
+        // Flag the build if the build tree is not clean
+        if (!grgit.status().clean) {
+            id += "-dirty"
+        }
+
+        return "+git.${id}"
+    }
+
+    // No tracking information could be found about the build
+    return "+unknown"
 }
 
-//make builds reproducible
+//make builds more reproducible
 tasks.withType(AbstractArchiveTask) {
     reproducibleFileOrder = true
     preserveFileTimestamps = false
 }
 
-// ensure that the encoding is set to UTF-8, no matter what the system default is
-// this fixes some edge cases with special characters not displaying correctly
-// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-tasks.withType(JavaCompile) {
-    options.encoding = "UTF-8"
-}
-
-// Include the license in all JAR outputs
-tasks.withType(Jar) {
-    from "LICENSE.txt"
-    from sourceSets.api.output
-}
-
-task apiJar(type: Jar) {
-    archiveClassifier.set("api-dev")
-
-    from sourceSets.api.output
-}
-
-task remapApiJar(type: RemapJarTask) {
-    archiveClassifier.set("api")
-
-    input = apiJar.archiveFile.get().asFile
-    addNestedDependencies = false
-}
-
-remapApiJar.dependsOn(apiJar)
-
-publishing {
-    publications {
-        main (MavenPublication) {
-            artifactId "lithium"
-            artifact(remapJar)
-        }
-
-        api (MavenPublication) {
-            artifactId "lithium-api"
-            artifact(remapApiJar)
-        }
-    }
-}
-build.dependsOn remapApiJar
-
+//Mixin hotswap
 afterEvaluate {
     loom.runs.configureEach {
         // https://fabricmc.net/wiki/tutorial:mixin_hotswaps
