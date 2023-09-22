@@ -552,10 +552,6 @@ Faster block and fluid access due to inlining and reduced method size
 (default: `true`)  
 Reduces indirection by inlining world height access methods  
   
-### `mixin.world.player_chunk_tick`
-(default: `true`)  
-Batches sending chunks to player together by replacing the corresponding code  
-  
 ### `mixin.world.temperature_cache`
 (default: `true`)  
 Removes the 1024 entry biome temperature cache hash map because the cache seems to be slow and rarely hit.  
