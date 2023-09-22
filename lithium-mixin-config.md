@@ -317,7 +317,7 @@ Accesses entities of the correct type directly instead of accessing all nearby e
 Skips repeated checks whether the equipment of an entity changed. Instead equipment updates are detected  
   
 ### `mixin.experimental`
-(default: `true`)  
+(default: `false`)  
 Various experimental optimizations  
   
 ### `mixin.experimental.chunk_tickets`
