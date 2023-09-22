@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.encoding.VarInts;
 import net.minecraft.util.collection.IndexedIterable;
 import net.minecraft.world.chunk.Palette;
 import net.minecraft.world.chunk.PaletteResizeListener;
@@ -149,10 +150,10 @@ public class LithiumHashPalette<T> implements Palette<T> {
 
     @Override
     public int getPacketSize() {
-        int size = PacketByteBuf.getVarIntLength(this.size);
+        int size = VarInts.getSizeInBytes(this.size);
 
         for (int i = 0; i < this.size; ++i) {
-            size += PacketByteBuf.getVarIntLength(this.idList.getRawId(this.get(i)));
+            size += VarInts.getSizeInBytes(this.idList.getRawId(this.get(i)));
         }
 
         return size;
