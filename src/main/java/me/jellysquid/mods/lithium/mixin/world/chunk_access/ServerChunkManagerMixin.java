@@ -14,11 +14,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BooleanSupplier;
 
 /**
  * This patch makes a number of optimizations to chunk retrieval which helps to alleviate some of the slowdown introduced
@@ -60,11 +60,15 @@ public abstract class ServerChunkManagerMixin {
     protected abstract boolean isMissingForLevel(ChunkHolder holder, int maxLevel);
 
     @Shadow
-    abstract boolean tick();
+    public abstract void tick(BooleanSupplier shouldKeepTicking, boolean tickChunks);
+
+    @Shadow
+    abstract boolean updateChunks();
+
     private long time;
 
-    @Inject(method = "tick()Z", at = @At("HEAD"))
-    private void preTick(CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void preTick(BooleanSupplier shouldKeepTicking, boolean tickChunks, CallbackInfo ci) {
         this.time++;
     }
 
@@ -136,7 +140,7 @@ public abstract class ServerChunkManagerMixin {
                 this.createChunkLoadTicket(x, z, level);
 
                 // Tick the chunk manager to have our new ticket processed
-                this.tick();
+                this.updateChunks();
 
                 // Try to fetch the holder again now that we have requested a load
                 holder = this.getChunkHolder(key);

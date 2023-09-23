@@ -64,26 +64,26 @@ public class NbtCompoundMixin {
     static class Type {
 
         @ModifyVariable(
-                method = "read(Ljava/io/DataInput;ILnet/minecraft/nbt/NbtTagSizeTracker;)Lnet/minecraft/nbt/NbtCompound;",
+                method = "readCompound",
                 at = @At(
                         value = "INVOKE_ASSIGN",
                         target = "Lcom/google/common/collect/Maps;newHashMap()Ljava/util/HashMap;",
                         remap = false
                 )
         )
-        private Map<String, NbtElement> useFasterCollection(Map<String, NbtElement> map) {
+        private static Map<String, NbtElement> useFasterCollection(Map<String, NbtElement> map) {
             return new Object2ObjectOpenHashMap<>();
         }
 
         @Redirect(
-                method = "read(Ljava/io/DataInput;ILnet/minecraft/nbt/NbtTagSizeTracker;)Lnet/minecraft/nbt/NbtCompound;",
+                method = "readCompound",
                 at = @At(
                         value = "INVOKE",
                         target = "Lcom/google/common/collect/Maps;newHashMap()Ljava/util/HashMap;",
                         remap = false
                 )
         )
-        private HashMap<?, ?> removeOldMapAlloc() {
+        private static HashMap<?, ?> removeOldMapAlloc() {
             return null;
         }
     }
