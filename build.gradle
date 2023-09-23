@@ -126,8 +126,9 @@ processResources.dependsOn createMixinConfig
 createMixinConfig.dependsOn compileJava
 
 def getVersionMetadata() {
+    def build_release = System.getenv("BUILD_RELEASE") == "true"
     // CI builds only
-    if (project.hasProperty("build.release")) {
+    if (build_release) {
         return "" // no tag whatsoever
     }
 
