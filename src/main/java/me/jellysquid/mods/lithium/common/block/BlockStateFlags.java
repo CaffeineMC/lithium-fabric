@@ -5,14 +5,11 @@ import me.jellysquid.mods.lithium.common.ai.pathing.BlockStatePathingCache;
 import me.jellysquid.mods.lithium.common.ai.pathing.PathNodeCache;
 import me.jellysquid.mods.lithium.common.entity.FluidCachingEntity;
 import me.jellysquid.mods.lithium.common.reflection.ReflectionUtil;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
 
 import java.util.ArrayList;
@@ -114,13 +111,9 @@ public class BlockStateFlags {
         ArrayList<TrackedBlockStatePredicate> flags = new ArrayList<>(countingFlags);
 
         ENTITY_TOUCHABLE = new TrackedBlockStatePredicate(countingFlags.size()) {
-            //How to find the remapped methods:
-            //1) Run in the debugger: System.out.println(FabricLoader.getInstance().getMappingResolver().getNamespaceData("intermediary").methodNames)
-            //2) Ctrl+F for the method name, in this case "onEntityCollision". Make sure to find the correct one.
-            private final String remapped_onEntityCollision = FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_4970", "method_9548", "(Lnet/minecraft/class_2680;Lnet/minecraft/class_1937;Lnet/minecraft/class_2338;Lnet/minecraft/class_1297;)V");
             @Override
             public boolean test(BlockState operand) {
-                return ReflectionUtil.hasMethodOverride(operand.getBlock().getClass(), AbstractBlock.class, true, this.remapped_onEntityCollision, BlockState.class, World.class, BlockPos.class, Entity.class);
+                return ReflectionUtil.isBlockStateEntityTouchable(operand);
             }
         };
         flags.add(ENTITY_TOUCHABLE);
