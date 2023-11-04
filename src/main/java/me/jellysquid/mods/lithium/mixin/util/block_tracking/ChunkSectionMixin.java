@@ -69,7 +69,7 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
     }
 
     private static void addToFlagCount(short[] countsByFlag, BlockState state, int change) {
-        int flags = ((BlockStateFlagHolder) state).getAllFlags();
+        int flags = ((BlockStateFlagHolder) state).lithium$getAllFlags();
         int i;
         while ((i = Integer.numberOfTrailingZeros(flags)) < 32 && i < countsByFlag.length) {
             //either count up by one (prevFlag not set) or down by one (prevFlag set)
@@ -106,8 +106,8 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
         if (countsByFlag == null) {
             return;
         }
-        int prevFlags = ((BlockStateFlagHolder) oldState).getAllFlags();
-        int flags = ((BlockStateFlagHolder) newState).getAllFlags();
+        int prevFlags = ((BlockStateFlagHolder) oldState).lithium$getAllFlags();
+        int flags = ((BlockStateFlagHolder) newState).lithium$getAllFlags();
 
         int flagsXOR = prevFlags ^ flags;
         //we need to iterate over indices that changed or are in the listeningMask

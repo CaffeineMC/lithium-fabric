@@ -6,12 +6,14 @@ import me.jellysquid.mods.lithium.common.block.TrackedBlockStatePredicate;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractBlock.AbstractBlockState.class)
 public class AbstractBlockStateMixin implements BlockStateFlagHolder {
+    @Unique
     private int flags;
 
     @Inject(method = "initShapeCache", at = @At("RETURN"))
@@ -19,6 +21,7 @@ public class AbstractBlockStateMixin implements BlockStateFlagHolder {
         this.initFlags();
     }
 
+    @Unique
     private void initFlags() {
         TrackedBlockStatePredicate.FULLY_INITIALIZED.set(true);
 
@@ -35,7 +38,7 @@ public class AbstractBlockStateMixin implements BlockStateFlagHolder {
     }
 
     @Override
-    public int getAllFlags() {
+    public int lithium$getAllFlags() {
         return this.flags;
     }
 }

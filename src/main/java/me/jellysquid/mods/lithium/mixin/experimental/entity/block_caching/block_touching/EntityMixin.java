@@ -15,6 +15,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+/**
+ * This mixin uses the block caching system to be able to skip entity block interactions when the entity is not a player
+ * and the nearby blocks cannot be interacted with by touching them.
+ */
 @Mixin(Entity.class)
 public abstract class EntityMixin implements BlockCacheProvider {
     @Inject(
@@ -49,7 +53,7 @@ public abstract class EntityMixin implements BlockCacheProvider {
     private void checkTouchableBlock(CallbackInfo ci, Box box, BlockPos blockPos, BlockPos blockPos2, BlockPos.Mutable mutable, int i, int j, int k, BlockState blockState) {
         BlockCache bc = this.getBlockCache();
         if (bc.canSkipBlockTouching() &&
-                0 != (((BlockStateFlagHolder)blockState).getAllFlags() & 1 << BlockStateFlags.ENTITY_TOUCHABLE.getIndex())
+                0 != (((BlockStateFlagHolder)blockState).lithium$getAllFlags() & 1 << BlockStateFlags.ENTITY_TOUCHABLE.getIndex())
         ) {
             bc.setCanSkipBlockTouching(false);
         }
