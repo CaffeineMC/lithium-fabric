@@ -52,7 +52,7 @@ public abstract class ItemEntityMixin implements MergableItem {
                 ItemEntity entity = iter.next();
                 if (entity.getBoundingBox().intersects(box) && predicate.test((T) entity)) {
                     entities.add((T) entity);
-                } else if (((MergableItem) entity).canEntityMerge()) {
+                } else if (!((MergableItem) entity).canEntityMerge()) {
                     iter.remove();
                 }
             }
