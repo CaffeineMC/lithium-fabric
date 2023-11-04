@@ -40,12 +40,4 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
     public List<ItemEntity> getMergables() {
         return mergableItemEntities;
     }
-
-    @Override
-    public void updateMergable(ItemEntity entity) {
-        boolean mergable = ((MergableItem) entity).canEntityMerge();
-        if (!mergable) {
-            mergableItemEntities.remove(entity);
-        }
-    }
 }

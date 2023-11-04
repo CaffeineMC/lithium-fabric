@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.mixin.entity.item_merging;
 
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.Iterator;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -46,13 +47,15 @@ public abstract class ItemEntityMixin implements MergableItem {
 
         List<T> entities = Lists.newArrayList();
         entityCache.forEachInBox(box, section -> {
-            ((MergableCacheInterface) section).getMergables().forEach(entity -> {
+            Iterator<ItemEntity> iter = ((MergableCacheInterface) section).getMergables().iterator();
+            while (iter.hasNext()) {
+                ItemEntity entity = iter.next();
                 if (entity.getBoundingBox().intersects(box) && predicate.test((T) entity)) {
                     entities.add((T) entity);
-                } else {
-                    ((MergableCacheInterface) section).updateMergable(entity);
+                } else if (((MergableItem) entity).canEntityMerge()) {
+                    iter.remove();
                 }
-            });
+            }
             return LazyIterationConsumer.NextIteration.CONTINUE;
         });
 
