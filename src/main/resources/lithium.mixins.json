@@ -127,6 +127,8 @@
     "entity.inactive_navigations.MobEntityMixin",
     "entity.inactive_navigations.ServerEntityHandlerMixin",
     "entity.inactive_navigations.ServerWorldMixin",
+    "entity.item_merging.ItemEntityMixin",
+    "entity.item_merging.EntityTrackingSectionMixin",
     "entity.replace_entitytype_predicates.AbstractDecorationEntityMixin",
     "entity.replace_entitytype_predicates.AbstractMinecartEntityMixin",
     "entity.replace_entitytype_predicates.ArmorStandEntityMixin",

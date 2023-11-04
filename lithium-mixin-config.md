@@ -308,6 +308,10 @@ Hopper minecarts search for item entities faster by combining multiple item enti
 (default: `true`)  
 Block updates skip notifying mobs that won't react to the block update anyways  
   
+### `mixin.entity.item_merging`
+(default: `true`)  
+Optimize item merging logic  
+  
 ### `mixin.entity.replace_entitytype_predicates`
 (default: `true`)  
 Accesses entities of the correct type directly instead of accessing all nearby entities and filtering them afterwards  
