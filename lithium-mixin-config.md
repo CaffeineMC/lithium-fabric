@@ -150,7 +150,8 @@ Reduces hopper lag using caching, notification systems and BlockEntity sleeping
 Requirements:
 - `mixin.util.entity_movement_tracking=true`
 - `mixin.util.block_entity_retrieval=true`
-- `mixin.util.inventory_change_listening=true`  
+- `mixin.util.inventory_change_listening=true`
+- `mixin.util.item_stack_tracking=true`  
   
 ### `mixin.block.hopper.worldedit_compat`
 (default: `false`)  
@@ -465,6 +466,10 @@ Certain BlockEntity Inventories emit updates to their listeners when their stack
 BlockEntity Inventories update their listeners when a comparator is placed near them  
 Requirements:
 - `mixin.util.block_entity_retrieval=true`  
+  
+### `mixin.util.item_stack_tracking`
+(default: `true`)  
+ItemStacks notify subscribers about changes to their count.  
   
 ### `mixin.util.world_border_listener`
 (default: `true`)  
