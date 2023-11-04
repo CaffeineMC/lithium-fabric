@@ -2,7 +2,6 @@ package me.jellysquid.mods.lithium.mixin.entity.item_merging;
 
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.Iterator;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.function.LazyIterationConsumer;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
@@ -24,12 +24,39 @@ import com.google.common.collect.Lists;
 
 @Mixin(ItemEntity.class)
 public abstract class ItemEntityMixin implements MergableItem {
+    private byte cachedState = UNCACHED;
+
     @Shadow
     public abstract boolean canMerge();
+
+    @Shadow
+    public abstract ItemStack getStack();
 
     @Override
     public boolean canEntityMerge() {
         return this.canMerge();
+    }
+
+    @Override
+    public byte getCachedState() {
+        return this.cachedState;
+    }
+
+    @Override
+    public void setCachedState(byte state) {
+        this.cachedState = state;
+    }
+
+    @Override
+    public boolean canMergeItself() {
+        ItemStack stack = this.getStack();
+        return stack.getCount() <= stack.getMaxCount() / 2;
+    }
+
+    @Override
+    public boolean isMoreEmpty() {
+        ItemStack stack = this.getStack();
+        return stack.getCount() < stack.getMaxCount() / 2;
     }
 
     @Redirect(
@@ -47,15 +74,11 @@ public abstract class ItemEntityMixin implements MergableItem {
 
         List<T> entities = Lists.newArrayList();
         entityCache.forEachInBox(box, section -> {
-            Iterator<ItemEntity> iter = ((MergableCacheInterface) section).getMergables().iterator();
-            while (iter.hasNext()) {
-                ItemEntity entity = iter.next();
-                if (entity.getBoundingBox().intersects(box) && predicate.test((T) entity)) {
+            ((MergableCacheInterface) section).forEachMergables(this, (entity) -> {
+                if (entity.getBoundingBox().intersects(box)) {
                     entities.add((T) entity);
-                } else if (!((MergableItem) entity).canEntityMerge()) {
-                    iter.remove();
                 }
-            }
+            });
             return LazyIterationConsumer.NextIteration.CONTINUE;
         });
 
