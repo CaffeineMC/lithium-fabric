@@ -1,8 +1,8 @@
 package me.jellysquid.mods.lithium.common.entity.nearby_tracker;
 
 import me.jellysquid.mods.lithium.common.util.tuples.Range6Int;
-import me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking.ServerEntityManagerAccessor;
-import me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking.ServerWorldAccessor;
+import me.jellysquid.mods.lithium.mixin.util.accessors.ServerEntityManagerAccessor;
+import me.jellysquid.mods.lithium.mixin.util.accessors.ServerWorldAccessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.ChunkSectionPos;

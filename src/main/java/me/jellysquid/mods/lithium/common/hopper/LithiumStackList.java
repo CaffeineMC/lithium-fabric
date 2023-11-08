@@ -95,7 +95,7 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
 
     }
 
-    public void notifyBeforeCountChange(int slot, int newCount) {
+    public void lithium$notifyBeforeCountChange(int slot, int newCount) {
         ItemStack stack = this.get(slot);
         int count = stack.getCount();
         if (newCount <= 0) {

@@ -2,17 +2,21 @@ package me.jellysquid.mods.lithium.common.world;
 
 import me.jellysquid.mods.lithium.common.client.ClientWorldAccessor;
 import me.jellysquid.mods.lithium.common.entity.EntityClassGroup;
+import me.jellysquid.mods.lithium.common.entity.TypeFilterableListInternalAccess;
+import me.jellysquid.mods.lithium.common.entity.item.ItemEntityCategorizingList;
 import me.jellysquid.mods.lithium.common.entity.pushable.EntityPushablePredicate;
 import me.jellysquid.mods.lithium.common.world.chunk.ClassGroupFilterableList;
-import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.ClientEntityManagerAccessor;
-import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.EntityTrackingSectionAccessor;
-import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.ServerEntityManagerAccessor;
-import me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups.ServerWorldAccessor;
+import me.jellysquid.mods.lithium.mixin.util.accessors.ClientEntityManagerAccessor;
+import me.jellysquid.mods.lithium.mixin.util.accessors.EntityTrackingSectionAccessor;
+import me.jellysquid.mods.lithium.mixin.util.accessors.ServerEntityManagerAccessor;
+import me.jellysquid.mods.lithium.mixin.util.accessors.ServerWorldAccessor;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.function.LazyIterationConsumer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.EntityView;
 import net.minecraft.world.World;
 import net.minecraft.world.entity.SectionedEntityCache;
@@ -20,6 +24,9 @@ import net.minecraft.world.entity.SectionedEntityCache;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
+
+import static me.jellysquid.mods.lithium.common.entity.item.ItemEntityCategorizingList.ITEM_ENTITY_CATEGORIZATION_THRESHOLD;
 
 public class WorldHelper {
     public static final boolean CUSTOM_TYPE_FILTERABLE_LIST_DISABLED = !ClassGroupFilterableList.class.isAssignableFrom(TypeFilterableList.class);
@@ -50,7 +57,55 @@ public class WorldHelper {
         return entityView.getOtherEntities(collidingEntity, box);
     }
 
-    //Requires chunk.entity_class_groups
+    
+    public static List<ItemEntity> getItemEntitiesForMerge(SectionedEntityCache<Entity> cache, ItemEntity searchingItemEntity, Box box, Predicate<ItemEntity> predicate) {
+        ArrayList<ItemEntity> collectedEntities = new ArrayList<>();
+        cache.forEachInBox(box, section -> {
+            //noinspection unchecked
+            TypeFilterableList<Entity> allEntities = ((EntityTrackingSectionAccessor<Entity>) section).getCollection();
+
+            //noinspection unchecked
+            TypeFilterableListInternalAccess<Entity> interalEntityList = (TypeFilterableListInternalAccess<Entity>) allEntities;
+            List<ItemEntity> itemEntities = interalEntityList.lithium$getOrCreateAllOfTypeRaw(ItemEntity.class);
+            if (itemEntities.size() > ITEM_ENTITY_CATEGORIZATION_THRESHOLD && itemEntities instanceof ArrayList<ItemEntity>) {
+                itemEntities = interalEntityList.lithium$replaceCollectionAndGet(ItemEntity.class, ItemEntityCategorizingList::new);
+            } else if (itemEntities.size() <= ITEM_ENTITY_CATEGORIZATION_THRESHOLD / 2 && itemEntities instanceof ItemEntityCategorizingList categorizingList) {
+                itemEntities = interalEntityList.lithium$replaceCollectionAndGet(ItemEntity.class, categorizingList.getDelegate());
+            }
+
+            if (itemEntities instanceof ItemEntityCategorizingList categorizingList) {
+                itemEntities = categorizingList.getItemEntitiesForMerge(searchingItemEntity);
+            }
+
+            for (ItemEntity entity : itemEntities) {
+                if (entity != searchingItemEntity && entity.getBoundingBox().intersects(box) && !entity.isSpectator() && predicate.test(entity)) {
+                    //skip the dragon piece check without issues by assuming item entities are never dragons
+                    collectedEntities.add(entity);
+                }
+            }
+            return LazyIterationConsumer.NextIteration.CONTINUE;
+        });
+        return collectedEntities;
+    }
+
+    public static void invalidateItemCache(ItemEntity itemEntity) {
+        SectionedEntityCache<Entity> cache = WorldHelper.getEntityCacheOrNull(itemEntity.getWorld());
+        if (cache == null) {
+            return;
+        }
+        long longPos = ChunkSectionPos.toLong(itemEntity.getBlockPos());
+
+        //noinspection unchecked
+        TypeFilterableList<Entity> allEntities = ((EntityTrackingSectionAccessor<Entity>) cache.getTrackingSection(longPos)).getCollection();
+        //noinspection unchecked
+        TypeFilterableListInternalAccess<Entity> interalEntityList = (TypeFilterableListInternalAccess<Entity>) allEntities;
+        List<ItemEntity> itemEntities = interalEntityList.lithium$getOrCreateAllOfTypeRaw(ItemEntity.class);
+        if (itemEntities instanceof ItemEntityCategorizingList categorizingList) {
+             categorizingList.invalidateCache();
+        }
+    }
+
+    //Requires util.accessors
     public static SectionedEntityCache<Entity> getEntityCacheOrNull(World world) {
         if (world instanceof ClientWorldAccessor) {
             //noinspection unchecked

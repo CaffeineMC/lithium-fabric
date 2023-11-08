@@ -84,11 +84,11 @@ public class ItemStackSubscriberMulti implements ItemStackSubscriber {
     }
 
     @Override
-    public void notifyBeforeCountChange(int slot, int newCount) {
+    public void lithium$notifyBeforeCountChange(int slot, int newCount) {
         ItemStackSubscriber[] itemStackSubscribers = this.subscribers;
         for (int i = 0; i < itemStackSubscribers.length; i++) {
             ItemStackSubscriber subscriber = itemStackSubscribers[i];
-            subscriber.notifyBeforeCountChange(this.slots[i], newCount);
+            subscriber.lithium$notifyBeforeCountChange(this.slots[i], newCount);
         }
     }
 }

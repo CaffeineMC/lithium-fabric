@@ -25,7 +25,8 @@ Mob AI optimizations
 Event-based system for tracking nearby entities.
   
 Requirements:
-- `mixin.util.entity_section_position=true`  
+- `mixin.util.entity_section_position=true`
+- `mixin.util.accessors=true`  
   
 ### `mixin.ai.nearby_entity_tracking.goals`
 (default: `true`)  
@@ -178,6 +179,8 @@ Various world chunk optimizations
 ### `mixin.chunk.entity_class_groups`
 (default: `true`)  
 Allow grouping entity classes for faster entity access, e.g. boats and shulkers  
+Requirements:
+- `mixin.util.accessors=true`  
   
 ### `mixin.chunk.no_locking`
 (default: `true`)  
@@ -309,6 +312,12 @@ Hopper minecarts search for item entities faster by combining multiple item enti
 (default: `true`)  
 Block updates skip notifying mobs that won't react to the block update anyways  
   
+### `mixin.entity.item_entity_stacking`
+(default: `true`)  
+Optimize item entity stacking by categorizing item entities by item type and only attempting to merge with the same type.  
+Requirements:
+- `mixin.util.accessors=true`  
+  
 ### `mixin.entity.replace_entitytype_predicates`
 (default: `true`)  
 Accesses entities of the correct type directly instead of accessing all nearby entities and filtering them afterwards  
@@ -430,6 +439,10 @@ Specialized VoxelShape implementations are used for cuboid and empty shapes. Col
 ### `mixin.util`
 (default: `true`)  
 Various utilities for other mixins  
+  
+### `mixin.util.accessors`
+(default: `true`)  
+Allow accessing certain fields and functions that are normally inaccessible  
   
 ### `mixin.util.block_entity_retrieval`
 (default: `true`)  

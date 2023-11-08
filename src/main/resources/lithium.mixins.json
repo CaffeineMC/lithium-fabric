@@ -9,10 +9,8 @@
   "mixins": [
     "ai.nearby_entity_tracking.EntityMixin",
     "ai.nearby_entity_tracking.EntityTrackingSectionMixin",
-    "ai.nearby_entity_tracking.ServerEntityManagerAccessor",
     "ai.nearby_entity_tracking.ServerEntityManagerListenerMixin",
     "ai.nearby_entity_tracking.ServerEntityManagerMixin",
-    "ai.nearby_entity_tracking.ServerWorldAccessor",
     "ai.nearby_entity_tracking.goals.FleeEntityGoalMixin",
     "ai.nearby_entity_tracking.goals.LookAtEntityGoalMixin",
     "ai.pathing.AbstractBlockStateMixin",
@@ -82,9 +80,6 @@
     "block.moving_block_shapes.VoxelShapeMixin",
     "block.redstone_wire.RedstoneWireBlockMixin",
     "cached_hashcode.BlockNeighborGroupMixin",
-    "chunk.entity_class_groups.EntityTrackingSectionAccessor",
-    "chunk.entity_class_groups.ServerEntityManagerAccessor",
-    "chunk.entity_class_groups.ServerWorldAccessor",
     "chunk.entity_class_groups.TypeFilterableListMixin",
     "chunk.no_locking.ChunkSectionMixin",
     "chunk.no_locking.PalettedContainerMixin",
@@ -126,6 +121,8 @@
     "entity.inactive_navigations.MobEntityMixin",
     "entity.inactive_navigations.ServerEntityHandlerMixin",
     "entity.inactive_navigations.ServerWorldMixin",
+    "entity.item_entity_stacking.ItemEntityMixin",
+    "entity.item_entity_stacking.TypeFilterableListMixin",
     "entity.replace_entitytype_predicates.AbstractDecorationEntityMixin",
     "entity.replace_entitytype_predicates.AbstractMinecartEntityMixin",
     "entity.replace_entitytype_predicates.ArmorStandEntityMixin",
@@ -165,6 +162,10 @@
     "shapes.shape_merging.VoxelShapesMixin",
     "shapes.specialized_shapes.VoxelShapeMixin",
     "shapes.specialized_shapes.VoxelShapesMixin",
+    "util.accessors.EntityTrackingSectionAccessor",
+    "util.accessors.ItemStackAccessor",
+    "util.accessors.ServerEntityManagerAccessor",
+    "util.accessors.ServerWorldAccessor",
     "util.block_entity_retrieval.WorldMixin",
     "util.block_tracking.AbstractBlockStateMixin",
     "util.block_tracking.ChunkSectionMixin",
@@ -224,7 +225,7 @@
     "world.tick_scheduler.ChunkTickSchedulerMixin"
   ],
   "client": [
-    "chunk.entity_class_groups.ClientEntityManagerAccessor",
-    "chunk.entity_class_groups.ClientWorldMixin"
+    "chunk.entity_class_groups.ClientWorldMixin",
+    "util.accessors.ClientEntityManagerAccessor"
   ]
 }

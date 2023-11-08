@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.chunk.entity_class_groups;
+package me.jellysquid.mods.lithium.mixin.util.accessors;
 
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.world.entity.EntityTrackingSection;

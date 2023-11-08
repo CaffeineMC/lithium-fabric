@@ -28,7 +28,7 @@ public abstract class ItemStackMixin implements NotifyingItemStack {
     @ModifyVariable(method = "setCount(I)V", at = @At("HEAD"), argsOnly = true)
     public int updateInventory(int count) {
         if (this.stackChangeSubscriber != null && this.count != count) {
-            this.stackChangeSubscriber.notifyBeforeCountChange(this.mySlot, count);
+            this.stackChangeSubscriber.lithium$notifyBeforeCountChange(this.mySlot, count);
         }
         return count;
     }

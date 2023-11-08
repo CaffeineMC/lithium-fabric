@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 import me.jellysquid.mods.lithium.common.entity.nearby_tracker.NearbyEntityListenerMulti;
 import me.jellysquid.mods.lithium.common.entity.nearby_tracker.NearbyEntityListenerProvider;
 import me.jellysquid.mods.lithium.common.util.tuples.Range6Int;
+import me.jellysquid.mods.lithium.mixin.util.accessors.ServerEntityManagerAccessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerEntityManager;
 import net.minecraft.util.math.BlockPos;
