@@ -1,10 +1,13 @@
 package me.jellysquid.mods.lithium.mixin.entity.item_entity_stacking;
 
+import me.jellysquid.mods.lithium.common.hopper.NotifyingItemStack;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import me.jellysquid.mods.lithium.mixin.util.accessors.ItemStackAccessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Box;
@@ -13,9 +16,7 @@ import net.minecraft.world.entity.SectionedEntityCache;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -44,13 +45,16 @@ public abstract class ItemEntityMixin extends Entity {
         return world.getEntitiesByClass(itemEntityClass, box, predicate);
     }
 
-    @Inject(
-            method = "setStack", at = @At("HEAD")
+    @Redirect(
+            method = "setStack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/data/DataTracker;set(Lnet/minecraft/entity/data/TrackedData;Ljava/lang/Object;)V")
     )
-    private void invalidateStuff(ItemStack stack, CallbackInfo ci) {
-        Item newItem = ((ItemStackAccessor) (Object) stack).lithium$getItem();
-        if (newItem != ((ItemStackAccessor) (Object) this.getStack()).lithium$getItem()) {
-            WorldHelper.invalidateItemCache((ItemEntity) (Object) this);
+    private <T> void handleItemTypeChange(DataTracker dataTracker, TrackedData<T> key, T newStack) {
+        ItemStack oldStack = this.getStack();
+        dataTracker.set(key, newStack);
+
+        Item newItem = ((ItemStackAccessor) newStack).lithium$getItem();
+        if (newItem != ((ItemStackAccessor) (Object) oldStack).lithium$getItem()) {
+            ((NotifyingItemStack) (Object) oldStack).lithium$notifyItemEntityStackSwap((ItemEntity) (Object) this, oldStack);
         }
     }
 }

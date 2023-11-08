@@ -1,5 +1,8 @@
 package me.jellysquid.mods.lithium.common.entity.item;
 
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.item.ItemStack;
+
 import java.util.Arrays;
 
 /**
@@ -84,11 +87,18 @@ public class ItemStackSubscriberMulti implements ItemStackSubscriber {
     }
 
     @Override
-    public void lithium$notifyBeforeCountChange(int slot, int newCount) {
+    public void lithium$notifyBeforeCountChange(ItemStack itemStack, int slot, int newCount) {
         ItemStackSubscriber[] itemStackSubscribers = this.subscribers;
         for (int i = 0; i < itemStackSubscribers.length; i++) {
             ItemStackSubscriber subscriber = itemStackSubscribers[i];
-            subscriber.lithium$notifyBeforeCountChange(this.slots[i], newCount);
+            subscriber.lithium$notifyBeforeCountChange(itemStack, this.slots[i], newCount);
+        }
+    }
+
+    @Override
+    public void lithium$notifyItemEntityStackSwap(ItemEntity itemEntity, ItemStack oldStack) {
+        for (ItemStackSubscriber subscriber : this.subscribers) {
+            subscriber.lithium$notifyItemEntityStackSwap(itemEntity, oldStack);
         }
     }
 }

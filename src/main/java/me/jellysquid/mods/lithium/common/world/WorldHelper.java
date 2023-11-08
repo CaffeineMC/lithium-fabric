@@ -12,6 +12,7 @@ import me.jellysquid.mods.lithium.mixin.util.accessors.ServerEntityManagerAccess
 import me.jellysquid.mods.lithium.mixin.util.accessors.ServerWorldAccessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.item.Item;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.function.LazyIterationConsumer;
 import net.minecraft.util.math.BlockPos;
@@ -86,23 +87,6 @@ public class WorldHelper {
             return LazyIterationConsumer.NextIteration.CONTINUE;
         });
         return collectedEntities;
-    }
-
-    public static void invalidateItemCache(ItemEntity itemEntity) {
-        SectionedEntityCache<Entity> cache = WorldHelper.getEntityCacheOrNull(itemEntity.getWorld());
-        if (cache == null) {
-            return;
-        }
-        long longPos = ChunkSectionPos.toLong(itemEntity.getBlockPos());
-
-        //noinspection unchecked
-        TypeFilterableList<Entity> allEntities = ((EntityTrackingSectionAccessor<Entity>) cache.getTrackingSection(longPos)).getCollection();
-        //noinspection unchecked
-        TypeFilterableListInternalAccess<Entity> interalEntityList = (TypeFilterableListInternalAccess<Entity>) allEntities;
-        List<ItemEntity> itemEntities = interalEntityList.lithium$getOrCreateAllOfTypeRaw(ItemEntity.class);
-        if (itemEntities instanceof ItemEntityCategorizingList categorizingList) {
-             categorizingList.invalidateCache();
-        }
     }
 
     //Requires util.accessors

@@ -1,9 +1,12 @@
 package me.jellysquid.mods.lithium.common.entity.item;
 
+import com.google.common.collect.Iterators;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import me.jellysquid.mods.lithium.common.hopper.NotifyingItemStack;
 import me.jellysquid.mods.lithium.mixin.util.accessors.ItemStackAccessor;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -15,9 +18,10 @@ import java.util.stream.Stream;
 
 public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
     public static final int ITEM_ENTITY_CATEGORIZATION_THRESHOLD = 20;
+    public static final int ITEM_ENTITY_CATEGORIZATION_THRESHOLD_2 = 20;
 
     private final ArrayList<ItemEntity> delegate;
-    private Reference2ReferenceOpenHashMap<Item, ArrayList<ItemEntity>> itemEntitiesByItem;
+    private Reference2ReferenceOpenHashMap<Item, List<ItemEntity>> itemEntitiesByItem;
 
     public ItemEntityCategorizingList(ArrayList<ItemEntity> delegate) {
         this.delegate = delegate;
@@ -31,16 +35,67 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             }
         }
 
-        ArrayList<ItemEntity> itemEntities = this.itemEntitiesByItem.get(((ItemStackAccessor) (Object) searchingEntity.getStack()).lithium$getItem());
+        Item item = ((ItemStackAccessor) (Object) searchingEntity.getStack()).lithium$getItem();
+        List<ItemEntity> itemEntities = this.itemEntitiesByItem.get(item);
         if (itemEntities == null) {
             return Collections.emptyList();
         }
+
+        // If there are enough item entities in one category, divide the item entities into 3 buckets:
+        // Stacks that are more than 50% full can only merge with stacks that are less than 50% full, etc.
+        // Buckets:        0           1            2
+        // Content:   "<100% full" "<=50% full"   "any"
+        // Search if: "< 50% full" ">=50% full"   "none"
+
+        if (itemEntities instanceof ArrayList<ItemEntity> itemEntityArrayList && itemEntities.size() > ITEM_ENTITY_CATEGORIZATION_THRESHOLD_2) {
+            SizeBucketedItemEntityList itemEntitiesBucketed = new SizeBucketedItemEntityList(itemEntityArrayList);
+            this.itemEntitiesByItem.put(item, itemEntitiesBucketed);
+            itemEntities = itemEntitiesBucketed;
+        }
+
+        if (itemEntities instanceof SizeBucketedItemEntityList itemEntitiesBucketed) {
+            if (itemEntities.size() >= ITEM_ENTITY_CATEGORIZATION_THRESHOLD_2 / 2) {
+                return itemEntitiesBucketed.getSearchGroup(searchingEntity);
+            }
+
+            itemEntities = itemEntitiesBucketed.downgradeToArrayList();
+            this.itemEntitiesByItem.put(item, itemEntities);
+        }
+
         return itemEntities;
     }
 
+    public void handleItemEntityStackReplacement(ItemEntity itemEntity, ItemStack oldStack) {
+        if (this.itemEntitiesByItem != null) {
+            Item oldItem = ((ItemStackAccessor) (Object) oldStack).lithium$getItem();
+            List<ItemEntity> oldCategoryList = this.itemEntitiesByItem.get(oldItem);
+            if (oldCategoryList != null) {
+                if (oldCategoryList instanceof ItemEntityCategorizingList.SizeBucketedItemEntityList bucketedList) {
+                    bucketedList.removeOld(itemEntity, oldStack); //We need to use the old stack to know which buckets to remove from
+                }
+                oldCategoryList.remove(itemEntity);
+            }
 
-    public void invalidateCache() {
-        this.itemEntitiesByItem = null;
+            Item newItem = ((ItemStackAccessor) (Object) itemEntity.getStack()).lithium$getItem();
+            List<ItemEntity> newCategoryList = this.itemEntitiesByItem.computeIfAbsent(newItem, item -> new ArrayList<>());
+            //Use binary search in delegate to find the correct position according to the main list's sorting
+            int index = Collections.binarySearch(newCategoryList, itemEntity, Comparator.comparingInt(this.delegate::indexOf));
+            if (index >= 0) {
+                throw new IllegalStateException("Element is already in the list!");
+            }
+            index = - (index + 1); //Get insertion location according to Collections.binarySearch
+            newCategoryList.add(index, itemEntity);
+            insertUsingBinarySearchAccordingToParentOrder(newCategoryList, itemEntity, this.delegate);
+        }
+    }
+
+    public static <T> void insertUsingBinarySearchAccordingToParentOrder(List<T> list, T element, ArrayList<T> parent) {
+        int index = Collections.binarySearch(list, element, Comparator.comparingInt(parent::indexOf));
+        if (index >= 0) {
+            throw new IllegalStateException("Element is already in the list!");
+        }
+        index = - (index + 1); //Get insertion location according to Collections.binarySearch
+        list.add(index, element);
     }
 
     public ArrayList<ItemEntity> getDelegate() {
@@ -97,7 +152,7 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
         if (o instanceof ItemEntity itemEntity && this.itemEntitiesByItem != null) {
             Item category = ((ItemStackAccessor) (Object) itemEntity.getStack()).lithium$getItem();
 
-            ArrayList<ItemEntity> itemEntities = this.itemEntitiesByItem.get(category);
+            List<ItemEntity> itemEntities = this.itemEntitiesByItem.get(category);
             if (itemEntities != null) {
                 itemEntities.remove(itemEntity);
             }
@@ -186,7 +241,7 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
         ItemEntity remove = delegate.remove(index);
         if (this.itemEntitiesByItem != null) {
             Item category = ((ItemStackAccessor) (Object) remove.getStack()).lithium$getItem();
-            ArrayList<ItemEntity> itemEntities = this.itemEntitiesByItem.get(category);
+            List<ItemEntity> itemEntities = this.itemEntitiesByItem.get(category);
             if (itemEntities != null) {
                 itemEntities.remove(remove);
             }
@@ -253,5 +308,277 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
     @Override
     public void forEach(Consumer<? super ItemEntity> action) {
         delegate.forEach(action);
+    }
+
+    // If there are enough item entities in one category, divide the item entities into 3 buckets:
+    // Stacks that are more than 50% full can only merge with stacks that are less than 50% full, etc.
+    // Buckets:        0           1            2
+    // Content:   "<100% full" "<=50% full"   "any"
+    // Search if: "< 50% full" ">=50% full"   "none"
+    class SizeBucketedItemEntityList extends AbstractList<ItemEntity> {
+
+        private final ArrayList<ItemEntity> group0;
+        private final ArrayList<ItemEntity> group1;
+        private final ArrayList<ItemEntity> delegate;
+
+        private final Reference2ReferenceOpenHashMap<ItemEntity, ItemStackSubscriber> subscribers;
+
+        public SizeBucketedItemEntityList(ArrayList<ItemEntity> delegate) {
+            this.group0 = new ArrayList<>();
+            this.group1 = new ArrayList<>();
+            this.delegate = delegate;
+            this.subscribers = new Reference2ReferenceOpenHashMap<>();
+            for (ItemEntity itemEntity : this.delegate) {
+                this.updateStackSubscriptionOnAdd(itemEntity);
+                this.addToGroups(itemEntity);
+            }
+        }
+
+        public List<ItemEntity> getSearchGroup(ItemEntity searchingEntity) {
+            Item item = ((ItemStackAccessor) (Object) searchingEntity.getStack()).lithium$getItem();
+            ItemStack stack = searchingEntity.getStack();
+            int count = stack.getCount();
+            int maxCount = item.getMaxCount();
+            if (count * 2 >= maxCount) { //>=50% full
+                return this.group1;
+            }
+            return this.group0;
+        }
+
+        ArrayList<ItemEntity> downgradeToArrayList() {
+            return this.delegate;
+        }
+
+        private void addToGroups(ItemEntity itemEntity) {
+            ItemStack stack = itemEntity.getStack();
+            int count = stack.getCount();
+            int maxCount = stack.getMaxCount();
+            if (count < maxCount) { //<100% full
+                this.group0.add(itemEntity);
+            }
+            if (count * 2 <= maxCount) { //<=50% full
+                this.group1.add(itemEntity);
+            }
+        }
+
+        private void removeFromGroups(ItemEntity itemEntity) {
+            ItemStack stack = itemEntity.getStack();
+            int count = stack.getCount();
+            int maxCount = stack.getMaxCount();
+            if (count < maxCount) { //<100% full
+                this.group0.remove(itemEntity);
+            }
+            if (count * 2 <= maxCount) { //<=50% full
+                this.group1.remove(itemEntity);
+            }
+        }
+
+        private void addToGroupsUsingBinarySearch(ItemEntity element) {
+            ItemStack stack = element.getStack();
+            int count = stack.getCount();
+            int maxCount = stack.getMaxCount();
+            if (count < maxCount) { //<100% full
+                insertUsingBinarySearchAccordingToParentOrder(this.group0, element, this.delegate);
+            }
+            if (count * 2 <= maxCount) { //<=50% full
+                insertUsingBinarySearchAccordingToParentOrder(this.group1, element, this.delegate);
+            }
+        }
+
+        private void updateStackSubscriptionOnAdd(ItemEntity element) {
+            SizeBucketedItemEntityList itemEntities = this;
+            ItemStackSubscriber subscriber = new ItemStackSubscriber() {
+                @Override
+                public void lithium$notifyBeforeCountChange(ItemStack itemStack, int slot, int newCount) {
+                    itemEntities.notifyBeforeCountChange(element, newCount);
+                }
+
+                @Override
+                public void lithium$notifyItemEntityStackSwap(ItemEntity itemEntity, ItemStack oldStack) {
+                    itemEntities.notifyStackSwap(itemEntity, oldStack);
+                }
+            };
+            this.subscribers.put(element, subscriber);
+            ((NotifyingItemStack) (Object) element.getStack()).lithium$subscribe(subscriber);
+        }
+
+        private void updateStackSubscriptionOnRemove(ItemEntity element) {
+            ItemStackSubscriber subscriber = this.subscribers.remove(element);
+            ((NotifyingItemStack) (Object) element.getStack()).lithium$unsubscribe(subscriber);
+        }
+
+        private void notifyStackSwap(ItemEntity itemEntity, ItemStack oldStack) {
+            ItemEntityCategorizingList.this.handleItemEntityStackReplacement(itemEntity, oldStack);
+        }
+
+        public void notifyBeforeCountChange(ItemEntity itemEntity, int newCount) {
+            ItemStack itemStack = itemEntity.getStack();
+            int oldCount = itemStack.getCount();
+            int maxCount = itemStack.getMaxCount();
+
+            if (oldCount < maxCount && !(newCount < maxCount)) { //no longer <100% full
+                this.group0.remove(itemEntity);
+            } else if (!(oldCount < maxCount) && newCount < maxCount) { //<100% full from now on
+                insertUsingBinarySearchAccordingToParentOrder(this.group0, itemEntity, this.delegate);
+            }
+            if (oldCount * 2 <= maxCount && !(newCount * 2 <= maxCount)) { //no longer <=50% full
+                this.group1.remove(itemEntity);
+            } else if (!(oldCount * 2 <= maxCount) && newCount * 2 <= maxCount) { //<=50% full from now on
+                insertUsingBinarySearchAccordingToParentOrder(this.group1, itemEntity, this.delegate);
+            }
+        }
+
+        public void removeOld(ItemEntity itemEntity, ItemStack oldStack) {
+            if (this.delegate.remove(itemEntity)) {
+                this.updateStackSubscriptionOnRemove(itemEntity);
+                int count = oldStack.getCount();
+                int maxCount = oldStack.getMaxCount();
+                if (count < maxCount) { //<100% full
+                    this.group0.remove(itemEntity);
+                }
+                if (count * 2 <= maxCount) { //<=50% full
+                    this.group1.remove(itemEntity);
+                }
+            }
+        }
+
+        @Override
+        public int size() {
+            return delegate.size();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return delegate.isEmpty();
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            return delegate.contains(o);
+        }
+
+        @NotNull
+        @Override
+        public Iterator<ItemEntity> iterator() {
+            return Iterators.unmodifiableIterator(delegate.iterator());
+        }
+
+        @NotNull
+        @Override
+        public Object[] toArray() {
+            return delegate.toArray();
+        }
+
+        @NotNull
+        @Override
+        public <T> T[] toArray(@NotNull T[] a) {
+            return delegate.toArray(a);
+        }
+
+        @Override
+        public boolean add(ItemEntity itemEntity) {
+            this.updateStackSubscriptionOnAdd(itemEntity);
+            this.addToGroups(itemEntity);
+            return this.delegate.add(itemEntity);
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            if (o instanceof ItemEntity itemEntity && this.delegate.remove(itemEntity)) {
+                this.updateStackSubscriptionOnRemove(itemEntity);
+                this.removeFromGroups(itemEntity);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean containsAll(@NotNull Collection<?> c) {
+            return delegate.containsAll(c);
+        }
+
+        @Override
+        public boolean addAll(@NotNull Collection<? extends ItemEntity> c) {
+            boolean b = false;
+            for (ItemEntity itemEntity : c) {
+                b |= this.add(itemEntity);
+            }
+            return b;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return delegate.equals(o);
+        }
+
+        @Override
+        public int hashCode() {
+            return delegate.hashCode();
+        }
+
+        @Override
+        public ItemEntity get(int index) {
+            return delegate.get(index);
+        }
+
+        @Override
+        public ItemEntity set(int index, ItemEntity element) {
+            ItemEntity prev = delegate.set(index, element);
+            if (prev != element) {
+                this.updateStackSubscriptionOnRemove(prev);
+                this.removeFromGroups(prev);
+                this.updateStackSubscriptionOnAdd(element);
+                this.addToGroupsUsingBinarySearch(element);
+            }
+            return prev;
+
+        }
+
+        @Override
+        public void add(int index, ItemEntity element) {
+            this.delegate.add(index, element);
+            this.updateStackSubscriptionOnAdd(element);
+            this.addToGroupsUsingBinarySearch(element);
+        }
+
+        @Override
+        public ItemEntity remove(int index) {
+            ItemEntity remove = delegate.remove(index);
+            if (remove != null) {
+                this.updateStackSubscriptionOnRemove(remove);
+                this.removeFromGroups(remove);
+            }
+            return remove;
+        }
+
+        @Override
+        public int indexOf(Object o) {
+            return delegate.indexOf(o);
+        }
+
+        @Override
+        public int lastIndexOf(Object o) {
+            return delegate.lastIndexOf(o);
+        }
+
+        @Override
+        public <T> T[] toArray(IntFunction<T[]> generator) {
+            return delegate.toArray(generator);
+        }
+
+        @Override
+        public Stream<ItemEntity> stream() {
+            return delegate.stream();
+        }
+
+        @Override
+        public Stream<ItemEntity> parallelStream() {
+            return delegate.parallelStream();
+        }
+
+        @Override
+        public void forEach(Consumer<? super ItemEntity> action) {
+            delegate.forEach(action);
+        }
     }
 }
