@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.common.entity.item;
 
 import com.google.common.collect.Iterators;
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import me.jellysquid.mods.lithium.common.hopper.NotifyingItemStack;
 import me.jellysquid.mods.lithium.mixin.util.accessors.ItemStackAccessor;
@@ -22,17 +23,27 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
 
     private final ArrayList<ItemEntity> delegate;
     private Reference2ReferenceOpenHashMap<Item, List<ItemEntity>> itemEntitiesByItem;
+    private Reference2IntOpenHashMap<ItemEntity> entityToIndex;
+    private int nextIndex = 0;
+
 
     public ItemEntityCategorizingList(ArrayList<ItemEntity> delegate) {
         this.delegate = delegate;
     }
 
+    private void initializeItemEntitiesByItem() {
+        this.itemEntitiesByItem = new Reference2ReferenceOpenHashMap<>();
+        this.entityToIndex = new Reference2IntOpenHashMap<>(this.delegate.size());
+        this.nextIndex = 0;
+        for (ItemEntity entity : this.delegate) {
+            this.itemEntitiesByItem.computeIfAbsent(((ItemStackAccessor) (Object) entity.getStack()).lithium$getItem(), item -> new ArrayList<>()).add(entity);
+            this.entityToIndex.put(entity, this.nextIndex++);
+        }
+    }
+
     public List<ItemEntity> getItemEntitiesForMerge(ItemEntity searchingEntity) {
         if (this.itemEntitiesByItem == null) {
-            this.itemEntitiesByItem = new Reference2ReferenceOpenHashMap<>();
-            for (ItemEntity entity : this.delegate) {
-                this.itemEntitiesByItem.computeIfAbsent(((ItemStackAccessor) (Object) entity.getStack()).lithium$getItem(), item -> new ArrayList<>()).add(entity);
-            }
+            this.initializeItemEntitiesByItem();
         }
 
         Item item = ((ItemStackAccessor) (Object) searchingEntity.getStack()).lithium$getItem();
@@ -54,15 +65,23 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
         }
 
         if (itemEntities instanceof SizeBucketedItemEntityList itemEntitiesBucketed) {
-            if (itemEntities.size() >= ITEM_ENTITY_CATEGORIZATION_THRESHOLD_2 / 2) {
-                return itemEntitiesBucketed.getSearchGroup(searchingEntity);
-            }
-
-            itemEntities = itemEntitiesBucketed.downgradeToArrayList();
-            this.itemEntitiesByItem.put(item, itemEntities);
+            return itemEntitiesBucketed.getSearchGroup(searchingEntity);
         }
 
         return itemEntities;
+    }
+
+    private void downgradeList(Item item, SizeBucketedItemEntityList itemEntities) {
+        List<ItemEntity> itemEntitiesInMap = this.itemEntitiesByItem.get(item);
+        if (itemEntities != itemEntitiesInMap) {
+            throw new IllegalStateException("List is not the same as the one in the map!");
+        }
+        if (itemEntities.isEmpty()) {
+            this.itemEntitiesByItem.remove(item);
+            return;
+        }
+        itemEntitiesInMap = itemEntities.downgradeToArrayList();
+        this.itemEntitiesByItem.put(item, itemEntitiesInMap);
     }
 
     public void handleItemEntityStackReplacement(ItemEntity itemEntity, ItemStack oldStack) {
@@ -78,13 +97,13 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
 
             Item newItem = ((ItemStackAccessor) (Object) itemEntity.getStack()).lithium$getItem();
             List<ItemEntity> newCategoryList = this.itemEntitiesByItem.computeIfAbsent(newItem, item -> new ArrayList<>());
-            insertUsingBinarySearchAccordingToParentOrder(newCategoryList, itemEntity, this.delegate);
+            insertUsingBinarySearchAccordingToOrder(newCategoryList, itemEntity, this.entityToIndex);
         }
     }
 
-    public static <T> void insertUsingBinarySearchAccordingToParentOrder(List<T> list, T element, ArrayList<T> parent) {
+    public static void insertUsingBinarySearchAccordingToOrder(List<ItemEntity> list, ItemEntity element, Reference2IntOpenHashMap<ItemEntity> order) {
         //Use binary search in delegate to find the correct position according to the main list's sorting
-        int index = Collections.binarySearch(list, element, Comparator.comparingInt(parent::indexOf));
+        int index = Collections.binarySearch(list, element, Comparator.comparingInt(order::getInt));
         if (index >= 0) {
             throw new IllegalStateException("Element is already in the list!");
         }
@@ -93,10 +112,9 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
     }
 
     public ArrayList<ItemEntity> getDelegate() {
-        this.itemEntitiesByItem = null;
+        this.resetItemEntitiesByItem();
         return this.delegate;
     }
-
 
     @Override
     public int size() {
@@ -116,7 +134,7 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
     @NotNull
     @Override
     public Iterator<ItemEntity> iterator() {
-        this.itemEntitiesByItem = null;
+        this.resetItemEntitiesByItem();
         return delegate.iterator();
     }
 
@@ -137,6 +155,11 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
         if (this.itemEntitiesByItem != null) {
             Item category = ((ItemStackAccessor) (Object) itemEntity.getStack()).lithium$getItem();
             this.itemEntitiesByItem.computeIfAbsent(category, item -> new ArrayList<>()).add(itemEntity);
+
+            this.entityToIndex.put(itemEntity, this.nextIndex++);
+            if (this.nextIndex < 0) {
+                this.resetItemEntitiesByItem();
+            }
         }
         return delegate.add(itemEntity);
     }
@@ -144,12 +167,7 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
     @Override
     public boolean remove(Object o) {
         if (o instanceof ItemEntity itemEntity && this.itemEntitiesByItem != null) {
-            Item category = ((ItemStackAccessor) (Object) itemEntity.getStack()).lithium$getItem();
-
-            List<ItemEntity> itemEntities = this.itemEntitiesByItem.get(category);
-            if (itemEntities != null) {
-                itemEntities.remove(itemEntity);
-            }
+            removeInternal(itemEntity);
         }
         return delegate.remove(o);
     }
@@ -169,37 +187,37 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
 
     @Override
     public boolean addAll(int index, @NotNull Collection<? extends ItemEntity> c) {
-        this.itemEntitiesByItem = null;
+        this.resetItemEntitiesByItem();
         return delegate.addAll(index, c);
     }
 
     @Override
     public boolean removeAll(@NotNull Collection<?> c) {
-        this.itemEntitiesByItem = null;
+        this.resetItemEntitiesByItem();
         return delegate.removeAll(c);
     }
 
     @Override
     public boolean retainAll(@NotNull Collection<?> c) {
-        this.itemEntitiesByItem = null;
+        this.resetItemEntitiesByItem();
         return delegate.retainAll(c);
     }
 
     @Override
     public void replaceAll(UnaryOperator<ItemEntity> operator) {
-        this.itemEntitiesByItem = null;
+        this.resetItemEntitiesByItem();
         delegate.replaceAll(operator);
     }
 
     @Override
     public void sort(Comparator<? super ItemEntity> c) {
-        this.itemEntitiesByItem = null;
+        this.resetItemEntitiesByItem();
         delegate.sort(c);
     }
 
     @Override
     public void clear() {
-        this.itemEntitiesByItem = null;
+        this.resetItemEntitiesByItem();
         delegate.clear();
     }
 
@@ -220,13 +238,13 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
 
     @Override
     public ItemEntity set(int index, ItemEntity element) {
-        this.itemEntitiesByItem = null;
+        this.resetItemEntitiesByItem();
         return delegate.set(index, element);
     }
 
     @Override
     public void add(int index, ItemEntity element) {
-        this.itemEntitiesByItem = null;
+        this.resetItemEntitiesByItem();
         delegate.add(index, element);
     }
 
@@ -234,13 +252,21 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
     public ItemEntity remove(int index) {
         ItemEntity remove = delegate.remove(index);
         if (this.itemEntitiesByItem != null) {
-            Item category = ((ItemStackAccessor) (Object) remove.getStack()).lithium$getItem();
-            List<ItemEntity> itemEntities = this.itemEntitiesByItem.get(category);
-            if (itemEntities != null) {
-                itemEntities.remove(remove);
-            }
+            removeInternal(remove);
         }
         return remove;
+    }
+
+    private void removeInternal(ItemEntity remove) {
+        Item category = ((ItemStackAccessor) (Object) remove.getStack()).lithium$getItem();
+        List<ItemEntity> itemEntities = this.itemEntitiesByItem.get(category);
+        if (itemEntities != null) {
+            itemEntities.remove(remove);
+            if (itemEntities.isEmpty()) {
+                this.itemEntitiesByItem.remove(category);
+            }
+        }
+        this.entityToIndex.removeInt(remove);
     }
 
     @Override
@@ -256,14 +282,14 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
     @NotNull
     @Override
     public ListIterator<ItemEntity> listIterator() {
-        this.itemEntitiesByItem = null;
+        this.resetItemEntitiesByItem();
         return delegate.listIterator();
     }
 
     @NotNull
     @Override
     public ListIterator<ItemEntity> listIterator(int index) {
-        this.itemEntitiesByItem = null;
+        this.resetItemEntitiesByItem();
         return delegate.listIterator(index);
     }
 
@@ -285,7 +311,7 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
 
     @Override
     public boolean removeIf(Predicate<? super ItemEntity> filter) {
-        this.itemEntitiesByItem = null;
+        this.resetItemEntitiesByItem();
         return delegate.removeIf(filter);
     }
 
@@ -304,6 +330,11 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
         delegate.forEach(action);
     }
 
+    private void resetItemEntitiesByItem() {
+        this.itemEntitiesByItem = null;
+        this.entityToIndex = null;
+    }
+
     // If there are enough item entities in one category, divide the item entities into 3 buckets:
     // Stacks that are more than 50% full can only merge with stacks that are less than 50% full, etc.
     // Buckets:        0           1            2
@@ -313,16 +344,15 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
 
         private final ArrayList<ItemEntity> notFullEntities;
         private final ArrayList<ItemEntity> maxHalfFullEntities;
-        private final ArrayList<ItemEntity> allEntities;
-
+        private final ArrayList<ItemEntity> entities;
         private final Reference2ReferenceOpenHashMap<ItemEntity, ItemStackSubscriber> subscribers;
 
-        public SizeBucketedItemEntityList(ArrayList<ItemEntity> allEntities) {
+        public SizeBucketedItemEntityList(ArrayList<ItemEntity> entities) {
             this.notFullEntities = new ArrayList<>();
             this.maxHalfFullEntities = new ArrayList<>();
-            this.allEntities = allEntities;
+            this.entities = entities;
             this.subscribers = new Reference2ReferenceOpenHashMap<>();
-            for (ItemEntity itemEntity : this.allEntities) {
+            for (ItemEntity itemEntity : this.entities) {
                 this.updateStackSubscriptionOnAdd(itemEntity);
                 this.addToGroups(itemEntity);
             }
@@ -340,7 +370,7 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
         }
 
         ArrayList<ItemEntity> downgradeToArrayList() {
-            return this.allEntities;
+            return this.entities;
         }
 
         private void addToGroups(ItemEntity itemEntity) {
@@ -372,10 +402,10 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             int count = stack.getCount();
             int maxCount = stack.getMaxCount();
             if (count < maxCount) { //<100% full
-                insertUsingBinarySearchAccordingToParentOrder(this.notFullEntities, element, this.allEntities);
+                insertUsingBinarySearchAccordingToOrder(this.notFullEntities, element, ItemEntityCategorizingList.this.entityToIndex);
             }
             if (count * 2 <= maxCount) { //<=50% full
-                insertUsingBinarySearchAccordingToParentOrder(this.maxHalfFullEntities, element, this.allEntities);
+                insertUsingBinarySearchAccordingToOrder(this.maxHalfFullEntities, element, ItemEntityCategorizingList.this.entityToIndex);
             }
         }
 
@@ -413,17 +443,17 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             if (oldCount < maxCount && !(newCount < maxCount)) { //no longer <100% full
                 this.notFullEntities.remove(itemEntity);
             } else if (!(oldCount < maxCount) && newCount < maxCount) { //<100% full from now on
-                insertUsingBinarySearchAccordingToParentOrder(this.notFullEntities, itemEntity, this.allEntities);
+                insertUsingBinarySearchAccordingToOrder(this.notFullEntities, itemEntity, ItemEntityCategorizingList.this.entityToIndex);
             }
             if (oldCount * 2 <= maxCount && !(newCount * 2 <= maxCount)) { //no longer <=50% full
                 this.maxHalfFullEntities.remove(itemEntity);
             } else if (!(oldCount * 2 <= maxCount) && newCount * 2 <= maxCount) { //<=50% full from now on
-                insertUsingBinarySearchAccordingToParentOrder(this.maxHalfFullEntities, itemEntity, this.allEntities);
+                insertUsingBinarySearchAccordingToOrder(this.maxHalfFullEntities, itemEntity, ItemEntityCategorizingList.this.entityToIndex);
             }
         }
 
         public void removeOld(ItemEntity itemEntity, ItemStack oldStack) {
-            if (this.allEntities.remove(itemEntity)) {
+            if (this.entities.remove(itemEntity)) {
                 this.updateStackSubscriptionOnRemove(itemEntity);
                 int count = oldStack.getCount();
                 int maxCount = oldStack.getMaxCount();
@@ -433,54 +463,57 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
                 if (count * 2 <= maxCount) { //<=50% full
                     this.maxHalfFullEntities.remove(itemEntity);
                 }
+
+                this.checkResizeOnRemoval(oldStack);
             }
         }
 
         @Override
         public int size() {
-            return allEntities.size();
+            return entities.size();
         }
 
         @Override
         public boolean isEmpty() {
-            return allEntities.isEmpty();
+            return entities.isEmpty();
         }
 
         @Override
         public boolean contains(Object o) {
-            return allEntities.contains(o);
+            return entities.contains(o);
         }
 
         @NotNull
         @Override
         public Iterator<ItemEntity> iterator() {
-            return Iterators.unmodifiableIterator(allEntities.iterator());
+            return Iterators.unmodifiableIterator(entities.iterator());
         }
 
         @NotNull
         @Override
         public Object[] toArray() {
-            return allEntities.toArray();
+            return entities.toArray();
         }
 
         @NotNull
         @Override
         public <T> T[] toArray(@NotNull T[] a) {
-            return allEntities.toArray(a);
+            return entities.toArray(a);
         }
 
         @Override
         public boolean add(ItemEntity itemEntity) {
             this.updateStackSubscriptionOnAdd(itemEntity);
             this.addToGroups(itemEntity);
-            return this.allEntities.add(itemEntity);
+            return this.entities.add(itemEntity);
         }
 
         @Override
         public boolean remove(Object o) {
-            if (o instanceof ItemEntity itemEntity && this.allEntities.remove(itemEntity)) {
+            if (o instanceof ItemEntity itemEntity && this.entities.remove(itemEntity)) {
                 this.updateStackSubscriptionOnRemove(itemEntity);
                 this.removeFromGroups(itemEntity);
+                this.checkResizeOnRemoval(itemEntity);
                 return true;
             }
             return false;
@@ -488,7 +521,7 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
 
         @Override
         public boolean containsAll(@NotNull Collection<?> c) {
-            return allEntities.containsAll(c);
+            return entities.containsAll(c);
         }
 
         @Override
@@ -502,22 +535,22 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
 
         @Override
         public boolean equals(Object o) {
-            return allEntities.equals(o);
+            return entities.equals(o);
         }
 
         @Override
         public int hashCode() {
-            return allEntities.hashCode();
+            return entities.hashCode();
         }
 
         @Override
         public ItemEntity get(int index) {
-            return allEntities.get(index);
+            return entities.get(index);
         }
 
         @Override
         public ItemEntity set(int index, ItemEntity element) {
-            ItemEntity prev = allEntities.set(index, element);
+            ItemEntity prev = entities.set(index, element);
             if (prev != element) {
                 this.updateStackSubscriptionOnRemove(prev);
                 this.removeFromGroups(prev);
@@ -530,49 +563,63 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
 
         @Override
         public void add(int index, ItemEntity element) {
-            this.allEntities.add(index, element);
+            this.entities.add(index, element);
             this.updateStackSubscriptionOnAdd(element);
             this.addToGroupsUsingBinarySearch(element);
         }
 
         @Override
         public ItemEntity remove(int index) {
-            ItemEntity remove = allEntities.remove(index);
+            ItemEntity remove = entities.remove(index);
             if (remove != null) {
                 this.updateStackSubscriptionOnRemove(remove);
                 this.removeFromGroups(remove);
+                this.checkResizeOnRemoval(remove);
             }
             return remove;
         }
 
+        private void checkResizeOnRemoval(ItemEntity removed) {
+            int size = this.entities.size();
+            if (size < ITEM_ENTITY_CATEGORIZATION_THRESHOLD_2 / 2 ) {
+                ItemEntityCategorizingList.this.downgradeList(((ItemStackAccessor) (Object) removed.getStack()).lithium$getItem(), this);
+            }
+        }
+        private void checkResizeOnRemoval(ItemStack removed) {
+            int size = this.entities.size();
+            if (size < ITEM_ENTITY_CATEGORIZATION_THRESHOLD_2 / 2 ) {
+                ItemEntityCategorizingList.this.downgradeList(((ItemStackAccessor) (Object) removed).lithium$getItem(), this);
+            }
+        }
+
         @Override
         public int indexOf(Object o) {
-            return allEntities.indexOf(o);
+            return entities.indexOf(o);
         }
 
         @Override
         public int lastIndexOf(Object o) {
-            return allEntities.lastIndexOf(o);
+            return entities.lastIndexOf(o);
         }
 
         @Override
         public <T> T[] toArray(IntFunction<T[]> generator) {
-            return allEntities.toArray(generator);
+            return entities.toArray(generator);
         }
 
         @Override
         public Stream<ItemEntity> stream() {
-            return allEntities.stream();
+            return entities.stream();
         }
 
         @Override
         public Stream<ItemEntity> parallelStream() {
-            return allEntities.parallelStream();
+            return entities.parallelStream();
         }
 
         @Override
         public void forEach(Consumer<? super ItemEntity> action) {
-            allEntities.forEach(action);
+            entities.forEach(action);
         }
     }
 }
