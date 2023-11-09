@@ -16,6 +16,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.entity.SectionedEntityCache;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
@@ -24,6 +25,8 @@ import java.util.function.Predicate;
 
 @Mixin(ItemEntity.class)
 public abstract class ItemEntityMixin extends Entity implements ItemEntityOrderInternalAccess {
+
+    @Unique
     private long internalOrderIndex;
 
     public ItemEntityMixin(EntityType<?> type, World world) {
