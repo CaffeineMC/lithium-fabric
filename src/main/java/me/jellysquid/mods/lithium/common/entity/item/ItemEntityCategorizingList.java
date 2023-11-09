@@ -327,6 +327,7 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             for (ItemEntity itemEntity : this.delegate) {
                 this.updateStackSubscriptionOnAdd(itemEntity);
                 this.addToGroups(itemEntity);
+                this.setOrderIndex(itemEntity);
             }
         }
 
@@ -355,7 +356,6 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             if (count * 2 <= maxCount) { //<=50% full
                 this.selfMergeableList.add(itemEntity);
             }
-            this.setOrderIndex(itemEntity);
         }
 
         private void removeFromGroups(ItemEntity itemEntity) {
@@ -480,6 +480,7 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
         public boolean add(ItemEntity itemEntity) {
             this.updateStackSubscriptionOnAdd(itemEntity);
             this.addToGroups(itemEntity);
+            this.setOrderIndex(itemEntity);
             return this.delegate.add(itemEntity);
         }
 
