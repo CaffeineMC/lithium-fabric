@@ -79,18 +79,13 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             Item newItem = ((ItemStackAccessor) (Object) itemEntity.getStack()).lithium$getItem();
             List<ItemEntity> newCategoryList = this.itemEntitiesByItem.computeIfAbsent(newItem, item -> new ArrayList<>());
             //Use binary search in delegate to find the correct position according to the main list's sorting
-            int index = Collections.binarySearch(newCategoryList, itemEntity, Comparator.comparingInt(this.delegate::indexOf));
-            if (index >= 0) {
-                throw new IllegalStateException("Element is already in the list!");
-            }
-            index = - (index + 1); //Get insertion location according to Collections.binarySearch
-            newCategoryList.add(index, itemEntity);
-            insertUsingBinarySearchAccordingToParentOrder(newCategoryList, itemEntity, this.delegate);
+            insertUsingBinarySearchAccordingToOrderIndex(newCategoryList, itemEntity);
         }
     }
 
-    public static <T> void insertUsingBinarySearchAccordingToParentOrder(List<T> list, T element, ArrayList<T> parent) {
-        int index = Collections.binarySearch(list, element, Comparator.comparingInt(parent::indexOf));
+    public static <T> void insertUsingBinarySearchAccordingToOrderIndex(List<T> list, T element) {
+        int index = Collections.binarySearch(list, element,
+            Comparator.comparingLong(element2 -> ((ItemEntityOrderInternalAccess) element2).lithium$getOrderIndex()));
         if (index >= 0) {
             throw new IllegalStateException("Element is already in the list!");
         }
@@ -317,15 +312,16 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
     // Search if: "< 50% full" ">=50% full"   "none"
     class SizeBucketedItemEntityList extends AbstractList<ItemEntity> {
 
-        private final ArrayList<ItemEntity> group0;
-        private final ArrayList<ItemEntity> group1;
+        private final ArrayList<ItemEntity> allMergeableList;
+        private final ArrayList<ItemEntity> selfMergeableList;
         private final ArrayList<ItemEntity> delegate;
+        private long currentOrderIndex = 0;
 
         private final Reference2ReferenceOpenHashMap<ItemEntity, ItemStackSubscriber> subscribers;
 
         public SizeBucketedItemEntityList(ArrayList<ItemEntity> delegate) {
-            this.group0 = new ArrayList<>();
-            this.group1 = new ArrayList<>();
+            this.allMergeableList = new ArrayList<>();
+            this.selfMergeableList = new ArrayList<>();
             this.delegate = delegate;
             this.subscribers = new Reference2ReferenceOpenHashMap<>();
             for (ItemEntity itemEntity : this.delegate) {
@@ -340,9 +336,9 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             int count = stack.getCount();
             int maxCount = item.getMaxCount();
             if (count * 2 >= maxCount) { //>=50% full
-                return this.group1;
+                return this.selfMergeableList;
             }
-            return this.group0;
+            return this.allMergeableList;
         }
 
         ArrayList<ItemEntity> downgradeToArrayList() {
@@ -354,11 +350,12 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             int count = stack.getCount();
             int maxCount = stack.getMaxCount();
             if (count < maxCount) { //<100% full
-                this.group0.add(itemEntity);
+                this.allMergeableList.add(itemEntity);
             }
             if (count * 2 <= maxCount) { //<=50% full
-                this.group1.add(itemEntity);
+                this.selfMergeableList.add(itemEntity);
             }
+            this.setOrderIndex(itemEntity);
         }
 
         private void removeFromGroups(ItemEntity itemEntity) {
@@ -366,10 +363,10 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             int count = stack.getCount();
             int maxCount = stack.getMaxCount();
             if (count < maxCount) { //<100% full
-                this.group0.remove(itemEntity);
+                this.allMergeableList.remove(itemEntity);
             }
             if (count * 2 <= maxCount) { //<=50% full
-                this.group1.remove(itemEntity);
+                this.selfMergeableList.remove(itemEntity);
             }
         }
 
@@ -378,10 +375,10 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             int count = stack.getCount();
             int maxCount = stack.getMaxCount();
             if (count < maxCount) { //<100% full
-                insertUsingBinarySearchAccordingToParentOrder(this.group0, element, this.delegate);
+                insertUsingBinarySearchAccordingToOrderIndex(this.allMergeableList, element);
             }
             if (count * 2 <= maxCount) { //<=50% full
-                insertUsingBinarySearchAccordingToParentOrder(this.group1, element, this.delegate);
+                insertUsingBinarySearchAccordingToOrderIndex(this.selfMergeableList, element);
             }
         }
 
@@ -411,20 +408,24 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             ItemEntityCategorizingList.this.handleItemEntityStackReplacement(itemEntity, oldStack);
         }
 
+        private void setOrderIndex(ItemEntity itemEntity) {
+            ((ItemEntityOrderInternalAccess) itemEntity).lithium$setOrderIndex(currentOrderIndex++);
+        }
+
         public void notifyBeforeCountChange(ItemEntity itemEntity, int newCount) {
             ItemStack itemStack = itemEntity.getStack();
             int oldCount = itemStack.getCount();
             int maxCount = itemStack.getMaxCount();
 
             if (oldCount < maxCount && !(newCount < maxCount)) { //no longer <100% full
-                this.group0.remove(itemEntity);
+                this.allMergeableList.remove(itemEntity);
             } else if (!(oldCount < maxCount) && newCount < maxCount) { //<100% full from now on
-                insertUsingBinarySearchAccordingToParentOrder(this.group0, itemEntity, this.delegate);
+                insertUsingBinarySearchAccordingToOrderIndex(this.allMergeableList, itemEntity);
             }
             if (oldCount * 2 <= maxCount && !(newCount * 2 <= maxCount)) { //no longer <=50% full
-                this.group1.remove(itemEntity);
+                this.selfMergeableList.remove(itemEntity);
             } else if (!(oldCount * 2 <= maxCount) && newCount * 2 <= maxCount) { //<=50% full from now on
-                insertUsingBinarySearchAccordingToParentOrder(this.group1, itemEntity, this.delegate);
+                insertUsingBinarySearchAccordingToOrderIndex(this.selfMergeableList, itemEntity);
             }
         }
 
@@ -434,10 +435,10 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
                 int count = oldStack.getCount();
                 int maxCount = oldStack.getMaxCount();
                 if (count < maxCount) { //<100% full
-                    this.group0.remove(itemEntity);
+                    this.allMergeableList.remove(itemEntity);
                 }
                 if (count * 2 <= maxCount) { //<=50% full
-                    this.group1.remove(itemEntity);
+                    this.selfMergeableList.remove(itemEntity);
                 }
             }
         }

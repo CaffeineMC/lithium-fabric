@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.entity.item_entity_stacking;
 
+import me.jellysquid.mods.lithium.common.entity.item.ItemEntityOrderInternalAccess;
 import me.jellysquid.mods.lithium.common.hopper.NotifyingItemStack;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import me.jellysquid.mods.lithium.mixin.util.accessors.ItemStackAccessor;
@@ -22,13 +23,25 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @Mixin(ItemEntity.class)
-public abstract class ItemEntityMixin extends Entity {
+public abstract class ItemEntityMixin extends Entity implements ItemEntityOrderInternalAccess {
+    private long internalOrderIndex;
+
     public ItemEntityMixin(EntityType<?> type, World world) {
         super(type, world);
     }
 
     @Shadow
     public abstract ItemStack getStack();
+
+    @Override
+    public long lithium$getOrderIndex() {
+        return internalOrderIndex;
+    }
+    
+    @Override
+    public void lithium$setOrderIndex(long orderIndex) {
+        internalOrderIndex = orderIndex;
+    }
 
     @Redirect(
             method = "tryMerge()V",
