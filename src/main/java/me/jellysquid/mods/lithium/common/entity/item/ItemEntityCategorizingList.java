@@ -78,18 +78,12 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
 
             Item newItem = ((ItemStackAccessor) (Object) itemEntity.getStack()).lithium$getItem();
             List<ItemEntity> newCategoryList = this.itemEntitiesByItem.computeIfAbsent(newItem, item -> new ArrayList<>());
-            //Use binary search in delegate to find the correct position according to the main list's sorting
-            int index = Collections.binarySearch(newCategoryList, itemEntity, Comparator.comparingInt(this.delegate::indexOf));
-            if (index >= 0) {
-                throw new IllegalStateException("Element is already in the list!");
-            }
-            index = - (index + 1); //Get insertion location according to Collections.binarySearch
-            newCategoryList.add(index, itemEntity);
             insertUsingBinarySearchAccordingToParentOrder(newCategoryList, itemEntity, this.delegate);
         }
     }
 
     public static <T> void insertUsingBinarySearchAccordingToParentOrder(List<T> list, T element, ArrayList<T> parent) {
+        //Use binary search in delegate to find the correct position according to the main list's sorting
         int index = Collections.binarySearch(list, element, Comparator.comparingInt(parent::indexOf));
         if (index >= 0) {
             throw new IllegalStateException("Element is already in the list!");
@@ -317,18 +311,18 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
     // Search if: "< 50% full" ">=50% full"   "none"
     class SizeBucketedItemEntityList extends AbstractList<ItemEntity> {
 
-        private final ArrayList<ItemEntity> group0;
-        private final ArrayList<ItemEntity> group1;
-        private final ArrayList<ItemEntity> delegate;
+        private final ArrayList<ItemEntity> notFullEntities;
+        private final ArrayList<ItemEntity> maxHalfFullEntities;
+        private final ArrayList<ItemEntity> allEntities;
 
         private final Reference2ReferenceOpenHashMap<ItemEntity, ItemStackSubscriber> subscribers;
 
-        public SizeBucketedItemEntityList(ArrayList<ItemEntity> delegate) {
-            this.group0 = new ArrayList<>();
-            this.group1 = new ArrayList<>();
-            this.delegate = delegate;
+        public SizeBucketedItemEntityList(ArrayList<ItemEntity> allEntities) {
+            this.notFullEntities = new ArrayList<>();
+            this.maxHalfFullEntities = new ArrayList<>();
+            this.allEntities = allEntities;
             this.subscribers = new Reference2ReferenceOpenHashMap<>();
-            for (ItemEntity itemEntity : this.delegate) {
+            for (ItemEntity itemEntity : this.allEntities) {
                 this.updateStackSubscriptionOnAdd(itemEntity);
                 this.addToGroups(itemEntity);
             }
@@ -340,13 +334,13 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             int count = stack.getCount();
             int maxCount = item.getMaxCount();
             if (count * 2 >= maxCount) { //>=50% full
-                return this.group1;
+                return this.maxHalfFullEntities;
             }
-            return this.group0;
+            return this.notFullEntities;
         }
 
         ArrayList<ItemEntity> downgradeToArrayList() {
-            return this.delegate;
+            return this.allEntities;
         }
 
         private void addToGroups(ItemEntity itemEntity) {
@@ -354,10 +348,10 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             int count = stack.getCount();
             int maxCount = stack.getMaxCount();
             if (count < maxCount) { //<100% full
-                this.group0.add(itemEntity);
+                this.notFullEntities.add(itemEntity);
             }
             if (count * 2 <= maxCount) { //<=50% full
-                this.group1.add(itemEntity);
+                this.maxHalfFullEntities.add(itemEntity);
             }
         }
 
@@ -366,10 +360,10 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             int count = stack.getCount();
             int maxCount = stack.getMaxCount();
             if (count < maxCount) { //<100% full
-                this.group0.remove(itemEntity);
+                this.notFullEntities.remove(itemEntity);
             }
             if (count * 2 <= maxCount) { //<=50% full
-                this.group1.remove(itemEntity);
+                this.maxHalfFullEntities.remove(itemEntity);
             }
         }
 
@@ -378,10 +372,10 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             int count = stack.getCount();
             int maxCount = stack.getMaxCount();
             if (count < maxCount) { //<100% full
-                insertUsingBinarySearchAccordingToParentOrder(this.group0, element, this.delegate);
+                insertUsingBinarySearchAccordingToParentOrder(this.notFullEntities, element, this.allEntities);
             }
             if (count * 2 <= maxCount) { //<=50% full
-                insertUsingBinarySearchAccordingToParentOrder(this.group1, element, this.delegate);
+                insertUsingBinarySearchAccordingToParentOrder(this.maxHalfFullEntities, element, this.allEntities);
             }
         }
 
@@ -417,74 +411,74 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             int maxCount = itemStack.getMaxCount();
 
             if (oldCount < maxCount && !(newCount < maxCount)) { //no longer <100% full
-                this.group0.remove(itemEntity);
+                this.notFullEntities.remove(itemEntity);
             } else if (!(oldCount < maxCount) && newCount < maxCount) { //<100% full from now on
-                insertUsingBinarySearchAccordingToParentOrder(this.group0, itemEntity, this.delegate);
+                insertUsingBinarySearchAccordingToParentOrder(this.notFullEntities, itemEntity, this.allEntities);
             }
             if (oldCount * 2 <= maxCount && !(newCount * 2 <= maxCount)) { //no longer <=50% full
-                this.group1.remove(itemEntity);
+                this.maxHalfFullEntities.remove(itemEntity);
             } else if (!(oldCount * 2 <= maxCount) && newCount * 2 <= maxCount) { //<=50% full from now on
-                insertUsingBinarySearchAccordingToParentOrder(this.group1, itemEntity, this.delegate);
+                insertUsingBinarySearchAccordingToParentOrder(this.maxHalfFullEntities, itemEntity, this.allEntities);
             }
         }
 
         public void removeOld(ItemEntity itemEntity, ItemStack oldStack) {
-            if (this.delegate.remove(itemEntity)) {
+            if (this.allEntities.remove(itemEntity)) {
                 this.updateStackSubscriptionOnRemove(itemEntity);
                 int count = oldStack.getCount();
                 int maxCount = oldStack.getMaxCount();
                 if (count < maxCount) { //<100% full
-                    this.group0.remove(itemEntity);
+                    this.notFullEntities.remove(itemEntity);
                 }
                 if (count * 2 <= maxCount) { //<=50% full
-                    this.group1.remove(itemEntity);
+                    this.maxHalfFullEntities.remove(itemEntity);
                 }
             }
         }
 
         @Override
         public int size() {
-            return delegate.size();
+            return allEntities.size();
         }
 
         @Override
         public boolean isEmpty() {
-            return delegate.isEmpty();
+            return allEntities.isEmpty();
         }
 
         @Override
         public boolean contains(Object o) {
-            return delegate.contains(o);
+            return allEntities.contains(o);
         }
 
         @NotNull
         @Override
         public Iterator<ItemEntity> iterator() {
-            return Iterators.unmodifiableIterator(delegate.iterator());
+            return Iterators.unmodifiableIterator(allEntities.iterator());
         }
 
         @NotNull
         @Override
         public Object[] toArray() {
-            return delegate.toArray();
+            return allEntities.toArray();
         }
 
         @NotNull
         @Override
         public <T> T[] toArray(@NotNull T[] a) {
-            return delegate.toArray(a);
+            return allEntities.toArray(a);
         }
 
         @Override
         public boolean add(ItemEntity itemEntity) {
             this.updateStackSubscriptionOnAdd(itemEntity);
             this.addToGroups(itemEntity);
-            return this.delegate.add(itemEntity);
+            return this.allEntities.add(itemEntity);
         }
 
         @Override
         public boolean remove(Object o) {
-            if (o instanceof ItemEntity itemEntity && this.delegate.remove(itemEntity)) {
+            if (o instanceof ItemEntity itemEntity && this.allEntities.remove(itemEntity)) {
                 this.updateStackSubscriptionOnRemove(itemEntity);
                 this.removeFromGroups(itemEntity);
                 return true;
@@ -494,7 +488,7 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
 
         @Override
         public boolean containsAll(@NotNull Collection<?> c) {
-            return delegate.containsAll(c);
+            return allEntities.containsAll(c);
         }
 
         @Override
@@ -508,22 +502,22 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
 
         @Override
         public boolean equals(Object o) {
-            return delegate.equals(o);
+            return allEntities.equals(o);
         }
 
         @Override
         public int hashCode() {
-            return delegate.hashCode();
+            return allEntities.hashCode();
         }
 
         @Override
         public ItemEntity get(int index) {
-            return delegate.get(index);
+            return allEntities.get(index);
         }
 
         @Override
         public ItemEntity set(int index, ItemEntity element) {
-            ItemEntity prev = delegate.set(index, element);
+            ItemEntity prev = allEntities.set(index, element);
             if (prev != element) {
                 this.updateStackSubscriptionOnRemove(prev);
                 this.removeFromGroups(prev);
@@ -536,14 +530,14 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
 
         @Override
         public void add(int index, ItemEntity element) {
-            this.delegate.add(index, element);
+            this.allEntities.add(index, element);
             this.updateStackSubscriptionOnAdd(element);
             this.addToGroupsUsingBinarySearch(element);
         }
 
         @Override
         public ItemEntity remove(int index) {
-            ItemEntity remove = delegate.remove(index);
+            ItemEntity remove = allEntities.remove(index);
             if (remove != null) {
                 this.updateStackSubscriptionOnRemove(remove);
                 this.removeFromGroups(remove);
@@ -553,32 +547,32 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
 
         @Override
         public int indexOf(Object o) {
-            return delegate.indexOf(o);
+            return allEntities.indexOf(o);
         }
 
         @Override
         public int lastIndexOf(Object o) {
-            return delegate.lastIndexOf(o);
+            return allEntities.lastIndexOf(o);
         }
 
         @Override
         public <T> T[] toArray(IntFunction<T[]> generator) {
-            return delegate.toArray(generator);
+            return allEntities.toArray(generator);
         }
 
         @Override
         public Stream<ItemEntity> stream() {
-            return delegate.stream();
+            return allEntities.stream();
         }
 
         @Override
         public Stream<ItemEntity> parallelStream() {
-            return delegate.parallelStream();
+            return allEntities.parallelStream();
         }
 
         @Override
         public void forEach(Consumer<? super ItemEntity> action) {
-            delegate.forEach(action);
+            allEntities.forEach(action);
         }
     }
 }
