@@ -12,12 +12,10 @@ import me.jellysquid.mods.lithium.mixin.util.accessors.ServerEntityManagerAccess
 import me.jellysquid.mods.lithium.mixin.util.accessors.ServerWorldAccessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.Item;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.function.LazyIterationConsumer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.EntityView;
 import net.minecraft.world.World;
 import net.minecraft.world.entity.SectionedEntityCache;
@@ -71,7 +69,7 @@ public class WorldHelper {
             if (itemEntities.size() > ITEM_ENTITY_CATEGORIZATION_THRESHOLD && itemEntities instanceof ArrayList<ItemEntity>) {
                 itemEntities = interalEntityList.lithium$replaceCollectionAndGet(ItemEntity.class, ItemEntityCategorizingList::new);
             } else if (itemEntities.size() <= ITEM_ENTITY_CATEGORIZATION_THRESHOLD / 2 && itemEntities instanceof ItemEntityCategorizingList categorizingList) {
-                itemEntities = interalEntityList.lithium$replaceCollectionAndGet(ItemEntity.class, categorizingList.getDelegate());
+                itemEntities = interalEntityList.lithium$replaceCollectionAndGet(ItemEntity.class, categorizingList.downgradeToArrayList());
             }
 
             if (itemEntities instanceof ItemEntityCategorizingList categorizingList) {

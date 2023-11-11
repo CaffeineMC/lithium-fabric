@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.common.entity.item;
 
 import com.google.common.collect.Iterators;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import me.jellysquid.mods.lithium.common.hopper.NotifyingItemStack;
 import me.jellysquid.mods.lithium.mixin.util.accessors.ItemStackAccessor;
@@ -13,8 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
@@ -111,7 +110,7 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
         list.add(index, element);
     }
 
-    public ArrayList<ItemEntity> getDelegate() {
+    public ArrayList<ItemEntity> downgradeToArrayList() {
         this.resetItemEntitiesByItem();
         return this.delegate;
     }
@@ -129,13 +128,6 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
     @Override
     public boolean contains(Object o) {
         return delegate.contains(o);
-    }
-
-    @NotNull
-    @Override
-    public Iterator<ItemEntity> iterator() {
-        this.resetItemEntitiesByItem();
-        return delegate.iterator();
     }
 
     @NotNull
@@ -183,36 +175,6 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
             this.add(itemEntity);
         }
         return delegate.addAll(c);
-    }
-
-    @Override
-    public boolean addAll(int index, @NotNull Collection<? extends ItemEntity> c) {
-        this.resetItemEntitiesByItem();
-        return delegate.addAll(index, c);
-    }
-
-    @Override
-    public boolean removeAll(@NotNull Collection<?> c) {
-        this.resetItemEntitiesByItem();
-        return delegate.removeAll(c);
-    }
-
-    @Override
-    public boolean retainAll(@NotNull Collection<?> c) {
-        this.resetItemEntitiesByItem();
-        return delegate.retainAll(c);
-    }
-
-    @Override
-    public void replaceAll(UnaryOperator<ItemEntity> operator) {
-        this.resetItemEntitiesByItem();
-        delegate.replaceAll(operator);
-    }
-
-    @Override
-    public void sort(Comparator<? super ItemEntity> c) {
-        this.resetItemEntitiesByItem();
-        delegate.sort(c);
     }
 
     @Override
@@ -279,40 +241,9 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
         return delegate.lastIndexOf(o);
     }
 
-    @NotNull
-    @Override
-    public ListIterator<ItemEntity> listIterator() {
-        this.resetItemEntitiesByItem();
-        return delegate.listIterator();
-    }
-
-    @NotNull
-    @Override
-    public ListIterator<ItemEntity> listIterator(int index) {
-        this.resetItemEntitiesByItem();
-        return delegate.listIterator(index);
-    }
-
-    @NotNull
-    @Override
-    public List<ItemEntity> subList(int fromIndex, int toIndex) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Spliterator<ItemEntity> spliterator() {
-        return delegate.spliterator();
-    }
-
     @Override
     public <T> T[] toArray(IntFunction<T[]> generator) {
         return delegate.toArray(generator);
-    }
-
-    @Override
-    public boolean removeIf(Predicate<? super ItemEntity> filter) {
-        this.resetItemEntitiesByItem();
-        return delegate.removeIf(filter);
     }
 
     @Override
@@ -331,8 +262,17 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
     }
 
     private void resetItemEntitiesByItem() {
+        this.unsubscribeAll();
         this.itemEntitiesByItem = null;
         this.entityToIndex = null;
+    }
+
+    private void unsubscribeAll() {
+        for (var itemEntityList : this.itemEntitiesByItem.values()) {
+            if (itemEntityList instanceof SizeBucketedItemEntityList itemEntitiesBucketed) {
+                itemEntitiesBucketed.unsubscribeAll();
+            }
+        }
     }
 
     // If there are enough item entities in one category, divide the item entities into 3 buckets:
@@ -370,7 +310,16 @@ public class ItemEntityCategorizingList extends AbstractList<ItemEntity> {
         }
 
         ArrayList<ItemEntity> downgradeToArrayList() {
+            this.unsubscribeAll();
             return this.entities;
+        }
+
+        private void unsubscribeAll() {
+            for (Reference2ReferenceMap.Entry<ItemEntity, ItemStackSubscriber> entry : this.subscribers.reference2ReferenceEntrySet()) {
+                ItemEntity itemEntity = entry.getKey();
+                ItemStackSubscriber subscriber = entry.getValue();
+                ((NotifyingItemStack) (Object) itemEntity.getStack()).lithium$unsubscribe(subscriber);
+            }
         }
 
         private void addToGroups(ItemEntity itemEntity) {
