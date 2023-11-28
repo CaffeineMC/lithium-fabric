@@ -40,6 +40,11 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
         return ((ItemStackAccessor) (Object) itemStack).lithium$getItem();
     }
 
+    @Override
+    boolean areSubcategoriesAlwaysEmpty(Item item) {
+        return item.getMaxCount() == 1;
+    }
+
     // If there are enough item entities in one category, divide the item entities into 3 buckets:
     // Stacks that are more than 50% full can only merge with stacks that are less than 50% full, etc.
     // Buckets:        A           B            *

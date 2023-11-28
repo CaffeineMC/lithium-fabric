@@ -33,6 +33,7 @@ public abstract class ElementCategorizingList<T, Category> extends AbstractList<
     }
 
     abstract Category getCategory(T element);
+    abstract boolean areSubcategoriesAlwaysEmpty(Category category);
     abstract boolean isSubCategoryA(T element);
     abstract boolean isSubCategoryB(T element);
     abstract void onElementSubcategorized(T element, int index);
@@ -96,7 +97,7 @@ public abstract class ElementCategorizingList<T, Category> extends AbstractList<
 
     public LazyIterationConsumer.NextIteration consumeCategoryA(LazyIterationConsumer<T> elementConsumer, Category category) {
         IntArrayList categoryList = this.elementsByTypeA.get(category);
-        if (categoryList == null) {
+        if (categoryList == null && !this.areSubcategoriesAlwaysEmpty(category)) {
             categoryList = this.elementsByType.get(category);
         }
 
@@ -105,7 +106,7 @@ public abstract class ElementCategorizingList<T, Category> extends AbstractList<
 
     public LazyIterationConsumer.NextIteration consumeCategoryB(LazyIterationConsumer<T> elementConsumer, Category category) {
         IntArrayList categoryList = this.elementsByTypeB.get(category);
-        if (categoryList == null) {
+        if (categoryList == null && !this.areSubcategoriesAlwaysEmpty(category)) {
             categoryList = this.elementsByType.get(category);
         }
 
@@ -136,6 +137,10 @@ public abstract class ElementCategorizingList<T, Category> extends AbstractList<
     }
 
     private void initSubCategories(Category category, IntArrayList source) {
+        if (this.areSubcategoriesAlwaysEmpty(category)) {
+            return;
+        }
+
         IntArrayList categoryListA = new IntArrayList();
         IntArrayList categoryListB = new IntArrayList();
         this.elementsByTypeA.put(category, categoryListA);
