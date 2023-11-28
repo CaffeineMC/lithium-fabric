@@ -312,13 +312,6 @@ Hopper minecarts search for item entities faster by combining multiple item enti
 (default: `true`)  
 Block updates skip notifying mobs that won't react to the block update anyways  
   
-### `mixin.entity.item_entity_by_type`
-(default: `true`)  
-Optimize item entity stacking by categorizing item entities by item type and only attempting to merge with the same type.  
-Requirements:
-- `mixin.util.accessors=true`
-- `mixin.util.item_stack_tracking=true`  
-  
 ### `mixin.entity.replace_entitytype_predicates`
 (default: `true`)  
 Accesses entities of the correct type directly instead of accessing all nearby entities and filtering them afterwards  
@@ -373,9 +366,24 @@ Use the block listening system to cache the entity suffocation check.
 Requirements:
 - `mixin.util.block_tracking.block_listening=true`  
   
+### `mixin.experimental.entity.item_entity_merging`
+(default: `true`)  
+Optimize item entity merging by categorizing item entities by item type and only attempting to merge with the same type. Categorizing by stack size allows skipping merge attempts of full item entities or two more than half full item entities.  
+Requirements:
+- `mixin.util.accessors=true`
+- `mixin.experimental.util.item_entity_by_type=true`
+- `mixin.util.item_stack_tracking=true`  
+  
 ### `mixin.experimental.spawning`
 (default: `true`)  
 Experimental optimizations to spawning conditions. Reorders the iteration over entities to match the chunks and chunk sections, reducing the number of cache misses.  
+  
+### `mixin.experimental.util.item_entity_by_type`
+(default: `true`)  
+Allow retrieving item entities grouped by item type and count from the world.  
+Requirements:
+- `mixin.util.accessors=true`
+- `mixin.util.item_stack_tracking=true`  
   
 ### `mixin.gen`
 (default: `true`)  

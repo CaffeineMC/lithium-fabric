@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.entity.item_entity_by_type;
+package me.jellysquid.mods.lithium.mixin.experimental.util.item_entity_by_type;
 
 import me.jellysquid.mods.lithium.common.entity.TypeFilterableListInternalAccess;
 import net.minecraft.util.collection.TypeFilterableList;

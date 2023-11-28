@@ -1,11 +1,11 @@
 @MixinConfigOption(
-        description = "Optimize item entity stacking by categorizing item entities by item type and only attempting to merge with the same type.",
+        description = "Allow retrieving item entities grouped by item type and count from the world.",
         depends = {
                 @MixinConfigDependency(dependencyPath = "mixin.util.accessors"),
                 @MixinConfigDependency(dependencyPath = "mixin.util.item_stack_tracking")
         }
 )
-package me.jellysquid.mods.lithium.mixin.entity.item_entity_by_type;
+package me.jellysquid.mods.lithium.mixin.experimental.util.item_entity_by_type;
 
 import net.caffeinemc.gradle.MixinConfigDependency;
 import net.caffeinemc.gradle.MixinConfigOption;
