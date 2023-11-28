@@ -5,6 +5,7 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 
 public interface NotifyingItemStack {
+    @SuppressWarnings("unused")
     void lithium$subscribe(ItemStackSubscriber subscriber);
 
     void lithium$subscribeWithIndex(ItemStackSubscriber subscriber, int index);
@@ -13,5 +14,5 @@ public interface NotifyingItemStack {
 
     void lithium$unsubscribeWithIndex(ItemStackSubscriber subscriber, int index);
 
-    void lithium$notifyItemEntityStackSwap(ItemEntity itemEntity, ItemStack oldStack);
+    void lithium$notifyAfterItemEntityStackSwap(ItemEntity itemEntity, ItemStack oldStack);
 }

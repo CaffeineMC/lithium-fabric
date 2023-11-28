@@ -312,11 +312,12 @@ Hopper minecarts search for item entities faster by combining multiple item enti
 (default: `true`)  
 Block updates skip notifying mobs that won't react to the block update anyways  
   
-### `mixin.entity.item_entity_stacking`
+### `mixin.entity.item_entity_by_type`
 (default: `true`)  
 Optimize item entity stacking by categorizing item entities by item type and only attempting to merge with the same type.  
 Requirements:
-- `mixin.util.accessors=true`  
+- `mixin.util.accessors=true`
+- `mixin.util.item_stack_tracking=true`  
   
 ### `mixin.entity.replace_entitytype_predicates`
 (default: `true`)  

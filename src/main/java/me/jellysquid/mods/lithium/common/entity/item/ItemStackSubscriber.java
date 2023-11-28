@@ -5,7 +5,7 @@ import net.minecraft.item.ItemStack;
 
 public interface ItemStackSubscriber {
 
-    void lithium$notifyBeforeCountChange(ItemStack itemStack, int slot, int newCount);
+    void lithium$notifyBeforeCountChange(ItemStack itemStack, int index, int newCount);
 
-    default void lithium$notifyItemEntityStackSwap(ItemEntity itemEntity, ItemStack oldStack) {}
+    default void lithium$notifyAfterItemEntityStackSwap(int index, ItemEntity itemEntity, ItemStack oldStack) {}
 }

@@ -1,6 +1,8 @@
-package me.jellysquid.mods.lithium.mixin.entity.item_entity_stacking;
+package me.jellysquid.mods.lithium.mixin.entity.item_entity_by_type;
 
+import me.jellysquid.mods.lithium.common.entity.item.ItemEntityLazyIterationConsumer;
 import me.jellysquid.mods.lithium.common.hopper.NotifyingItemStack;
+import me.jellysquid.mods.lithium.common.world.ItemEntityHelper;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import me.jellysquid.mods.lithium.mixin.util.accessors.ItemStackAccessor;
 import net.minecraft.entity.Entity;
@@ -39,7 +41,9 @@ public abstract class ItemEntityMixin extends Entity {
     private List<ItemEntity> getItems(World world, Class<ItemEntity> itemEntityClass, Box box, Predicate<ItemEntity> predicate) {
         SectionedEntityCache<Entity> cache = WorldHelper.getEntityCacheOrNull(world);
         if (cache != null) {
-            return WorldHelper.getItemEntitiesForMerge(cache, (ItemEntity) (Object) this, box, predicate);
+            ItemEntityLazyIterationConsumer itemEntityConsumer = new ItemEntityLazyIterationConsumer((ItemEntity) (Object) this, box, predicate);
+            ItemEntityHelper.consumeItemEntitiesForMerge(cache, (ItemEntity) (Object) this, box, itemEntityConsumer);
+            return itemEntityConsumer.getMergeEntities();
         }
 
         return world.getEntitiesByClass(itemEntityClass, box, predicate);
@@ -54,7 +58,7 @@ public abstract class ItemEntityMixin extends Entity {
 
         Item newItem = ((ItemStackAccessor) newStack).lithium$getItem();
         if (newItem != ((ItemStackAccessor) (Object) oldStack).lithium$getItem()) {
-            ((NotifyingItemStack) (Object) oldStack).lithium$notifyItemEntityStackSwap((ItemEntity) (Object) this, oldStack);
+            ((NotifyingItemStack) (Object) oldStack).lithium$notifyAfterItemEntityStackSwap((ItemEntity) (Object) this, oldStack);
         }
     }
 }

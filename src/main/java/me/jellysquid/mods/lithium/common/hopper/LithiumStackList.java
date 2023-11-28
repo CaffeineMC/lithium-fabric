@@ -95,12 +95,12 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
 
     }
 
-    public void lithium$notifyBeforeCountChange(ItemStack itemStack, int slot, int newCount) {
-        ItemStack stack = this.get(slot);
+    public void lithium$notifyBeforeCountChange(ItemStack itemStack, int index, int newCount) {
+        ItemStack stack = this.get(index);
         int count = stack.getCount();
         if (newCount <= 0) {
             //noinspection ConstantConditions
-            ((NotifyingItemStack) (Object) stack).lithium$unsubscribeWithIndex(this, slot);
+            ((NotifyingItemStack) (Object) stack).lithium$unsubscribeWithIndex(this, index);
         }
         int maxCount = stack.getMaxCount();
         this.occupiedSlots -= newCount <= 0 ? 1 : 0;

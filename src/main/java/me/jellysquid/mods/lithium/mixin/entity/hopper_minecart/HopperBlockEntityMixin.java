@@ -1,7 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.entity.hopper_minecart;
 
-import me.jellysquid.mods.lithium.common.hopper.HopperHelper;
-import me.jellysquid.mods.lithium.common.util.collections.BucketedList;
+import me.jellysquid.mods.lithium.common.world.ItemEntityHelper;
 import net.minecraft.block.entity.Hopper;
 import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.entity.ItemEntity;
@@ -35,27 +34,6 @@ public class HopperBlockEntityMixin {
             return Collections.emptyList();
         }
 
-        Box[] boundingBoxes = HopperHelper.getHopperPickupVolumeBoxes(hopper);
-        int numBoxes = boundingBoxes.length;
-        Box[] offsetBoundingBoxes = new Box[numBoxes];
-        for (int i = 0; i < numBoxes; i++) {
-            offsetBoundingBoxes[i] = boundingBoxes[i].offset(xOffset, yOffset, zOffset);
-        }
-
-        BucketedList<ItemEntity> entities = new BucketedList<>(numBoxes);
-
-        for (ItemEntity itemEntity : nearbyEntities) {
-            Box entityBoundingBox = itemEntity.getBoundingBox();
-            for (int j = 0; j < numBoxes; j++) {
-                if (entityBoundingBox.intersects(offsetBoundingBoxes[j])) {
-                    entities.addToBucket(j, itemEntity);
-                    //Only add each entity once. A hopper cannot pick up from the entity twice anyways.
-                    break;
-                }
-            }
-        }
-
-        return entities;
+        return ItemEntityHelper.getItemEntityBucketedList(hopper, xOffset, yOffset, zOffset, nearbyEntities);
     }
-
 }

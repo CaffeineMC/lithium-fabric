@@ -5,7 +5,7 @@
                 @MixinConfigDependency(dependencyPath = "mixin.util.item_stack_tracking")
         }
 )
-package me.jellysquid.mods.lithium.mixin.entity.item_entity_stacking;
+package me.jellysquid.mods.lithium.mixin.entity.item_entity_by_type;
 
 import net.caffeinemc.gradle.MixinConfigDependency;
 import net.caffeinemc.gradle.MixinConfigOption;

@@ -19,7 +19,7 @@ public abstract class ItemStackMixin implements NotifyingItemStack {
     private int count;
 
     @Unique
-    private int mySlot;
+    private int myIndex;
 
     @Unique
     @Nullable
@@ -27,9 +27,9 @@ public abstract class ItemStackMixin implements NotifyingItemStack {
 
 
     @ModifyVariable(method = "setCount(I)V", at = @At("HEAD"), argsOnly = true)
-    public int updateInventory(int count) {
+    public int updateSubscribers(int count) {
         if (this.stackChangeSubscriber != null && this.count != count) {
-            this.stackChangeSubscriber.lithium$notifyBeforeCountChange((ItemStack) (Object) this, this.mySlot, count);
+            this.stackChangeSubscriber.lithium$notifyBeforeCountChange((ItemStack) (Object) this, this.myIndex, count);
         }
         return count;
     }
@@ -40,12 +40,12 @@ public abstract class ItemStackMixin implements NotifyingItemStack {
     }
 
     @Override
-    public void lithium$subscribeWithIndex(ItemStackSubscriber subscriber, int mySlot) {
+    public void lithium$subscribeWithIndex(ItemStackSubscriber subscriber, int myIndex) {
         if (this.stackChangeSubscriber != null) {
-            this.lithium$registerMultipleSubscribers(subscriber, mySlot);
+            this.lithium$registerMultipleSubscribers(subscriber, myIndex);
         } else {
             this.stackChangeSubscriber = subscriber;
-            this.mySlot = mySlot;
+            this.myIndex = myIndex;
         }
     }
 
@@ -58,26 +58,27 @@ public abstract class ItemStackMixin implements NotifyingItemStack {
     public void lithium$unsubscribeWithIndex(ItemStackSubscriber subscriber, int index) {
         if (this.stackChangeSubscriber == subscriber) {
             this.stackChangeSubscriber = null;
-            this.mySlot = -1;
+            this.myIndex = -1;
         } else if (this.stackChangeSubscriber instanceof ItemStackSubscriberMulti multiSubscriber) {
             this.stackChangeSubscriber = multiSubscriber.without(subscriber, index);
-            this.mySlot = multiSubscriber.getSlot(this.stackChangeSubscriber);
+            this.myIndex = multiSubscriber.getIndex(this.stackChangeSubscriber);
         }  //else: no change, since the inventory wasn't subscribed
     }
 
-    private void lithium$registerMultipleSubscribers(ItemStackSubscriber subscriber, int slot) {
+    @Unique
+    private void lithium$registerMultipleSubscribers(ItemStackSubscriber subscriber, int index) {
         if (this.stackChangeSubscriber instanceof ItemStackSubscriberMulti multiSubscriber) {
-            this.stackChangeSubscriber = multiSubscriber.with(subscriber, slot);
+            this.stackChangeSubscriber = multiSubscriber.with(subscriber, index);
         } else {
-            this.stackChangeSubscriber = new ItemStackSubscriberMulti(this.stackChangeSubscriber, this.mySlot, subscriber, slot);
-            this.mySlot = -1;
+            this.stackChangeSubscriber = new ItemStackSubscriberMulti(this.stackChangeSubscriber, this.myIndex, subscriber, index);
+            this.myIndex = -1;
         }
     }
 
     @Override
-    public void lithium$notifyItemEntityStackSwap(ItemEntity itemEntity, ItemStack oldStack) {
+    public void lithium$notifyAfterItemEntityStackSwap(ItemEntity itemEntity, ItemStack oldStack) {
         if (this.stackChangeSubscriber != null) {
-            this.stackChangeSubscriber.lithium$notifyItemEntityStackSwap(itemEntity, oldStack);
+            this.stackChangeSubscriber.lithium$notifyAfterItemEntityStackSwap(this.myIndex, itemEntity, oldStack);
         }
     }
 }

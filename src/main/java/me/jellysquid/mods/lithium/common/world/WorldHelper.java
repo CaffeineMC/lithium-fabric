@@ -2,8 +2,6 @@ package me.jellysquid.mods.lithium.common.world;
 
 import me.jellysquid.mods.lithium.common.client.ClientWorldAccessor;
 import me.jellysquid.mods.lithium.common.entity.EntityClassGroup;
-import me.jellysquid.mods.lithium.common.entity.TypeFilterableListInternalAccess;
-import me.jellysquid.mods.lithium.common.entity.item.ItemEntityCategorizingList;
 import me.jellysquid.mods.lithium.common.entity.pushable.EntityPushablePredicate;
 import me.jellysquid.mods.lithium.common.world.chunk.ClassGroupFilterableList;
 import me.jellysquid.mods.lithium.mixin.util.accessors.ClientEntityManagerAccessor;
@@ -11,7 +9,6 @@ import me.jellysquid.mods.lithium.mixin.util.accessors.EntityTrackingSectionAcce
 import me.jellysquid.mods.lithium.mixin.util.accessors.ServerEntityManagerAccessor;
 import me.jellysquid.mods.lithium.mixin.util.accessors.ServerWorldAccessor;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.util.collection.TypeFilterableList;
 import net.minecraft.util.function.LazyIterationConsumer;
 import net.minecraft.util.math.BlockPos;
@@ -23,9 +20,6 @@ import net.minecraft.world.entity.SectionedEntityCache;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Predicate;
-
-import static me.jellysquid.mods.lithium.common.entity.item.ItemEntityCategorizingList.ITEM_ENTITY_CATEGORIZATION_THRESHOLD;
 
 public class WorldHelper {
     public static final boolean CUSTOM_TYPE_FILTERABLE_LIST_DISABLED = !ClassGroupFilterableList.class.isAssignableFrom(TypeFilterableList.class);
@@ -33,7 +27,7 @@ public class WorldHelper {
     /**
      * Partial [VanillaCopy]
      * The returned entity iterator is only used for collision interactions. As most entities do not collide with other
-     * entities (cramming is different), getting those is not necessary. This is why we only get entities when they override
+     * entities (cramming is different), getting them is not necessary. This is why we only get entities when they override
      * {@link Entity#isCollidable()} if the reference entity does not override {@link Entity#collidesWith(Entity)}.
      * Note that the returned iterator contains entities that override these methods. This does not mean that these methods
      * always return true.
@@ -56,36 +50,6 @@ public class WorldHelper {
         return entityView.getOtherEntities(collidingEntity, box);
     }
 
-    
-    public static List<ItemEntity> getItemEntitiesForMerge(SectionedEntityCache<Entity> cache, ItemEntity searchingItemEntity, Box box, Predicate<ItemEntity> predicate) {
-        ArrayList<ItemEntity> collectedEntities = new ArrayList<>();
-        cache.forEachInBox(box, section -> {
-            //noinspection unchecked
-            TypeFilterableList<Entity> allEntities = ((EntityTrackingSectionAccessor<Entity>) section).getCollection();
-
-            //noinspection unchecked
-            TypeFilterableListInternalAccess<Entity> interalEntityList = (TypeFilterableListInternalAccess<Entity>) allEntities;
-            List<ItemEntity> itemEntities = interalEntityList.lithium$getOrCreateAllOfTypeRaw(ItemEntity.class);
-            if (itemEntities.size() > ITEM_ENTITY_CATEGORIZATION_THRESHOLD && itemEntities instanceof ArrayList<ItemEntity>) {
-                itemEntities = interalEntityList.lithium$replaceCollectionAndGet(ItemEntity.class, ItemEntityCategorizingList::new);
-            } else if (itemEntities.size() <= ITEM_ENTITY_CATEGORIZATION_THRESHOLD / 2 && itemEntities instanceof ItemEntityCategorizingList categorizingList) {
-                itemEntities = interalEntityList.lithium$replaceCollectionAndGet(ItemEntity.class, categorizingList.downgradeToArrayList());
-            }
-
-            if (itemEntities instanceof ItemEntityCategorizingList categorizingList) {
-                itemEntities = categorizingList.getItemEntitiesForMerge(searchingItemEntity);
-            }
-
-            for (ItemEntity entity : itemEntities) {
-                if (entity != searchingItemEntity && entity.getBoundingBox().intersects(box) && !entity.isSpectator() && predicate.test(entity)) {
-                    //skip the dragon piece check without issues by assuming item entities are never dragons
-                    collectedEntities.add(entity);
-                }
-            }
-            return LazyIterationConsumer.NextIteration.CONTINUE;
-        });
-        return collectedEntities;
-    }
 
     //Requires util.accessors
     public static SectionedEntityCache<Entity> getEntityCacheOrNull(World world) {
