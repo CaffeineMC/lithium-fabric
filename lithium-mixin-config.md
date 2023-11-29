@@ -238,6 +238,10 @@ Uses fastutil hashsets for goals in the AI goal selector
 (default: `true`)  
 Uses custom hashset/list combination for faster mob spawn checks  
   
+### `mixin.debug`
+(default: `true`)  
+Debug mixins  
+  
 ### `mixin.entity`
 (default: `true`)  
 Various entity optimizations  

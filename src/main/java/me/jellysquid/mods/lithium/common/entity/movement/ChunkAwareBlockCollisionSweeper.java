@@ -1,12 +1,14 @@
 package me.jellysquid.mods.lithium.common.entity.movement;
 
 import com.google.common.collect.AbstractIterator;
+import me.jellysquid.mods.lithium.common.LithiumDebugInfo;
 import me.jellysquid.mods.lithium.common.block.BlockCountingSection;
 import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeCaster;
 import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.EntityShapeContext;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.function.BooleanBiFunction;
@@ -53,8 +55,8 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
 
     //variables prefixed with c refer to the iteration of the currently cached chunk section
     private int chunkX, chunkYIndex, chunkZ;
-    private int cStartX, cStartZ;
-    private int cEndX, cEndZ;
+    private int cStartX, cStartY, cStartZ;
+    private int cEndX, cEndY, cEndZ;
     private int cX, cY, cZ;
     
     private int maxHitX;
@@ -69,6 +71,7 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
     private boolean sectionOversizedBlocks;
     private Chunk cachedChunk;
     private ChunkSection cachedChunkSection;
+    private int nextSectionCount = 0;
 
     public ChunkAwareBlockCollisionSweeper(World world, Entity entity, Box box) {
         this.box = box;
@@ -102,6 +105,7 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
     private boolean nextSection() {
         do {
             do {
+                this.nextSectionCount++;
                 //find the coordinates of the next section inside the area expanded by 1 block on all sides
                 //note: this.minX, maxX etc are not expanded, so there are lots of +1 and -1 around.
                 if (
@@ -144,14 +148,14 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
             int sizeExtension = this.sectionOversizedBlocks ? 1 : 0;
 
             this.cEndX = Math.min(this.maxX + sizeExtension, Pos.BlockCoord.getMaxInSectionCoord(this.chunkX));
-            int cEndY = Math.min(this.maxY + sizeExtension, Pos.BlockCoord.getMaxYInSectionIndex(this.world, this.chunkYIndex));
+            this.cEndY = Math.min(this.maxY + sizeExtension, Pos.BlockCoord.getMaxYInSectionIndex(this.world, this.chunkYIndex));
             this.cEndZ = Math.min(this.maxZ + sizeExtension, Pos.BlockCoord.getMaxInSectionCoord(this.chunkZ));
 
             this.cStartX = Math.max(this.minX - sizeExtension, Pos.BlockCoord.getMinInSectionCoord(this.chunkX));
-            int cStartY = Math.max(this.minY - sizeExtension, Pos.BlockCoord.getMinYInSectionIndex(this.world, this.chunkYIndex));
+            this.cStartY = Math.max(this.minY - sizeExtension, Pos.BlockCoord.getMinYInSectionIndex(this.world, this.chunkYIndex));
             this.cStartZ = Math.max(this.minZ - sizeExtension, Pos.BlockCoord.getMinInSectionCoord(this.chunkZ));
             this.cX = this.cStartX;
-            this.cY = cStartY;
+            this.cY = this.cStartY;
             this.cZ = this.cStartZ;
 
             this.cTotalSize = (this.cEndX - this.cStartX + 1) * (cEndY - cStartY + 1) * (this.cEndZ - this.cStartZ + 1);
@@ -169,6 +173,7 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
      */
     @Override
     public VoxelShape computeNext() {
+        LithiumDebugInfo.setBlockCollisionDebugInfo(this);
         while (true) {
             if (this.cIterated >= this.cTotalSize) {
                 if (!this.nextSection()) {
@@ -230,11 +235,13 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
                     }
                     this.index++;
 
+                    LithiumDebugInfo.setBlockCollisionDebugInfo(null); //Not thread safe but this is a debug build
                     return collidedShape;
                 }
             }
         }
 
+        LithiumDebugInfo.setBlockCollisionDebugInfo(null);
         return this.endOfData();
     }
 
@@ -309,5 +316,18 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
         }
 
         return collisions;
+    }
+
+    public String getDebugInfo() {
+        return String.format("ChunkAwareBlockCollisionSweeper: %d/%d blocks, section: %d, section start: %d,%d,%d - section end: %d,%d,%d, section current block: %d,%d,%d, cached section: %s, cached chunk: %s, box: %s, shape context: %s, entity: %s",
+                this.cIterated, this.cTotalSize,
+                this.nextSectionCount,
+                this.cStartX, this.cStartY, this.cStartZ,
+                this.cEndX, this.cEndY, this.cEndZ,
+                this.cX, this.cY, this.cZ,
+                this.cachedChunkSection, this.cachedChunk,
+                this.box, this.context,
+                this.context instanceof EntityShapeContext e ? e.getEntity() : null
+        );
     }
 }
