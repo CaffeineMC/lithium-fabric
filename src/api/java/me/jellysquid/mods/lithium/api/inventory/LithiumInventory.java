@@ -48,11 +48,11 @@ public interface LithiumInventory extends Inventory {
      * Generates the loot like a hopper access would do in vanilla.
      * <p>
      * If a modded inventory has custom loot generation code, it will be required to override this
-     * loot generation method. Otherwise its loot may be generated too late.
+     * loot generation method. Otherwise, its loot may be generated too late.
      */
     default void generateLootLithium() {
         if (this instanceof LootableContainerBlockEntity) {
-            ((LootableContainerBlockEntity) this).checkLootInteraction(null);
+            ((LootableContainerBlockEntity) this).generateLoot(null);
         }
         if (this instanceof VehicleInventory) {
             ((VehicleInventory) this).generateInventoryLoot(null);
