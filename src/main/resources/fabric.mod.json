@@ -27,7 +27,7 @@
     "accessWidener": "lithium.accesswidener",
     "depends": {
       "fabricloader": ">=0.12.11",
-      "minecraft": "1.20.3"
+      "minecraft": "1.20.4"
     },
     "breaks": {
         "optifabric": "*"
