@@ -6,6 +6,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,8 +18,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public abstract class LivingEntityMixin extends Entity {
 
     @Shadow
-    public @Nullable
-    abstract EntityAttributeInstance getAttributeInstance(EntityAttribute attribute);
+    @Nullable
+    public abstract EntityAttributeInstance getAttributeInstance(RegistryEntry<EntityAttribute> registryEntry);
 
     public LivingEntityMixin(EntityType<?> type, World world) {
         super(type, world);
@@ -50,11 +51,11 @@ public abstract class LivingEntityMixin extends Entity {
             method = "addPowderSnowSlowIfNeeded()V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/LivingEntity;getAttributeInstance(Lnet/minecraft/entity/attribute/EntityAttribute;)Lnet/minecraft/entity/attribute/EntityAttributeInstance;"
+                    target = "Lnet/minecraft/entity/LivingEntity;getAttributeInstance(Lnet/minecraft/registry/entry/RegistryEntry;)Lnet/minecraft/entity/attribute/EntityAttributeInstance;"
             )
     )
-    private EntityAttributeInstance doDelayedBlockStateAirTest(LivingEntity instance, EntityAttribute attribute) {
+    private EntityAttributeInstance doDelayedBlockStateAirTest(LivingEntity instance, RegistryEntry<EntityAttribute> registryEntry) {
         //noinspection deprecation
-        return this.getLandingBlockState().isAir() ? null : this.getAttributeInstance(attribute);
+        return this.getLandingBlockState().isAir() ? null : this.getAttributeInstance(registryEntry);
     }
 }

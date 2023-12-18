@@ -37,9 +37,9 @@ public class LookAtEntityGoalMixin {
     @Inject(method = "<init>(Lnet/minecraft/entity/mob/MobEntity;Ljava/lang/Class;FFZ)V", at = @At("RETURN"))
     private void init(MobEntity mob, Class<? extends LivingEntity> targetType, float range, float chance, boolean b, CallbackInfo ci) {
         EntityDimensions dimensions = this.mob.getType().getDimensions();
-        double adjustedRange = dimensions.width * 0.5D + this.range + 2D;
+        double adjustedRange = dimensions.width() * 0.5D + this.range + 2D;
         int horizontalRange = MathHelper.ceil(adjustedRange);
-        this.tracker = new NearbyEntityTracker<>(targetType, mob, new Vec3i(horizontalRange, MathHelper.ceil(dimensions.height + 3 + 2), horizontalRange));
+        this.tracker = new NearbyEntityTracker<>(targetType, mob, new Vec3i(horizontalRange, MathHelper.ceil(dimensions.height() + 3 + 2), horizontalRange));
 
         ((NearbyEntityListenerProvider) mob).addListener(this.tracker);
     }

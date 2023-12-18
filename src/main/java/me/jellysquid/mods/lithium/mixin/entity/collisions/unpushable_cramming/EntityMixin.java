@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Entity.class)
 public class EntityMixin implements BlockCachingEntity {
     @Shadow
-    private @Nullable BlockState blockStateAtPos;
+    private @Nullable BlockState field_47742;
 
     @Inject(
             method = "setPos(DDD)V",
@@ -43,7 +43,7 @@ public class EntityMixin implements BlockCachingEntity {
     }
 
     @Inject(
-            method = "getBlockStateAtPos()Lnet/minecraft/block/BlockState;",
+            method = "method_55667",
             at = @At(
                     value = "INVOKE_ASSIGN",
                     target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;",
@@ -51,11 +51,11 @@ public class EntityMixin implements BlockCachingEntity {
             )
     )
     private void onBlockCached(CallbackInfoReturnable<BlockState> cir) {
-        this.lithiumOnBlockCacheSet(this.blockStateAtPos);
+        this.lithiumOnBlockCacheSet(this.field_47742);
     }
 
     @Override
     public BlockState getCachedFeetBlockState() {
-        return this.blockStateAtPos;
+        return this.field_47742;
     }
 }
