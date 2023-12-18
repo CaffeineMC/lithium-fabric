@@ -79,6 +79,7 @@
     "block.moving_block_shapes.PistonBlockEntityMixin",
     "block.moving_block_shapes.VoxelShapeMixin",
     "block.redstone_wire.RedstoneWireBlockMixin",
+    "block.farmland.FarmlandBlockMixin",
     "cached_hashcode.BlockNeighborGroupMixin",
     "chunk.entity_class_groups.TypeFilterableListMixin",
     "chunk.no_locking.ChunkSectionMixin",
