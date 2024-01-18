@@ -99,7 +99,7 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-//    modImplementation 'com.github.2No2Name:McTester:v0.3.4'
+    modImplementation 'com.github.2No2Name:McTester:v0.4.0'
 
     Set<String> fabricApiModulesCompileOnly = [
             "fabric-transfer-api-v1"
