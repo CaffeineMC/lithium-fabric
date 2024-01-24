@@ -1,9 +1,9 @@
 package me.jellysquid.mods.lithium.mixin.ai.poi.fast_portals;
 
-import com.mojang.datafixers.DataFixer;
+import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.minecraft.datafixer.DataFixTypes;
+import net.minecraft.class_9172;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -16,8 +16,8 @@ import net.minecraft.world.poi.PointOfInterestStorage;
 import net.minecraft.world.storage.SerializingRegionBasedStorage;
 import org.spongepowered.asm.mixin.*;
 
-import java.nio.file.Path;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Mixin(PointOfInterestStorage.class)
 public abstract class PointOfInterestStorageMixin extends SerializingRegionBasedStorage<PointOfInterestSet> {
@@ -31,14 +31,8 @@ public abstract class PointOfInterestStorageMixin extends SerializingRegionBased
     @Unique
     private int preloadRadius = 0;
 
-    public PointOfInterestStorageMixin(
-            Path path, DataFixer dataFixer, boolean dsync,
-            DynamicRegistryManager registryManager, HeightLimitView world
-    ) {
-        super(
-                path, PointOfInterestSet::createCodec, PointOfInterestSet::new,
-                dataFixer, DataFixTypes.POI_CHUNK, dsync, registryManager, world
-        );
+    public PointOfInterestStorageMixin(class_9172 arg, Function<Runnable, Codec<PointOfInterestSet>> function, Function<Runnable, PointOfInterestSet> function2, DynamicRegistryManager dynamicRegistryManager, HeightLimitView heightLimitView) {
+        super(arg, function, function2, dynamicRegistryManager, heightLimitView);
     }
 
     /**
@@ -80,7 +74,9 @@ public abstract class PointOfInterestStorageMixin extends SerializingRegionBased
         ChunkPos chunkPos = new ChunkPos(x, z);
         long longChunkPos = chunkPos.toLong();
 
-        if (this.preloadedChunks.contains(longChunkPos)) return;
+        if (this.preloadedChunks.contains(longChunkPos)) {
+            return;
+        }
 
         for (int y = minSubChunk; y <= maxSubChunk; y++) {
             Optional<PointOfInterestSet> section = this.get(ChunkSectionPos.asLong(x, y, z));
