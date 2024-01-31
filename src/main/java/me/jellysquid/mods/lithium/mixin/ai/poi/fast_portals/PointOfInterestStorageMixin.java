@@ -3,7 +3,6 @@ package me.jellysquid.mods.lithium.mixin.ai.poi.fast_portals;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import net.minecraft.class_9172;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -13,6 +12,7 @@ import net.minecraft.world.WorldView;
 import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.poi.PointOfInterestSet;
 import net.minecraft.world.poi.PointOfInterestStorage;
+import net.minecraft.world.storage.ChunkPosKeyedStorage;
 import net.minecraft.world.storage.SerializingRegionBasedStorage;
 import org.spongepowered.asm.mixin.*;
 
@@ -31,8 +31,8 @@ public abstract class PointOfInterestStorageMixin extends SerializingRegionBased
     @Unique
     private int preloadRadius = 0;
 
-    public PointOfInterestStorageMixin(class_9172 arg, Function<Runnable, Codec<PointOfInterestSet>> function, Function<Runnable, PointOfInterestSet> function2, DynamicRegistryManager dynamicRegistryManager, HeightLimitView heightLimitView) {
-        super(arg, function, function2, dynamicRegistryManager, heightLimitView);
+    public PointOfInterestStorageMixin(ChunkPosKeyedStorage chunkPosKeyedStorage, Function<Runnable, Codec<PointOfInterestSet>> function, Function<Runnable, PointOfInterestSet> function2, DynamicRegistryManager dynamicRegistryManager, HeightLimitView heightLimitView) {
+        super(chunkPosKeyedStorage, function, function2, dynamicRegistryManager, heightLimitView);
     }
 
     /**

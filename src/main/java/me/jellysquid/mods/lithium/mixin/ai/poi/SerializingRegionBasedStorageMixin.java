@@ -6,11 +6,11 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import me.jellysquid.mods.lithium.common.util.Pos;
 import me.jellysquid.mods.lithium.common.util.collections.ListeningLong2ObjectOpenHashMap;
 import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageSectionExtended;
-import net.minecraft.class_9172;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.HeightLimitView;
+import net.minecraft.world.storage.ChunkPosKeyedStorage;
 import net.minecraft.world.storage.SerializingRegionBasedStorage;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -45,7 +45,7 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
 
     @SuppressWarnings("rawtypes")
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(class_9172 arg, Function function, Function function2, DynamicRegistryManager dynamicRegistryManager, HeightLimitView heightLimitView, CallbackInfo ci) {
+    private void init(ChunkPosKeyedStorage chunkPosKeyedStorage, Function function, Function function2, DynamicRegistryManager dynamicRegistryManager, HeightLimitView heightLimitView, CallbackInfo ci) {
         this.columns = new Long2ObjectOpenHashMap<>();
         this.loadedElements = new ListeningLong2ObjectOpenHashMap<>(this::onEntryAdded, this::onEntryRemoved);
     }
