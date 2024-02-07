@@ -276,18 +276,6 @@ In chunks with many mobs in ladders a separate list of pushable entities for cra
 Requirements:
 - `mixin.chunk.entity_class_groups=true`  
   
-### `mixin.entity.data_tracker`
-(default: `true`)  
-Various entity data tracker optimizations  
-  
-### `mixin.entity.data_tracker.no_locks`
-(default: `true`)  
-Remove unnecessary locking when accessing the data tracker  
-  
-### `mixin.entity.data_tracker.use_arrays`
-(default: `true`)  
-Data trackers use a custom optimized entry map  
-  
 ### `mixin.entity.fast_elytra_check`
 (default: `true`)  
 Skip repeatedly writing to the data tracker that an entity is not flying  
@@ -303,10 +291,6 @@ Skip checking whether an entity is inside powder snow for movement speed slowdow
 ### `mixin.entity.fast_retrieval`
 (default: `true`)  
 Access entities faster when accessing a relatively small number of entity sections  
-  
-### `mixin.entity.hopper_minecart`
-(default: `true`)  
-Hopper minecarts search for item entities faster by combining multiple item entity searches. Also eliminates duplicated item entity pickup attempts  
   
 ### `mixin.entity.inactive_navigations`
 (default: `true`)  
