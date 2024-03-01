@@ -35,7 +35,7 @@ public class StackListReplacementTracking {
 
     @Mixin(BarrelBlockEntity.class)
     public abstract static class InventoryChangeTrackingBarrelBlockEntity implements InventoryChangeTracker {
-        @Inject(method = "setInvStackList", at = @At("RETURN" ))
+        @Inject(method = "setHeldStacks", at = @At("RETURN" ))
         public void setInventoryStackListReplacement(DefaultedList<ItemStack> list, CallbackInfo ci) {
             this.emitStackListReplaced();
         }
@@ -43,7 +43,7 @@ public class StackListReplacementTracking {
 
     @Mixin(ChestBlockEntity.class)
     public abstract static class InventoryChangeTrackingChestBlockEntity implements InventoryChangeTracker {
-        @Inject(method = "setInvStackList", at = @At("RETURN" ))
+        @Inject(method = "setHeldStacks", at = @At("RETURN" ))
         public void setInventoryStackListReplacement(DefaultedList<ItemStack> list, CallbackInfo ci) {
             this.emitStackListReplaced();
         }
@@ -51,7 +51,7 @@ public class StackListReplacementTracking {
 
     @Mixin(DispenserBlockEntity.class)
     public abstract static class InventoryChangeTrackingDispenserBlockEntity implements InventoryChangeTracker {
-        @Inject(method = "setInvStackList", at = @At("RETURN" ))
+        @Inject(method = "setHeldStacks", at = @At("RETURN" ))
         public void setInventoryStackListReplacement(DefaultedList<ItemStack> list, CallbackInfo ci) {
             this.emitStackListReplaced();
         }
@@ -59,7 +59,7 @@ public class StackListReplacementTracking {
 
     @Mixin(HopperBlockEntity.class)
     public abstract static class InventoryChangeTrackingHopperBlockEntity implements InventoryChangeTracker {
-        @Inject(method = "setInvStackList", at = @At("RETURN" ))
+        @Inject(method = "setHeldStacks", at = @At("RETURN" ))
         public void setInventoryStackListReplacement(DefaultedList<ItemStack> list, CallbackInfo ci) {
             this.emitStackListReplaced();
         }
@@ -67,7 +67,7 @@ public class StackListReplacementTracking {
 
     @Mixin(ShulkerBoxBlockEntity.class)
     public abstract static class InventoryChangeTrackingShulkerBoxBlockEntity implements InventoryChangeTracker {
-        @Inject(method = "setInvStackList", at = @At("RETURN" ))
+        @Inject(method = "setHeldStacks", at = @At("RETURN" ))
         public void setInventoryStackListReplacement(DefaultedList<ItemStack> list, CallbackInfo ci) {
             this.emitStackListReplaced();
         }

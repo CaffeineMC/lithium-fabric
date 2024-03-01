@@ -6,7 +6,6 @@ import me.jellysquid.mods.lithium.common.block.entity.SleepingBlockEntity;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeListener;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_comparator_tracking.ComparatorTracker;
-import me.jellysquid.mods.lithium.common.compat.fabric_transfer_api_v1.FabricTransferApiCompat;
 import me.jellysquid.mods.lithium.common.entity.movement_tracker.SectionedEntityMovementListener;
 import me.jellysquid.mods.lithium.common.entity.movement_tracker.SectionedInventoryEntityMovementTracker;
 import me.jellysquid.mods.lithium.common.entity.movement_tracker.SectionedItemEntityMovementTracker;
@@ -182,7 +181,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
 
         //noinspection ConstantConditions
         if (!(hopperBlockEntity.insertInventory == insertInventory && hopperBlockEntity.insertStackList.getFullSlots() == hopperBlockEntity.insertStackList.size())) {
-            Direction fromDirection = hopperBlockEntity.field_49101.getOpposite();
+            Direction fromDirection = hopperBlockEntity.facing.getOpposite();
             int size = hopperStackList.size();
             //noinspection ForLoopReplaceableByForEach
             for (int i = 0; i < size; ++i) {
@@ -319,7 +318,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     private static native Inventory getInputInventory(World world, Hopper hopper, BlockPos blockPos, BlockState blockState);
 
     @Shadow
-    private Direction field_49101;
+    private Direction facing;
 
     @Override
     public void invalidateCacheOnNeighborUpdate(boolean fromAbove) {
@@ -352,7 +351,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     )
     private static Inventory getLithiumOutputInventory(World world, BlockPos blockPos, HopperBlockEntity hopper) {
         HopperBlockEntityMixin hopperBlockEntity = (HopperBlockEntityMixin) (Object) hopper;
-        return hopperBlockEntity.getInsertInventory(world, hopperBlockEntity.field_49101);
+        return hopperBlockEntity.getInsertInventory(world, hopperBlockEntity.facing);
     }
 
     @Redirect(method = "extract(Lnet/minecraft/world/World;Lnet/minecraft/block/entity/Hopper;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/HopperBlockEntity;getInputItemEntities(Lnet/minecraft/world/World;Lnet/minecraft/block/entity/Hopper;)Ljava/util/List;"))
@@ -736,9 +735,10 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                             return;
                         }
                     } else if (this.extractionMode == HopperCachingState.BlockInventory.NO_BLOCK_INVENTORY) {
-                        if (FabricTransferApiCompat.FABRIC_TRANSFER_API_V_1_PRESENT && FabricTransferApiCompat.canHopperInteractWithApiInventory((HopperBlockEntity) (Object) this, this.getCachedState(), true)) {
-                            return;
-                        }
+                        // TODO 1.20.5 - Add back once Fabric-API releases an alternative
+//                        if (FabricTransferApiCompat.FABRIC_TRANSFER_API_V_1_PRESENT && FabricTransferApiCompat.canHopperInteractWithApiInventory((HopperBlockEntity) (Object) this, this.getCachedState(), true)) {
+//                            return;
+//                        }
                         listenToExtractEntities = true;
                     } else {
                         return;
@@ -753,9 +753,10 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                             return;
                         }
                     } else if (this.insertionMode == HopperCachingState.BlockInventory.NO_BLOCK_INVENTORY) {
-                        if (FabricTransferApiCompat.FABRIC_TRANSFER_API_V_1_PRESENT && FabricTransferApiCompat.canHopperInteractWithApiInventory((HopperBlockEntity) (Object) this, this.getCachedState(), false)) {
-                            return;
-                        }
+                        // TODO 1.20.5 - Add back once Fabric-API releases an alternative
+//                        if (FabricTransferApiCompat.FABRIC_TRANSFER_API_V_1_PRESENT && FabricTransferApiCompat.canHopperInteractWithApiInventory((HopperBlockEntity) (Object) this, this.getCachedState(), false)) {
+//                            return;
+//                        }
                         listenToInsertEntities = true;
                     } else {
                         return;
@@ -770,7 +771,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                 }
                 if (listenToInsertEntities) {
                     if (this.insertInventoryEntityTracker == null) {
-                        this.initInsertInventoryTracker(this.world, this.field_49101);
+                        this.initInsertInventoryTracker(this.world, this.facing);
                     }
                     this.insertInventoryEntityTracker.listenToEntityMovementOnce(this);
                 }

@@ -102,13 +102,14 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 //    modImplementation 'mctester:McTester:0.4.0'
 
-    Set<String> fabricApiModulesCompileOnly = [
-            "fabric-transfer-api-v1"
-    ]
-    // Add each fabric api module as a compile only dependency
-     fabricApiModulesCompileOnly.forEach {
-        modCompileOnly(fabricApi.module(it, "${project.fabric_version}"))
-    }
+    // TODO 1.20.5 - Add back once Fabric-API releases an alternative
+//    Set<String> fabricApiModulesCompileOnly = [
+//            "fabric-transfer-api-v1"
+//    ]
+//    // Add each fabric api module as a compile only dependency
+//     fabricApiModulesCompileOnly.forEach {
+//        modCompileOnly(fabricApi.module(it, "${project.fabric_version}"))
+//    }
 
     compileOnly 'net.caffeinemc:mixin-config-plugin:1.0-SNAPSHOT'
 }

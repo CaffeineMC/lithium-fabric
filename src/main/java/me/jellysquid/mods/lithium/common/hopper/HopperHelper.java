@@ -90,7 +90,7 @@ public class HopperHelper {
     }
 
     private static boolean areNbtEqual(ItemStack stack1, ItemStack stack2) {
-        return Objects.equals(stack1.getNbt(), stack2.getNbt());
+        return Objects.equals(stack1.getComponents(), stack2.getComponents());
     }
 
     private static int calculateReducedSignalStrength(float contentWeight, int inventorySize, int inventoryMaxCountPerStack, int numOccupiedSlots, int itemStackCount, int itemStackMaxCount) {

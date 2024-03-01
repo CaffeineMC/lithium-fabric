@@ -7,10 +7,11 @@ import me.jellysquid.mods.lithium.common.world.ChunkView;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
+import net.minecraft.class_9316;
 import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
+import net.minecraft.world.CollisionView;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 
@@ -49,7 +50,9 @@ public abstract class PathNodeCache {
     }
 
 
-    public static PathNodeType getNodeTypeFromNeighbors(BlockView world, BlockPos.Mutable pos, PathNodeType type) {
+    public static PathNodeType getNodeTypeFromNeighbors(class_9316 context, PathNodeType type) {
+        BlockPos.Mutable pos = context.method_57624().mutableCopy();
+        CollisionView world = context.method_57621();
         int x = pos.getX();
         int y = pos.getY();
         int z = pos.getZ();
@@ -115,7 +118,7 @@ public abstract class PathNodeCache {
 
                     if (neighborType == null) { //Here null means that no path node type is cached (uninitalized or dynamic)
                         //Passing null as previous node type to the method signals to other lithium mixins that we only want the neighbor behavior of this block and not its neighbors
-                        neighborType = LandPathNodeMaker.getNodeTypeFromNeighbors(world, pos, null);
+                        neighborType = PathNodeCache.getNeighborNodeType(world, pos);
                         //Here null means that the path node type is not changed by the block!
                         if (neighborType == null) {
                             neighborType = PathNodeType.OPEN;
@@ -130,5 +133,38 @@ public abstract class PathNodeCache {
 
         return type;
     }
+
+
+    /**
+     * Modify {@link LandPathNodeMaker#getNodeTypeFromNeighbors(class_9316, int, int, int, PathNodeType)} to allow it to just return the behavior of a single block instead of scanning its neighbors.
+     * This technique might seem odd, but it allows us to be very mod and fabric-api compatible.
+     * <p>
+     * This allows Lithium to call this function to initialize its caches. It also allows using this function as fallback
+     * for dynamic blocks (shulker boxes and fabric-api dynamic definitions)
+     *
+     * @author 2No2Name
+     */
+    public static PathNodeType getNeighborNodeType(CollisionView world, BlockPos pos) {
+        // [VanillaCopy]
+        PathNodeType pathNodeType2 = LandPathNodeMaker.getCommonNodeType(world, pos);
+        if (pathNodeType2 == PathNodeType.DAMAGE_OTHER) {
+            return PathNodeType.DANGER_OTHER;
+        }
+
+        if (pathNodeType2 == PathNodeType.DAMAGE_FIRE || pathNodeType2 == PathNodeType.LAVA) {
+            return PathNodeType.DANGER_FIRE;
+        }
+
+        if (pathNodeType2 == PathNodeType.WATER) {
+            return PathNodeType.WATER_BORDER;
+        }
+
+        if (pathNodeType2 == PathNodeType.DAMAGE_CAUTIOUS) {
+            return PathNodeType.DAMAGE_CAUTIOUS;
+        }
+
+        return null;
+    }
+
 
 }

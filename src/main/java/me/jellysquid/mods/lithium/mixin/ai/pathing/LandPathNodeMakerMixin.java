@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.mixin.ai.pathing;
 
 import me.jellysquid.mods.lithium.common.ai.pathing.PathNodeCache;
 import net.minecraft.block.BlockState;
+import net.minecraft.class_9316;
 import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.util.math.BlockPos;
@@ -44,40 +45,11 @@ public abstract class LandPathNodeMakerMixin {
     }
 
     /**
-     * Modify the method to allow it to just return the behavior of a single block instead of scanning its neighbors.
-     * This technique might seem odd, but it allows us to be very mod and fabric-api compatible.
-     * If the function is called with usual inputs (nodeType != null), it behaves normally.
-     * If the function is called with nodeType == null, only the passed position is checked for its neighbor behavior.
-     * <p>
-     * This allows Lithium to call this function to initialize its caches. It also allows using this function as fallback
-     * for dynamic blocks (shulker boxes and fabric-api dynamic definitions)
-     *
-     * @author 2No2Name
-     */
-    @Inject(
-            method = "getNodeTypeFromNeighbors", locals = LocalCapture.CAPTURE_FAILHARD,
-            at = @At(
-                    value = "INVOKE", shift = At.Shift.AFTER,
-                    target = "Lnet/minecraft/util/math/BlockPos$Mutable;set(III)Lnet/minecraft/util/math/BlockPos$Mutable;"
-            ),
-            cancellable = true
-    )
-    private static void doNotChangePositionIfLithiumSinglePosCall(BlockView world, BlockPos.Mutable pos, PathNodeType nodeType, CallbackInfoReturnable<PathNodeType> cir, int posX, int posY, int posZ, int dX, int dY, int dZ) {
-        if (nodeType == null) {
-            if (dX == -1 && dY == -1 && dZ == -1) {
-                pos.set(posX, posY, posZ);
-            } else {
-                cir.setReturnValue(null);
-            }
-        }
-    }
-
-    /**
      * @reason Use optimized implementation which avoids scanning blocks for dangers where possible
      * @author JellySquid, 2No2Name
      */
-    @Redirect(method = "getLandNodeType", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/pathing/LandPathNodeMaker;getNodeTypeFromNeighbors(Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos$Mutable;Lnet/minecraft/entity/ai/pathing/PathNodeType;)Lnet/minecraft/entity/ai/pathing/PathNodeType;"))
-    private static PathNodeType getNodeTypeFromNeighbors(BlockView world, BlockPos.Mutable pos, PathNodeType type) {
-        return PathNodeCache.getNodeTypeFromNeighbors(world, pos, type);
+    @Redirect(method = "getLandNodeType", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/pathing/LandPathNodeMaker;getNodeTypeFromNeighbors(Lnet/minecraft/class_9316;IIILnet/minecraft/entity/ai/pathing/PathNodeType;)Lnet/minecraft/entity/ai/pathing/PathNodeType;"))
+    private static PathNodeType getNodeTypeFromNeighbors(class_9316 context, int x, int y, int z, PathNodeType type) {
+        return PathNodeCache.getNodeTypeFromNeighbors(context, type);
     }
 }
