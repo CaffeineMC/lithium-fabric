@@ -6,6 +6,7 @@ import me.jellysquid.mods.lithium.common.block.entity.SleepingBlockEntity;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeListener;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_comparator_tracking.ComparatorTracker;
+import me.jellysquid.mods.lithium.common.compat.fabric_transfer_api_v1.FabricTransferApiCompat;
 import me.jellysquid.mods.lithium.common.entity.movement_tracker.SectionedEntityMovementListener;
 import me.jellysquid.mods.lithium.common.entity.movement_tracker.SectionedInventoryEntityMovementTracker;
 import me.jellysquid.mods.lithium.common.entity.movement_tracker.SectionedItemEntityMovementTracker;
@@ -735,10 +736,9 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                             return;
                         }
                     } else if (this.extractionMode == HopperCachingState.BlockInventory.NO_BLOCK_INVENTORY) {
-                        // TODO 1.20.5 - Add back once Fabric-API releases an alternative
-//                        if (FabricTransferApiCompat.FABRIC_TRANSFER_API_V_1_PRESENT && FabricTransferApiCompat.canHopperInteractWithApiInventory((HopperBlockEntity) (Object) this, this.getCachedState(), true)) {
-//                            return;
-//                        }
+                        if (FabricTransferApiCompat.FABRIC_TRANSFER_API_V_1_PRESENT && FabricTransferApiCompat.canHopperInteractWithApiInventory((HopperBlockEntity) (Object) this, this.getCachedState(), true)) {
+                            return;
+                        }
                         listenToExtractEntities = true;
                     } else {
                         return;
@@ -753,10 +753,9 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                             return;
                         }
                     } else if (this.insertionMode == HopperCachingState.BlockInventory.NO_BLOCK_INVENTORY) {
-                        // TODO 1.20.5 - Add back once Fabric-API releases an alternative
-//                        if (FabricTransferApiCompat.FABRIC_TRANSFER_API_V_1_PRESENT && FabricTransferApiCompat.canHopperInteractWithApiInventory((HopperBlockEntity) (Object) this, this.getCachedState(), false)) {
-//                            return;
-//                        }
+                        if (FabricTransferApiCompat.FABRIC_TRANSFER_API_V_1_PRESENT && FabricTransferApiCompat.canHopperInteractWithApiInventory((HopperBlockEntity) (Object) this, this.getCachedState(), false)) {
+                            return;
+                        }
                         listenToInsertEntities = true;
                     } else {
                         return;
