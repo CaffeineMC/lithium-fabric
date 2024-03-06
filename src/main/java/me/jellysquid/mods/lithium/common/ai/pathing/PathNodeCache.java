@@ -7,8 +7,8 @@ import me.jellysquid.mods.lithium.common.world.ChunkView;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.class_9316;
 import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
+import net.minecraft.entity.ai.pathing.PathContext;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.CollisionView;
@@ -50,9 +50,9 @@ public abstract class PathNodeCache {
     }
 
 
-    public static PathNodeType getNodeTypeFromNeighbors(class_9316 context, PathNodeType type) {
-        BlockPos.Mutable pos = context.method_57624().mutableCopy();
-        CollisionView world = context.method_57621();
+    public static PathNodeType getNodeTypeFromNeighbors(PathContext context, PathNodeType type) {
+        BlockPos.Mutable pos = context.getEntityPos().mutableCopy();
+        CollisionView world = context.getWorld();
         int x = pos.getX();
         int y = pos.getY();
         int z = pos.getZ();
@@ -136,7 +136,7 @@ public abstract class PathNodeCache {
 
 
     /**
-     * Modify {@link LandPathNodeMaker#getNodeTypeFromNeighbors(class_9316, int, int, int, PathNodeType)} to allow it to just return the behavior of a single block instead of scanning its neighbors.
+     * Modify {@link LandPathNodeMaker#getNodeTypeFromNeighbors(PathContext, int, int, int, PathNodeType)} to allow it to just return the behavior of a single block instead of scanning its neighbors.
      * This technique might seem odd, but it allows us to be very mod and fabric-api compatible.
      * <p>
      * This allows Lithium to call this function to initialize its caches. It also allows using this function as fallback

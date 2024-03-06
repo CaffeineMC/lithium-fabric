@@ -1,7 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.world.chunk_access;
 
 import me.jellysquid.mods.lithium.common.world.chunk.ChunkHolderExtended;
-import net.minecraft.class_9259;
 import net.minecraft.server.world.*;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.ChunkPos;
@@ -159,17 +158,17 @@ public abstract class ServerChunkManagerMixin {
             this.createChunkLoadTicket(x, z, level);
         }
 
-        CompletableFuture<class_9259<Chunk>> loadFuture = null;
-        CompletableFuture<class_9259<Chunk>> statusFuture = ((ChunkHolderExtended) holder).getFutureByStatus(status.getIndex());
+        CompletableFuture<OptionalChunk<Chunk>> loadFuture = null;
+        CompletableFuture<OptionalChunk<Chunk>> statusFuture = ((ChunkHolderExtended) holder).getFutureByStatus(status.getIndex());
 
         if (statusFuture != null) {
-            class_9259<Chunk> immediate = statusFuture.getNow(null);
+            OptionalChunk<Chunk> immediate = statusFuture.getNow(null);
 
             // If the result is already available, return it
             if (immediate != null) {
-                if (immediate.method_57122()) {
+                if (immediate.isPresent()) {
                     // Early-return with the already ready chunk
-                    return immediate.method_57130(null);
+                    return immediate.orElse(null);
                 }
             } else {
                 // The load future will first start with the existing future for this status
@@ -181,7 +180,7 @@ public abstract class ServerChunkManagerMixin {
         if (loadFuture == null) {
             if (ChunkLevels.getStatus(holder.getLevel()).isAtLeast(status)) {
                 // Create a new future which upgrades the chunk from the previous status level to the desired one
-                CompletableFuture<class_9259<Chunk>> mergedFuture = this.threadedAnvilChunkStorage.getChunk(holder, status);
+                CompletableFuture<OptionalChunk<Chunk>> mergedFuture = this.threadedAnvilChunkStorage.getChunk(holder, status);
 
                 // Add this future to the chunk holder so subsequent calls will see it
                 holder.combineSavingFuture(mergedFuture, "schedule chunk status");
@@ -207,7 +206,7 @@ public abstract class ServerChunkManagerMixin {
         }
 
         // Wait for the result of the future and unwrap it, returning null if the chunk is absent
-        return loadFuture.join().method_57130(null);
+        return loadFuture.join().orElse(null);
     }
 
     private void createChunkLoadTicket(int x, int z, int level) {

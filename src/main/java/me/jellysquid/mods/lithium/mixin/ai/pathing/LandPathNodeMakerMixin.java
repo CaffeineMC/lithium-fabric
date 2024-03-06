@@ -2,8 +2,8 @@ package me.jellysquid.mods.lithium.mixin.ai.pathing;
 
 import me.jellysquid.mods.lithium.common.ai.pathing.PathNodeCache;
 import net.minecraft.block.BlockState;
-import net.minecraft.class_9316;
 import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
+import net.minecraft.entity.ai.pathing.PathContext;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
@@ -48,8 +48,8 @@ public abstract class LandPathNodeMakerMixin {
      * @reason Use optimized implementation which avoids scanning blocks for dangers where possible
      * @author JellySquid, 2No2Name
      */
-    @Redirect(method = "getLandNodeType", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/pathing/LandPathNodeMaker;getNodeTypeFromNeighbors(Lnet/minecraft/class_9316;IIILnet/minecraft/entity/ai/pathing/PathNodeType;)Lnet/minecraft/entity/ai/pathing/PathNodeType;"))
-    private static PathNodeType getNodeTypeFromNeighbors(class_9316 context, int x, int y, int z, PathNodeType type) {
+    @Redirect(method = "getLandNodeType(Lnet/minecraft/entity/ai/pathing/PathContext;Lnet/minecraft/util/math/BlockPos$Mutable;)Lnet/minecraft/entity/ai/pathing/PathNodeType;", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/pathing/LandPathNodeMaker;getNodeTypeFromNeighbors(Lnet/minecraft/entity/ai/pathing/PathContext;IIILnet/minecraft/entity/ai/pathing/PathNodeType;)Lnet/minecraft/entity/ai/pathing/PathNodeType;"))
+    private static PathNodeType getNodeTypeFromNeighbors(PathContext context, int x, int y, int z, PathNodeType type) {
         return PathNodeCache.getNodeTypeFromNeighbors(context, type);
     }
 }
