@@ -5,22 +5,13 @@
 ![GitHub issues](https://img.shields.io/github/issues/CaffeineMC/lithium-fabric.svg)
 ![GitHub tag](https://img.shields.io/github/v/tag/CaffeineMC/lithium-fabric.svg)
 
-Lithium is a free and open-source Minecraft mod which works to optimize many areas of the game in order to provide
-better overall performance. It works on both the **client and server**, and **doesn't require the mod to be installed
-on both sides**.
+Lithium is a free and open-source Minecraft mod that optimizes many areas of the game to provide better overall performance. It works on both the client and server, and doesn't require the mod to be installed on both sides.
 
 ### What makes Lithium different?
 
-One of the most important design goals in Lithium is *correctness*. Unlike other mods which apply optimizations to the
-game, Lithium does not sacrifice vanilla functionality or behavior in the name of raw speed. It's a no compromises
-solution for those wanting to speed up their game, and as such, installing Lithium should be completely transparent
-to the player.
+One of the most important design goals in Lithium is *correctness*. Unlike other mods that apply optimizations to the game, Lithium does not sacrifice vanilla functionality or behavior in the name of raw speed. It's a no-compromises solution for those wanting to speed up their game, and as such, installing Lithium should be completely transparent to the player.
 
-If you do encounter an issue where Lithium deviates from the norm, please don't hesitate to
-[open an issue.](https://github.com/CaffeineMC/lithium-fabric/issues) Each patch is carefully checked to ensure
-vanilla parity, but after all, bugs are unavoidable. Before opening a new issue, please check using the search tool that your issue has not already been created, and that if
-there is a suitable template for the issue you are opening, that it is filled out entirely. Issues which are duplicates
-or do not contain the necessary information to triage and debug may be closed. 
+If you do encounter an issue where Lithium deviates from the norm, please don't hesitate to [open an issue](https://github.com/CaffeineMC/lithium-fabric/issues). Each patch is carefully checked to ensure vanilla parity, but after all, bugs are unavoidable. Before opening a new issue, please check using the search tool that your issue has not already been created, and that if there is a suitable template for the issue you are opening, that it is filled out entirely. Issues that are duplicates or do not contain the necessary information to triage and debug may be closed.
 
 ### Community
 [![Discord chat](https://img.shields.io/badge/chat%20on-discord-7289DA)](https://jellysquid.me/discord)
@@ -47,8 +38,9 @@ You can help support members of the core team by making a pledge to our Patreon 
 
 ### Manual installation (recommended)
 
-You will need Fabric Loader installed in your game in order to load Lithium. If you haven't installed Fabric mods
-before, you can find a variety of community guides for doing so [here](https://fabricmc.net/wiki/install).
+You will need Fabric Loader installed in your game in order to load Lithium. If you haven't installed Fabric mods before,
+you can find a variety of community guides for doing so [here](https://fabricmc.net/wiki/install).
+
 
 #### Stable releases
 
@@ -64,16 +56,15 @@ Usually, releases will be made available on GitHub slightly sooner than other lo
 
 [![GitHub build status](https://github.com/CaffeineMC/lithium-fabric/actions/workflows/gradle.yml/badge.svg)](https://github.com/CaffeineMC/lithium-fabric/actions/workflows/gradle.yml)
 
-If you are a player who is looking to get your hands on the latest **bleeding-edge changes for testing**, consider
-taking a look at the automated builds produced through
-our [GitHub Actions workflow](https://github.com/CaffeineMC/lithium-fabric/actions/workflows/gradle.yml?query=event%3Apush)
-. This workflow automatically runs every time a change is pushed to the repository, and as such, the builds it produces
-will generally reflect the latest snapshot of development.
+If you are a player who is looking to get your hands on the latest bleeding-edge changes for testing,
+consider taking a look at the automated builds produced through our
+[GitHub Actions workflow](https://github.com/CaffeineMC/lithium-fabric/actions/workflows/gradle.yml?query=event%3Apush). This workflow automatically runs every 
+time a change is pushed to the repository, and as such, the builds it produces will generally reflect the latest snapshot of development.
 
-Bleeding edge builds will often include unfinished code that hasn't been extensively tested. That code may introduce
-incomplete features, bugs, crashes, and all other kinds of weird issues. You **should not use these bleeding edge builds**
-unless you know what you are doing and are comfortable with software debugging. If you report issues using these builds,
-we will expect that this is the case. Caveat emptor.
+Bleeding-edge builds will often include unfinished code that hasn't been extensively tested. 
+That code may introduce incomplete features, bugs, crashes, and all other kinds of weird issues. 
+You should not use these bleeding-edge builds unless you know what you are doing and are comfortable with software debugging.
+If you report issues using these builds, we will expect that this is the case. Caveat emptor.
 
 ### CurseForge
 
