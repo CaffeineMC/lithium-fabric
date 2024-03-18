@@ -575,6 +575,14 @@ The four vanilla heightmaps are updated using a combined block search instead of
 (default: `true`)  
 Various improvements to explosions, e.g. not accessing blocks along an explosion ray multiple times  
   
+### `mixin.world.explosions.cache_exposure`
+(default: `true`)  
+Precalculates entity explosion exposure to avoid potentially doing duplicate calculations  
+  
+### `mixin.world.explosions.fast_exposure`
+(default: `true`)  
+Improvements to entity explosion damage calculations by reducing the amount of work done  
+  
 ### `mixin.world.inline_block_access`
 (default: `true`)  
 Faster block and fluid access due to inlining and reduced method size  
