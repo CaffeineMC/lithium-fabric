@@ -50,7 +50,6 @@
     "alloc.explosion_behavior.EntityExplosionBehaviorMixin",
     "alloc.nbt.NbtCompoundMixin",
     "alloc.nbt.NbtCompoundMixin$Type",
-    "block.beehive.BeehiveBlockEntityMixin",
     "block.flatten_states.FluidStateMixin",
     "block.hopper.AbstractMinecartEntityMixin",
     "block.hopper.ChestBoatEntityMixin",
