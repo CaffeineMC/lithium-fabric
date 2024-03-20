@@ -141,6 +141,10 @@ NBT tags use a fastutil hashmap instead of a standard HashMap
 (default: `true`)  
 Optimizations related to blocks  
   
+### `mixin.block.beehive`
+(default: `true`)  
+Beehives check if they are obstructed before performing expensive nbt copy operations for each exit attempt.  
+  
 ### `mixin.block.flatten_states`
 (default: `true`)  
 FluidStates store directly whether they are empty  

@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.ai.nearby_entity_tracking;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.PositionedEntityTrackingSection;
 import me.jellysquid.mods.lithium.common.entity.nearby_tracker.NearbyEntityListener;
@@ -13,6 +14,7 @@ import net.minecraft.world.entity.SectionedEntityCache;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -30,6 +32,7 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
     @Shadow
     public abstract boolean isEmpty();
 
+    @Unique
     private final ReferenceOpenHashSet<NearbyEntityListener> nearbyEntityListeners = new ReferenceOpenHashSet<>(0);
 
     @Override
@@ -51,11 +54,12 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
         }
     }
 
-    @Inject(method = "isEmpty()Z", at = @At(value = "HEAD"), cancellable = true)
-    public void isEmpty(CallbackInfoReturnable<Boolean> cir) {
-        if (!this.nearbyEntityListeners.isEmpty()) {
-            cir.setReturnValue(false);
-        }
+    /**
+     * @author ishland, 2No2Name
+     */
+    @ModifyReturnValue(method = "isEmpty()Z", at = @At(value = "RETURN"))
+    public boolean modifyIsEmpty(boolean previousIsEmpty) {
+        return previousIsEmpty && this.nearbyEntityListeners.isEmpty();
     }
 
     @Inject(method = "add(Lnet/minecraft/world/entity/EntityLike;)V", at = @At("RETURN"))

@@ -1,5 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.PositionedEntityTrackingSection;
 import me.jellysquid.mods.lithium.common.entity.movement_tracker.EntityMovementTrackerSection;
@@ -11,6 +13,7 @@ import net.minecraft.world.entity.EntityTrackingStatus;
 import net.minecraft.world.entity.SectionedEntityCache;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -19,16 +22,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.ArrayList;
 
 @Mixin(EntityTrackingSection.class)
-public abstract class EntityTrackingSectionMixin<T extends EntityLike> implements EntityMovementTrackerSection, PositionedEntityTrackingSection {
+public abstract class EntityTrackingSectionMixin implements EntityMovementTrackerSection, PositionedEntityTrackingSection {
     @Shadow
     private EntityTrackingStatus status;
 
     @Shadow
     public abstract boolean isEmpty();
 
+    @Unique
     private final ReferenceOpenHashSet<SectionedEntityMovementTracker<?, ?>> sectionVisibilityListeners = new ReferenceOpenHashSet<>(0);
+    @Unique
     @SuppressWarnings("unchecked")
     private final ArrayList<SectionedEntityMovementTracker<?, ?>>[] entityMovementListenersByType = new ArrayList[MovementTrackerHelper.NUM_MOVEMENT_NOTIFYING_CLASSES];
+    @Unique
     private final long[] lastEntityMovementByType = new long[MovementTrackerHelper.NUM_MOVEMENT_NOTIFYING_CLASSES];
 
     @Override
@@ -76,11 +82,9 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
         return this.lastEntityMovementByType[trackedClass];
     }
 
-    @Inject(method = "isEmpty()Z", at = @At(value = "HEAD"), cancellable = true)
-    public void isEmpty(CallbackInfoReturnable<Boolean> cir) {
-        if (!this.sectionVisibilityListeners.isEmpty()) {
-            cir.setReturnValue(false);
-        }
+    @ModifyReturnValue(method = "isEmpty()Z", at = @At(value = "RETURN"))
+    public boolean modifyIsEmpty(boolean previousIsEmpty) {
+        return previousIsEmpty && this.sectionVisibilityListeners.isEmpty();
     }
 
 

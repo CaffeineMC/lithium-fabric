@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.encoding.VarInts;
 import net.minecraft.util.collection.IndexedIterable;
+import net.minecraft.world.chunk.EntryMissingException;
 import net.minecraft.world.chunk.Palette;
 import net.minecraft.world.chunk.PaletteResizeListener;
 
@@ -120,11 +121,16 @@ public class LithiumHashPalette<T> implements Palette<T> {
     public T get(int id) {
         T[] entries = this.entries;
 
+        T entry = null;
         if (id >= 0 && id < entries.length) {
-            return entries[id];
+            entry = entries[id];
         }
 
-        return null;
+        if (entry != null) {
+            return entry;
+        } else {
+            throw new EntryMissingException(id);
+        }
     }
 
     @Override
