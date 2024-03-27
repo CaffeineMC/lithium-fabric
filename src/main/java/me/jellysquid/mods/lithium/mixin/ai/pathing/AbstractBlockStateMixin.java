@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.ai.pathing;
 
 import me.jellysquid.mods.lithium.common.ai.pathing.BlockStatePathingCache;
+import me.jellysquid.mods.lithium.common.ai.pathing.PathNodeCache;
 import me.jellysquid.mods.lithium.common.world.blockview.SingleBlockBlockView;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
@@ -37,8 +38,7 @@ public abstract class AbstractBlockStateMixin implements BlockStatePathingCache 
             this.pathNodeType = null;
         }
         try {
-            //Passing null as previous node type to the method signals to other lithium mixins that we only want the neighbor behavior of this block and not its neighbors
-            this.pathNodeTypeNeighbor = (LandPathNodeMaker.getNodeTypeFromNeighbors(blockView, BlockPos.ORIGIN.mutableCopy(), null));
+            this.pathNodeTypeNeighbor = PathNodeCache.getNeighborNodeType(blockView, BlockPos.ORIGIN);
             if (this.pathNodeTypeNeighbor == null) {
                 this.pathNodeTypeNeighbor = PathNodeType.OPEN;
             }
