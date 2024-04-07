@@ -30,6 +30,7 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
     @Shadow
     @Final
     private PalettedContainer<BlockState> blockStateContainer;
+
     @Unique
     private short[] countsByFlag = null;
     private ChunkSectionChangeCallback changeListener;
@@ -102,6 +103,11 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     private void updateFlagCounters(int x, int y, int z, BlockState newState, boolean lock, CallbackInfoReturnable<BlockState> cir, BlockState oldState) {
+        this.lithium$trackBlockStateChange(newState, oldState);
+    }
+
+    @Override
+    public void lithium$trackBlockStateChange(BlockState newState, BlockState oldState) {
         short[] countsByFlag = this.countsByFlag;
         if (countsByFlag == null) {
             return;
