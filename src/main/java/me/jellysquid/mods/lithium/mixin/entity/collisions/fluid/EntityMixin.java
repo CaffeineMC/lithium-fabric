@@ -28,7 +28,7 @@ public abstract class EntityMixin implements FluidCachingEntity {
     public abstract Box getBoundingBox();
 
     @Shadow
-    public World world;
+    private World world;
 
     @Shadow
     protected Object2DoubleMap<TagKey<Fluid>> fluidHeight;
@@ -63,7 +63,7 @@ public abstract class EntityMixin implements FluidCachingEntity {
                 Chunk chunk = this.world.getChunk(chunkX, chunkZ);
                 for (int chunkYIndex = chunkYIndex1; chunkYIndex <= chunkYIndex2; chunkYIndex++) {
                     ChunkSection section = chunk.getSectionArray()[chunkYIndex];
-                    if (((BlockCountingSection) section).mayContainAny(blockStateFlag)) {
+                    if (((BlockCountingSection) section).lithium$mayContainAny(blockStateFlag)) {
                         //fluid found, cannot skip code
                         return;
                     }

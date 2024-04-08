@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.common.entity.block_tracking;
 import me.jellysquid.mods.lithium.common.block.BlockListeningSection;
 import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
 import me.jellysquid.mods.lithium.common.block.ListeningBlockStatePredicate;
+import net.minecraft.util.math.ChunkSectionPos;
 
 import java.util.ArrayList;
 
@@ -23,7 +24,7 @@ public final class ChunkSectionChangeCallback {
         for (int i = 0; i < sectionedBlockChangeTrackers.size(); i++) {
             sectionedBlockChangeTrackers.get(i).setChanged(section);
         }
-        this.listeningMask &= ~(1 << flagIndex);
+        this.listeningMask &= (short) ~(1 << flagIndex);
 
         return this.listeningMask;
     }
@@ -36,7 +37,7 @@ public final class ChunkSectionChangeCallback {
         }
         sectionedBlockChangeTrackers.add(tracker);
 
-        this.listeningMask |= (1 << blockGroupIndex);
+        this.listeningMask |= (short) (1 << blockGroupIndex);
         return this.listeningMask;
     }
 
@@ -46,9 +47,23 @@ public final class ChunkSectionChangeCallback {
         if (sectionedBlockChangeTrackers != null) {
             sectionedBlockChangeTrackers.remove(tracker);
             if (sectionedBlockChangeTrackers.isEmpty()) {
-                this.listeningMask &= ~(1 << blockGroup.getIndex());
+                this.listeningMask &= (short) ~(1 << blockGroup.getIndex());
             }
         }
         return this.listeningMask;
+    }
+
+    public void onChunkSectionInvalidated(ChunkSectionPos sectionPos) {
+        for (int flagIndex = 0; flagIndex < this.trackers.length; flagIndex++) {
+            ArrayList<SectionedBlockChangeTracker> sectionedBlockChangeTrackers = this.trackers[flagIndex];
+            this.trackers[flagIndex] = null;
+            if (sectionedBlockChangeTrackers != null) {
+                //noinspection ForLoopReplaceableByForEach
+                for (int i = 0; i < sectionedBlockChangeTrackers.size(); i++) {
+                    sectionedBlockChangeTrackers.get(i).onChunkSectionInvalidated(sectionPos);
+                }
+            }
+        }
+        this.listeningMask = 0;
     }
 }
