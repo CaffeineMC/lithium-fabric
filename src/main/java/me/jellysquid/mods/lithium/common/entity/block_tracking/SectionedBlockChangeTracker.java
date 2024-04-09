@@ -73,10 +73,12 @@ public class SectionedBlockChangeTracker {
                         ChunkSection section = sectionArray[Pos.SectionYIndex.fromSectionCoord(trackedSections.world(), y)];
 
                         BlockListeningSection blockListeningSection = (BlockListeningSection) section;
-                        blockListeningSection.addToCallback(this.blockGroup, this);
+                        blockListeningSection.lithium$addToCallback(this.blockGroup, this);
                     }
                 }
             }
+            this.isListeningToAll = (this.sectionsNotListeningTo == null || this.sectionsNotListeningTo.isEmpty())
+                    && (this.sectionsUnsubscribed == null || this.sectionsUnsubscribed.isEmpty());
             this.setChanged(this.getWorldTime());
         }
         this.timesRegistered++;
@@ -103,7 +105,7 @@ public class SectionedBlockChangeTracker {
                     ChunkSection section = sectionArray[Pos.SectionYIndex.fromSectionCoord(world, y)];
 
                     BlockListeningSection blockListeningSection = (BlockListeningSection) section;
-                    blockListeningSection.removeFromCallback(this.blockGroup, this);
+                    blockListeningSection.lithium$removeFromCallback(this.blockGroup, this);
                 }
             }
         }
@@ -128,7 +130,7 @@ public class SectionedBlockChangeTracker {
                 }
                 ChunkSection section = chunk.getSectionArray()[Pos.SectionYIndex.fromSectionCoord(this.trackedWorldSections.world(), chunkSectionPos.getY())];
                 BlockListeningSection blockListeningSection = (BlockListeningSection) section;
-                blockListeningSection.addToCallback(this.blockGroup, this);
+                blockListeningSection.lithium$addToCallback(this.blockGroup, this);
             }
         }
         if (this.sectionsUnsubscribed != null) {
@@ -136,7 +138,7 @@ public class SectionedBlockChangeTracker {
             for (int i = unsubscribed.size() - 1; i >= 0; i--) {
                 changed = true;
                 BlockListeningSection blockListeningSection = unsubscribed.remove(i);
-                blockListeningSection.addToCallback(this.blockGroup, this);
+                blockListeningSection.lithium$addToCallback(this.blockGroup, this);
             }
         }
         this.isListeningToAll = true;
@@ -191,5 +193,14 @@ public class SectionedBlockChangeTracker {
     @Override
     public int hashCode() {
         return this.getClass().hashCode() ^ this.trackedWorldSections.hashCode() ^ this.blockGroup.hashCode();
+    }
+
+    public void onChunkSectionInvalidated(ChunkSectionPos sectionPos) {
+        if (this.sectionsNotListeningTo == null) {
+            this.sectionsNotListeningTo = new ArrayList<>();
+        }
+        this.sectionsNotListeningTo.add(sectionPos);
+        this.setChanged(this.getWorldTime());
+        this.isListeningToAll = false;
     }
 }

@@ -43,7 +43,7 @@ public abstract class PathNodeCache {
         }
 
         if (BlockStateFlags.ENABLED) {
-            return !((BlockCountingSection) section).mayContainAny(BlockStateFlags.PATH_NOT_OPEN);
+            return !((BlockCountingSection) section).lithium$mayContainAny(BlockStateFlags.PATH_NOT_OPEN);
         }
         return !isChunkSectionDangerousNeighbor(section);
     }
