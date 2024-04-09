@@ -25,7 +25,7 @@ public class PoolMixin<E extends Weighted> {
     @Inject(method = "<init>(Ljava/util/List;)V", at = @At("RETURN"))
     private void init(List<? extends E> entries, CallbackInfo ci) {
         //We are using reference equality here, because all vanilla implementations of Weighted use reference equality
-        this.entryHashList = this.entries.size() > 4 ? this.entries : Collections.unmodifiableList(new HashedReferenceList<>(this.entries));
+        this.entryHashList = this.entries.size() < 4 ? this.entries : Collections.unmodifiableList(new HashedReferenceList<>(this.entries));
     }
 
     /**
