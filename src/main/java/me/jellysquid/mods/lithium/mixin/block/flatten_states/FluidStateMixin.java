@@ -1,10 +1,9 @@
 package me.jellysquid.mods.lithium.mixin.block.flatten_states;
 
-import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.MapCodec;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.state.property.Property;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,9 +18,8 @@ public abstract class FluidStateMixin {
 
     private boolean isEmptyCache;
 
-    @Inject(method = "<init>(Lnet/minecraft/fluid/Fluid;Lcom/google/common/collect/ImmutableMap;Lcom/mojang/serialization/MapCodec;)V", at = @At("RETURN"))
-    private void initFluidCache(Fluid fluid, ImmutableMap<Property<?>, Comparable<?>> propertyMap,
-                                MapCodec<FluidState> codec, CallbackInfo ci) {
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void initFluidCache(Fluid fluid, Reference2ObjectArrayMap<?, ?> propertyMap, MapCodec<?> codec, CallbackInfo ci) {
         this.isEmptyCache = this.getFluid().isEmpty();
     }
 

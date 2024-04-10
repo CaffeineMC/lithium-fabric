@@ -4,6 +4,7 @@ import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.
 import net.minecraft.block.entity.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.collection.DefaultedList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,7 +26,7 @@ public class StackListReplacementTracking {
     @Mixin(LockableContainerBlockEntity.class)
     public abstract static class StackListReplacementTrackingLockableContainerBlockEntity {
         @Inject(method = "readNbt", at = @At("RETURN" ))
-        public void readNbtStackListReplacement(NbtCompound nbt, CallbackInfo ci) {
+        public void readNbtStackListReplacement(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
             if (this instanceof InventoryChangeTracker inventoryChangeTracker) {
                 inventoryChangeTracker.lithium$emitStackListReplaced();
             }
@@ -34,7 +35,7 @@ public class StackListReplacementTracking {
 
     @Mixin(BarrelBlockEntity.class)
     public abstract static class InventoryChangeTrackingBarrelBlockEntity implements InventoryChangeTracker {
-        @Inject(method = "setInvStackList", at = @At("RETURN" ))
+        @Inject(method = "setHeldStacks", at = @At("RETURN"))
         public void setInventoryStackListReplacement(DefaultedList<ItemStack> list, CallbackInfo ci) {
             this.lithium$emitStackListReplaced();
         }
@@ -42,7 +43,7 @@ public class StackListReplacementTracking {
 
     @Mixin(ChestBlockEntity.class)
     public abstract static class InventoryChangeTrackingChestBlockEntity implements InventoryChangeTracker {
-        @Inject(method = "setInvStackList", at = @At("RETURN" ))
+        @Inject(method = "setHeldStacks", at = @At("RETURN"))
         public void setInventoryStackListReplacement(DefaultedList<ItemStack> list, CallbackInfo ci) {
             this.lithium$emitStackListReplaced();
         }
@@ -50,7 +51,7 @@ public class StackListReplacementTracking {
 
     @Mixin(DispenserBlockEntity.class)
     public abstract static class InventoryChangeTrackingDispenserBlockEntity implements InventoryChangeTracker {
-        @Inject(method = "setInvStackList", at = @At("RETURN" ))
+        @Inject(method = "setHeldStacks", at = @At("RETURN"))
         public void setInventoryStackListReplacement(DefaultedList<ItemStack> list, CallbackInfo ci) {
             this.lithium$emitStackListReplaced();
         }
@@ -58,7 +59,7 @@ public class StackListReplacementTracking {
 
     @Mixin(HopperBlockEntity.class)
     public abstract static class InventoryChangeTrackingHopperBlockEntity implements InventoryChangeTracker {
-        @Inject(method = "setInvStackList", at = @At("RETURN" ))
+        @Inject(method = "setHeldStacks", at = @At("RETURN"))
         public void setInventoryStackListReplacement(DefaultedList<ItemStack> list, CallbackInfo ci) {
             this.lithium$emitStackListReplaced();
         }
@@ -66,7 +67,7 @@ public class StackListReplacementTracking {
 
     @Mixin(ShulkerBoxBlockEntity.class)
     public abstract static class InventoryChangeTrackingShulkerBoxBlockEntity implements InventoryChangeTracker {
-        @Inject(method = "setInvStackList", at = @At("RETURN" ))
+        @Inject(method = "setHeldStacks", at = @At("RETURN"))
         public void setInventoryStackListReplacement(DefaultedList<ItemStack> list, CallbackInfo ci) {
             this.lithium$emitStackListReplaced();
         }

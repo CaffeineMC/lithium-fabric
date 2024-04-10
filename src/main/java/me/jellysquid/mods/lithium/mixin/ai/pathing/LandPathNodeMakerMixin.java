@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.mixin.ai.pathing;
 import me.jellysquid.mods.lithium.common.ai.pathing.PathNodeCache;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
+import net.minecraft.entity.ai.pathing.PathContext;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
@@ -22,12 +23,11 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(value = LandPathNodeMaker.class, priority = 990)
 public abstract class LandPathNodeMakerMixin {
     /**
-     * This mixin requires a priority < 1000 due to fabric api using 1000 and we need to inject before them.
+     * This mixin requires a priority < 1000 due to fabric api using 1000 and us needing to inject before them.
      *
      * @reason Use optimized implementation
      * @author JellySquid, 2No2Name
      */
-    @SuppressWarnings("InvalidInjectorMethodSignature")
     @Inject(method = "getCommonNodeType",
             at = @At(
                     value = "INVOKE_ASSIGN",
@@ -57,16 +57,14 @@ public abstract class LandPathNodeMakerMixin {
     @Inject(
             method = "getNodeTypeFromNeighbors", locals = LocalCapture.CAPTURE_FAILHARD,
             at = @At(
-                    value = "INVOKE", shift = At.Shift.AFTER,
-                    target = "Lnet/minecraft/util/math/BlockPos$Mutable;set(III)Lnet/minecraft/util/math/BlockPos$Mutable;"
+                    value = "INVOKE", shift = At.Shift.BEFORE,
+                    target = "Lnet/minecraft/entity/ai/pathing/PathContext;getNodeType(III)Lnet/minecraft/entity/ai/pathing/PathNodeType;"
             ),
             cancellable = true
     )
-    private static void doNotChangePositionIfLithiumSinglePosCall(BlockView world, BlockPos.Mutable pos, PathNodeType nodeType, CallbackInfoReturnable<PathNodeType> cir, int posX, int posY, int posZ, int dX, int dY, int dZ) {
-        if (nodeType == null) {
-            if (dX == -1 && dY == -1 && dZ == -1) {
-                pos.set(posX, posY, posZ);
-            } else {
+    private static void doNotIteratePositionsIfLithiumSinglePosCall(PathContext context, int x, int y, int z, PathNodeType fallback, CallbackInfoReturnable<PathNodeType> cir) {
+        if (fallback == null) {
+            if (x != -1 || y != -1 || z != -1) {
                 cir.setReturnValue(null);
             }
         }
@@ -76,8 +74,8 @@ public abstract class LandPathNodeMakerMixin {
      * @reason Use optimized implementation which avoids scanning blocks for dangers where possible
      * @author JellySquid, 2No2Name
      */
-    @Redirect(method = "getLandNodeType", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/pathing/LandPathNodeMaker;getNodeTypeFromNeighbors(Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos$Mutable;Lnet/minecraft/entity/ai/pathing/PathNodeType;)Lnet/minecraft/entity/ai/pathing/PathNodeType;"))
-    private static PathNodeType getNodeTypeFromNeighbors(BlockView world, BlockPos.Mutable pos, PathNodeType type) {
-        return PathNodeCache.getNodeTypeFromNeighbors(world, pos, type);
+    @Redirect(method = "getLandNodeType(Lnet/minecraft/entity/ai/pathing/PathContext;Lnet/minecraft/util/math/BlockPos$Mutable;)Lnet/minecraft/entity/ai/pathing/PathNodeType;", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/pathing/LandPathNodeMaker;getNodeTypeFromNeighbors(Lnet/minecraft/entity/ai/pathing/PathContext;IIILnet/minecraft/entity/ai/pathing/PathNodeType;)Lnet/minecraft/entity/ai/pathing/PathNodeType;"))
+    private static PathNodeType getNodeTypeFromNeighbors(PathContext context, int x, int y, int z, PathNodeType fallback) {
+        return PathNodeCache.getNodeTypeFromNeighbors(context, x, y, z, fallback);
     }
 }

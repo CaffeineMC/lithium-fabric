@@ -9,6 +9,7 @@ import net.minecraft.block.entity.CampfireBlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.BlockEntityTickInvoker;
 import org.spongepowered.asm.mixin.Mixin;
@@ -61,7 +62,7 @@ public class CampfireBlockEntityMixin extends BlockEntity implements SleepingBlo
             method = "readNbt",
             at = @At(value = "RETURN")
     )
-    private void wakeUpOnReadNbt(NbtCompound nbt, CallbackInfo ci) {
+    private void wakeUpOnReadNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
         this.wakeUpNow();
     }
 }

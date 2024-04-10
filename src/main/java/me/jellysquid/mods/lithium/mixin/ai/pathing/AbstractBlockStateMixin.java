@@ -6,6 +6,7 @@ import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
+import net.minecraft.entity.ai.pathing.PathContext;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.util.math.BlockPos;
 import org.apache.commons.lang3.Validate;
@@ -28,9 +29,9 @@ public abstract class AbstractBlockStateMixin implements BlockStatePathingCache 
 
         BlockState state = this.asBlockState();
 
-        SingleBlockBlockView blockView = SingleBlockBlockView.of(state, BlockPos.ORIGIN);
+        SingleBlockBlockView singleBlockBlockView = SingleBlockBlockView.of(state, BlockPos.ORIGIN);
         try {
-            this.pathNodeType = Validate.notNull(LandPathNodeMaker.getCommonNodeType(blockView, BlockPos.ORIGIN));
+            this.pathNodeType = Validate.notNull(LandPathNodeMaker.getCommonNodeType(singleBlockBlockView, BlockPos.ORIGIN), "Block has no common path node type!");
         } catch (SingleBlockBlockView.SingleBlockViewException | ClassCastException e) {
             //This is usually hit by shulker boxes, as their hitbox depends on the block entity, and the node type depends on the hitbox
             //Also catch ClassCastException in case some modded code casts BlockView to ChunkCache
@@ -38,11 +39,12 @@ public abstract class AbstractBlockStateMixin implements BlockStatePathingCache 
         }
         try {
             //Passing null as previous node type to the method signals to other lithium mixins that we only want the neighbor behavior of this block and not its neighbors
-            this.pathNodeTypeNeighbor = (LandPathNodeMaker.getNodeTypeFromNeighbors(blockView, BlockPos.ORIGIN.mutableCopy(), null));
+            //Using exceptions for control flow, but this way we do not need to copy the code for the cache initialization, reducing required maintenance and improving mod compatibility
+            this.pathNodeTypeNeighbor = (LandPathNodeMaker.getNodeTypeFromNeighbors(new PathContext(singleBlockBlockView, null), 1, 1, 1, null));
             if (this.pathNodeTypeNeighbor == null) {
                 this.pathNodeTypeNeighbor = PathNodeType.OPEN;
             }
-        } catch (SingleBlockBlockView.SingleBlockViewException | ClassCastException e) {
+        } catch (SingleBlockBlockView.SingleBlockViewException | NullPointerException | ClassCastException e) {
             this.pathNodeTypeNeighbor = null;
         }
     }

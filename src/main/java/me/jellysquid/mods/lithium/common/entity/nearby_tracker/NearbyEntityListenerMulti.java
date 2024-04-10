@@ -39,7 +39,7 @@ public class NearbyEntityListenerMulti implements NearbyEntityListener {
             this.range = updatedRange;
 
             //noinspection unchecked
-            SectionedEntityCache<S> entityCache = ((ServerEntityManagerAccessor<S>)((ServerWorldAccessor)tracker.getEntity().getWorld()).getEntityManager()).getCache();
+            SectionedEntityCache<S> entityCache = ((ServerEntityManagerAccessor<S>) ((ServerWorldAccessor) tracker.getEntity().getWorld()).getEntityManager()).getCache();
             ChunkSectionPos chunkPos = ChunkSectionPos.from(tracker.getEntity().getBlockPos());
 
             this.updateChunkRegistrations(entityCache, chunkPos, this.range, chunkPos, updatedRange);

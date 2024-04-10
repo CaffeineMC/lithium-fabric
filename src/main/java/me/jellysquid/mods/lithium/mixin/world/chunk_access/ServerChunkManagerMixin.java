@@ -1,6 +1,5 @@
 package me.jellysquid.mods.lithium.mixin.world.chunk_access;
 
-import com.mojang.datafixers.util.Either;
 import me.jellysquid.mods.lithium.common.world.chunk.ChunkHolderExtended;
 import net.minecraft.server.world.*;
 import net.minecraft.util.Util;
@@ -16,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BooleanSupplier;
 
@@ -160,19 +158,18 @@ public abstract class ServerChunkManagerMixin {
             this.createChunkLoadTicket(x, z, level);
         }
 
-        CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> loadFuture = null;
-        CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> statusFuture = ((ChunkHolderExtended) holder).lithium$getFutureByStatus(status.getIndex());
+        CompletableFuture<OptionalChunk<Chunk>> loadFuture = null;
+        CompletableFuture<OptionalChunk<Chunk>> statusFuture = ((ChunkHolderExtended) holder).lithium$getFutureByStatus(status.getIndex());
 
         if (statusFuture != null) {
-            Either<Chunk, ChunkHolder.Unloaded> immediate = statusFuture.getNow(null);
+            OptionalChunk<Chunk> optionalChunk = statusFuture.getNow(null);
 
             // If the result is already available, return it
-            if (immediate != null) {
-                Optional<Chunk> chunk = immediate.left();
+            if (optionalChunk != null) {
 
-                if (chunk.isPresent()) {
+                if (optionalChunk.isPresent()) {
                     // Early-return with the already ready chunk
-                    return chunk.get();
+                    return optionalChunk.orElse(null);
                 }
             } else {
                 // The load future will first start with the existing future for this status
@@ -184,7 +181,7 @@ public abstract class ServerChunkManagerMixin {
         if (loadFuture == null) {
             if (ChunkLevels.getStatus(holder.getLevel()).isAtLeast(status)) {
                 // Create a new future which upgrades the chunk from the previous status level to the desired one
-                CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> mergedFuture = this.threadedAnvilChunkStorage.getChunk(holder, status);
+                CompletableFuture<OptionalChunk<Chunk>> mergedFuture = this.threadedAnvilChunkStorage.getChunk(holder, status);
 
                 // Add this future to the chunk holder so subsequent calls will see it
                 holder.combineSavingFuture(mergedFuture, "schedule chunk status");
@@ -210,7 +207,7 @@ public abstract class ServerChunkManagerMixin {
         }
 
         // Wait for the result of the future and unwrap it, returning null if the chunk is absent
-        return loadFuture.join().left().orElse(null);
+        return loadFuture.join().orElse(null);
     }
 
     private void createChunkLoadTicket(int x, int z, int level) {

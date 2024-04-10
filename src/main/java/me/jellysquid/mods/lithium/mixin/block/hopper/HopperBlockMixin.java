@@ -22,7 +22,6 @@ public abstract class HopperBlockMixin extends BlockWithEntity {
         super(settings);
     }
 
-    @SuppressWarnings("deprecation")
     @Intrinsic
     @Override
     public BlockState getStateForNeighborUpdate(BlockState myBlockState, Direction direction, BlockState newState, WorldAccess world, BlockPos myPos, BlockPos posFrom) {
