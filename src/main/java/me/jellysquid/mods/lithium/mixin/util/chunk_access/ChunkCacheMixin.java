@@ -14,7 +14,7 @@ public abstract class ChunkCacheMixin implements ChunkView {
     protected abstract Chunk getChunk(int chunkX, int chunkZ);
 
     @Override
-    public @Nullable Chunk getLoadedChunk(int chunkX, int chunkZ) {
+    public @Nullable Chunk lithium$getLoadedChunk(int chunkX, int chunkZ) {
         return this.getChunk(chunkX, chunkZ);
     }
 }

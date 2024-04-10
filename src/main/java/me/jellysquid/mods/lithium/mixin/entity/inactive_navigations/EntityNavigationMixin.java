@@ -37,30 +37,30 @@ public abstract class EntityNavigationMixin {
             )
     )
     private void updateListeningState(CallbackInfo ci) {
-        if (((NavigatingEntity) this.entity).isRegisteredToWorld()) {
+        if (((NavigatingEntity) this.entity).lithium$isRegisteredToWorld()) {
             if (this.currentPath == null) {
-                ((ServerWorldExtended) this.world).setNavigationInactive(this.entity);
+                ((ServerWorldExtended) this.world).lithium$setNavigationInactive(this.entity);
             } else {
-                ((ServerWorldExtended) this.world).setNavigationActive(this.entity);
+                ((ServerWorldExtended) this.world).lithium$setNavigationActive(this.entity);
             }
         }
     }
 
     @Inject(method = "startMovingAlong(Lnet/minecraft/entity/ai/pathing/Path;D)Z", at = @At(value = "RETURN"))
     private void updateListeningState2(Path path, double speed, CallbackInfoReturnable<Boolean> cir) {
-        if (((NavigatingEntity) this.entity).isRegisteredToWorld()) {
+        if (((NavigatingEntity) this.entity).lithium$isRegisteredToWorld()) {
             if (this.currentPath == null) {
-                ((ServerWorldExtended) this.world).setNavigationInactive(this.entity);
+                ((ServerWorldExtended) this.world).lithium$setNavigationInactive(this.entity);
             } else {
-                ((ServerWorldExtended) this.world).setNavigationActive(this.entity);
+                ((ServerWorldExtended) this.world).lithium$setNavigationActive(this.entity);
             }
         }
     }
 
     @Inject(method = "stop()V", at = @At(value = "RETURN"))
     private void stopListening(CallbackInfo ci) {
-        if (((NavigatingEntity) this.entity).isRegisteredToWorld()) {
-            ((ServerWorldExtended) this.world).setNavigationInactive(this.entity);
+        if (((NavigatingEntity) this.entity).lithium$isRegisteredToWorld()) {
+            ((ServerWorldExtended) this.world).lithium$setNavigationInactive(this.entity);
         }
     }
 }

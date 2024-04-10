@@ -4,12 +4,12 @@ import net.minecraft.inventory.Inventory;
 
 public interface InventoryChangeListener {
     default void handleStackListReplaced(Inventory inventory) {
-        this.handleInventoryRemoved(inventory);
+        this.lithium$handleInventoryRemoved(inventory);
     }
 
-    void handleInventoryContentModified(Inventory inventory);
+    void lithium$handleInventoryContentModified(Inventory inventory);
 
-    void handleInventoryRemoved(Inventory inventory);
+    void lithium$handleInventoryRemoved(Inventory inventory);
 
-    boolean handleComparatorAdded(Inventory inventory);
+    boolean lithium$handleComparatorAdded(Inventory inventory);
 }

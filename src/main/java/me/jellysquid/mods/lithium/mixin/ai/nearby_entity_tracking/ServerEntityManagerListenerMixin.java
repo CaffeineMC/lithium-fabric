@@ -43,7 +43,7 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     private void onUpdateEntityPosition(CallbackInfo ci, BlockPos blockPos, long newPos, EntityTrackingStatus entityTrackingStatus, EntityTrackingSection<T> entityTrackingSection) {
-        NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) this.entity).getListener();
+        NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) this.entity).lithium$getListener();
         if (listener != null)
         {
             Range6Int chunkRange = listener.getChunkRange();
@@ -63,7 +63,7 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> {
             )
     )
     private void onRemoveEntity(Entity.RemovalReason reason, CallbackInfo ci) {
-        NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) this.entity).getListener();
+        NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) this.entity).lithium$getListener();
         if (listener != null) {
             //noinspection unchecked
             listener.removeFromAllChunksInRange(

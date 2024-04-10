@@ -11,12 +11,12 @@ public class WorldMixin implements LithiumInternerWrapper<SectionedBlockChangeTr
     private final LithiumInterner<SectionedBlockChangeTracker> blockChangeTrackers = new LithiumInterner<>();
 
     @Override
-    public SectionedBlockChangeTracker getCanonical(SectionedBlockChangeTracker value) {
+    public SectionedBlockChangeTracker lithium$getCanonical(SectionedBlockChangeTracker value) {
         return this.blockChangeTrackers.getCanonical(value);
     }
 
     @Override
-    public void deleteCanonical(SectionedBlockChangeTracker value) {
+    public void lithium$deleteCanonical(SectionedBlockChangeTracker value) {
         this.blockChangeTrackers.deleteCanonical(value);
     }
 }

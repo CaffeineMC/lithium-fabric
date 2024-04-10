@@ -79,11 +79,11 @@ public abstract class PistonBlockEntityMixin {
      * @return blockShape offset and simplified
      */
     private static VoxelShape getOffsetAndSimplified(VoxelShape blockShape, float offset, Direction direction) {
-        VoxelShape offsetSimplifiedShape = ((OffsetVoxelShapeCache) blockShape).getOffsetSimplifiedShape(offset, direction);
+        VoxelShape offsetSimplifiedShape = ((OffsetVoxelShapeCache) blockShape).lithium$getOffsetSimplifiedShape(offset, direction);
         if (offsetSimplifiedShape == null) {
             //create the offset shape and store it for later use
             offsetSimplifiedShape = blockShape.offset(direction.getOffsetX() * offset, direction.getOffsetY() * offset, direction.getOffsetZ() * offset).simplify();
-            ((OffsetVoxelShapeCache) blockShape).setShape(offset, direction, offsetSimplifiedShape);
+            ((OffsetVoxelShapeCache) blockShape).lithium$setShape(offset, direction, offsetSimplifiedShape);
         }
         return offsetSimplifiedShape;
     }

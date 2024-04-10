@@ -30,7 +30,7 @@ public class LithiumDoubleStackList extends LithiumStackList {
         LithiumDoubleStackList parentStackList = first.parent;
         if (parentStackList == null || parentStackList != second.parent || parentStackList.first != first || parentStackList.second != second) {
             if (parentStackList != null) {
-                parentStackList.doubleInventory.emitRemoved();
+                parentStackList.doubleInventory.lithium$emitRemoved();
             }
             parentStackList = new LithiumDoubleStackList(doubleInventory, first, second, maxCountPerStack);
             first.parent = parentStackList;

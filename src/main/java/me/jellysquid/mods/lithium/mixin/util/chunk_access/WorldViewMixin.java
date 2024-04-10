@@ -15,7 +15,7 @@ public interface WorldViewMixin extends ChunkView {
     @Nullable Chunk getChunk(int var1, int var2, ChunkStatus var3, boolean var4);
 
     @Override
-    default @Nullable Chunk getLoadedChunk(int chunkX, int chunkZ) {
+    default @Nullable Chunk lithium$getLoadedChunk(int chunkX, int chunkZ) {
         return this.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
     }
 }

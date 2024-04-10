@@ -18,7 +18,7 @@ public class ArmorStandEntityMixin implements EquipmentEntity.EquipmentTrackingE
             at = @At("RETURN")
     )
     private void trackEquipChange(NbtCompound nbt, CallbackInfo ci) {
-        this.lithiumOnEquipmentChanged();
+        this.lithium$OnEquipmentChanged();
     }
 
     @Inject(
@@ -26,7 +26,7 @@ public class ArmorStandEntityMixin implements EquipmentEntity.EquipmentTrackingE
             at = @At("RETURN")
     )
     private void trackEquipChange(EquipmentSlot slot, ItemStack stack, CallbackInfo ci) {
-        this.lithiumOnEquipmentChanged();
+        this.lithium$OnEquipmentChanged();
     }
 
     @Inject(
@@ -34,6 +34,6 @@ public class ArmorStandEntityMixin implements EquipmentEntity.EquipmentTrackingE
             at = @At("RETURN")
     )
     private void trackEquipChange(DamageSource damageSource, CallbackInfo ci) {
-        this.lithiumOnEquipmentChanged();
+        this.lithium$OnEquipmentChanged();
     }
 }

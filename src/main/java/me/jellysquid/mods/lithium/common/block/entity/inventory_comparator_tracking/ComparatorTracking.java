@@ -21,9 +21,9 @@ public class ComparatorTracking {
                 searchPos.move(searchDirection, searchOffset);
                 BlockState blockState = world.getBlockState(searchPos);
                 if (blockState.getBlock() instanceof BlockEntityProvider) {
-                    BlockEntity blockEntity = ((BlockEntityGetter) world).getLoadedExistingBlockEntity(searchPos);
+                    BlockEntity blockEntity = ((BlockEntityGetter) world).lithium$getLoadedExistingBlockEntity(searchPos);
                     if (blockEntity instanceof Inventory && blockEntity instanceof ComparatorTracker comparatorTracker) {
-                        comparatorTracker.onComparatorAdded(searchDirection, searchOffset);
+                        comparatorTracker.lithium$onComparatorAdded(searchDirection, searchOffset);
                     }
                 }
             }

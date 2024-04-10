@@ -2,7 +2,7 @@ package me.jellysquid.mods.lithium.common.util.deduplication;
 
 public interface LithiumInternerWrapper<T> {
 
-    T getCanonical(T value);
+    T lithium$getCanonical(T value);
 
-    void deleteCanonical(T value);
+    void lithium$deleteCanonical(T value);
 }

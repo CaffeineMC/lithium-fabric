@@ -5,6 +5,6 @@ import me.jellysquid.mods.lithium.common.entity.EntityClassGroup;
 import java.util.Collection;
 
 public interface ClassGroupFilterableList<T> {
-    Collection<T> getAllOfGroupType(EntityClassGroup type);
+    Collection<T> lithium$getAllOfGroupType(EntityClassGroup type);
 
 }

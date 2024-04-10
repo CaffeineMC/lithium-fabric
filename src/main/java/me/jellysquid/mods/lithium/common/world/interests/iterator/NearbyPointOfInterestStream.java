@@ -188,8 +188,8 @@ public class NearbyPointOfInterestStream extends Spliterators.AbstractSpliterato
 
             int previousSize = this.points.size();
             // Collect all points in the chunk into the active list of points
-            for (PointOfInterestSet set : this.storage.getInChunkColumn(chunkPosX, chunkPosZ)) {
-                ((PointOfInterestSetExtended) set).collectMatchingPoints(this.typeSelector, this.occupationStatus, this.collector);
+            for (PointOfInterestSet set : this.storage.lithium$getInChunkColumn(chunkPosX, chunkPosZ)) {
+                ((PointOfInterestSetExtended) set).lithium$collectMatchingPoints(this.typeSelector, this.occupationStatus, this.collector);
             }
 
             // If no points were found in this chunk, skip it early and move on

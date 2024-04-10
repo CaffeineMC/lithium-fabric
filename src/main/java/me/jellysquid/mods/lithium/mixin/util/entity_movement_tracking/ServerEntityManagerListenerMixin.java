@@ -65,12 +65,12 @@ public class ServerEntityManagerListenerMixin<T extends EntityLike> implements T
 
     private void notifyMovementListeners() {
         if (this.notificationMask != 0) {
-            ((EntityMovementTrackerSection) this.section).trackEntityMovement(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
+            ((EntityMovementTrackerSection) this.section).lithium$trackEntityMovement(this.notificationMask, ((Entity) this.entity).getEntityWorld().getTime());
         }
     }
 
     @Override
-    public int setNotificationMask(int notificationMask) {
+    public int lithium$setNotificationMask(int notificationMask) {
         int oldNotificationMask = this.notificationMask;
         this.notificationMask = notificationMask;
         return oldNotificationMask;

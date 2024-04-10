@@ -15,7 +15,7 @@ public class ClientWorldMixin implements ClientWorldAccessor {
     private ClientEntityManager<Entity> entityManager;
 
     @Override
-    public ClientEntityManager<Entity> getEntityManager() {
+    public ClientEntityManager<Entity> lithium$getEntityManager() {
         return this.entityManager;
     }
 }

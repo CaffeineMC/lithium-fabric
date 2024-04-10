@@ -28,23 +28,23 @@ public class CampfireBlockEntityMixin extends BlockEntity implements SleepingBlo
     }
 
     @Override
-    public WrappedBlockEntityTickInvokerAccessor getTickWrapper() {
+    public WrappedBlockEntityTickInvokerAccessor lithium$getTickWrapper() {
         return tickWrapper;
     }
 
     @Override
-    public void setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper) {
+    public void lithium$setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper) {
         this.tickWrapper = tickWrapper;
-        this.setSleepingTicker(null);
+        this.lithium$setSleepingTicker(null);
     }
 
     @Override
-    public BlockEntityTickInvoker getSleepingTicker() {
+    public BlockEntityTickInvoker lithium$getSleepingTicker() {
         return sleepingTicker;
     }
 
     @Override
-    public void setSleepingTicker(BlockEntityTickInvoker sleepingTicker) {
+    public void lithium$setSleepingTicker(BlockEntityTickInvoker sleepingTicker) {
         this.sleepingTicker = sleepingTicker;
     }
 

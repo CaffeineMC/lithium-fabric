@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 public class VoxelShapeMixin implements OffsetVoxelShapeCache {
     private volatile VoxelShape[] offsetAndSimplified;
 
-    public void setShape(float offset, Direction direction, VoxelShape offsetShape) {
+    public void lithium$setShape(float offset, Direction direction, VoxelShape offsetShape) {
         if (offsetShape == null) {
             throw new IllegalArgumentException("offsetShape must not be null!");
         }
@@ -25,7 +25,7 @@ public class VoxelShapeMixin implements OffsetVoxelShapeCache {
         this.offsetAndSimplified = offsetAndSimplifiedShapes;
     }
 
-    public VoxelShape getOffsetSimplifiedShape(float offset, Direction direction) {
+    public VoxelShape lithium$getOffsetSimplifiedShape(float offset, Direction direction) {
         VoxelShape[] offsetAndSimplified = this.offsetAndSimplified;
         if (offsetAndSimplified == null) {
             return null;

@@ -28,7 +28,7 @@ public abstract class ServerEntityManagerMixin<T extends EntityLike> {
             )
     )
     private void onAddEntity(T entity, boolean existing, CallbackInfoReturnable<Boolean> cir) {
-        NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) entity).getListener();
+        NearbyEntityListenerMulti listener = ((NearbyEntityListenerProvider) entity).lithium$getListener();
         if (listener != null) {
             listener.addToAllChunksInRange(
                     this.cache,

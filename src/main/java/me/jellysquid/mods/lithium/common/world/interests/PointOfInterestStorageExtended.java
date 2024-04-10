@@ -30,6 +30,6 @@ public interface PointOfInterestStorageExtended {
      * @param worldBorder        The world border the POI must be inside.
      * @return The first accepted position (respecting the described order)
      */
-    Optional<PointOfInterest> findNearestForPortalLogic(BlockPos pos, int radius, RegistryEntry<PointOfInterestType> type, PointOfInterestStorage.OccupationStatus status,
-                                                        Predicate<PointOfInterest> afterSortPredicate, WorldBorder worldBorder);
+    Optional<PointOfInterest> lithium$findNearestForPortalLogic(BlockPos pos, int radius, RegistryEntry<PointOfInterestType> type, PointOfInterestStorage.OccupationStatus status,
+                                                                Predicate<PointOfInterest> afterSortPredicate, WorldBorder worldBorder);
 }

@@ -23,7 +23,7 @@ public abstract class SectionedEntityCacheMixin<T extends EntityLike> implements
     private Long2ObjectMap<EntityTrackingSection<T>> trackingSections;
 
     @Override
-    public Iterable<T> lithiumIterateEntitiesInTrackedSections() {
+    public Iterable<T> lithium$IterateEntitiesInTrackedSections() {
         ObjectCollection<EntityTrackingSection<T>> sections = this.trackingSections.values();
         return () -> {
             ObjectIterator<EntityTrackingSection<T>> sectionsIterator = sections.iterator();

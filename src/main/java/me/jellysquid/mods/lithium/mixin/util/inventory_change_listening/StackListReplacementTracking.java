@@ -27,7 +27,7 @@ public class StackListReplacementTracking {
         @Inject(method = "readNbt", at = @At("RETURN" ))
         public void readNbtStackListReplacement(NbtCompound nbt, CallbackInfo ci) {
             if (this instanceof InventoryChangeTracker inventoryChangeTracker) {
-                inventoryChangeTracker.emitStackListReplaced();
+                inventoryChangeTracker.lithium$emitStackListReplaced();
             }
         }
     }
@@ -36,7 +36,7 @@ public class StackListReplacementTracking {
     public abstract static class InventoryChangeTrackingBarrelBlockEntity implements InventoryChangeTracker {
         @Inject(method = "setInvStackList", at = @At("RETURN" ))
         public void setInventoryStackListReplacement(DefaultedList<ItemStack> list, CallbackInfo ci) {
-            this.emitStackListReplaced();
+            this.lithium$emitStackListReplaced();
         }
     }
 
@@ -44,7 +44,7 @@ public class StackListReplacementTracking {
     public abstract static class InventoryChangeTrackingChestBlockEntity implements InventoryChangeTracker {
         @Inject(method = "setInvStackList", at = @At("RETURN" ))
         public void setInventoryStackListReplacement(DefaultedList<ItemStack> list, CallbackInfo ci) {
-            this.emitStackListReplaced();
+            this.lithium$emitStackListReplaced();
         }
     }
 
@@ -52,7 +52,7 @@ public class StackListReplacementTracking {
     public abstract static class InventoryChangeTrackingDispenserBlockEntity implements InventoryChangeTracker {
         @Inject(method = "setInvStackList", at = @At("RETURN" ))
         public void setInventoryStackListReplacement(DefaultedList<ItemStack> list, CallbackInfo ci) {
-            this.emitStackListReplaced();
+            this.lithium$emitStackListReplaced();
         }
     }
 
@@ -60,7 +60,7 @@ public class StackListReplacementTracking {
     public abstract static class InventoryChangeTrackingHopperBlockEntity implements InventoryChangeTracker {
         @Inject(method = "setInvStackList", at = @At("RETURN" ))
         public void setInventoryStackListReplacement(DefaultedList<ItemStack> list, CallbackInfo ci) {
-            this.emitStackListReplaced();
+            this.lithium$emitStackListReplaced();
         }
     }
 
@@ -68,7 +68,7 @@ public class StackListReplacementTracking {
     public abstract static class InventoryChangeTrackingShulkerBoxBlockEntity implements InventoryChangeTracker {
         @Inject(method = "setInvStackList", at = @At("RETURN" ))
         public void setInventoryStackListReplacement(DefaultedList<ItemStack> list, CallbackInfo ci) {
-            this.emitStackListReplaced();
+            this.lithium$emitStackListReplaced();
         }
     }
 }

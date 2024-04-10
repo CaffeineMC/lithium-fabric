@@ -34,7 +34,7 @@ public abstract class LivingEntityMixin extends Entity implements EquipmentEntit
     }
 
     @Override
-    public void lithiumOnEquipmentChanged() {
+    public void lithium$OnEquipmentChanged() {
         this.equipmentChanged = true;
     }
 
@@ -69,6 +69,6 @@ public abstract class LivingEntityMixin extends Entity implements EquipmentEntit
             at = @At("RETURN")
     )
     private void trackEatingEquipmentChange(World world, ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
-        this.lithiumOnEquipmentChanged();
+        this.lithium$OnEquipmentChanged();
     }
 }

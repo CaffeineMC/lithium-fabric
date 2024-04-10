@@ -92,13 +92,13 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
     }
 
     @Override
-    public void setNavigationActive(MobEntity mobEntity) {
-        this.activeNavigations.add(((NavigatingEntity) mobEntity).getRegisteredNavigation());
+    public void lithium$setNavigationActive(MobEntity mobEntity) {
+        this.activeNavigations.add(((NavigatingEntity) mobEntity).lithium$getRegisteredNavigation());
     }
 
     @Override
-    public void setNavigationInactive(MobEntity mobEntity) {
-        this.activeNavigations.remove(((NavigatingEntity) mobEntity).getRegisteredNavigation());
+    public void lithium$setNavigationInactive(MobEntity mobEntity) {
+        this.activeNavigations.remove(((NavigatingEntity) mobEntity).lithium$getRegisteredNavigation());
     }
 
     @Inject(
@@ -127,7 +127,7 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
         int i = 0;
         for (MobEntity mobEntity : this.loadedMobs) {
             EntityNavigation entityNavigation = mobEntity.getNavigation();
-            if ((entityNavigation.getCurrentPath() != null && ((NavigatingEntity) mobEntity).isRegisteredToWorld()) != this.activeNavigations.contains(entityNavigation)) {
+            if ((entityNavigation.getCurrentPath() != null && ((NavigatingEntity) mobEntity).lithium$isRegisteredToWorld()) != this.activeNavigations.contains(entityNavigation)) {
                 return false;
             }
             if (entityNavigation.getCurrentPath() != null) {

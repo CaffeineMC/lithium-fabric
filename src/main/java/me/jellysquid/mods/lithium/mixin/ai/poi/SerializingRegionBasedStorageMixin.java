@@ -97,7 +97,7 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
     }
 
     @Override
-    public Stream<R> getWithinChunkColumn(int chunkX, int chunkZ) {
+    public Stream<R> lithium$getWithinChunkColumn(int chunkX, int chunkZ) {
         BitSet sectionsWithPOI = this.getNonEmptyPOISections(chunkX, chunkZ);
 
         // No items are present in this column
@@ -120,7 +120,7 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
     }
 
     @Override
-    public Iterable<R> getInChunkColumn(int chunkX, int chunkZ) {
+    public Iterable<R> lithium$getInChunkColumn(int chunkX, int chunkZ) {
         BitSet sectionsWithPOI = this.getNonEmptyPOISections(chunkX, chunkZ);
 
         // No items are present in this column

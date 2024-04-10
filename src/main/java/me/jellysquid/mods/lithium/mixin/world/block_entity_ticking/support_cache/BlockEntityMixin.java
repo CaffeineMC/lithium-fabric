@@ -29,7 +29,7 @@ public abstract class BlockEntityMixin implements SupportCache {
     }
 
     @Override
-    public boolean isSupported() {
+    public boolean lithium$isSupported() {
         return this.supportTestResult;
     }
 }

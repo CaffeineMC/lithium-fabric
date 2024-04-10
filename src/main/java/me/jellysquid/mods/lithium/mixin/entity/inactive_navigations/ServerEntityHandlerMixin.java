@@ -27,9 +27,9 @@ public class ServerEntityHandlerMixin {
     private boolean startListeningOnEntityLoad(Set<MobEntity> set, Object mobEntityObj) {
         MobEntity mobEntity = (MobEntity) mobEntityObj;
         EntityNavigation navigation = mobEntity.getNavigation();
-        ((NavigatingEntity) mobEntity).setRegisteredToWorld(navigation);
+        ((NavigatingEntity) mobEntity).lithium$setRegisteredToWorld(navigation);
         if (navigation.getCurrentPath() != null) {
-            ((ServerWorldExtended) this.outer).setNavigationActive(mobEntity);
+            ((ServerWorldExtended) this.outer).lithium$setNavigationActive(mobEntity);
         }
         return set.add(mobEntity);
     }
@@ -38,12 +38,12 @@ public class ServerEntityHandlerMixin {
     private boolean stopListeningOnEntityUnload(Set<MobEntity> set, Object mobEntityObj) {
         MobEntity mobEntity = (MobEntity) mobEntityObj;
         NavigatingEntity navigatingEntity = (NavigatingEntity) mobEntity;
-        if (navigatingEntity.isRegisteredToWorld()) {
-            EntityNavigation registeredNavigation = navigatingEntity.getRegisteredNavigation();
+        if (navigatingEntity.lithium$isRegisteredToWorld()) {
+            EntityNavigation registeredNavigation = navigatingEntity.lithium$getRegisteredNavigation();
             if (registeredNavigation.getCurrentPath() != null) {
-                ((ServerWorldExtended) this.outer).setNavigationInactive(mobEntity);
+                ((ServerWorldExtended) this.outer).lithium$setNavigationInactive(mobEntity);
             }
-            navigatingEntity.setRegisteredToWorld(null);
+            navigatingEntity.lithium$setRegisteredToWorld(null);
         }
         return set.remove(mobEntity);
     }

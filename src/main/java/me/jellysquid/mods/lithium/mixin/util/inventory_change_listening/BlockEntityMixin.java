@@ -23,7 +23,7 @@ public class BlockEntityMixin {
     )
     private void updateStackListTracking(CallbackInfo ci) {
         if (this.world != null && !this.world.isClient() && this instanceof InventoryChangeTracker inventoryChangeTracker) {
-            inventoryChangeTracker.emitRemoved();
+            inventoryChangeTracker.lithium$emitRemoved();
         }
     }
 }

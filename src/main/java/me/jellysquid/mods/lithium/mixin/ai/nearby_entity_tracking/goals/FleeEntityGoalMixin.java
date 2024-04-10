@@ -40,7 +40,7 @@ public class FleeEntityGoalMixin<T extends LivingEntity> {
         int horizontalRange = MathHelper.ceil(adjustedRange);
         this.tracker = new NearbyEntityTracker<>(fleeFromType, mob, new Vec3i(horizontalRange, MathHelper.ceil(dimensions.height + 3 + 2), horizontalRange));
 
-        ((NearbyEntityListenerProvider) mob).addListener(this.tracker);
+        ((NearbyEntityListenerProvider) mob).lithium$addListener(this.tracker);
     }
 
     @Redirect(

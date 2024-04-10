@@ -13,12 +13,12 @@ public class SectionedEntityCacheMixin<T extends EntityLike> implements Movement
     private final Object2ReferenceOpenHashMap<SectionedEntityMovementTracker<?, ?>, SectionedEntityMovementTracker<?, ?>> sectionEntityMovementTrackers = new Object2ReferenceOpenHashMap<>();
 
     @Override
-    public void remove(SectionedEntityMovementTracker<?, ?> tracker) {
+    public void lithium$remove(SectionedEntityMovementTracker<?, ?> tracker) {
         this.sectionEntityMovementTrackers.remove(tracker);
     }
 
     @Override
-    public <S extends SectionedEntityMovementTracker<?, ?>> S deduplicate(S tracker) {
+    public <S extends SectionedEntityMovementTracker<?, ?>> S lithium$deduplicate(S tracker) {
         //noinspection unchecked
         S storedTracker = (S) this.sectionEntityMovementTrackers.putIfAbsent(tracker, tracker);
         return storedTracker == null ? tracker : storedTracker;

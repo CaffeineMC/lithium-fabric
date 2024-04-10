@@ -39,7 +39,7 @@ public class PortalForcerMixin {
         PointOfInterestStorage poiStorage = this.world.getPointOfInterestStorage();
         poiStorage.preloadChunks(this.world, centerPos, searchRadius);
 
-        Optional<PointOfInterest> ret = ((PointOfInterestStorageExtended) poiStorage).findNearestForPortalLogic(centerPos, searchRadius,
+        Optional<PointOfInterest> ret = ((PointOfInterestStorageExtended) poiStorage).lithium$findNearestForPortalLogic(centerPos, searchRadius,
                 POIRegistryEntries.NETHER_PORTAL_ENTRY, PointOfInterestStorage.OccupationStatus.ANY,
                 (poi) -> this.world.getBlockState(poi.getPos()).contains(Properties.HORIZONTAL_AXIS),
                 worldBorder

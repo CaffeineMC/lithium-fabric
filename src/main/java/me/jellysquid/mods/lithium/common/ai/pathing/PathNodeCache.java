@@ -21,11 +21,11 @@ public abstract class PathNodeCache {
     }
 
     public static PathNodeType getPathNodeType(BlockState state) {
-        return ((BlockStatePathingCache) state).getPathNodeType();
+        return ((BlockStatePathingCache) state).lithium$getPathNodeType();
     }
 
     public static PathNodeType getNeighborPathNodeType(AbstractBlock.AbstractBlockState state) {
-        return ((BlockStatePathingCache) state).getNeighborPathNodeType();
+        return ((BlockStatePathingCache) state).lithium$getNeighborPathNodeType();
     }
 
     /**
@@ -62,7 +62,7 @@ public abstract class PathNodeCache {
             // If the y-coordinate is within bounds, we can cache the chunk section. Otherwise, the if statement to check
             // if the cached chunk section was initialized will early-exit.
             if (!world.isOutOfHeightLimit(y)) {
-                Chunk chunk = chunkView.getLoadedChunk(Pos.ChunkCoord.fromBlockCoord(x), Pos.ChunkCoord.fromBlockCoord(z));
+                Chunk chunk = chunkView.lithium$getLoadedChunk(Pos.ChunkCoord.fromBlockCoord(x), Pos.ChunkCoord.fromBlockCoord(z));
 
                 // If the chunk is absent, the cached section above will remain null, as there is no chunk section anyways.
                 // An empty chunk or section will never pose any danger sources, which will be caught later.

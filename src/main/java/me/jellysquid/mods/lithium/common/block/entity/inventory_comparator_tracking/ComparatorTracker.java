@@ -3,7 +3,7 @@ package me.jellysquid.mods.lithium.common.block.entity.inventory_comparator_trac
 import net.minecraft.util.math.Direction;
 
 public interface ComparatorTracker {
-    void onComparatorAdded(Direction direction, int offset);
+    void lithium$onComparatorAdded(Direction direction, int offset);
 
-    boolean hasAnyComparatorNearby();
+    boolean lithium$hasAnyComparatorNearby();
 }

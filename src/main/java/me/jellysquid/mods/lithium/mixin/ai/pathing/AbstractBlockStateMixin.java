@@ -48,12 +48,12 @@ public abstract class AbstractBlockStateMixin implements BlockStatePathingCache 
     }
 
     @Override
-    public PathNodeType getPathNodeType() {
+    public PathNodeType lithium$getPathNodeType() {
         return this.pathNodeType;
     }
 
     @Override
-    public PathNodeType getNeighborPathNodeType() {
+    public PathNodeType lithium$getNeighborPathNodeType() {
         return this.pathNodeTypeNeighbor;
     }
 

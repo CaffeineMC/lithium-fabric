@@ -50,9 +50,9 @@ public abstract class HopperBlockMixin extends BlockWithEntity {
         Direction facing = myBlockState.get(HopperBlock.FACING);
         boolean above = posFrom.getY() == myPos.getY() + 1;
         if (above || posFrom.getX() == myPos.getX() + facing.getOffsetX() && posFrom.getY() == myPos.getY() + facing.getOffsetY() && posFrom.getZ() == myPos.getZ() + facing.getOffsetZ()) {
-            BlockEntity hopper = ((BlockEntityGetter) world).getLoadedExistingBlockEntity(myPos);
+            BlockEntity hopper = ((BlockEntityGetter) world).lithium$getLoadedExistingBlockEntity(myPos);
             if (hopper instanceof UpdateReceiver updateReceiver) {
-                updateReceiver.invalidateCacheOnNeighborUpdate(above);
+                updateReceiver.lithium$invalidateCacheOnNeighborUpdate(above);
             }
         }
     }
@@ -69,9 +69,9 @@ public abstract class HopperBlockMixin extends BlockWithEntity {
         //invalidate caches of nearby hoppers when placing an update suppressed hopper
         if (world.getBlockState(pos) != state) {
             for (Direction direction : DIRECTIONS) {
-                BlockEntity hopper = ((BlockEntityGetter) world).getLoadedExistingBlockEntity(pos.offset(direction));
+                BlockEntity hopper = ((BlockEntityGetter) world).lithium$getLoadedExistingBlockEntity(pos.offset(direction));
                 if (hopper instanceof UpdateReceiver updateReceiver) {
-                    updateReceiver.invalidateCacheOnNeighborUpdate(direction == Direction.DOWN);
+                    updateReceiver.lithium$invalidateCacheOnNeighborUpdate(direction == Direction.DOWN);
                 }
             }
         }

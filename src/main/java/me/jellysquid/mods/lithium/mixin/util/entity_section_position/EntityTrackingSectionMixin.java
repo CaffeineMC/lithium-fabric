@@ -9,12 +9,12 @@ public class EntityTrackingSectionMixin implements PositionedEntityTrackingSecti
     private long pos;
 
     @Override
-    public void setPos(long chunkSectionPos) {
+    public void lithium$setPos(long chunkSectionPos) {
         this.pos = chunkSectionPos;
     }
 
     @Override
-    public long getPos() {
+    public long lithium$getPos() {
         return this.pos;
     }
 }

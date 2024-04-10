@@ -18,18 +18,18 @@ public abstract class LockableContainerBlockEntityMixin implements InventoryChan
     ReferenceArraySet<InventoryChangeListener> inventoryHandlingTypeListeners = null;
 
     @Override
-    public void emitContentModified() {
+    public void lithium$emitContentModified() {
         ReferenceArraySet<InventoryChangeListener> inventoryChangeListeners = this.inventoryChangeListeners;
         if (inventoryChangeListeners != null) {
             for (InventoryChangeListener inventoryChangeListener : inventoryChangeListeners) {
-                inventoryChangeListener.handleInventoryContentModified(this);
+                inventoryChangeListener.lithium$handleInventoryContentModified(this);
             }
             inventoryChangeListeners.clear();
         }
     }
 
     @Override
-    public void emitStackListReplaced() {
+    public void lithium$emitStackListReplaced() {
         ReferenceArraySet<InventoryChangeListener> listeners = this.inventoryHandlingTypeListeners;
         if (listeners != null && !listeners.isEmpty()) {
             for (InventoryChangeListener inventoryChangeListener : listeners) {
@@ -46,17 +46,17 @@ public abstract class LockableContainerBlockEntityMixin implements InventoryChan
     }
 
     @Override
-    public void emitRemoved() {
+    public void lithium$emitRemoved() {
         ReferenceArraySet<InventoryChangeListener> listeners = this.inventoryHandlingTypeListeners;
         if (listeners != null && !listeners.isEmpty()) {
             for (InventoryChangeListener listener : listeners) {
-                listener.handleInventoryRemoved(this);
+                listener.lithium$handleInventoryRemoved(this);
             }
             listeners.clear();
         }
 
         if (this instanceof InventoryChangeListener listener) {
-            listener.handleInventoryRemoved(this);
+            listener.lithium$handleInventoryRemoved(this);
         }
 
         this.invalidateChangeListening();
@@ -74,15 +74,15 @@ public abstract class LockableContainerBlockEntityMixin implements InventoryChan
     }
 
     @Override
-    public void emitFirstComparatorAdded() {
+    public void lithium$emitFirstComparatorAdded() {
         ReferenceArraySet<InventoryChangeListener> inventoryChangeListeners = this.inventoryChangeListeners;
         if (inventoryChangeListeners != null && !inventoryChangeListeners.isEmpty()) {
-            inventoryChangeListeners.removeIf(inventoryChangeListener -> inventoryChangeListener.handleComparatorAdded(this));
+            inventoryChangeListeners.removeIf(inventoryChangeListener -> inventoryChangeListener.lithium$handleComparatorAdded(this));
         }
     }
 
     @Override
-    public void forwardContentChangeOnce(InventoryChangeListener inventoryChangeListener, LithiumStackList stackList, InventoryChangeTracker thisTracker) {
+    public void lithium$forwardContentChangeOnce(InventoryChangeListener inventoryChangeListener, LithiumStackList stackList, InventoryChangeTracker thisTracker) {
         if (this.inventoryChangeListeners == null) {
             this.inventoryChangeListeners = new ReferenceArraySet<>(1);
         }
@@ -92,7 +92,7 @@ public abstract class LockableContainerBlockEntityMixin implements InventoryChan
     }
 
     @Override
-    public void forwardMajorInventoryChanges(InventoryChangeListener inventoryChangeListener) {
+    public void lithium$forwardMajorInventoryChanges(InventoryChangeListener inventoryChangeListener) {
         if (this.inventoryHandlingTypeListeners == null) {
             this.inventoryHandlingTypeListeners = new ReferenceArraySet<>(1);
         }
@@ -100,7 +100,7 @@ public abstract class LockableContainerBlockEntityMixin implements InventoryChan
     }
 
     @Override
-    public void stopForwardingMajorInventoryChanges(InventoryChangeListener inventoryChangeListener) {
+    public void lithium$stopForwardingMajorInventoryChanges(InventoryChangeListener inventoryChangeListener) {
         if (this.inventoryHandlingTypeListeners != null) {
             this.inventoryHandlingTypeListeners.remove(inventoryChangeListener);
         }

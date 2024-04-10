@@ -36,7 +36,7 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
     private final ReferenceOpenHashSet<NearbyEntityListener> nearbyEntityListeners = new ReferenceOpenHashSet<>(0);
 
     @Override
-    public void addListener(NearbyEntityListener listener) {
+    public void lithium$addListener(NearbyEntityListener listener) {
         this.nearbyEntityListeners.add(listener);
         if (this.status.shouldTrack()) {
             listener.onSectionEnteredRange(this, this.collection);
@@ -44,13 +44,13 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
     }
 
     @Override
-    public void removeListener(SectionedEntityCache<?> sectionedEntityCache, NearbyEntityListener listener) {
+    public void lithium$removeListener(SectionedEntityCache<?> sectionedEntityCache, NearbyEntityListener listener) {
         boolean removed = this.nearbyEntityListeners.remove(listener);
         if (this.status.shouldTrack() && removed) {
             listener.onSectionLeftRange(this, this.collection);
         }
         if (this.isEmpty()) {
-            sectionedEntityCache.removeSection(this.getPos());
+            sectionedEntityCache.removeSection(this.lithium$getPos());
         }
     }
 

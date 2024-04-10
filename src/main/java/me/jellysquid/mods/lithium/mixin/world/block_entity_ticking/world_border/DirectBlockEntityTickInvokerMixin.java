@@ -75,7 +75,7 @@ public abstract class DirectBlockEntityTickInvokerMixin implements WorldBorderLi
     }
 
     @Override
-    public void onWorldBorderShapeChange(WorldBorder worldBorder) {
+    public void lithium$onWorldBorderShapeChange(WorldBorder worldBorder) {
         this.worldBorderState = (byte) 0;
     }
 }

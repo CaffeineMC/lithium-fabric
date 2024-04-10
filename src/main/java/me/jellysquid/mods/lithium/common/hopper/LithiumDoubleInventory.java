@@ -25,7 +25,7 @@ public class LithiumDoubleInventory extends DoubleInventory implements LithiumIn
 
     /**
      * This method returns the same LithiumDoubleInventory instance for equal (same children in same order)
-     * doubleInventory parameters until {@link #emitRemoved()} is called. After that a new LithiumDoubleInventory object
+     * doubleInventory parameters until {@link #lithium$emitRemoved()} is called. After that a new LithiumDoubleInventory object
      * may be in use.
      *
      * @param doubleInventory A double inventory
@@ -55,18 +55,18 @@ public class LithiumDoubleInventory extends DoubleInventory implements LithiumIn
     }
 
     @Override
-    public void emitContentModified() {
+    public void lithium$emitContentModified() {
         ReferenceOpenHashSet<InventoryChangeListener> inventoryChangeListeners = this.inventoryChangeListeners;
         if (inventoryChangeListeners != null) {
             for (InventoryChangeListener inventoryChangeListener : inventoryChangeListeners) {
-                inventoryChangeListener.handleInventoryContentModified(this);
+                inventoryChangeListener.lithium$handleInventoryContentModified(this);
             }
             inventoryChangeListeners.clear();
         }
     }
 
     @Override
-    public void emitStackListReplaced() {
+    public void lithium$emitStackListReplaced() {
         ReferenceOpenHashSet<InventoryChangeListener> listeners = this.inventoryHandlingTypeListeners;
         if (listeners != null && !listeners.isEmpty()) {
             listeners.forEach(inventoryChangeListener -> inventoryChangeListener.handleStackListReplaced(this));
@@ -76,10 +76,10 @@ public class LithiumDoubleInventory extends DoubleInventory implements LithiumIn
     }
 
     @Override
-    public void emitRemoved() {
+    public void lithium$emitRemoved() {
         ReferenceOpenHashSet<InventoryChangeListener> listeners = this.inventoryHandlingTypeListeners;
         if (listeners != null && !listeners.isEmpty()) {
-            listeners.forEach(listener -> listener.handleInventoryRemoved(this));
+            listeners.forEach(listener -> listener.lithium$handleInventoryRemoved(this));
         }
 
         this.invalidateChangeListening();
@@ -97,15 +97,15 @@ public class LithiumDoubleInventory extends DoubleInventory implements LithiumIn
     }
 
     @Override
-    public void emitFirstComparatorAdded() {
+    public void lithium$emitFirstComparatorAdded() {
         ReferenceOpenHashSet<InventoryChangeListener> inventoryChangeListeners = this.inventoryChangeListeners;
         if (inventoryChangeListeners != null && !inventoryChangeListeners.isEmpty()) {
-            inventoryChangeListeners.removeIf(inventoryChangeListener -> inventoryChangeListener.handleComparatorAdded(this));
+            inventoryChangeListeners.removeIf(inventoryChangeListener -> inventoryChangeListener.lithium$handleComparatorAdded(this));
         }
     }
 
     @Override
-    public void forwardContentChangeOnce(InventoryChangeListener inventoryChangeListener, LithiumStackList stackList, InventoryChangeTracker thisTracker) {
+    public void lithium$forwardContentChangeOnce(InventoryChangeListener inventoryChangeListener, LithiumStackList stackList, InventoryChangeTracker thisTracker) {
         if (this.inventoryChangeListeners == null) {
             this.inventoryChangeListeners = new ReferenceOpenHashSet<>(1);
         }
@@ -115,7 +115,7 @@ public class LithiumDoubleInventory extends DoubleInventory implements LithiumIn
     }
 
     @Override
-    public void forwardMajorInventoryChanges(InventoryChangeListener inventoryChangeListener) {
+    public void lithium$forwardMajorInventoryChanges(InventoryChangeListener inventoryChangeListener) {
         if (this.inventoryHandlingTypeListeners == null) {
             this.inventoryHandlingTypeListeners = new ReferenceOpenHashSet<>(1);
 
@@ -126,7 +126,7 @@ public class LithiumDoubleInventory extends DoubleInventory implements LithiumIn
     }
 
     @Override
-    public void stopForwardingMajorInventoryChanges(InventoryChangeListener inventoryChangeListener) {
+    public void lithium$stopForwardingMajorInventoryChanges(InventoryChangeListener inventoryChangeListener) {
         if (this.inventoryHandlingTypeListeners != null) {
             this.inventoryHandlingTypeListeners.remove(inventoryChangeListener);
             if (this.inventoryHandlingTypeListeners.isEmpty()) {
@@ -147,28 +147,28 @@ public class LithiumDoubleInventory extends DoubleInventory implements LithiumIn
     }
 
     @Override
-    public void handleInventoryContentModified(Inventory inventory) {
-        this.emitContentModified();
+    public void lithium$handleInventoryContentModified(Inventory inventory) {
+        this.lithium$emitContentModified();
     }
 
     @Override
-    public void handleInventoryRemoved(Inventory inventory) {
-        this.emitRemoved();
+    public void lithium$handleInventoryRemoved(Inventory inventory) {
+        this.lithium$emitRemoved();
     }
 
     @Override
-    public boolean handleComparatorAdded(Inventory inventory) {
-        this.emitFirstComparatorAdded();
+    public boolean lithium$handleComparatorAdded(Inventory inventory) {
+        this.lithium$emitFirstComparatorAdded();
         return this.inventoryChangeListeners.isEmpty();
     }
 
     @Override
-    public void onComparatorAdded(Direction direction, int offset) {
+    public void lithium$onComparatorAdded(Direction direction, int offset) {
         throw new UnsupportedOperationException("Call onComparatorAdded(Direction direction, int offset) on the inventory half only!");
     }
 
     @Override
-    public boolean hasAnyComparatorNearby() {
-        return ((ComparatorTracker) this.first).hasAnyComparatorNearby() || ((ComparatorTracker) this.second).hasAnyComparatorNearby();
+    public boolean lithium$hasAnyComparatorNearby() {
+        return ((ComparatorTracker) this.first).lithium$hasAnyComparatorNearby() || ((ComparatorTracker) this.second).lithium$hasAnyComparatorNearby();
     }
 }

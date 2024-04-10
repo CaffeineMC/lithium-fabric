@@ -13,7 +13,7 @@ public class EntityMixin implements BlockCacheProvider {
     private final BlockCache blockCache = new BlockCache();
 
     @Override
-    public BlockCache getBlockCache() {
+    public BlockCache lithium$getBlockCache() {
         return blockCache;
     }
 

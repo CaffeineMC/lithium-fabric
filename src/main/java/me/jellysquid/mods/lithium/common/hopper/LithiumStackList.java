@@ -121,7 +121,7 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
         InventoryChangeTracker inventoryModificationCallback = this.inventoryModificationCallback;
         if (inventoryModificationCallback != null) {
             this.inventoryModificationCallback = null;
-            inventoryModificationCallback.emitContentModified();
+            inventoryModificationCallback.lithium$emitContentModified();
         }
     }
 

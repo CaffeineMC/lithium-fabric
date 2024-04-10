@@ -153,7 +153,7 @@ public abstract class ServerChunkManagerMixin {
                 // The holder is absent and we weren't asked to create anything, so return null
                 return null;
             }
-        } else if (create && ((ChunkHolderExtended) holder).updateLastAccessTime(this.time)) {
+        } else if (create && ((ChunkHolderExtended) holder).lithium$updateLastAccessTime(this.time)) {
             // Only create a new chunk ticket if one hasn't already been submitted this tick
             // This maintains vanilla behavior (preventing chunks from being immediately unloaded) while also
             // eliminating the cost of submitting a ticket for most chunk fetches
@@ -161,7 +161,7 @@ public abstract class ServerChunkManagerMixin {
         }
 
         CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> loadFuture = null;
-        CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> statusFuture = ((ChunkHolderExtended) holder).getFutureByStatus(status.getIndex());
+        CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> statusFuture = ((ChunkHolderExtended) holder).lithium$getFutureByStatus(status.getIndex());
 
         if (statusFuture != null) {
             Either<Chunk, ChunkHolder.Unloaded> immediate = statusFuture.getNow(null);
@@ -188,7 +188,7 @@ public abstract class ServerChunkManagerMixin {
 
                 // Add this future to the chunk holder so subsequent calls will see it
                 holder.combineSavingFuture(mergedFuture, "schedule chunk status");
-                ((ChunkHolderExtended) holder).setFutureForStatus(status.getIndex(), mergedFuture);
+                ((ChunkHolderExtended) holder).lithium$setFutureForStatus(status.getIndex(), mergedFuture);
 
                 loadFuture = mergedFuture;
             } else {

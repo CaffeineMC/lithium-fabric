@@ -40,7 +40,7 @@ public class MultiTickTaskMixin<E extends LivingEntity> {
     @Overwrite
     public boolean hasRequiredMemoryState(E entity) {
         Brain<?> brain = entity.getBrain();
-        long modCount = ((MemoryModificationCounter) brain).getModCount();
+        long modCount = ((MemoryModificationCounter) brain).lithium$getModCount();
         if (this.cachedMemoryModCount == modCount) {
             return this.cachedHasRequiredMemoryState;
         }

@@ -17,7 +17,7 @@ public class MobEntityMixin implements EquipmentEntity.EquipmentTrackingEntity, 
             at = @At("RETURN")
     )
     private void trackEquipChange(NbtCompound nbt, CallbackInfo ci) {
-        this.lithiumOnEquipmentChanged();
+        this.lithium$OnEquipmentChanged();
     }
 
     @Inject(
@@ -25,6 +25,6 @@ public class MobEntityMixin implements EquipmentEntity.EquipmentTrackingEntity, 
             at = @At("RETURN")
     )
     private void trackEquipChange(EquipmentSlot slot, ItemStack stack, CallbackInfo ci) {
-        this.lithiumOnEquipmentChanged();
+        this.lithium$OnEquipmentChanged();
     }
 }

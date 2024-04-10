@@ -70,8 +70,8 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
         ArrayList<EntityMovementTrackerSection> notListeningTo = this.sectionsNotListeningTo;
         for (int i = notListeningTo.size() - 1; i >= 0; i--) {
             EntityMovementTrackerSection entityMovementTrackerSection = notListeningTo.remove(i);
-            entityMovementTrackerSection.listenToMovementOnce(this, this.trackedClass);
-            maxChangeTime = Math.max(maxChangeTime, entityMovementTrackerSection.getChangeTime(this.trackedClass));
+            entityMovementTrackerSection.lithium$listenToMovementOnce(this, this.trackedClass);
+            maxChangeTime = Math.max(maxChangeTime, entityMovementTrackerSection.lithium$getChangeTime(this.trackedClass));
         }
         return maxChangeTime;
     }
@@ -97,7 +97,7 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
                         EntityTrackingSection<E> section = cache.getTrackingSection(ChunkSectionPos.asLong(x, y, z));
                         EntityMovementTrackerSection sectionAccess = (EntityMovementTrackerSection) section;
                         this.sortedSections.add(section);
-                        sectionAccess.addListener(this);
+                        sectionAccess.lithium$addListener(this);
                     }
                 }
             }
@@ -116,15 +116,15 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
         //noinspection unchecked
         SectionedEntityCache<E> cache = ((ServerEntityManagerAccessor<E>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
         MovementTrackerCache storage = (MovementTrackerCache) cache;
-        storage.remove(this);
+        storage.lithium$remove(this);
 
         ArrayList<EntityTrackingSection<E>> sections = this.sortedSections;
         for (int i = sections.size() - 1; i >= 0; i--) {
             EntityTrackingSection<E> section = sections.get(i);
             EntityMovementTrackerSection sectionAccess = (EntityMovementTrackerSection) section;
-            sectionAccess.removeListener(cache, this);
+            sectionAccess.lithium$removeListener(cache, this);
             if (!this.sectionsNotListeningTo.remove(section)) {
-                ((EntityMovementTrackerSection) section).removeListenToMovementOnce(this, this.trackedClass);
+                ((EntityMovementTrackerSection) section).lithium$removeListenToMovementOnce(this, this.trackedClass);
             }
         }
         this.setChanged(world.getTime());
@@ -151,7 +151,7 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
         this.sectionVisible[sectionIndex] = false;
 
         if (!this.sectionsNotListeningTo.remove(section)) {
-            section.removeListenToMovementOnce(this, this.trackedClass);
+            section.lithium$removeListenToMovementOnce(this, this.trackedClass);
             this.notifyAllListeners();
         }
     }
@@ -188,7 +188,7 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
         ReferenceOpenHashSet<SectionedEntityMovementListener> listeners = this.sectionedEntityMovementListeners;
         if (listeners != null && !listeners.isEmpty()) {
             for (SectionedEntityMovementListener listener : listeners) {
-                listener.handleEntityMovement(this.clazz);
+                listener.lithium$handleEntityMovement(this.clazz);
             }
             listeners.clear();
         }

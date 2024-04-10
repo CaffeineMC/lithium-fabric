@@ -17,6 +17,6 @@ public class DrownedEntityLeaveWaterGoalMixin {
 
     @Inject(method = "start()V", at = @At(value = "RETURN"))
     private void updateInactivityState(CallbackInfo ci) {
-        ((NavigatingEntity) this.drowned).updateNavigationRegistration();
+        ((NavigatingEntity) this.drowned).lithium$updateNavigationRegistration();
     }
 }

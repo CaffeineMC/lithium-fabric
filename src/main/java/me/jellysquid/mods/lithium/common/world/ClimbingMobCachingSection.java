@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public interface ClimbingMobCachingSection {
 
-    LazyIterationConsumer.NextIteration collectPushableEntities(World world, Entity except, Box box, EntityPushablePredicate<? super Entity> entityPushablePredicate, ArrayList<Entity> entities);
+    LazyIterationConsumer.NextIteration lithium$collectPushableEntities(World world, Entity except, Box box, EntityPushablePredicate<? super Entity> entityPushablePredicate, ArrayList<Entity> entities);
 
-    void onEntityModifiedCachedBlock(BlockCachingEntity entity, BlockState newBlockState);
+    void lithium$onEntityModifiedCachedBlock(BlockCachingEntity entity, BlockState newBlockState);
 }

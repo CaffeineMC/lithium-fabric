@@ -28,7 +28,7 @@ public abstract class CampfireBlockEntityMixin extends BlockEntity implements Sl
     private static void trySleepUnlit(World world, BlockPos pos, BlockState state, CampfireBlockEntity campfire, CallbackInfo ci, boolean hadProgress) {
         if (!hadProgress) {
             CampfireBlockEntityMixin self = (CampfireBlockEntityMixin) (Object) campfire;
-            self.startSleeping();
+            self.lithium$startSleeping();
         }
     }
 }

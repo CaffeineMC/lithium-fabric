@@ -20,6 +20,6 @@ public class ServerChunkManagerMixin {
     )
     private Iterable<Entity> iterateEntitiesChunkAware(ServerWorld serverWorld) {
         //noinspection unchecked
-        return ((ChunkAwareEntityIterable<Entity>)((ServerEntityManagerAccessor<Entity>) ((ServerWorldAccessor) serverWorld).getEntityManager()).getCache()).lithiumIterateEntitiesInTrackedSections();
+        return ((ChunkAwareEntityIterable<Entity>) ((ServerEntityManagerAccessor<Entity>) ((ServerWorldAccessor) serverWorld).getEntityManager()).getCache()).lithium$IterateEntitiesInTrackedSections();
     }
 }

@@ -9,6 +9,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public interface PointOfInterestSetExtended {
-    void collectMatchingPoints(Predicate<RegistryEntry<PointOfInterestType>> type, PointOfInterestStorage.OccupationStatus status,
-                               Consumer<PointOfInterest> consumer);
+    void lithium$collectMatchingPoints(Predicate<RegistryEntry<PointOfInterestType>> type, PointOfInterestStorage.OccupationStatus status,
+                                       Consumer<PointOfInterest> consumer);
 }

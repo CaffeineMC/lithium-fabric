@@ -33,23 +33,23 @@ public abstract class AbstractFurnaceBlockEntityMixin extends BlockEntity implem
     }
 
     @Override
-    public WrappedBlockEntityTickInvokerAccessor getTickWrapper() {
+    public WrappedBlockEntityTickInvokerAccessor lithium$getTickWrapper() {
         return tickWrapper;
     }
 
     @Override
-    public void setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper) {
+    public void lithium$setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper) {
         this.tickWrapper = tickWrapper;
-        this.setSleepingTicker(null);
+        this.lithium$setSleepingTicker(null);
     }
 
     @Override
-    public BlockEntityTickInvoker getSleepingTicker() {
+    public BlockEntityTickInvoker lithium$getSleepingTicker() {
         return sleepingTicker;
     }
 
     @Override
-    public void setSleepingTicker(BlockEntityTickInvoker sleepingTicker) {
+    public void lithium$setSleepingTicker(BlockEntityTickInvoker sleepingTicker) {
         this.sleepingTicker = sleepingTicker;
     }
 
@@ -60,7 +60,7 @@ public abstract class AbstractFurnaceBlockEntityMixin extends BlockEntity implem
 
     private void checkSleep(BlockState state) {
         if (!this.isBurning() && this.cookTime == 0 && (state.isOf(Blocks.FURNACE) || state.isOf(Blocks.BLAST_FURNACE) || state.isOf(Blocks.SMOKER)) && this.world != null) {
-            this.startSleeping();
+            this.lithium$startSleeping();
         }
     }
 

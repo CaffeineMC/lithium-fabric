@@ -55,12 +55,12 @@ public abstract class LivingEntityMixin extends Entity implements BlockCachingEn
     }
 
     @Override
-    public void lithiumSetClimbingMobCachingSectionUpdateBehavior(boolean listenForCachedBlockChanges) {
+    public void lithium$SetClimbingMobCachingSectionUpdateBehavior(boolean listenForCachedBlockChanges) {
         this.updateClimbingMobCachingSectionOnChange = listenForCachedBlockChanges;
     }
 
     @Override
-    public void lithiumOnBlockCacheDeleted() {
+    public void lithium$OnBlockCacheDeleted() {
         if (this.updateClimbingMobCachingSectionOnChange) {
             this.updateClimbingMobCachingSection(null);
         }
@@ -68,7 +68,7 @@ public abstract class LivingEntityMixin extends Entity implements BlockCachingEn
 
 
     @Override
-    public void lithiumOnBlockCacheSet(BlockState newState) {
+    public void lithium$OnBlockCacheSet(BlockState newState) {
         if (this.updateClimbingMobCachingSectionOnChange) {
             this.updateClimbingMobCachingSection(newState);
         }
@@ -79,7 +79,7 @@ public abstract class LivingEntityMixin extends Entity implements BlockCachingEn
         if (entityCacheOrNull != null) {
             EntityTrackingSection<Entity> trackingSection = entityCacheOrNull.findTrackingSection(ChunkSectionPos.toLong(this.getBlockPos()));
             if (trackingSection != null) {
-                ((ClimbingMobCachingSection) trackingSection).onEntityModifiedCachedBlock(this, newState);
+                ((ClimbingMobCachingSection) trackingSection).lithium$onEntityModifiedCachedBlock(this, newState);
             } else {
                 this.updateClimbingMobCachingSectionOnChange = false;
             }

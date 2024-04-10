@@ -40,7 +40,7 @@ public abstract class EntityMixin implements BlockCacheProvider {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/BlockPos;getX()I", ordinal = 0)
     )
     private void assumeNoTouchableBlock(CallbackInfo ci) {
-        BlockCache bc = this.getBlockCache();
+        BlockCache bc = this.lithium$getBlockCache();
         if (bc.isTracking()) {
             bc.setCanSkipBlockTouching(true);
         }
@@ -51,7 +51,7 @@ public abstract class EntityMixin implements BlockCacheProvider {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;)V")
     )
     private void checkTouchableBlock(CallbackInfo ci, Box box, BlockPos blockPos, BlockPos blockPos2, BlockPos.Mutable mutable, int i, int j, int k, BlockState blockState) {
-        BlockCache bc = this.getBlockCache();
+        BlockCache bc = this.lithium$getBlockCache();
         if (bc.canSkipBlockTouching() &&
                 0 != (((BlockStateFlagHolder)blockState).lithium$getAllFlags() & 1 << BlockStateFlags.ENTITY_TOUCHABLE.getIndex())
         ) {

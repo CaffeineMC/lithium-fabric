@@ -10,21 +10,21 @@ import me.jellysquid.mods.lithium.common.hopper.LithiumStackList;
  * The forwarding methods below are helpers, it is not recommended to call them from outside InventoryChangeTracker.java
  */
 public interface InventoryChangeEmitter {
-    void emitStackListReplaced();
+    void lithium$emitStackListReplaced();
 
-    void emitRemoved();
+    void lithium$emitRemoved();
 
-    void emitContentModified();
+    void lithium$emitContentModified();
 
-    void emitFirstComparatorAdded();
+    void lithium$emitFirstComparatorAdded();
 
-    void forwardContentChangeOnce(InventoryChangeListener inventoryChangeListener, LithiumStackList stackList, InventoryChangeTracker thisTracker);
+    void lithium$forwardContentChangeOnce(InventoryChangeListener inventoryChangeListener, LithiumStackList stackList, InventoryChangeTracker thisTracker);
 
-    void forwardMajorInventoryChanges(InventoryChangeListener inventoryChangeListener);
+    void lithium$forwardMajorInventoryChanges(InventoryChangeListener inventoryChangeListener);
 
-    void stopForwardingMajorInventoryChanges(InventoryChangeListener inventoryChangeListener);
+    void lithium$stopForwardingMajorInventoryChanges(InventoryChangeListener inventoryChangeListener);
 
     default void emitCallbackReplaced() {
-        this.emitRemoved();
+        this.lithium$emitRemoved();
     }
 }

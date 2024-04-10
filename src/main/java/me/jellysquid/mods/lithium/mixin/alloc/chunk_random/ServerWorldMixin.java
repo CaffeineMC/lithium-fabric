@@ -25,7 +25,7 @@ public abstract class ServerWorldMixin {
             )
     )
     private BlockPos redirectTickGetRandomPosInChunk(ServerWorld serverWorld, int x, int y, int z, int mask) {
-        ((ChunkRandomSource) serverWorld).getRandomPosInChunk(x, y, z, mask, this.randomPosInChunkCachedPos);
+        ((ChunkRandomSource) serverWorld).lithium$getRandomPosInChunk(x, y, z, mask, this.randomPosInChunkCachedPos);
 
         return this.randomPosInChunkCachedPos;
     }

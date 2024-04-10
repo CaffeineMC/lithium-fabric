@@ -48,7 +48,7 @@ public abstract class EntityMixin implements BlockCacheProvider {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Vec3d;length()D", ordinal = 0, shift = At.Shift.BEFORE)
     )
     private void cacheFluidSearchResult(TagKey<Fluid> fluid, double speed, CallbackInfoReturnable<Boolean> cir, Box box, int i1, int i2, int i3, int i4, int i5, int i6, double fluidHeight, boolean isPushedbyFluids, boolean touchingFluid, Vec3d fluidPush, int i7) {
-        BlockCache bc = this.getBlockCache();
+        BlockCache bc = this.lithium$getBlockCache();
         if (bc.isTracking() && fluidPush.lengthSquared() == 0d) {
             if (touchingFluid == (fluidHeight == 0d)) {
                 throw new IllegalArgumentException("Expected fluid touching IFF fluid height is not 0! Fluid height: " + fluidHeight + " Touching fluid: " + touchingFluid + " Fluid Tag: " + fluid);

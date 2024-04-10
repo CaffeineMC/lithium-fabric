@@ -38,9 +38,9 @@ public class WorldMixin {
                 for (Direction direction : DirectionConstants.ALL) {
                     BlockPos offsetPos = pos.offset(direction);
                     //Directly get the block entity instead of getting the block state first. Maybe that is faster, maybe not.
-                    BlockEntity hopper = blockEntities != null ? blockEntities.get(offsetPos) : ((BlockEntityGetter) this).getLoadedExistingBlockEntity(offsetPos);
+                    BlockEntity hopper = blockEntities != null ? blockEntities.get(offsetPos) : ((BlockEntityGetter) this).lithium$getLoadedExistingBlockEntity(offsetPos);
                     if (hopper instanceof UpdateReceiver updateReceiver) {
-                        updateReceiver.invalidateCacheOnNeighborUpdate(direction == Direction.DOWN);
+                        updateReceiver.lithium$invalidateCacheOnNeighborUpdate(direction == Direction.DOWN);
                     }
                 }
             }

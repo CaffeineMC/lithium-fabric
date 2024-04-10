@@ -33,11 +33,11 @@ public abstract class ChestBoatEntityMixin extends Entity {
         EntityChangeListener changeListener = ((EntityAccessor) this).getChangeListener();
         if (changeListener instanceof ToggleableMovementTracker toggleableMovementTracker) {
             Vec3d beforeTickPos = this.getPos();
-            int beforeMovementNotificationMask = toggleableMovementTracker.setNotificationMask(0);
+            int beforeMovementNotificationMask = toggleableMovementTracker.lithium$setNotificationMask(0);
 
             super.tickRiding();
 
-            toggleableMovementTracker.setNotificationMask(beforeMovementNotificationMask);
+            toggleableMovementTracker.lithium$setNotificationMask(beforeMovementNotificationMask);
 
             if (!beforeTickPos.equals(this.getPos())) {
                 changeListener.updateEntityPosition();

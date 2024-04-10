@@ -32,7 +32,7 @@ public abstract class WorldMixin implements BlockEntityGetter, WorldAccess {
     public abstract Chunk getChunk(int chunkX, int chunkZ, ChunkStatus leastStatus, boolean create);
 
     @Override
-    public BlockEntity getLoadedExistingBlockEntity(BlockPos pos) {
+    public BlockEntity lithium$getLoadedExistingBlockEntity(BlockPos pos) {
         if (!this.isOutOfHeightLimit(pos)) {
             if (this.isClient || Thread.currentThread() == this.thread) {
                 Chunk chunk = this.getChunk(ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()), ChunkStatus.FULL, false);

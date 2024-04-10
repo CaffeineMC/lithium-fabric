@@ -11,6 +11,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class DrownedEntityMixin {
     @Inject(method = "updateSwimming()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/mob/DrownedEntity;setSwimming(Z)V"))
     private void updateInactivityState(CallbackInfo ci) {
-        ((NavigatingEntity) this).updateNavigationRegistration();
+        ((NavigatingEntity) this).lithium$updateNavigationRegistration();
     }
 }

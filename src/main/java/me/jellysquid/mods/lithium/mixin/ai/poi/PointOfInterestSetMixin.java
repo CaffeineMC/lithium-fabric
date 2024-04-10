@@ -48,7 +48,7 @@ public class PointOfInterestSetMixin implements PointOfInterestSetExtended {
     }
 
     @Override
-    public void collectMatchingPoints(Predicate<RegistryEntry<PointOfInterestType>> type, PointOfInterestStorage.OccupationStatus status, Consumer<PointOfInterest> consumer) {
+    public void lithium$collectMatchingPoints(Predicate<RegistryEntry<PointOfInterestType>> type, PointOfInterestStorage.OccupationStatus status, Consumer<PointOfInterest> consumer) {
         if (type instanceof SinglePointOfInterestTypeFilter) {
             this.getWithSingleTypeFilter(((SinglePointOfInterestTypeFilter) type).getType(), status, consumer);
         } else {

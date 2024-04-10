@@ -238,7 +238,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
 
         if (hopperStackList.getModCount() == hopperBlockEntity.myModCountAtLastExtract) {
             if (fromStackList.getModCount() == hopperBlockEntity.extractStackListModCount) {
-                if (!(from instanceof ComparatorTracker comparatorTracker) || comparatorTracker.hasAnyComparatorNearby()) {
+                if (!(from instanceof ComparatorTracker comparatorTracker) || comparatorTracker.lithium$hasAnyComparatorNearby()) {
                     //noinspection CollectionAddedToSelf
                     fromStackList.runComparatorUpdatePatternOnFailedExtract(fromStackList, from);
                 }
@@ -317,7 +317,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     private static native boolean canExtract(Inventory hopperInventory, Inventory fromInventory, ItemStack stack, int slot, Direction facing);
 
     @Override
-    public void invalidateCacheOnNeighborUpdate(boolean fromAbove) {
+    public void lithium$invalidateCacheOnNeighborUpdate(boolean fromAbove) {
         //Clear the block inventory cache (composter inventories and no inventory present) on block update / observer update
         if (fromAbove) {
             if (this.extractionMode == HopperCachingState.BlockInventory.NO_BLOCK_INVENTORY || this.extractionMode == HopperCachingState.BlockInventory.BLOCK_STATE) {
@@ -331,10 +331,10 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     }
 
     @Override
-    public void invalidateCacheOnNeighborUpdate(Direction fromDirection) {
+    public void lithium$invalidateCacheOnNeighborUpdate(Direction fromDirection) {
         boolean fromAbove = fromDirection == Direction.UP;
         if (fromAbove || this.getCachedState().get(HopperBlock.FACING) == fromDirection) {
-            this.invalidateCacheOnNeighborUpdate(fromAbove);
+            this.lithium$invalidateCacheOnNeighborUpdate(fromAbove);
         }
     }
 
@@ -768,7 +768,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                         Inventory blockInventory = this.extractBlockInventory;
                         if (this.extractStackList != null &&
                                 blockInventory instanceof InventoryChangeTracker) {
-                            if (!this.extractStackList.maybeSendsComparatorUpdatesOnFailedExtract() || (blockInventory instanceof ComparatorTracker comparatorTracker && !comparatorTracker.hasAnyComparatorNearby())) {
+                            if (!this.extractStackList.maybeSendsComparatorUpdatesOnFailedExtract() || (blockInventory instanceof ComparatorTracker comparatorTracker && !comparatorTracker.lithium$hasAnyComparatorNearby())) {
                                 listenToExtractTracker = true;
                             } else {
                                 return;
@@ -826,20 +826,20 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                     this.collectItemEntityTracker.listenToEntityMovementOnce(this);
                 }
                 thisTracker.listenForContentChangesOnce(thisStackList, this);
-                thisSleepingBlockEntity.startSleeping();
+                thisSleepingBlockEntity.lithium$startSleeping();
             }
         }
     }
 
     @Override
-    public void handleInventoryContentModified(Inventory inventory) {
+    public void lithium$handleInventoryContentModified(Inventory inventory) {
         if (this instanceof SleepingBlockEntity sleepingBlockEntity) {
             sleepingBlockEntity.wakeUpNow();
         }
     }
 
     @Override
-    public void handleInventoryRemoved(Inventory inventory) {
+    public void lithium$handleInventoryRemoved(Inventory inventory) {
         if (this instanceof SleepingBlockEntity sleepingBlockEntity) {
             sleepingBlockEntity.wakeUpNow();
         }
@@ -855,7 +855,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     }
 
     @Override
-    public boolean handleComparatorAdded(Inventory inventory) {
+    public boolean lithium$handleComparatorAdded(Inventory inventory) {
         if (inventory == this.extractBlockInventory && this instanceof SleepingBlockEntity sleepingBlockEntity) {
             sleepingBlockEntity.wakeUpNow();
             return true;
@@ -864,7 +864,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     }
 
     @Override
-    public void handleEntityMovement(Class<?> category) {
+    public void lithium$handleEntityMovement(Class<?> category) {
         if (this instanceof SleepingBlockEntity sleepingBlockEntity) {
             sleepingBlockEntity.wakeUpNow();
         }

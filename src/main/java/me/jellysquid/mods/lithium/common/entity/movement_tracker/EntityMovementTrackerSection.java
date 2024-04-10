@@ -4,15 +4,15 @@ import net.minecraft.world.entity.EntityLike;
 import net.minecraft.world.entity.SectionedEntityCache;
 
 public interface EntityMovementTrackerSection {
-    void addListener(SectionedEntityMovementTracker<?, ?> listener);
+    void lithium$addListener(SectionedEntityMovementTracker<?, ?> listener);
 
-    void removeListener(SectionedEntityCache<?> sectionedEntityCache, SectionedEntityMovementTracker<?, ?> listener);
+    void lithium$removeListener(SectionedEntityCache<?> sectionedEntityCache, SectionedEntityMovementTracker<?, ?> listener);
 
-    void trackEntityMovement(int notificationMask, long time);
+    void lithium$trackEntityMovement(int notificationMask, long time);
 
-    long getChangeTime(int trackedClass);
+    long lithium$getChangeTime(int trackedClass);
 
-    <S, E extends EntityLike> void listenToMovementOnce(SectionedEntityMovementTracker<E, S> listener, int trackedClass);
+    <S, E extends EntityLike> void lithium$listenToMovementOnce(SectionedEntityMovementTracker<E, S> listener, int trackedClass);
 
-    <S, E extends EntityLike> void removeListenToMovementOnce(SectionedEntityMovementTracker<E, S> listener, int trackedClass);
+    <S, E extends EntityLike> void lithium$removeListenToMovementOnce(SectionedEntityMovementTracker<E, S> listener, int trackedClass);
 }

@@ -48,7 +48,7 @@ public class DirectBlockEntityTickInvokerMixin<T extends BlockEntity> {
             )
     )
     private boolean cachedIsSupported(BlockEntityType<?> blockEntityType, BlockState block) {
-        return ((SupportCache) this.blockEntity).isSupported();
+        return ((SupportCache) this.blockEntity).lithium$isSupported();
     }
 
 }

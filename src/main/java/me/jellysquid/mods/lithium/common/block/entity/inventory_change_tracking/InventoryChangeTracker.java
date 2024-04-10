@@ -4,14 +4,14 @@ import me.jellysquid.mods.lithium.common.hopper.LithiumStackList;
 
 public interface InventoryChangeTracker extends InventoryChangeEmitter {
     default void listenForContentChangesOnce(LithiumStackList stackList, InventoryChangeListener inventoryChangeListener) {
-        this.forwardContentChangeOnce(inventoryChangeListener, stackList, this);
+        this.lithium$forwardContentChangeOnce(inventoryChangeListener, stackList, this);
     }
 
     default void listenForMajorInventoryChanges(InventoryChangeListener inventoryChangeListener) {
-        this.forwardMajorInventoryChanges(inventoryChangeListener);
+        this.lithium$forwardMajorInventoryChanges(inventoryChangeListener);
     }
 
     default void stopListenForMajorInventoryChanges(InventoryChangeListener inventoryChangeListener) {
-        this.stopForwardingMajorInventoryChanges(inventoryChangeListener);
+        this.lithium$stopForwardingMajorInventoryChanges(inventoryChangeListener);
     }
 }

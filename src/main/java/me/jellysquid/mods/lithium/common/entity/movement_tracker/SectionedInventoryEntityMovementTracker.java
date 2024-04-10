@@ -23,7 +23,7 @@ public class SectionedInventoryEntityMovementTracker<S> extends SectionedEntityM
 
         WorldSectionBox worldSectionBox = WorldSectionBox.entityAccessBox(world, interactionArea);
         SectionedInventoryEntityMovementTracker<S> tracker = new SectionedInventoryEntityMovementTracker<>(worldSectionBox, clazz);
-        tracker = cache.deduplicate(tracker);
+        tracker = cache.lithium$deduplicate(tracker);
 
         tracker.register(world);
         return tracker;

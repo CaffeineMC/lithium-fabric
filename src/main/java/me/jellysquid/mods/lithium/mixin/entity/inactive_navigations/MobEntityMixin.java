@@ -27,23 +27,23 @@ public abstract class MobEntityMixin extends Entity implements NavigatingEntity 
     public abstract EntityNavigation getNavigation();
 
     @Override
-    public boolean isRegisteredToWorld() {
+    public boolean lithium$isRegisteredToWorld() {
         return this.registeredNavigation != null;
     }
 
     @Override
-    public void setRegisteredToWorld(EntityNavigation navigation) {
+    public void lithium$setRegisteredToWorld(EntityNavigation navigation) {
         this.registeredNavigation = navigation;
     }
 
     @Override
-    public EntityNavigation getRegisteredNavigation() {
+    public EntityNavigation lithium$getRegisteredNavigation() {
         return this.registeredNavigation;
     }
 
     @Inject(method = "startRiding(Lnet/minecraft/entity/Entity;Z)Z", at = @At("RETURN"))
     private void onNavigationReplacement(Entity entity, boolean force, CallbackInfoReturnable<Boolean> cir) {
-        this.updateNavigationRegistration();
+        this.lithium$updateNavigationRegistration();
     }
 
     @Override
@@ -55,19 +55,19 @@ public abstract class MobEntityMixin extends Entity implements NavigatingEntity 
     @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
     @Inject(method = "stopRiding()V", at = @At("RETURN"))
     private void updateOnStopRiding(CallbackInfo ci) {
-        this.updateNavigationRegistration();
+        this.lithium$updateNavigationRegistration();
     }
 
     @Override
-    public void updateNavigationRegistration() {
-        if (this.isRegisteredToWorld()) {
+    public void lithium$updateNavigationRegistration() {
+        if (this.lithium$isRegisteredToWorld()) {
             EntityNavigation navigation = this.getNavigation();
             if (this.registeredNavigation != navigation) {
-                ((ServerWorldExtended) this.getWorld()).setNavigationInactive((MobEntity) (Object) this);
+                ((ServerWorldExtended) this.getWorld()).lithium$setNavigationInactive((MobEntity) (Object) this);
                 this.registeredNavigation = navigation;
 
                 if (navigation.getCurrentPath() != null) {
-                    ((ServerWorldExtended) this.getWorld()).setNavigationActive((MobEntity) (Object) this);
+                    ((ServerWorldExtended) this.getWorld()).lithium$setNavigationActive((MobEntity) (Object) this);
                 }
             }
         }

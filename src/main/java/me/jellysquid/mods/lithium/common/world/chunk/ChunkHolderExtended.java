@@ -10,12 +10,12 @@ public interface ChunkHolderExtended {
     /**
      * @return The existing future for the status at ordinal {@param index} or null if none exists
      */
-    CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> getFutureByStatus(int index);
+    CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> lithium$getFutureByStatus(int index);
 
     /**
      * Updates the future for the status at ordinal {@param index}.
      */
-    void setFutureForStatus(int index, CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> future);
+    void lithium$setFutureForStatus(int index, CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> future);
 
     /**
      * Updates the last accessed timestamp for this chunk. This is used to determine if a ticket was recently
@@ -24,5 +24,5 @@ public interface ChunkHolderExtended {
      * @param time The current time
      * @return True if the chunk needs a new ticket to be created in order to retain it, otherwise false
      */
-    boolean updateLastAccessTime(long time);
+    boolean lithium$updateLastAccessTime(long time);
 }

@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.common.entity;
 
 public interface PositionedEntityTrackingSection {
-    void setPos(long chunkSectionPos);
+    void lithium$setPos(long chunkSectionPos);
 
-    long getPos();
+    long lithium$getPos();
 }

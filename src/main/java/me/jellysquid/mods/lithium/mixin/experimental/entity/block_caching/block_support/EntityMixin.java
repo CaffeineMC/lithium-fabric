@@ -33,7 +33,7 @@ public abstract class EntityMixin implements BlockCacheProvider {
             at = @At(value = "INVOKE", ordinal = 0, target = "Lnet/minecraft/world/World;findSupportingBlockPos(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;)Ljava/util/Optional;")
     )
     private void cacheSupportingBlockSearch(CallbackInfo ci) {
-        BlockCache bc = this.getBlockCache();
+        BlockCache bc = this.lithium$getBlockCache();
         if (bc.isTracking()) {
             bc.setCanSkipSupportingBlockSearch(true);
         }
@@ -44,7 +44,7 @@ public abstract class EntityMixin implements BlockCacheProvider {
             at = @At(value = "INVOKE", ordinal = 1, target = "Lnet/minecraft/world/World;findSupportingBlockPos(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;)Ljava/util/Optional;")
     )
     private void uncacheSupportingBlockSearch(CallbackInfo ci) {
-        BlockCache bc = this.getBlockCache();
+        BlockCache bc = this.lithium$getBlockCache();
         if (bc.isTracking()) {
             bc.setCanSkipSupportingBlockSearch(false);
         }
@@ -55,7 +55,7 @@ public abstract class EntityMixin implements BlockCacheProvider {
             at = @At(value = "INVOKE", target = "Ljava/util/Optional;empty()Ljava/util/Optional;", remap = false)
     )
     private void uncacheSupportingBlockSearch1(boolean onGround, Vec3d movement, CallbackInfo ci) {
-        BlockCache bc = this.getBlockCache();
+        BlockCache bc = this.lithium$getBlockCache();
         if (bc.isTracking()) {
             bc.setCanSkipSupportingBlockSearch(false);
         }

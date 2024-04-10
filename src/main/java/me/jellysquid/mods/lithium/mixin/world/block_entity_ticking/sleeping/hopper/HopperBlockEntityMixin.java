@@ -31,31 +31,6 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
     private WrappedBlockEntityTickInvokerAccessor tickWrapper = null;
     private BlockEntityTickInvoker sleepingTicker = null;
 
-    @Override
-    public WrappedBlockEntityTickInvokerAccessor getTickWrapper() {
-        return tickWrapper;
-    }
-
-    @Override
-    public void setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper) {
-        this.tickWrapper = tickWrapper;
-        this.setSleepingTicker(null);
-    }
-
-    @Override
-    public BlockEntityTickInvoker getSleepingTicker() {
-        return sleepingTicker;
-    }
-
-    @Override
-    public void setSleepingTicker(BlockEntityTickInvoker sleepingTicker) {
-        this.sleepingTicker = sleepingTicker;
-    }
-
-    public HopperBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state);
-    }
-
     @Inject(
             method = "insertAndExtract",
             at = @At(value = "RETURN", ordinal = 2)
@@ -64,19 +39,44 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
         if (!((HopperBlockEntityMixin) (Object) blockEntity).needsCooldown() &&
                 !((HopperBlockEntityMixin) (Object) blockEntity).isSleeping() &&
                 !state.get(HopperBlock.ENABLED)) {
-            ((HopperBlockEntityMixin) (Object) blockEntity).startSleeping();
+            ((HopperBlockEntityMixin) (Object) blockEntity).lithium$startSleeping();
         }
     }
 
     @Override
-    public boolean startSleeping() {
+    public WrappedBlockEntityTickInvokerAccessor lithium$getTickWrapper() {
+        return tickWrapper;
+    }
+
+    @Override
+    public void lithium$setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper) {
+        this.tickWrapper = tickWrapper;
+        this.lithium$setSleepingTicker(null);
+    }
+
+    @Override
+    public BlockEntityTickInvoker lithium$getSleepingTicker() {
+        return sleepingTicker;
+    }
+
+    public HopperBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
+    }
+
+    @Override
+    public void lithium$setSleepingTicker(BlockEntityTickInvoker sleepingTicker) {
+        this.sleepingTicker = sleepingTicker;
+    }
+
+    @Override
+    public boolean lithium$startSleeping() {
         if (this.isSleeping()) {
             return false;
         }
 
-        WrappedBlockEntityTickInvokerAccessor tickWrapper = this.getTickWrapper();
+        WrappedBlockEntityTickInvokerAccessor tickWrapper = this.lithium$getTickWrapper();
         if (tickWrapper != null) {
-            this.setSleepingTicker(tickWrapper.getWrapped());
+            this.lithium$setSleepingTicker(tickWrapper.getWrapped());
             tickWrapper.callSetWrapped(SleepingBlockEntity.SLEEPING_BLOCK_ENTITY_TICKER);
 
             // Set the last tick time to max value, so other hoppers transferring into this hopper will set it to 7gt

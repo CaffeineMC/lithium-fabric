@@ -44,7 +44,7 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
     private ReferenceMaskedList<Entity> pushableEntities;
 
     @Override
-    public LazyIterationConsumer.NextIteration collectPushableEntities(World world, Entity except, Box box, EntityPushablePredicate<? super Entity> entityPushablePredicate, ArrayList<Entity> entities) {
+    public LazyIterationConsumer.NextIteration lithium$collectPushableEntities(World world, Entity except, Box box, EntityPushablePredicate<? super Entity> entityPushablePredicate, ArrayList<Entity> entities) {
         Iterator<?> entityIterator;
         if (this.pushableEntities != null) {
             entityIterator = this.pushableEntities.iterator();
@@ -84,9 +84,9 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
     //This might be called while the world is in an inconsistent state. E.g. the entity may be in a different section than
     //it is registered to.
     @Override
-    public void onEntityModifiedCachedBlock(BlockCachingEntity entity, BlockState newBlockState) {
+    public void lithium$onEntityModifiedCachedBlock(BlockCachingEntity entity, BlockState newBlockState) {
         if (this.pushableEntities == null) {
-            entity.lithiumSetClimbingMobCachingSectionUpdateBehavior(false);
+            entity.lithium$SetClimbingMobCachingSectionUpdateBehavior(false);
         } else {
             this.updatePushabilityOnCachedStateChange(entity, newBlockState);
         }
@@ -107,8 +107,8 @@ public abstract class EntityTrackingSectionMixin<T extends EntityLike> implement
             boolean shouldTrackBlockChanges = PushableEntityClassGroup.CACHABLE_UNPUSHABILITY.contains(entityClass);
             if (shouldTrackBlockChanges) {
                 BlockCachingEntity blockCachingEntity = (BlockCachingEntity) entity;
-                this.updatePushabilityOnCachedStateChange(blockCachingEntity, blockCachingEntity.getCachedFeetBlockState());
-                blockCachingEntity.lithiumSetClimbingMobCachingSectionUpdateBehavior(true);
+                this.updatePushabilityOnCachedStateChange(blockCachingEntity, blockCachingEntity.lithium$getCachedFeetBlockState());
+                blockCachingEntity.lithium$SetClimbingMobCachingSectionUpdateBehavior(true);
             }
         }
     }

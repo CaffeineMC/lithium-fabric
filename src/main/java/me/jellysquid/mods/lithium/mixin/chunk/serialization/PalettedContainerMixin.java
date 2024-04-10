@@ -80,7 +80,7 @@ public abstract class PalettedContainerMixin<T> {
             LithiumHashPalette<T> compactedPalette = new LithiumHashPalette<>(idList, storage.getElementBits(), this.dummyListener);
             short[] array = this.getOrCreate(provider.getContainerSize());
 
-            ((CompactingPackedIntegerArray) storage).compact(this.data.palette(), compactedPalette, array);
+            ((CompactingPackedIntegerArray) storage).lithium$compact(this.data.palette(), compactedPalette, array);
 
             // If the palette didn't change during compaction, do a simple copy of the data array
             if (hashPalette != null && hashPalette.getSize() == compactedPalette.getSize() && storage.getElementBits() == provider.getBits(idList, hashPalette.getSize())) { // paletteSize can de-sync from palette - see https://github.com/CaffeineMC/lithium-fabric/issues/279

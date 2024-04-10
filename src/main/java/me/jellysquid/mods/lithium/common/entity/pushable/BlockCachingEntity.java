@@ -4,17 +4,17 @@ import net.minecraft.block.BlockState;
 
 public interface BlockCachingEntity {
 
-    default void lithiumOnBlockCacheDeleted() {
+    default void lithium$OnBlockCacheDeleted() {
 
     }
 
-    default void lithiumOnBlockCacheSet(BlockState newState) {
+    default void lithium$OnBlockCacheSet(BlockState newState) {
 
     }
 
-    default void lithiumSetClimbingMobCachingSectionUpdateBehavior(boolean listening) {
+    default void lithium$SetClimbingMobCachingSectionUpdateBehavior(boolean listening) {
         throw new UnsupportedOperationException();
     }
 
-    BlockState getCachedFeetBlockState();
+    BlockState lithium$getCachedFeetBlockState();
 }

@@ -6,5 +6,5 @@ import org.jetbrains.annotations.Nullable;
 public interface ChunkView {
 
     @Nullable
-    Chunk getLoadedChunk(int chunkX, int chunkZ);
+    Chunk lithium$getLoadedChunk(int chunkX, int chunkZ);
 }

@@ -42,7 +42,7 @@ public class SectionedBlockChangeTracker {
         WorldSectionBox worldSectionBox = WorldSectionBox.relevantExpandedBlocksBox(world, entityBoundingBox);
         SectionedBlockChangeTracker tracker = new SectionedBlockChangeTracker(worldSectionBox, blockGroup);
         //noinspection unchecked
-        tracker = ((LithiumInternerWrapper<SectionedBlockChangeTracker>)world).getCanonical(tracker);
+        tracker = ((LithiumInternerWrapper<SectionedBlockChangeTracker>) world).lithium$getCanonical(tracker);
 
         tracker.register();
         return tracker;
@@ -111,7 +111,7 @@ public class SectionedBlockChangeTracker {
         }
         this.sectionsNotListeningTo = null;
         //noinspection unchecked
-        ((LithiumInternerWrapper<SectionedBlockChangeTracker>)world).deleteCanonical(this);
+        ((LithiumInternerWrapper<SectionedBlockChangeTracker>) world).lithium$deleteCanonical(this);
     }
 
     public void listenToAllSections() {

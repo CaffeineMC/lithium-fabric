@@ -30,7 +30,7 @@ public interface NearbyEntityListener {
                         if (after == null || !after.contains(pos.set(x, y, z))) {
                             long sectionPos = ChunkSectionPos.asLong(x, y, z);
                             EntityTrackingSection<? extends EntityLike> trackingSection = entityCache.getTrackingSection(sectionPos);
-                            ((NearbyEntityListenerSection) trackingSection).removeListener(entityCache, this);
+                            ((NearbyEntityListenerSection) trackingSection).lithium$removeListener(entityCache, this);
                             if (trackingSection.isEmpty()) {
                                 entityCache.removeSection(sectionPos);
                             }
@@ -44,7 +44,7 @@ public interface NearbyEntityListener {
                 for (int y = after.getMinY(); y <= after.getMaxY(); y++) {
                     for (int z = after.getMinZ(); z <= after.getMaxZ(); z++) {
                         if (before == null || !before.contains(pos.set(x, y, z))) {
-                            ((NearbyEntityListenerSection) entityCache.getTrackingSection(ChunkSectionPos.asLong(x, y, z))).addListener(this);
+                            ((NearbyEntityListenerSection) entityCache.getTrackingSection(ChunkSectionPos.asLong(x, y, z))).lithium$addListener(this);
                         }
                     }
                 }

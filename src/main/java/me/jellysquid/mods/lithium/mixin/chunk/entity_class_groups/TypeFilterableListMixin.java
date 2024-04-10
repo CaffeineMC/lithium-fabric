@@ -58,7 +58,7 @@ public abstract class TypeFilterableListMixin<T> implements ClassGroupFilterable
     /**
      * Get entities of a class group
      */
-    public Collection<T> getAllOfGroupType(EntityClassGroup type) {
+    public Collection<T> lithium$getAllOfGroupType(EntityClassGroup type) {
         Collection<T> collection = this.entitiesByGroup.get(type);
 
         if (collection == null) {

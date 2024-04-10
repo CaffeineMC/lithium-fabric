@@ -24,50 +24,50 @@ public interface SleepingBlockEntity {
         }
     };
 
-    WrappedBlockEntityTickInvokerAccessor getTickWrapper();
+    WrappedBlockEntityTickInvokerAccessor lithium$getTickWrapper();
 
-    void setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper);
+    void lithium$setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper);
 
-    BlockEntityTickInvoker getSleepingTicker();
+    BlockEntityTickInvoker lithium$getSleepingTicker();
 
-    void setSleepingTicker(BlockEntityTickInvoker sleepingTicker);
+    void lithium$setSleepingTicker(BlockEntityTickInvoker sleepingTicker);
 
-    default boolean startSleeping() {
+    default boolean lithium$startSleeping() {
         if (this.isSleeping()) {
             return false;
         }
 
-        WrappedBlockEntityTickInvokerAccessor tickWrapper = this.getTickWrapper();
+        WrappedBlockEntityTickInvokerAccessor tickWrapper = this.lithium$getTickWrapper();
         if (tickWrapper == null) {
             return false;
         }
-        this.setSleepingTicker(tickWrapper.getWrapped());
+        this.lithium$setSleepingTicker(tickWrapper.getWrapped());
         tickWrapper.callSetWrapped(SleepingBlockEntity.SLEEPING_BLOCK_ENTITY_TICKER);
         return true;
     }
 
     default void sleepOnlyCurrentTick() {
-        BlockEntityTickInvoker sleepingTicker = this.getSleepingTicker();
-        WrappedBlockEntityTickInvokerAccessor tickWrapper = this.getTickWrapper();
+        BlockEntityTickInvoker sleepingTicker = this.lithium$getSleepingTicker();
+        WrappedBlockEntityTickInvokerAccessor tickWrapper = this.lithium$getTickWrapper();
         if (sleepingTicker == null) {
             sleepingTicker = tickWrapper.getWrapped();
         }
         World world = ((BlockEntity) this).getWorld();
         tickWrapper.callSetWrapped(new SleepUntilTimeBlockEntityTickInvoker((BlockEntity) this, world.getTime() + 1, sleepingTicker));
-        this.setSleepingTicker(null);
+        this.lithium$setSleepingTicker(null);
     }
 
     default void wakeUpNow() {
-        BlockEntityTickInvoker sleepingTicker = this.getSleepingTicker();
+        BlockEntityTickInvoker sleepingTicker = this.lithium$getSleepingTicker();
         if (sleepingTicker == null) {
             return;
         }
         this.setTicker(sleepingTicker);
-        this.setSleepingTicker(null);
+        this.lithium$setSleepingTicker(null);
     }
 
     default void setTicker(BlockEntityTickInvoker delegate) {
-        WrappedBlockEntityTickInvokerAccessor tickWrapper = this.getTickWrapper();
+        WrappedBlockEntityTickInvokerAccessor tickWrapper = this.lithium$getTickWrapper();
         if (tickWrapper == null) {
             return;
         }
@@ -75,6 +75,6 @@ public interface SleepingBlockEntity {
     }
 
     default boolean isSleeping() {
-        return this.getSleepingTicker() != null;
+        return this.lithium$getSleepingTicker() != null;
     }
 }

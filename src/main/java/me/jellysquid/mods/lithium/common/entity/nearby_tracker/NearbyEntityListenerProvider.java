@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 public interface NearbyEntityListenerProvider {
     @Nullable
-    NearbyEntityListenerMulti getListener();
+    NearbyEntityListenerMulti lithium$getListener();
 
-    void addListener(NearbyEntityTracker listener);
+    void lithium$addListener(NearbyEntityTracker listener);
 }

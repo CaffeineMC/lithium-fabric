@@ -23,7 +23,7 @@ public class WorldChunkMixin {
     )
     private void setBlockEntityTickingOrder(BlockEntity blockEntity, BlockEntityTicker<?> blockEntityTicker, BlockPos pos, @Coerce Object wrappedBlockEntityTickInvoker, CallbackInfoReturnable<?> cir, BlockEntityTickInvoker blockEntityTickInvoker, @Coerce Object wrappedBlockEntityTickInvoker2) {
         if (blockEntity instanceof SleepingBlockEntity sleepingBlockEntity) {
-            sleepingBlockEntity.setTickWrapper((WrappedBlockEntityTickInvokerAccessor) wrappedBlockEntityTickInvoker2);
+            sleepingBlockEntity.lithium$setTickWrapper((WrappedBlockEntityTickInvokerAccessor) wrappedBlockEntityTickInvoker2);
         }
     }
 
@@ -34,7 +34,7 @@ public class WorldChunkMixin {
     )
     private void setBlockEntityTickingOrder(BlockEntity blockEntity, BlockEntityTicker<?> blockEntityTicker, BlockPos pos, @Coerce Object wrappedBlockEntityTickInvoker, CallbackInfoReturnable<?> cir, BlockEntityTickInvoker blockEntityTickInvoker) {
         if (blockEntity instanceof SleepingBlockEntity sleepingBlockEntity) {
-            sleepingBlockEntity.setTickWrapper((WrappedBlockEntityTickInvokerAccessor) wrappedBlockEntityTickInvoker);
+            sleepingBlockEntity.lithium$setTickWrapper((WrappedBlockEntityTickInvokerAccessor) wrappedBlockEntityTickInvoker);
         }
     }
 

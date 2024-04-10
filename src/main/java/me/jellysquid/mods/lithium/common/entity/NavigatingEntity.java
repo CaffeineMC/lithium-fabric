@@ -3,12 +3,12 @@ package me.jellysquid.mods.lithium.common.entity;
 import net.minecraft.entity.ai.pathing.EntityNavigation;
 
 public interface NavigatingEntity {
-    boolean isRegisteredToWorld();
+    boolean lithium$isRegisteredToWorld();
 
-    void setRegisteredToWorld(EntityNavigation navigation);
+    void lithium$setRegisteredToWorld(EntityNavigation navigation);
 
-    EntityNavigation getRegisteredNavigation();
+    EntityNavigation lithium$getRegisteredNavigation();
 
-    void updateNavigationRegistration();
+    void lithium$updateNavigationRegistration();
 
 }

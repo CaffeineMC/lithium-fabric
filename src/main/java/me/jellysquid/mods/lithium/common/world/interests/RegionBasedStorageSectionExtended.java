@@ -10,7 +10,7 @@ public interface RegionBasedStorageSectionExtended<R> {
      * @param chunkX The x-coordinate of the chunk column
      * @param chunkZ The z-coordinate of the chunk column
      */
-    Stream<R> getWithinChunkColumn(int chunkX, int chunkZ);
+    Stream<R> lithium$getWithinChunkColumn(int chunkX, int chunkZ);
 
     /**
      * Fast-path for collecting all items in a chunk column. This avoids needing to retrieve items for each sub-chunk
@@ -19,5 +19,5 @@ public interface RegionBasedStorageSectionExtended<R> {
      * @param chunkX The x-coordinate of the chunk column
      * @param chunkZ The z-coordinate of the chunk column
      */
-    Iterable<R> getInChunkColumn(int chunkX, int chunkZ);
+    Iterable<R> lithium$getInChunkColumn(int chunkX, int chunkZ);
 }

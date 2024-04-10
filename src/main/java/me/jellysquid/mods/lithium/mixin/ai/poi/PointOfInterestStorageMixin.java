@@ -58,7 +58,7 @@ public abstract class PointOfInterestStorageMixin extends SerializingRegionBased
     public Stream<PointOfInterest> getInChunk(Predicate<RegistryEntry<PointOfInterestType>> predicate, ChunkPos pos,
                                               PointOfInterestStorage.OccupationStatus status) {
         return ((RegionBasedStorageSectionExtended<PointOfInterestSet>) this)
-                .getWithinChunkColumn(pos.x, pos.z)
+                .lithium$getWithinChunkColumn(pos.x, pos.z)
                 .flatMap(set -> set.get(predicate, status));
     }
 
@@ -143,9 +143,9 @@ public abstract class PointOfInterestStorageMixin extends SerializingRegionBased
     }
 
     @Override
-    public Optional<PointOfInterest> findNearestForPortalLogic(BlockPos origin, int radius, RegistryEntry<PointOfInterestType> type,
-                                                               PointOfInterestStorage.OccupationStatus status,
-                                                               Predicate<PointOfInterest> afterSortPredicate, WorldBorder worldBorder) {
+    public Optional<PointOfInterest> lithium$findNearestForPortalLogic(BlockPos origin, int radius, RegistryEntry<PointOfInterestType> type,
+                                                                       PointOfInterestStorage.OccupationStatus status,
+                                                                       Predicate<PointOfInterest> afterSortPredicate, WorldBorder worldBorder) {
         // Order of the POI:
         // return closest accepted POI (L2 distance). If several exist:
         // return the one with most negative Y. If several exist:
@@ -201,8 +201,8 @@ public abstract class PointOfInterestStorageMixin extends SerializingRegionBased
 
         for (int x = minChunkX; x <= maxChunkX; x++) {
             for (int z = minChunkZ; z <= maxChunkZ; z++) {
-                for (PointOfInterestSet set : storage.getInChunkColumn(x, z)) {
-                    ((PointOfInterestSetExtended) set).collectMatchingPoints(predicate, status, collector);
+                for (PointOfInterestSet set : storage.lithium$getInChunkColumn(x, z)) {
+                    ((PointOfInterestSetExtended) set).lithium$collectMatchingPoints(predicate, status, collector);
                 }
             }
         }

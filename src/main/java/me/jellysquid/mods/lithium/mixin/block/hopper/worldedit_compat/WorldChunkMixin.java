@@ -41,9 +41,9 @@ public abstract class WorldChunkMixin {
             BlockEntity neighborBlockEntity =
                     WorldHelper.arePosWithinSameChunk(pos, neighborPos) ?
                             worldChunk.getBlockEntity(neighborPos, WorldChunk.CreationType.CHECK) :
-                            ((BlockEntityGetter) world).getLoadedExistingBlockEntity(neighborPos);
+                            ((BlockEntityGetter) world).lithium$getLoadedExistingBlockEntity(neighborPos);
             if (neighborBlockEntity instanceof UpdateReceiver updateReceiver) {
-                updateReceiver.invalidateCacheOnNeighborUpdate(offsetDirection.getOpposite());
+                updateReceiver.lithium$invalidateCacheOnNeighborUpdate(offsetDirection.getOpposite());
             }
         }
     }

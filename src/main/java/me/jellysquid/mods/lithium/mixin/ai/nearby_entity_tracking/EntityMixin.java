@@ -17,12 +17,12 @@ public class EntityMixin implements NearbyEntityListenerProvider {
 
     @Override
     @Nullable
-    public NearbyEntityListenerMulti getListener() {
+    public NearbyEntityListenerMulti lithium$getListener() {
         return this.tracker;
     }
 
     @Override
-    public void addListener(NearbyEntityTracker listener) {
+    public void lithium$addListener(NearbyEntityTracker listener) {
         if (this.tracker == null) {
             this.tracker = new NearbyEntityListenerMulti();
         }

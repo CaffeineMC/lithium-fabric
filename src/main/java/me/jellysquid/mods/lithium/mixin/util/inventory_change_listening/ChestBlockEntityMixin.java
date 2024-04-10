@@ -29,6 +29,6 @@ public abstract class ChestBlockEntityMixin extends LootableContainerBlockEntity
     @Inject(method = "setCachedState(Lnet/minecraft/block/BlockState;)V", at = @At("RETURN"))
     private void emitRemovedOnSetCachedState(CallbackInfo ci) {
         //Handle switching double / single chest state
-        this.emitRemoved();
+        this.lithium$emitRemoved();
     }
 }

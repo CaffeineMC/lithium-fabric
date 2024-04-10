@@ -32,7 +32,7 @@ public class BrainMixin implements MemoryModificationCounter {
     }
 
     @Override
-    public long getModCount() {
+    public long lithium$getModCount() {
         return memoryModCount;
     }
 

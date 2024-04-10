@@ -33,7 +33,7 @@ public abstract class PackedIntegerArrayMixin implements CompactingPackedInteger
     private long[] data;
 
     @Override
-    public <T> void compact(Palette<T> srcPalette, Palette<T> dstPalette, short[] out) {
+    public <T> void lithium$compact(Palette<T> srcPalette, Palette<T> dstPalette, short[] out) {
         if (this.size >= Short.MAX_VALUE) {
             throw new IllegalStateException("Array too large");
         }

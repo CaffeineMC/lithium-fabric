@@ -26,22 +26,22 @@ public class ShulkerBoxBlockEntityMixin implements SleepingBlockEntity {
     private BlockEntityTickInvoker sleepingTicker = null;
 
     @Override
-    public WrappedBlockEntityTickInvokerAccessor getTickWrapper() {
+    public WrappedBlockEntityTickInvokerAccessor lithium$getTickWrapper() {
         return tickWrapper;
     }
 
     @Override
-    public void setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper) {
+    public void lithium$setTickWrapper(WrappedBlockEntityTickInvokerAccessor tickWrapper) {
         this.tickWrapper = tickWrapper;
     }
 
     @Override
-    public BlockEntityTickInvoker getSleepingTicker() {
+    public BlockEntityTickInvoker lithium$getSleepingTicker() {
         return sleepingTicker;
     }
 
     @Override
-    public void setSleepingTicker(BlockEntityTickInvoker sleepingTicker) {
+    public void lithium$setSleepingTicker(BlockEntityTickInvoker sleepingTicker) {
         this.sleepingTicker = sleepingTicker;
     }
 
@@ -61,7 +61,7 @@ public class ShulkerBoxBlockEntityMixin implements SleepingBlockEntity {
     )
     private void sleepOnAnimationEnd(World world, BlockPos pos, BlockState state, CallbackInfo ci) {
         if (this.animationStage == ShulkerBoxBlockEntity.AnimationStage.CLOSED && this.prevAnimationProgress == 0.0f && this.animationProgress == 0.0f) {
-            this.startSleeping();
+            this.lithium$startSleeping();
         }
     }
 }

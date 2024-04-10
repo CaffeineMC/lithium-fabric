@@ -4,5 +4,5 @@ import net.minecraft.client.world.ClientEntityManager;
 import net.minecraft.entity.Entity;
 
 public interface ClientWorldAccessor {
-    ClientEntityManager<Entity> getEntityManager();
+    ClientEntityManager<Entity> lithium$getEntityManager();
 }
