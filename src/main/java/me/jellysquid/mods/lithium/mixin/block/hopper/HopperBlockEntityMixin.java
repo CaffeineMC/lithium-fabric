@@ -568,7 +568,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
 
     private void initCollectItemEntityTracker() {
         assert this.world instanceof ServerWorld;
-        Box inputBox = this.getInputAreaShape();
+        Box inputBox = this.getInputAreaShape().offset(this.pos.getX(), this.pos.getY(), this.pos.getZ());
         this.collectItemEntityBox = inputBox;
         this.collectItemEntityTracker =
                 SectionedItemEntityMovementTracker.registerAt(
