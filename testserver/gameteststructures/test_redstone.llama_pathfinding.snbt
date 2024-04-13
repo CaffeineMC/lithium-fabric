@@ -12,7 +12,7 @@
         {pos: [1, 0, 0], state: "minecraft:white_concrete"},
         {pos: [1, 0, 1], state: "minecraft:white_concrete"},
         {pos: [1, 0, 2], state: "minecraft:white_concrete"},
-        {pos: [1, 0, 3], state: "minecraft:chain_command_block{conditional:false,facing:east}", nbt: {Command: "/summon minecraft:llama ~ ~.5 ~ {Leash:{UUID: [I; 55186429, 1461732836, -1767952818, 1579286788]}}", CustomName: '{"text":"@"}', SuccessCount: 0, TrackOutput: 1b, UpdateLastExecution: 1b, auto: 1b, conditionMet: 1b, id: "minecraft:command_block", powered: 0b}},
+        {pos: [1, 0, 3], state: "minecraft:chain_command_block{conditional:false,facing:east}", nbt: {Command: "/summon minecraft:llama ~ ~.5 ~ {leash:{UUID: [I; 55186429, 1461732836, -1767952818, 1579286788]}}", CustomName: '{"text":"@"}', SuccessCount: 0, TrackOutput: 1b, UpdateLastExecution: 1b, auto: 1b, conditionMet: 1b, id: "minecraft:command_block", powered: 0b}},
         {pos: [1, 0, 4], state: "minecraft:white_concrete"},
         {pos: [1, 0, 5], state: "minecraft:white_concrete"},
         {pos: [1, 0, 6], state: "minecraft:white_concrete"},
