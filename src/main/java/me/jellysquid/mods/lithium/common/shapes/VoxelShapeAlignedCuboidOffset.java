@@ -22,9 +22,9 @@ public class VoxelShapeAlignedCuboidOffset extends VoxelShapeAlignedCuboid {
                 originalShape.maxX + xOffset, originalShape.maxY + yOffset, originalShape.maxZ + zOffset, originalShape.xyzResolution);
 
         if (originalShape instanceof VoxelShapeAlignedCuboidOffset) {
-            this.xOffset = ((VoxelShapeAlignedCuboidOffset) originalShape).xOffset + xOffset;
-            this.yOffset = ((VoxelShapeAlignedCuboidOffset) originalShape).yOffset + yOffset;
-            this.zOffset = ((VoxelShapeAlignedCuboidOffset) originalShape).zOffset + zOffset;
+            this.xOffset = ((VoxelShapeAlignedCuboidOffset) originalShape).xOffset + xOffset; //TODO the float addition here might cause non-vanilla floating point errors
+            this.yOffset = ((VoxelShapeAlignedCuboidOffset) originalShape).yOffset + yOffset; // Float non-associativity technically causes an issue here
+            this.zOffset = ((VoxelShapeAlignedCuboidOffset) originalShape).zOffset + zOffset; // In practice, this is likely not a problem
         } else {
             this.xOffset = xOffset;
             this.yOffset = yOffset;

@@ -75,7 +75,7 @@ public abstract class PathNodeCache {
             // section is empty or contains any dangerous blocks within the palette. If not, we can assume any checks
             // against this chunk section will always fail, allowing us to fast-exit.
             if (section == null || PathNodeCache.isSectionSafeAsNeighbor(section)) {
-                return fallback;
+                return fallback; //TODO side effects of vanilla's path node caching
             }
         }
 

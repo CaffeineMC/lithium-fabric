@@ -21,7 +21,7 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
     //EPSILON for use in cases where it must be a lot smaller than 1/256 and larger than EPSILON
     static final double LARGE_EPSILON = 10 * EPSILON;
 
-    //In bit aligned shapes the bitset adds segments are between minX/Y/Z and maxX/Y/Z.
+    //In bit-aligned shapes the bitset adds segments are between minX/Y/Z and maxX/Y/Z.
     //Segments all have the same size. There is an additional collision box between two adjacent segments (if both are inside the shape)
     protected final byte xyzResolution;
 

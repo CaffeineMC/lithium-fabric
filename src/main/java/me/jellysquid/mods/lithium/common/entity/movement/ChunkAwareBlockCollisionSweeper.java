@@ -129,7 +129,6 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
                             return false; //no more sections to iterate
                         }
                     }
-                    //Casting to Chunk is not checked, together with other mods this could cause a ClassCastException
                     this.cachedChunk = this.world.getChunk(this.chunkX, this.chunkZ, ChunkStatus.FULL, false);
                     if (this.cachedChunk != null) {
                         this.cachedChunkSection = this.cachedChunk.getSectionArray()[this.chunkYIndex];
