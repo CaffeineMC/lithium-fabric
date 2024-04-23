@@ -115,7 +115,7 @@ public abstract class PathNodeCache {
 
                     if (neighborType == null) { //Here null means that no path node type is cached (uninitialized or dynamic)
                         //Passing null as previous node type to the method signals to other lithium mixins that we only want the neighbor behavior of this block and not its neighbors
-                        neighborType = LandPathNodeMaker.getNodeTypeFromNeighbors(context, adjX, adjY, adjZ, null);
+                        neighborType = LandPathNodeMaker.getNodeTypeFromNeighbors(context, adjX + 1, adjY + 1, adjZ + 1, null);
                         //Here null means that the path node type is not changed by the block!
                         if (neighborType == null) {
                             neighborType = PathNodeType.OPEN;
