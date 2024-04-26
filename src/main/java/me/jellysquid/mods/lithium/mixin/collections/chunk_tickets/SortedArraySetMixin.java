@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.world.chunk_tickets;
+package me.jellysquid.mods.lithium.mixin.collections.chunk_tickets;
 
 import net.minecraft.util.collection.SortedArraySet;
 import org.spongepowered.asm.mixin.Mixin;

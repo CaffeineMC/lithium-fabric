@@ -198,6 +198,10 @@ Uses fastutil hashmaps for BlockEntity tickers
 (default: `true`)  
 Uses fastutil hashmaps for AI memories and sensors  
   
+### `mixin.collections.chunk_tickets`
+(default: `true`)  
+Improves the chunk ticket sets by speeding up the removal of chunk tickets  
+  
 ### `mixin.collections.entity_by_type`
 (default: `true`)  
 Uses fastutil hashmaps for type specific entity lists  
@@ -518,10 +522,6 @@ Requirements:
 ### `mixin.world.chunk_access`
 (default: `true`)  
 Several changes to the chunk manager to speed up chunk access  
-  
-### `mixin.world.chunk_tickets`
-(default: `true`)  
-Improves the chunk ticket sets by speeding up the removal of chunk tickets  
   
 ### `mixin.world.chunk_ticking`
 (default: `true`)  
