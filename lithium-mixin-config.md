@@ -296,10 +296,6 @@ Skips repeated checks whether the equipment of an entity changed. Instead equipm
 (default: `false`)  
 Various experimental optimizations  
   
-### `mixin.experimental.chunk_tickets`
-(default: `true`)  
-Only check positions with expiring tickets during ticket expiration. Can cause reordering of chunk unloading when unloading more than approximately two billion chunks at once.  
-  
 ### `mixin.experimental.entity`
 (default: `true`)  
 Experimental entity optimizations  
@@ -534,6 +530,10 @@ Access FluidState through already known BlockState instead of accessing the worl
 ### `mixin.world.combined_heightmap_update`
 (default: `true`)  
 The four vanilla heightmaps are updated using a combined block search instead of searching blocks separately.  
+  
+### `mixin.world.expiring_chunk_tickets`
+(default: `true`)  
+Only check positions with expiring tickets during ticket expiration. Can cause reordering of chunk unloading when unloading more than approximately two billion chunks at once.  
   
 ### `mixin.world.explosions`
 (default: `true`)  
