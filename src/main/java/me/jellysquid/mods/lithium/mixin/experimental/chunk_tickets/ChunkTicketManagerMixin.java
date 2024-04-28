@@ -59,7 +59,7 @@ public abstract class ChunkTicketManagerMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ChunkTicket;setTickCreated(J)V"),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private void registerExpiringTicket(long position, ChunkTicket<?> ticket, CallbackInfo ci, ChunkTicket<?> ticket2, SortedArraySet<ChunkTicket<?>> ticketsAtPos, int i, ChunkTicket<?> chunkTicket) {
+    private void registerExpiringTicket(long position, ChunkTicket<?> ticket, CallbackInfo ci, SortedArraySet<ChunkTicket<?>> ticketsAtPos, int i, ChunkTicket<?> chunkTicket) {
         if (canExpire(ticket)) {
             this.positionWithExpiringTicket.put(position, ticketsAtPos);
         }
@@ -86,7 +86,7 @@ public abstract class ChunkTicketManagerMixin {
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private void updateSetMinExpiryTime(long position, ChunkTicket<?> ticket, CallbackInfo ci, ChunkTicket<?> ticket2, SortedArraySet<?> sortedArraySet, int i) {
+    private void updateSetMinExpiryTime(long position, ChunkTicket<?> ticket, CallbackInfo ci, SortedArraySet<?> sortedArraySet, int i) {
         if (canExpire(ticket) && sortedArraySet instanceof ChunkTicketSortedArraySet<?> chunkTickets) {
             chunkTickets.addExpireTime(this.age + ticket.getType().getExpiryTicks());
         }
