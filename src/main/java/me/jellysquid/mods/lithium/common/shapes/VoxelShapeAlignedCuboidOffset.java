@@ -134,20 +134,30 @@ public class VoxelShapeAlignedCuboidOffset extends VoxelShapeAlignedCuboid {
 
     @Override
     public DoubleList getPointPositions(Direction.Axis axis) {
-        return new OffsetFractionalDoubleList(axis.choose(this.getXSegments(), this.getYSegments(), this.getZSegments()),
-                axis.choose(this.xOffset, this.yOffset, this.zOffset));
+        return switch (axis) {
+            case X -> new OffsetFractionalDoubleList(this.getXSegments(), this.xOffset);
+            case Y -> new OffsetFractionalDoubleList(this.getYSegments(), this.yOffset);
+            case Z -> new OffsetFractionalDoubleList(this.getZSegments(), this.zOffset);
+        };
     }
 
     @Override
     protected double getPointPosition(Direction.Axis axis, int index) {
-        return axis.choose(this.xOffset, this.yOffset, this.zOffset) +
-                ((double) index / (double) axis.choose(this.getXSegments(), this.getYSegments(), this.getZSegments()));
+        return switch (axis) {
+            case X -> this.xOffset + (double) index / (double) this.getXSegments();
+            case Y -> this.yOffset + (double) index / (double) this.getYSegments();
+            case Z -> this.zOffset + (double) index / (double) this.getZSegments();
+        };
     }
 
     @Override
     protected int getCoordIndex(Direction.Axis axis, double coord) {
-        coord -= axis.choose(this.xOffset, this.yOffset, this.zOffset);
-        int numSegments = axis.choose(this.getXSegments(), this.getYSegments(), this.getZSegments());
-        return MathHelper.clamp(MathHelper.floor(coord * (double) numSegments), -1, numSegments);
+        int numSegments;
+        coord = switch (axis) {
+            case X -> (coord - this.xOffset) * (numSegments = this.getXSegments());
+            case Y -> (coord - this.yOffset) * (numSegments = this.getYSegments());
+            case Z -> (coord - this.zOffset) * (numSegments = this.getZSegments());
+        };
+        return MathHelper.clamp(MathHelper.floor(coord), -1, numSegments);
     }
 }

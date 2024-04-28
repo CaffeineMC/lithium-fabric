@@ -131,17 +131,29 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
 
     @Override
     public DoubleList getPointPositions(Direction.Axis axis) {
-        return new FractionalDoubleList(axis.choose(this.getXSegments(), this.getYSegments(), this.getZSegments()));
+        return switch (axis) {
+            case X -> new FractionalDoubleList(this.getXSegments());
+            case Y -> new FractionalDoubleList(this.getYSegments());
+            case Z -> new FractionalDoubleList(this.getZSegments());
+        };
     }
 
     @Override
     protected double getPointPosition(Direction.Axis axis, int index) {
-        return (double) index / (double) axis.choose(this.getXSegments(), this.getYSegments(), this.getZSegments());
+        return switch (axis) {
+            case X -> (double) index / (double) this.getXSegments();
+            case Y -> (double) index / (double) this.getYSegments();
+            case Z -> (double) index / (double) this.getZSegments();
+        };
     }
 
     @Override
     protected int getCoordIndex(Direction.Axis axis, double coord) {
-        int i = axis.choose(this.getXSegments(), this.getYSegments(), this.getZSegments());
+        int i = switch (axis) {
+            case X -> this.getXSegments();
+            case Y -> this.getYSegments();
+            case Z -> this.getZSegments();
+        };
         return MathHelper.clamp(MathHelper.floor(coord * (double) i), -1, i);
     }
 
