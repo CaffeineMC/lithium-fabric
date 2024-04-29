@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.world.expiring_chunk_tickets;
+package me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.world.expiring_chunk_tickets;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
