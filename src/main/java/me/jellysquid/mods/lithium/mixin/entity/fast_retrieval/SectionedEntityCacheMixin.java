@@ -85,7 +85,10 @@ public abstract class SectionedEntityCacheMixin<T extends EntityLike> {
 
     private LazyIterationConsumer.NextIteration consumeSection(long pos, LazyIterationConsumer<EntityTrackingSection<T>> action) {
         EntityTrackingSection<T> section = this.findTrackingSection(pos);
-        if (section != null && 0 != section.size() && section.getStatus().shouldTrack()) {
+        //noinspection SizeReplaceableByIsEmpty
+        if (section != null &&
+                0 != section.size() /* util.entity_movement_tracking mixins modify isEmpty to include listener objects */
+                && section.getStatus().shouldTrack()) {
             return action.accept(section);
         }
         return LazyIterationConsumer.NextIteration.CONTINUE;
