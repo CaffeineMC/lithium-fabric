@@ -33,7 +33,7 @@
         {pos: [2, 0, 0], state: "minecraft:green_concrete"},
         {pos: [2, 0, 1], state: "minecraft:green_concrete"},
         {pos: [2, 0, 2], state: "minecraft:green_concrete"},
-        {pos: [2, 0, 3], state: "minecraft:command_block{conditional:false,facing:south}", nbt: {Command: "summon creeper ~ ~1 ~", CustomName: '{"text":"@"}', SuccessCount: 0, TrackOutput: 1b, UpdateLastExecution: 1b, auto: 0b, conditionMet: 0b, id: "minecraft:command_block", powered: 0b}},
+        {pos: [2, 0, 3], state: "minecraft:command_block{conditional:false,facing:south}", nbt: {Command: "summon creeper ~ ~1 ~ {PersistenceRequired:1b}", CustomName: '{"text":"@"}', SuccessCount: 0, TrackOutput: 1b, UpdateLastExecution: 1b, auto: 0b, conditionMet: 0b, id: "minecraft:command_block", powered: 0b}},
         {pos: [2, 0, 4], state: "minecraft:green_concrete"},
         {pos: [2, 0, 5], state: "minecraft:green_concrete"},
         {pos: [2, 0, 6], state: "minecraft:green_concrete"},
