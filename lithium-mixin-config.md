@@ -469,6 +469,10 @@ Requirements:
 (default: `true`)  
 ItemStacks notify subscribers about changes to their count.  
   
+### `mixin.util.item_type_tracking`
+(default: `true`)  
+Implements a subscription / publishing system for changes of item stack components and item entity item type.  
+  
 ### `mixin.util.world_border_listener`
 (default: `true`)  
 World border changes are sent to listeners such as BlockEntities  
