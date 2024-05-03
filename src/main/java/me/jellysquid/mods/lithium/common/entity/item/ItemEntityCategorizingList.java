@@ -1,21 +1,32 @@
 package me.jellysquid.mods.lithium.common.entity.item;
 
+import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import me.jellysquid.mods.lithium.common.hopper.NotifyingItemStack;
-import me.jellysquid.mods.lithium.mixin.util.accessors.ItemStackAccessor;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.function.LazyIterationConsumer;
 
 import java.util.ArrayList;
 
-public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEntity, Item> {
-
+public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEntity, ItemStack> {
+//TODO use ItemStack.getMaxCount instead of Item.getMaxCount, e.g. for carpet mod compatibility (stackable empty shulker boxes)
     @SuppressWarnings("unused")
     public static final int DOWNGRADE_THRESHOLD = 10; //TODO implement downgrade
     public static final int UPGRADE_THRESHOLD = 20;
+
+    private static final Hash.Strategy<ItemStack> ITEM_STACK_STRATEGY = new Hash.Strategy<>() {
+        @Override
+        public int hashCode(ItemStack itemStack) {
+            return itemStack.lithium$getItemVariantHash();
+        }
+
+        @Override
+        public boolean equals(ItemStack itemStack, ItemStack otherItemStack) {
+            return ItemStack.areItemsAndComponentsEqual(itemStack, otherItemStack);
+        }
+    };
 
 
     private final Reference2ReferenceOpenHashMap<ItemEntity, ItemStackSubscriber> subscribers;
@@ -27,25 +38,25 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
         return itemEntities;
     }
     private ItemEntityCategorizingList(ArrayList<ItemEntity> delegate) {
-        super(delegate);
+        super(delegate, ITEM_STACK_STRATEGY);
         this.subscribers = new Reference2ReferenceOpenHashMap<>();
     }
 
     @Override
-    Item getCategory(ItemEntity element) {
-        return ((ItemStackAccessor) (Object) element.getStack()).lithium$getItem();
+    ItemStack getCategory(ItemEntity element) {
+        return element.getStack();
     }
 
-    Item getCategory(ItemStack itemStack) {
-        return ((ItemStackAccessor) (Object) itemStack).lithium$getItem();
+    ItemStack getCategory(ItemStack itemStack) {
+        return (itemStack);
     }
 
     @Override
-    boolean areSubcategoriesAlwaysEmpty(Item item) {
+    boolean areSubcategoriesAlwaysEmpty(ItemStack item) {
         return item.getMaxCount() == 1;
     }
 
-    // If there are enough item entities in one category, divide the item entities into 3 buckets:
+    // If there are enough ItemStack entities in one category, divide the ItemStack entities into 3 buckets:
     // Stacks that are more than 50% full can only merge with stacks that are less than 50% full, etc.
     // Buckets:        A           B            *
     // Content:   "<100% full" "<=50% full"   "any"
@@ -59,7 +70,7 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
 
     private static boolean isSubCategoryA(ItemStack stack) {
         int count = stack.getCount();
-        int maxCount = ((ItemStackAccessor) (Object) stack).lithium$getItem().getMaxCount();
+        int maxCount = stack.getMaxCount();
         return isSubCategoryA(count, maxCount);
     }
 
@@ -75,7 +86,7 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
 
     private static boolean isSubCategoryB(ItemStack stack) {
         int count = stack.getCount();
-        int maxCount = ((ItemStackAccessor) (Object) stack).lithium$getItem().getMaxCount();
+        int maxCount = (stack).getMaxCount();
         return isSubCategoryB(count, maxCount);
     }
 
@@ -84,7 +95,7 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
     }
 
     public LazyIterationConsumer.NextIteration consumeForEntityStacking(ItemEntity searchingEntity, LazyIterationConsumer<ItemEntity> itemEntityConsumer) {
-        Item item = this.getCategory(searchingEntity);
+        ItemStack item = this.getCategory(searchingEntity);
         ItemStack stack = searchingEntity.getStack();
         int count = stack.getCount();
         int maxCount = item.getMaxCount();
@@ -97,8 +108,8 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
 
     @Override
     void onElementSubcategorized(ItemEntity element, int index) {
-        //Subcategorizing is based on the item stack count. The collection must be updated whenever the stack count changes.
-        //Use the item stack subscription system to receive updates:
+        //Subcategorizing is based on the ItemStack stack count. The collection must be updated whenever the stack count changes.
+        //Use the ItemStack stack subscription system to receive updates:
         ItemStackSubscriber subscriber = new ItemStackSubscriber() {
             @Override
             public void lithium$notifyBeforeCountChange(ItemStack itemStack, int index, int newCount) {
@@ -115,8 +126,8 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
     }
 
     private void notifyBeforeCountChange(ItemEntity element, int index, int newCount) {
-        //Fix the subcategories the item is added to
-        Item item = this.getCategory(element);
+        //Fix the subcategories the ItemStack is added to
+        ItemStack item = this.getCategory(element);
 
         int maxCount = item.getMaxCount();
         boolean categoryA = isSubCategoryA(newCount, maxCount);
@@ -127,7 +138,7 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
         this.updateSubcategoryAssignment(item, index, categoryA, oldCategoryA, categoryB, oldCategoryB);
     }
 
-    private void updateSubcategoryAssignment(Item category, int index, boolean categoryA, boolean oldCategoryA, boolean categoryB, boolean oldCategoryB) {
+    private void updateSubcategoryAssignment(ItemStack category, int index, boolean categoryA, boolean oldCategoryA, boolean categoryB, boolean oldCategoryB) {
         if (categoryA == oldCategoryA && categoryB == oldCategoryB) {
             return;
         }
@@ -150,8 +161,8 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
             ((NotifyingItemStack) (Object) element.getStack()).lithium$subscribeWithIndex(subscriber, index);
         }
 
-        Item previousCategory = getCategory(oldStack);
-        Item category = this.getCategory(element);
+        ItemStack previousCategory = getCategory(oldStack);
+        ItemStack category = this.getCategory(element);
         //Fix the indices stored in elementsByType, elementsByTypeA and elementsByTypeB.
         boolean subCategoryA = isSubCategoryA(element);
         boolean subCategoryB = isSubCategoryB(element);

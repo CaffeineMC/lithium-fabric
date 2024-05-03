@@ -1,7 +1,8 @@
 package me.jellysquid.mods.lithium.common.entity.item;
 
+import it.unimi.dsi.fastutil.Hash;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenCustomHashMap;
 import net.minecraft.util.function.LazyIterationConsumer;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,18 +16,19 @@ public abstract class ElementCategorizingList<T, Category> extends AbstractList<
     private static final int CATEGORY_UPGRADE_THRESHOLD = 20;
     private final ArrayList<T> delegate;
     private final ArrayList<T> delegateWithNulls;
-    private final Reference2ReferenceOpenHashMap<Category, IntArrayList> elementsByType;
-    private final Reference2ReferenceOpenHashMap<Category, IntArrayList> elementsByTypeA;
-    private final Reference2ReferenceOpenHashMap<Category, IntArrayList> elementsByTypeB;
+    private final Object2ReferenceOpenCustomHashMap<Category, IntArrayList> elementsByType;
+    private final Object2ReferenceOpenCustomHashMap<Category, IntArrayList> elementsByTypeA;
+    private final Object2ReferenceOpenCustomHashMap<Category, IntArrayList> elementsByTypeB;
 
     private int modCount; //Only used for better error messages / ConcurrentModificationException
+    private int lastRemovedIndex = -1;
 
-    public ElementCategorizingList(ArrayList<T> delegate) {
+    public ElementCategorizingList(ArrayList<T> delegate, Hash.Strategy<Category> categoryStrategy) {
         this.delegate = delegate;
         this.delegateWithNulls = new ArrayList<>(this.delegate.size());
-        this.elementsByType = new Reference2ReferenceOpenHashMap<>();
-        this.elementsByTypeA = new Reference2ReferenceOpenHashMap<>();
-        this.elementsByTypeB = new Reference2ReferenceOpenHashMap<>();
+        this.elementsByType = new Object2ReferenceOpenCustomHashMap<>(categoryStrategy);
+        this.elementsByTypeA = new Object2ReferenceOpenCustomHashMap<>(categoryStrategy);
+        this.elementsByTypeB = new Object2ReferenceOpenCustomHashMap<>(categoryStrategy);
     }
     protected void initialize() {
         this.initializeInternal();
@@ -129,6 +131,12 @@ public abstract class ElementCategorizingList<T, Category> extends AbstractList<
 
             //The consumer must not modify the consumed element and or other elements in the collection, or must return ABORT.
             LazyIterationConsumer.NextIteration next = elementConsumer.accept(element);
+            //Handle removal of the iterated element
+            if (index == this.lastRemovedIndex && expectedModCount + 1 == this.modCount) {
+                expectedModCount++;
+                i--;
+                size--;
+            }
             if (next != LazyIterationConsumer.NextIteration.CONTINUE) {
                 return next;
             }
@@ -396,6 +404,7 @@ public abstract class ElementCategorizingList<T, Category> extends AbstractList<
         Category category = this.getCategory(element);
         IntArrayList categoryList = this.elementsByType.get(category);
         int index = this.delegateWithNulls.indexOf(element);
+        this.lastRemovedIndex = index; //Used to support removal while iterating (only for the iterated element, but not using iterator.remove())
         if (index != this.delegateWithNulls.size() - 1) {
             this.delegateWithNulls.set(index, null); //Set to null so the indices in the category lists stay valid
         } else {

@@ -43,7 +43,7 @@ public class ItemEntityLazyIterationConsumer implements LazyIterationConsumer<It
             return NextIteration.CONTINUE;
         }
         //Since we are not creating a copy of the list of entities, we must determine the entities to interact with
-        //before starting to modify any item entities, as this would otherwise invalidate the iterator.
+        //before starting to modify any item entities, as this would otherwise invalidate the iterator, because removing item entities changes the collection.
         //Dry run the merging logic to determine a small list of entities to merge with:
         int receivedItemCount = predictReceivedItemCount(this.searchingEntity, this.stack, this.adjustedStackCount, otherItemEntity, otherItemEntity.getStack());
         if (receivedItemCount != 0) {
