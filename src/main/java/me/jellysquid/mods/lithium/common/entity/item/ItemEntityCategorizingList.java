@@ -19,7 +19,7 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
     private static final Hash.Strategy<ItemStack> ITEM_STACK_STRATEGY = new Hash.Strategy<>() {
         @Override
         public int hashCode(ItemStack itemStack) {
-            return itemStack.lithium$getItemVariantHash();
+            return ItemStack.hashCode(itemStack);
         }
 
         @Override
@@ -47,13 +47,9 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
         return element.getStack();
     }
 
-    ItemStack getCategory(ItemStack itemStack) {
-        return (itemStack);
-    }
-
     @Override
-    boolean areSubcategoriesAlwaysEmpty(ItemStack item) {
-        return item.getMaxCount() == 1;
+    boolean areSubcategoriesAlwaysEmpty(ItemStack itemStack) {
+        return itemStack.getMaxCount() == 1;
     }
 
     // If there are enough ItemStack entities in one category, divide the ItemStack entities into 3 buckets:
@@ -95,14 +91,13 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
     }
 
     public LazyIterationConsumer.NextIteration consumeForEntityStacking(ItemEntity searchingEntity, LazyIterationConsumer<ItemEntity> itemEntityConsumer) {
-        ItemStack item = this.getCategory(searchingEntity);
         ItemStack stack = searchingEntity.getStack();
         int count = stack.getCount();
-        int maxCount = item.getMaxCount();
+        int maxCount = stack.getMaxCount();
         if (count * 2 >= maxCount) { //>=50% full
-            return this.consumeCategoryB(itemEntityConsumer, item); // Entities that are <= 50% full.
+            return this.consumeCategoryB(itemEntityConsumer, stack); // Entities that are <= 50% full.
         } else {
-            return this.consumeCategoryA(itemEntityConsumer, item); // Entities that are <100% full
+            return this.consumeCategoryA(itemEntityConsumer, stack); // Entities that are <100% full
         }
     }
 
@@ -127,15 +122,15 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
 
     private void notifyBeforeCountChange(ItemEntity element, int index, int newCount) {
         //Fix the subcategories the ItemStack is added to
-        ItemStack item = this.getCategory(element);
+        ItemStack itemStack = this.getCategory(element);
 
-        int maxCount = item.getMaxCount();
+        int maxCount = itemStack.getMaxCount();
         boolean categoryA = isSubCategoryA(newCount, maxCount);
         boolean oldCategoryA = this.isSubCategoryA(element);
         boolean categoryB = isSubCategoryB(newCount, maxCount);
         boolean oldCategoryB = this.isSubCategoryB(element);
 
-        this.updateSubcategoryAssignment(item, index, categoryA, oldCategoryA, categoryB, oldCategoryB);
+        this.updateSubcategoryAssignment(itemStack, index, categoryA, oldCategoryA, categoryB, oldCategoryB);
     }
 
     private void updateSubcategoryAssignment(ItemStack category, int index, boolean categoryA, boolean oldCategoryA, boolean categoryB, boolean oldCategoryB) {
@@ -161,7 +156,6 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
             ((NotifyingItemStack) (Object) element.getStack()).lithium$subscribeWithIndex(subscriber, index);
         }
 
-        ItemStack previousCategory = getCategory(oldStack);
         ItemStack category = this.getCategory(element);
         //Fix the indices stored in elementsByType, elementsByTypeA and elementsByTypeB.
         boolean subCategoryA = isSubCategoryA(element);
@@ -170,7 +164,7 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
         boolean prevSubCategoryA = isSubCategoryA(oldStack);
         boolean prevSubCategoryB = isSubCategoryB(oldStack);
 
-        this.updateCategoryAndSubcategories(category, previousCategory, index, subCategoryA, prevSubCategoryA, subCategoryB, prevSubCategoryB);
+        this.updateCategoryAndSubcategories(category, oldStack, index, subCategoryA, prevSubCategoryA, subCategoryB, prevSubCategoryB);
 
     }
 
