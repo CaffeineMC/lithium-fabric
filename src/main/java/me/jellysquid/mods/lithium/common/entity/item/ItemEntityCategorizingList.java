@@ -103,7 +103,7 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
 
     @Override
     void onElementSubcategorized(ItemEntity element, int index) {
-        //Subcategorizing is based on the ItemStack stack count. The collection must be updated whenever the stack count changes.
+        //Sub-categorizing is based on the ItemStack stack count. The collection must be updated whenever the stack count changes.
         //Use the ItemStack stack subscription system to receive updates:
         ItemStackSubscriber subscriber = new ItemStackSubscriber() {
             @Override
