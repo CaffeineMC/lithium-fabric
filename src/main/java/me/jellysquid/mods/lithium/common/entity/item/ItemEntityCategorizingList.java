@@ -1,16 +1,16 @@
 package me.jellysquid.mods.lithium.common.entity.item;
 
 import it.unimi.dsi.fastutil.Hash;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceMap;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import me.jellysquid.mods.lithium.common.hopper.NotifyingItemStack;
+import me.jellysquid.mods.lithium.common.util.change_tracking.ChangePublisher;
+import me.jellysquid.mods.lithium.common.util.change_tracking.ChangeSubscriber;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.function.LazyIterationConsumer;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEntity, ItemStack> {
+public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEntity, ItemStack> implements ChangeSubscriber.CountChangeSubscriber<ItemEntity> {
 //TODO use ItemStack.getMaxCount instead of Item.getMaxCount, e.g. for carpet mod compatibility (stackable empty shulker boxes)
     @SuppressWarnings("unused")
     public static final int DOWNGRADE_THRESHOLD = 10; //TODO implement downgrade
@@ -28,10 +28,6 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
         }
     };
 
-
-    private final Reference2ReferenceOpenHashMap<ItemEntity, ItemStackSubscriber> subscribers;
-
-
     public static ItemEntityCategorizingList wrapDelegate(ArrayList<ItemEntity> delegate) {
         ItemEntityCategorizingList itemEntities = new ItemEntityCategorizingList(delegate);
         itemEntities.initialize();
@@ -39,7 +35,6 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
     }
     private ItemEntityCategorizingList(ArrayList<ItemEntity> delegate) {
         super(delegate, ITEM_STACK_STRATEGY);
-        this.subscribers = new Reference2ReferenceOpenHashMap<>();
     }
 
     @Override
@@ -105,22 +100,13 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
     void onElementSubcategorized(ItemEntity element, int index) {
         //Sub-categorizing is based on the ItemStack stack count. The collection must be updated whenever the stack count changes.
         //Use the ItemStack stack subscription system to receive updates:
-        ItemStackSubscriber subscriber = new ItemStackSubscriber() {
-            @Override
-            public void lithium$notifyBeforeCountChange(ItemStack itemStack, int index, int newCount) {
-                ItemEntityCategorizingList.this.notifyBeforeCountChange(element, index, newCount);
-            }
 
-            @Override
-            public void lithium$notifyAfterItemEntityStackSwap(int index, ItemEntity itemEntity, ItemStack oldStack) {
-                ItemEntityCategorizingList.this.notifyAfterStackSwap(index, itemEntity, oldStack);
-            }
-        };
-        this.subscribers.put(element, subscriber);
-        ((NotifyingItemStack) (Object) element.getStack()).lithium$subscribeWithIndex(subscriber, index);
+        //noinspection unchecked
+        ((ChangePublisher<ItemEntity>) element).lithium$subscribe(this, index);
     }
 
-    private void notifyBeforeCountChange(ItemEntity element, int index, int newCount) {
+    @Override
+    public void lithium$notifyCount(ItemEntity element, int index, int newCount) {
         //Fix the subcategories the ItemStack is added to
         ItemStack itemStack = this.getCategory(element);
 
@@ -144,34 +130,34 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
     }
 
 
-    private void notifyAfterStackSwap(int index, ItemEntity element, ItemStack oldStack) {
-        ItemStack stack = element.getStack();
-        if (stack == oldStack) {
-            return;
-        }
-        //Fix the stack subscription. We can reuse the subscriber object as it only stores a reference to this list and the element.
-        ItemStackSubscriber subscriber = this.subscribers.get(element);
-        if (subscriber != null) {
-            ((NotifyingItemStack) (Object) oldStack).lithium$unsubscribe(subscriber);
-            ((NotifyingItemStack) (Object) element.getStack()).lithium$subscribeWithIndex(subscriber, index);
-        }
-
-        ItemStack category = this.getCategory(element);
-        //Fix the indices stored in elementsByType, elementsByTypeA and elementsByTypeB.
-        boolean subCategoryA = isSubCategoryA(element);
-        boolean subCategoryB = isSubCategoryB(element);
-
-        boolean prevSubCategoryA = isSubCategoryA(oldStack);
-        boolean prevSubCategoryB = isSubCategoryB(oldStack);
-
-        this.updateCategoryAndSubcategories(category, oldStack, index, subCategoryA, prevSubCategoryA, subCategoryB, prevSubCategoryB);
-
-    }
+//    private void notifyAfterStackSwap(int index, ItemEntity element, ItemStack oldStack) {
+//        ItemStack stack = element.getStack();
+//        if (stack == oldStack) {
+//            return;
+//        }
+//        //Fix the stack subscription. We can reuse the subscriber object as it only stores a reference to this list and the element.
+//        ItemStackSubscriber subscriber = this.subscribers.get(element);
+//        if (subscriber != null) {
+//            ((NotifyingItemStack) (Object) oldStack).lithium$unsubscribe(subscriber);
+//            ((NotifyingItemStack) (Object) element.getStack()).lithium$subscribeWithIndex(subscriber, index);
+//        }
+//
+//        ItemStack category = this.getCategory(element);
+//        //Fix the indices stored in elementsByType, elementsByTypeA and elementsByTypeB.
+//        boolean subCategoryA = isSubCategoryA(element);
+//        boolean subCategoryB = isSubCategoryB(element);
+//
+//        boolean prevSubCategoryA = isSubCategoryA(oldStack);
+//        boolean prevSubCategoryB = isSubCategoryB(oldStack);
+//
+//        this.updateCategoryAndSubcategories(category, oldStack, index, subCategoryA, prevSubCategoryA, subCategoryB, prevSubCategoryB);
+//
+//    }
 
     @Override
     void onElementUnSubcategorized(ItemEntity element) {
-        ItemStackSubscriber subscriber = this.subscribers.remove(element);
-        ((NotifyingItemStack) (Object) element.getStack()).lithium$unsubscribe(subscriber);
+        //noinspection unchecked
+        ((ChangePublisher<ItemEntity>) element).lithium$unsubscribe(this);
     }
 
     @Override
@@ -185,10 +171,21 @@ public class ItemEntityCategorizingList extends ElementCategorizingList<ItemEnti
     }
 
     private void onAllElementsUnSubcategorized() {
-        for (Reference2ReferenceMap.Entry<ItemEntity, ItemStackSubscriber> entry : this.subscribers.reference2ReferenceEntrySet()) {
-            ItemEntity itemEntity = entry.getKey();
-            ItemStackSubscriber subscriber = entry.getValue();
-            ((NotifyingItemStack) (Object) itemEntity.getStack()).lithium$unsubscribe(subscriber);
+        for (ItemEntity element : this) {
+            //noinspection unchecked
+            ((ChangePublisher<ItemEntity>) element).lithium$unsubscribe(this);
         }
+    }
+
+    @Override
+    public void lithium$notify(@Nullable ItemEntity publisher, int subscriberData) {
+        //TODO handle outdated, use subscriberData as index to remove the item until the modification is done
+        this.outdated.add(publisher);
+    }
+
+    @Override
+    public void lithium$forceUnsubscribe(ItemEntity publisher, int subscriberData) {
+        //TODO handle outdated, use subscriberData as index to remove the item until the modification is done
+        this.outdated.add(publisher);
     }
 }

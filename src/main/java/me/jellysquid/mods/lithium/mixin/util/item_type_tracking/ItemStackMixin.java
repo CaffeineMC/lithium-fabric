@@ -35,7 +35,7 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
                 return false;
             }
         }
-        this.subscriber = ChangeSubscriber.add(this.subscriber, this.subscriberData, subscriber, subscriberData);
+        this.subscriber = ChangeSubscriber.combine(this.subscriber, this.subscriberData, subscriber, subscriberData);
         if (this.subscriber instanceof ChangeSubscriber.Multi<?>) {
             this.subscriberData = 0;
         } else {
@@ -47,7 +47,7 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
     @Override
     public void lithium$unsubscribe(ChangeSubscriber<ItemStack> subscriber) {
         this.subscriberData = ChangeSubscriber.dataWithout(this.subscriber, subscriber, this.subscriberData);
-        this.subscriber = ChangeSubscriber.remove(this.subscriber, subscriber);
+        this.subscriber = ChangeSubscriber.without(this.subscriber, subscriber);
 
         if (this.subscriber == null) {
             //noinspection unchecked
@@ -70,8 +70,8 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
     private void unsubscribeOnEmpty(int count, CallbackInfo ci) {
         if (count != this.count) {
 
-            if (this.subscriber instanceof ChangeSubscriber.ItemCountChangeSubscriber<ItemStack> itemCountChangeSubscriber) {
-                itemCountChangeSubscriber.lithium$notifyBeforeCountChange((ItemStack) (Object) this, this.subscriberData, count);
+            if (this.subscriber instanceof ChangeSubscriber.CountChangeSubscriber<ItemStack> countChangeSubscriber) {
+                countChangeSubscriber.lithium$notifyCount((ItemStack) (Object) this, this.subscriberData, count);
             }
 
             if (count == 0) {

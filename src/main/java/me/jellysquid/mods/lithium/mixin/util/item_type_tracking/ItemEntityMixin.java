@@ -41,7 +41,7 @@ public abstract class ItemEntityMixin implements ChangePublisher<ItemEntity>, Ch
                 return false;
             }
         }
-        this.subscriber = ChangeSubscriber.add(this.subscriber, this.subscriberData, subscriber, subscriberData);
+        this.subscriber = ChangeSubscriber.combine(this.subscriber, this.subscriberData, subscriber, subscriberData);
         if (this.subscriber instanceof ChangeSubscriber.Multi<?>) {
             this.subscriberData = 0;
         } else {
@@ -53,7 +53,7 @@ public abstract class ItemEntityMixin implements ChangePublisher<ItemEntity>, Ch
     @Override
     public void lithium$unsubscribe(ChangeSubscriber<ItemEntity> subscriber) {
         this.subscriberData = ChangeSubscriber.dataWithout(this.subscriber, subscriber, this.subscriberData);
-        this.subscriber = ChangeSubscriber.remove(this.subscriber, subscriber);
+        this.subscriber = ChangeSubscriber.without(this.subscriber, subscriber);
 
         if (this.subscriber == null) {
             ItemStack stack = this.getStack();

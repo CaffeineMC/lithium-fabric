@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public interface ChangeSubscriber<T> {
 
-    static <T> ChangeSubscriber<T> add(ChangeSubscriber<T> prevSubscriber, int prevSData, @NotNull ChangeSubscriber<T> newSubscriber, int newSData) {
+    static <T> ChangeSubscriber<T> combine(ChangeSubscriber<T> prevSubscriber, int prevSData, @NotNull ChangeSubscriber<T> newSubscriber, int newSData) {
         if (prevSubscriber == null) {
             return newSubscriber;
         } else if (prevSubscriber instanceof Multi) {
@@ -28,7 +28,7 @@ public interface ChangeSubscriber<T> {
         }
     }
 
-    static <T> ChangeSubscriber<T> remove(ChangeSubscriber<T> prevSubscriber, ChangeSubscriber<T> removedSubscriber) {
+    static <T> ChangeSubscriber<T> without(ChangeSubscriber<T> prevSubscriber, ChangeSubscriber<T> removedSubscriber) {
         if (prevSubscriber == removedSubscriber) {
             return null;
         } else if (prevSubscriber instanceof Multi<T> multi) {
@@ -72,15 +72,34 @@ public interface ChangeSubscriber<T> {
     }
 
 
+    /**
+     * Notify the subscriber that the publisher will be changed immediately after this call.
+     * @param publisher The publisher that is about to change
+     * @param subscriberData The data associated with the subscriber, given when the subscriber was added
+     */
     void lithium$notify(@Nullable T publisher, int subscriberData);
 
+    /**
+     * Notify the subscriber about being unsubscribed from the publisher. Used when the publisher becomes invalid.
+     * The subscriber should not attempt to unsubscribe itself from the publisher in this method.
+     *
+     * @param publisher The publisher unsubscribed from
+     * @param subscriberData The data associated with the subscriber, given when the subscriber was added
+     */
     void lithium$forceUnsubscribe(T publisher, int subscriberData);
 
-    interface ItemCountChangeSubscriber<T> extends ChangeSubscriber<T> {
-        void lithium$notifyBeforeCountChange(T publisher, int sData, int newCount);
+    interface CountChangeSubscriber<T> extends ChangeSubscriber<T> {
+
+        /**
+         * Notify the subscriber that the publisher's count data will be changed immediately after this call.
+         * @param publisher The publisher that is about to change
+         * @param subscriberData The data associated with the subscriber, given when the subscriber was added
+         * @param newCount The new count of the publisher
+         */
+        void lithium$notifyCount(T publisher, int subscriberData, int newCount);
     }
 
-    class Multi<T> implements ItemCountChangeSubscriber<T> {
+    class Multi<T> implements CountChangeSubscriber<T> {
         private final ArrayList<ChangeSubscriber<T>> subscribers;
         private final IntArrayList subscriberDatas;
 
@@ -108,12 +127,12 @@ public interface ChangeSubscriber<T> {
         }
 
         @Override
-        public void lithium$notifyBeforeCountChange(T publisher, int sData, int newCount) {
+        public void lithium$notifyCount(T publisher, int subscriberData, int newCount) {
             ArrayList<ChangeSubscriber<T>> changeSubscribers = this.subscribers;
             for (int i = 0; i < changeSubscribers.size(); i++) {
                 ChangeSubscriber<T> subscriber = changeSubscribers.get(i);
-                if (subscriber instanceof ItemCountChangeSubscriber<T> itemCountChangeSubscriber) {
-                    itemCountChangeSubscriber.lithium$notifyBeforeCountChange(publisher, this.subscriberDatas.getInt(i), newCount);
+                if (subscriber instanceof ChangeSubscriber.CountChangeSubscriber<T> countChangeSubscriber) {
+                    countChangeSubscriber.lithium$notifyCount(publisher, this.subscriberDatas.getInt(i), newCount);
                 }
             }
         }
