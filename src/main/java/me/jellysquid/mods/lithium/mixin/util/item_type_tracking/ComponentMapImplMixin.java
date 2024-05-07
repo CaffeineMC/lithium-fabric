@@ -19,9 +19,9 @@ public class ComponentMapImplMixin implements ChangePublisher<ComponentMapImpl> 
     private ChangeSubscriber<ComponentMapImpl> subscriber;
 
     @Override
-    public boolean lithium$subscribe(ChangeSubscriber<ComponentMapImpl> subscriber) {
+    public boolean lithium$subscribe(ChangeSubscriber<ComponentMapImpl> subscriber, int subscriberData) {
         this.startTrackingChanges();
-        this.subscriber = ChangeSubscriber.add(this.subscriber, subscriber);
+        this.subscriber = ChangeSubscriber.add(this.subscriber, 0, subscriber, 0);
         return true;
     }
 
@@ -40,7 +40,7 @@ public class ComponentMapImplMixin implements ChangePublisher<ComponentMapImpl> 
     )
     private void trackBeforeChange(CallbackInfo ci) {
         if (this.subscriber != null) {
-            this.subscriber.lithium$notify((ComponentMapImpl) (Object) this);
+            this.subscriber.lithium$notify((ComponentMapImpl) (Object) this, 0);
         }
     }
 }
