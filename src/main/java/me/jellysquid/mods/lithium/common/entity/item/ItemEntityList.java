@@ -28,7 +28,8 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
 
         @Override
         public boolean equals(ItemStack itemStack, ItemStack otherItemStack) {
-            return ItemStack.areItemsAndComponentsEqual(itemStack, otherItemStack);
+            return itemStack == otherItemStack ||
+                    itemStack != null && otherItemStack != null && ItemStack.areItemsAndComponentsEqual(itemStack, otherItemStack);
         }
     };
 
