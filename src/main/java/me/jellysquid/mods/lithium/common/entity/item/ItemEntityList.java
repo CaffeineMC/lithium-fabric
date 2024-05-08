@@ -47,6 +47,12 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
         this.elementsByCategory = new Object2ReferenceOpenCustomHashMap<>(STRATEGY);
         this.maxHalfFullElementsByCategory = new Object2ReferenceOpenCustomHashMap<>(STRATEGY);;
         this.tempUncategorizedElements = new IntOpenHashSet();
+
+        for (int i = 0; i < this.delegateWithNulls.size(); i++) {
+            ItemEntity element = this.delegateWithNulls.get(i);
+            this.addToCategories(element, i, false);
+            this.subscribeElement(element, i);
+        }
     }
 
     protected void markElementAsOutdated(ItemEntity element, int index) {
