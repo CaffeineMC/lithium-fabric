@@ -8,6 +8,7 @@ import java.util.Arrays;
 /**
  * Handling shadow items in multiple inventories or item entities
  */
+@Deprecated
 public class ItemStackSubscriberMulti implements ItemStackSubscriber {
     private final ItemStackSubscriber[] subscribers;
     private final int[] indices;

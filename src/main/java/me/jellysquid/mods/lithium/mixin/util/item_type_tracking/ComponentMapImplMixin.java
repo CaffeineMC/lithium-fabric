@@ -16,14 +16,17 @@ public class ComponentMapImplMixin implements ChangePublisher<ComponentMapImpl> 
     private ChangeSubscriber<ComponentMapImpl> subscriber;
 
     @Override
-    public boolean lithium$subscribe(ChangeSubscriber<ComponentMapImpl> subscriber, int subscriberData) {
+    public void lithium$subscribe(ChangeSubscriber<ComponentMapImpl> subscriber, int subscriberData) {
+        if (subscriberData != 0) {
+            throw new UnsupportedOperationException("ComponentMapImpl does not support subscriber data");
+        }
         this.subscriber = ChangeSubscriber.combine(this.subscriber, 0, subscriber, 0);
-        return true;
     }
 
     @Override
-    public void lithium$unsubscribe(ChangeSubscriber<ComponentMapImpl> subscriber) {
+    public int lithium$unsubscribe(ChangeSubscriber<ComponentMapImpl> subscriber) {
         this.subscriber = ChangeSubscriber.without(this.subscriber, subscriber);
+        return 0;
     }
 
     @Inject(

@@ -24,22 +24,18 @@ public abstract class ItemEntityMixin implements ChangePublisher<ItemEntity>, Ch
     private int subscriberData;
 
     @Unique
-    private boolean startTrackingChanges() {
+    private void startTrackingChanges() {
         ItemStack stack = this.getStack();
         if (!stack.isEmpty()) {
             //noinspection unchecked
-            return ((ChangePublisher<ItemStack>) (Object) stack).lithium$subscribe(this, 0);
+            ((ChangePublisher<ItemStack>) (Object) stack).lithium$subscribe(this, 0);
         }
-        return true;
     }
 
     @Override
-    public boolean lithium$subscribe(ChangeSubscriber<ItemEntity> subscriber, int subscriberData) {
+    public void lithium$subscribe(ChangeSubscriber<ItemEntity> subscriber, int subscriberData) {
         if (this.subscriber == null) {
-            boolean b = this.startTrackingChanges();
-            if (!b) {
-                return false;
-            }
+            this.startTrackingChanges();
         }
         this.subscriber = ChangeSubscriber.combine(this.subscriber, this.subscriberData, subscriber, subscriberData);
         if (this.subscriber instanceof ChangeSubscriber.Multi<?>) {
@@ -47,11 +43,11 @@ public abstract class ItemEntityMixin implements ChangePublisher<ItemEntity>, Ch
         } else {
             this.subscriberData = subscriberData;
         }
-        return false;
     }
 
     @Override
-    public void lithium$unsubscribe(ChangeSubscriber<ItemEntity> subscriber) {
+    public int lithium$unsubscribe(ChangeSubscriber<ItemEntity> subscriber) {
+        int retval = ChangeSubscriber.dataOf(this.subscriber, subscriber, this.subscriberData);
         this.subscriberData = ChangeSubscriber.dataWithout(this.subscriber, subscriber, this.subscriberData);
         this.subscriber = ChangeSubscriber.without(this.subscriber, subscriber);
 
@@ -62,6 +58,7 @@ public abstract class ItemEntityMixin implements ChangePublisher<ItemEntity>, Ch
                 ((ChangePublisher<ItemStack>) (Object) stack).lithium$unsubscribe(this);
             }
         }
+        return retval;
     }
 
     @Override

@@ -71,6 +71,10 @@ public interface ChangeSubscriber<T> {
         return prevSubscriber == removedSubscriber ? 0 : subscriberData;
     }
 
+    static int dataOf(ChangeSubscriber<?> subscribers, ChangeSubscriber<?> subscriber, int subscriberData) {
+        return subscribers instanceof Multi<?> multi ? multi.subscriberDatas.getInt(multi.subscribers.indexOf(subscriber)) : subscriberData;
+    }
+
 
     /**
      * Notify the subscriber that the publisher will be changed immediately after this call.

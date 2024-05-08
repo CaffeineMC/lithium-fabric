@@ -47,7 +47,7 @@ public class ItemEntityLazyIterationConsumer implements LazyIterationConsumer<It
 
         int receivedItemCount = predictReceivedItemCount(this.searchingEntity, this.stack, this.adjustedStackCount, otherItemEntity);
         if (receivedItemCount != 0) {
-            //The item entity is mergeable, so add it to the list of entities to merge with and adjust the stack count.
+            //The item entity can be merged, so add it to the list of entities to merge with and adjust the stack count.
             this.mergeEntities.add(otherItemEntity);
             this.adjustedStackCount += receivedItemCount;
 

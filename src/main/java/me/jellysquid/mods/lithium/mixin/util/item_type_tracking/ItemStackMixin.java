@@ -28,12 +28,9 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
     private int subscriberData;
 
     @Override
-    public boolean lithium$subscribe(ChangeSubscriber<ItemStack> subscriber, int subscriberData) {
+    public void lithium$subscribe(ChangeSubscriber<ItemStack> subscriber, int subscriberData) {
         if (this.subscriber == null) {
-            boolean b = this.startTrackingChanges();
-            if (!b) {
-                return false;
-            }
+            this.startTrackingChanges();
         }
         this.subscriber = ChangeSubscriber.combine(this.subscriber, this.subscriberData, subscriber, subscriberData);
         if (this.subscriber instanceof ChangeSubscriber.Multi<?>) {
@@ -41,11 +38,11 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
         } else {
             this.subscriberData = subscriberData;
         }
-        return false;
     }
 
     @Override
-    public void lithium$unsubscribe(ChangeSubscriber<ItemStack> subscriber) {
+    public int lithium$unsubscribe(ChangeSubscriber<ItemStack> subscriber) {
+        int retval = ChangeSubscriber.dataOf(this.subscriber, subscriber, this.subscriberData);
         this.subscriberData = ChangeSubscriber.dataWithout(this.subscriber, subscriber, this.subscriberData);
         this.subscriber = ChangeSubscriber.without(this.subscriber, subscriber);
 
@@ -53,17 +50,14 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
             //noinspection unchecked
             ((ChangePublisher<ComponentMapImpl>) (Object) this.components).lithium$unsubscribe(this);
         }
+        return retval;
     }
 
     @Unique
-    private boolean startTrackingChanges() {
+    private void startTrackingChanges() {
         //Safe because ComponentMapImplMixin
         //noinspection unchecked
-        boolean b = ((ChangePublisher<ComponentMapImpl>) (Object) this.components).lithium$subscribe(this, 0);
-        if (!b) {
-            throw new IllegalStateException("Failed to subscribe to component map!");
-        }
-        return b;
+        ((ChangePublisher<ComponentMapImpl>) (Object) this.components).lithium$subscribe(this, 0);
     }
 
     @Inject(method = "setCount(I)V", at = @At("HEAD"))
