@@ -255,6 +255,9 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
 
     @Override
     public void clear() {
+        for (ItemEntity element : this.delegate) {
+            this.unsubscribeElement(element);
+        }
         this.delegate.clear();
         
         this.tempUncategorizedElements.clear();
