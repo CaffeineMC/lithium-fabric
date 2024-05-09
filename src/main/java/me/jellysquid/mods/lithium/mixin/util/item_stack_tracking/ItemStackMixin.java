@@ -3,7 +3,6 @@ package me.jellysquid.mods.lithium.mixin.util.item_stack_tracking;
 import me.jellysquid.mods.lithium.common.entity.item.ItemStackSubscriber;
 import me.jellysquid.mods.lithium.common.entity.item.ItemStackSubscriberMulti;
 import me.jellysquid.mods.lithium.common.hopper.NotifyingItemStack;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -72,13 +71,6 @@ public abstract class ItemStackMixin implements NotifyingItemStack {
         } else {
             this.stackChangeSubscriber = new ItemStackSubscriberMulti(this.stackChangeSubscriber, this.myIndex, subscriber, index);
             this.myIndex = -1;
-        }
-    }
-
-    @Override
-    public void lithium$notifyAfterItemEntityStackSwap(ItemEntity itemEntity, ItemStack oldStack) {
-        if (this.stackChangeSubscriber != null) {
-            this.stackChangeSubscriber.lithium$notifyAfterItemEntityStackSwap(this.myIndex, itemEntity, oldStack);
         }
     }
 }

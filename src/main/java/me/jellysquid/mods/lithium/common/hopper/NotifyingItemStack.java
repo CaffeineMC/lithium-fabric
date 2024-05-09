@@ -1,8 +1,6 @@
 package me.jellysquid.mods.lithium.common.hopper;
 
 import me.jellysquid.mods.lithium.common.entity.item.ItemStackSubscriber;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.ItemStack;
 
 @Deprecated
 public interface NotifyingItemStack {
@@ -14,6 +12,4 @@ public interface NotifyingItemStack {
     void lithium$unsubscribe(ItemStackSubscriber subscriber);
 
     void lithium$unsubscribeWithIndex(ItemStackSubscriber subscriber, int index);
-
-    void lithium$notifyAfterItemEntityStackSwap(ItemEntity itemEntity, ItemStack oldStack);
 }
