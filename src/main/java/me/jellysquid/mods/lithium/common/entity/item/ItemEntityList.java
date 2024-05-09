@@ -357,6 +357,8 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
     }
 
     public LazyIterationConsumer.NextIteration consumeForEntityStacking(ItemEntity searchingEntity, LazyIterationConsumer<ItemEntity> itemEntityConsumer) {
+        this.processOutdated();
+
         ItemStack stack = searchingEntity.getStack();
         int count = stack.getCount();
         int maxCount = stack.getMaxCount();
