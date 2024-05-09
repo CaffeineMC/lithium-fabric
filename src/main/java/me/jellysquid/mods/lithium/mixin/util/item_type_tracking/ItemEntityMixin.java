@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemEntity.class)
-public abstract class ItemEntityMixin implements ChangePublisher<ItemEntity>, ChangeSubscriber<ItemStack> {
+public abstract class ItemEntityMixin implements ChangePublisher<ItemEntity>, ChangeSubscriber.CountChangeSubscriber<ItemStack> {
 
     @Shadow
     public abstract ItemStack getStack();
@@ -76,6 +76,17 @@ public abstract class ItemEntityMixin implements ChangePublisher<ItemEntity>, Ch
     public void lithium$forceUnsubscribe(ItemStack publisher, int subscriberData) {
         if (this.subscriber != null) {
             this.subscriber.lithium$forceUnsubscribe((ItemEntity) (Object) this, this.subscriberData);
+        }
+    }
+
+    @Override
+    public void lithium$notifyCount(ItemStack publisher, int subscriberData, int newCount) {
+        if (publisher != this.getStack()) {
+            throw new IllegalStateException("Received notification from an unexpected publisher");
+        }
+
+        if (this.subscriber instanceof ChangeSubscriber.CountChangeSubscriber<ItemEntity> countChangeSubscriber) {
+            countChangeSubscriber.lithium$notifyCount((ItemEntity) (Object) this, this.subscriberData, newCount);
         }
     }
 
