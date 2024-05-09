@@ -136,7 +136,7 @@ Requirements:
 - `mixin.util.entity_movement_tracking=true`
 - `mixin.util.block_entity_retrieval=true`
 - `mixin.util.inventory_change_listening=true`
-- `mixin.util.item_type_tracking=true`  
+- `mixin.util.item_component_and_count_tracking=true`  
   
 ### `mixin.block.hopper.worldedit_compat`
 (default: `false`)  
@@ -340,7 +340,7 @@ Optimize item entity merging by categorizing item entities by item type and only
 Requirements:
 - `mixin.util.accessors=true`
 - `mixin.util.entity_collection_replacement=true`
-- `mixin.util.item_type_tracking=true`  
+- `mixin.util.item_component_and_count_tracking=true`  
   
 ### `mixin.experimental.spawning`
 (default: `true`)  
@@ -462,7 +462,7 @@ BlockEntity Inventories update their listeners when a comparator is placed near 
 Requirements:
 - `mixin.util.block_entity_retrieval=true`  
   
-### `mixin.util.item_type_tracking`
+### `mixin.util.item_component_and_count_tracking`
 (default: `true`)  
 Implements a subscription / publishing system for changes of item stack components and item entity item type.  
   

@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.util.item_type_tracking;
+package me.jellysquid.mods.lithium.mixin.util.item_component_and_count_tracking;
 
 import me.jellysquid.mods.lithium.common.util.change_tracking.ChangePublisher;
 import me.jellysquid.mods.lithium.common.util.change_tracking.ChangeSubscriber;
