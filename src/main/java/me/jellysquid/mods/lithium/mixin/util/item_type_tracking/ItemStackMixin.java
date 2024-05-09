@@ -22,6 +22,9 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
     @Shadow
     private int count;
 
+    @Shadow
+    public abstract boolean isEmpty();
+
     @Unique
     private ChangeSubscriber<ItemStack> subscriber;
     @Unique
@@ -29,6 +32,10 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
 
     @Override
     public void lithium$subscribe(ChangeSubscriber<ItemStack> subscriber, int subscriberData) {
+        if (this.isEmpty()) {
+            return;
+        }
+
         if (this.subscriber == null) {
             this.startTrackingChanges();
         }
@@ -42,6 +49,12 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
 
     @Override
     public int lithium$unsubscribe(ChangeSubscriber<ItemStack> subscriber) {
+        if (this.isEmpty()) {
+            if (subscriber != null) {
+                throw new IllegalStateException("Empty Item Stack may not have any subscribers!");
+            }
+            throw new IllegalStateException("Cannot unsubscribe from an empty ItemStack!");
+        }
         int retval = ChangeSubscriber.dataOf(this.subscriber, subscriber, this.subscriberData);
         this.subscriberData = ChangeSubscriber.dataWithout(this.subscriber, subscriber, this.subscriberData);
         this.subscriber = ChangeSubscriber.without(this.subscriber, subscriber);
@@ -51,6 +64,27 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
             ((ChangePublisher<ComponentMapImpl>) (Object) this.components).lithium$unsubscribe(this);
         }
         return retval;
+    }
+
+    @Override
+    public void lithium$unsubscribeWithData(ChangeSubscriber<ItemStack> subscriber, int subscriberData) {
+        this.subscriberData = ChangeSubscriber.dataWithout(this.subscriber, subscriber, this.subscriberData, subscriberData, true);
+        this.subscriber = ChangeSubscriber.without(this.subscriber, subscriber, subscriberData, true);
+
+        if (this.subscriber == null) {
+            //noinspection unchecked
+            ((ChangePublisher<ComponentMapImpl>) (Object) this.components).lithium$unsubscribe(this);
+        }
+    }
+
+    @Override
+    public void lithium$forceUnsubscribe(ComponentMapImpl publisher, int subscriberData) {
+        if (publisher != this.components) {
+            throw new IllegalStateException("Invalid publisher, expected " + this.components + " but got " + publisher);
+        }
+        this.subscriber.lithium$forceUnsubscribe((ItemStack) (Object) this, this.subscriberData);
+        this.subscriber = null;
+        this.subscriberData = 0;
     }
 
     @Unique
@@ -83,6 +117,10 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
 
     @Override
     public void lithium$notify(ComponentMapImpl publisher, int subscriberData) {
+        if (publisher != this.components) {
+            throw new IllegalStateException("Invalid publisher, expected " + this.components + " but got " + publisher);
+        }
+
         if (this.subscriber != null) {
             this.subscriber.lithium$notify((ItemStack) (Object) this, this.subscriberData);
         }

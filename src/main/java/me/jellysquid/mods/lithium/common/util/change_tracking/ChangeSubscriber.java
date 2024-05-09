@@ -27,15 +27,18 @@ public interface ChangeSubscriber<T> {
             return new Multi<>(subscribers, subscriberDatas);
         }
     }
-
     static <T> ChangeSubscriber<T> without(ChangeSubscriber<T> prevSubscriber, ChangeSubscriber<T> removedSubscriber) {
+        return without(prevSubscriber, removedSubscriber, 0, false);
+    }
+
+    static <T> ChangeSubscriber<T> without(ChangeSubscriber<T> prevSubscriber, ChangeSubscriber<T> removedSubscriber, int removedSubscriberData, boolean matchData) {
         if (prevSubscriber == removedSubscriber) {
             return null;
         } else if (prevSubscriber instanceof Multi<T> multi) {
-            int index = multi.subscribers.indexOf(removedSubscriber);
+            int index = multi.indexOf(removedSubscriber, removedSubscriberData, matchData);
             if (index != -1) {
                 if (multi.subscribers.size() == 2) {
-                    return multi.subscribers.get(0) == removedSubscriber ? multi.subscribers.get(1) : multi.subscribers.get(0);
+                    return multi.subscribers.get(1 - index);
                 } else {
                     ArrayList<ChangeSubscriber<T>> subscribers = new ArrayList<>(multi.subscribers);
                     IntArrayList subscriberDatas = new IntArrayList(multi.subscriberDatas);
@@ -53,19 +56,20 @@ public interface ChangeSubscriber<T> {
     }
 
     static <T> int dataWithout(ChangeSubscriber<T> prevSubscriber, ChangeSubscriber<T> removedSubscriber, int subscriberData) {
+        return dataWithout(prevSubscriber, removedSubscriber, subscriberData, 0, false);
+    }
+
+    static <T> int dataWithout(ChangeSubscriber<T> prevSubscriber, ChangeSubscriber<T> removedSubscriber, int subscriberData, int removedSubscriberData, boolean matchData) {
         if (prevSubscriber instanceof Multi<T> multi) {
-            if (multi.subscribers.size() == 2) {
-                int i = multi.subscribers.indexOf(removedSubscriber);
-                if (i == -1) {
-                    return subscriberData;
+            int index = multi.indexOf(removedSubscriber, removedSubscriberData, matchData);
+            if (index != -1) {
+                if (multi.subscribers.size() == 2) {
+                    return multi.subscriberDatas.getInt(1 - index);
                 } else {
-                    return multi.subscriberDatas.getInt(1 - i);
+                    return subscriberData;
                 }
-            }
-            if (multi.subscribers.size() == 1) {
-                prevSubscriber = multi.subscribers.get(0);
             } else {
-                return 0;
+                return subscriberData;
             }
         }
         return prevSubscriber == removedSubscriber ? 0 : subscriberData;
@@ -138,6 +142,19 @@ public interface ChangeSubscriber<T> {
                 if (subscriber instanceof ChangeSubscriber.CountChangeSubscriber<T> countChangeSubscriber) {
                     countChangeSubscriber.lithium$notifyCount(publisher, this.subscriberDatas.getInt(i), newCount);
                 }
+            }
+        }
+
+        int indexOf(ChangeSubscriber<T> subscriber, int subscriberData, boolean matchData) {
+            if (!matchData) {
+                return this.subscribers.indexOf(subscriber);
+            } else {
+                for (int i = 0; i < this.subscribers.size(); i++) {
+                    if (this.subscribers.get(i) == subscriber && this.subscriberDatas.getInt(i) == subscriberData) {
+                        return i;
+                    }
+                }
+                return -1;
             }
         }
     }

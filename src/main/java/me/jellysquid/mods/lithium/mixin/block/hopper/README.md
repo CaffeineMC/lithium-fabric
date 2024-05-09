@@ -1,5 +1,5 @@
 # Lithium Hopper Optimizations
-
+This document is outdated and needs to be updated.
 ## Assumptions made about other inventories
 
 (likely incomplete)
