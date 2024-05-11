@@ -35,7 +35,7 @@ public class ExplosionBehaviorMixin {
     @Redirect(method = "calculateDamage", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/explosion/Explosion;getExposure(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/entity/Entity;)F"))
     private float useCachedExposure(Vec3d source, Entity entity) {
         float exposure = Explosion.getExposure(source, entity);
-        explosion.lithium_fabric$cacheExposure(entity, exposure);
+        this.explosion.lithium_fabric$cacheExposure(entity, exposure);
         return exposure;
     }
 }

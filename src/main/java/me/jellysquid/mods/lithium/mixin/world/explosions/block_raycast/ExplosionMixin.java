@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.world.explosions;
+package me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast;
 
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
