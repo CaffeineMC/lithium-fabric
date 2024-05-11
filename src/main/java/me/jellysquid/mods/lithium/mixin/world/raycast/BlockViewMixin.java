@@ -1,6 +1,5 @@
 package me.jellysquid.mods.lithium.mixin.world.raycast;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -16,12 +15,14 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
+@SuppressWarnings("ShadowModifiers")
 @Mixin(BlockView.class)
 public interface BlockViewMixin {
 
@@ -31,18 +32,26 @@ public interface BlockViewMixin {
     @Shadow
     @Nullable BlockHitResult raycastBlock(Vec3d start, Vec3d end, BlockPos pos, VoxelShape shape, BlockState state);
 
-    @ModifyArg(
-            method = "raycast(Lnet/minecraft/world/RaycastContext;)Lnet/minecraft/util/hit/BlockHitResult;",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/BlockView;raycast(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Vec3d;Ljava/lang/Object;Ljava/util/function/BiFunction;Ljava/util/function/Function;)Ljava/lang/Object;"
-            ),
-            index = 3
-    )
-    private BiFunction<RaycastContext, BlockPos, BlockHitResult> blockHitFactory(BiFunction<RaycastContext, BlockPos, BlockHitResult> original, @Local(argsOnly = true) RaycastContext context) {
-        if (!(this instanceof WorldView world)) {
-            return original;
-        }
+    @Shadow
+    static <T, C> T raycast(Vec3d start, Vec3d end, C context, BiFunction<C, BlockPos, T> blockHitFactory, Function<C, T> missFactory) {throw new AssertionError();}
+
+    @Shadow
+    public BlockHitResult method_17743(RaycastContext par1, BlockPos par2);
+
+    @Shadow
+    public static BlockHitResult method_17746(RaycastContext par1) { throw new AssertionError();}
+
+    /**
+     * @author 2No2Name
+     * @reason Get rid of unnecessary lambda allocation
+     */
+    @Overwrite
+    default BlockHitResult raycast(RaycastContext context) {
+        return raycast(context.getStart(), context.getEnd(), context, this instanceof WorldView ? this.blockHitFactory(context) : this::method_17743, BlockViewMixin::method_17746);
+    }
+
+    @Unique
+    private BiFunction<RaycastContext, BlockPos, BlockHitResult> blockHitFactory(RaycastContext context) {
         return new BiFunction<>() {
             int chunkX = Integer.MIN_VALUE, chunkZ = Integer.MIN_VALUE;
             Chunk chunk = null;
@@ -51,7 +60,7 @@ public interface BlockViewMixin {
             @Override
             public BlockHitResult apply(RaycastContext innerContext, BlockPos pos) {
                 //[VanillaCopy] BlockView.raycast, but optional fluid handling
-                BlockState blockState = this.getBlock(world, pos);
+                BlockState blockState = this.getBlock((WorldView) BlockViewMixin.this, pos);
                 Vec3d start = innerContext.getStart();
                 Vec3d end = innerContext.getEnd();
                 VoxelShape blockShape = innerContext.getBlockShape(blockState, (BlockView) BlockViewMixin.this, pos);
