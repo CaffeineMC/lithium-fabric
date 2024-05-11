@@ -24,6 +24,7 @@ import net.minecraft.world.explosion.ExplosionBehavior;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -82,15 +83,15 @@ public abstract class ExplosionMixin {
      */
     private boolean explodeAirBlocks;
 
-    private int minY, maxY;
+    private int bottomY, topY;
 
     @Inject(
             method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/damage/DamageSource;Lnet/minecraft/world/explosion/ExplosionBehavior;DDDFZLnet/minecraft/world/explosion/Explosion$DestructionType;Lnet/minecraft/particle/ParticleEffect;Lnet/minecraft/particle/ParticleEffect;Lnet/minecraft/registry/entry/RegistryEntry;)V",
             at = @At("TAIL")
     )
     private void init(World world, Entity entity, DamageSource damageSource, ExplosionBehavior behavior, double x, double y, double z, float power, boolean createFire, Explosion.DestructionType destructionType, ParticleEffect particle, ParticleEffect emitterParticle, RegistryEntry<?> soundEvent, CallbackInfo ci) {
-        this.minY = this.world.getBottomY();
-        this.maxY = this.world.getTopY();
+        this.bottomY = this.world.getBottomY();
+        this.topY = this.world.getTopY();
 
         boolean explodeAir = this.createFire; // air blocks are only relevant for the explosion when fire should be created inside them
         if (!explodeAir && this.world.getRegistryKey() == World.END && this.world.getDimensionEntry().matchesKey(DimensionTypes.THE_END)) {
@@ -169,6 +170,7 @@ public abstract class ExplosionMixin {
         return added;
     }
 
+    @Unique
     private void performRayCast(Random random, double vecX, double vecY, double vecZ, LongOpenHashSet touched) {
         double dist = Math.sqrt((vecX * vecX) + (vecY * vecY) + (vecZ * vecZ));
 
@@ -188,8 +190,8 @@ public abstract class ExplosionMixin {
 
         float prevResistance = 0.0F;
 
-        int boundMinY = this.minY;
-        int boundMaxY = this.maxY;
+        int boundMinY = this.bottomY;
+        int boundMaxY = this.topY;
 
         // Step through the ray until it is finally stopped
         while (strength > 0.0F) {
@@ -199,7 +201,7 @@ public abstract class ExplosionMixin {
 
             float resistance;
 
-            // Check whether or not we have actually moved into a new block this step. Due to how rays are stepped through,
+            // Check whether we have actually moved into a new block this step. Due to how rays are stepped through,
             // over-sampling of the same block positions will occur. Changing this behaviour would introduce differences in
             // aliasing and sampling, which is unacceptable for our purposes. As a band-aid, we can simply re-use the
             // previous result and get a decent boost.
@@ -207,6 +209,7 @@ public abstract class ExplosionMixin {
                 if (blockY < boundMinY || blockY >= boundMaxY || blockX < -30000000 || blockZ < -30000000 || blockX >= 30000000 || blockZ >= 30000000) {
                     return;
                 }
+                //The coordinates are within the world bounds, so we can safely traverse the block
                 resistance = this.traverseBlock(strength, blockX, blockY, blockZ, touched);
 
                 prevX = blockX;
@@ -237,19 +240,9 @@ public abstract class ExplosionMixin {
      * @param blockZ   The z-coordinate of the block the ray is inside of
      * @return The resistance of the current block space to the ray
      */
+    @Unique
     private float traverseBlock(float strength, int blockX, int blockY, int blockZ, LongOpenHashSet touched) {
         BlockPos pos = this.cachedPos.set(blockX, blockY, blockZ);
-
-        // Early-exit if the y-coordinate is out of bounds.
-        if (this.world.isOutOfHeightLimit(blockY)) {
-            Optional<Float> blastResistance = this.behavior.getBlastResistance((Explosion) (Object) this, this.world, pos, Blocks.AIR.getDefaultState(), Fluids.EMPTY.getDefaultState());
-            //noinspection OptionalIsPresent
-            if (blastResistance.isPresent()) {
-                return (blastResistance.get() + 0.3F) * 0.3F;
-            }
-            return 0.0F;
-        }
-
 
         int chunkX = Pos.ChunkCoord.fromBlockCoord(blockX);
         int chunkZ = Pos.ChunkCoord.fromBlockCoord(blockZ);
