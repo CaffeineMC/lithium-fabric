@@ -69,6 +69,9 @@ public interface BlockViewMixin {
             }
 
             private BlockState getBlock(WorldView world, BlockPos blockPos) {
+                if (world.isOutOfHeightLimit(blockPos.getY())) {
+                    return Blocks.VOID_AIR.getDefaultState();
+                }
                 int chunkX = Pos.ChunkCoord.fromBlockCoord(blockPos.getX());
                 int chunkZ = Pos.ChunkCoord.fromBlockCoord(blockPos.getZ());
 
