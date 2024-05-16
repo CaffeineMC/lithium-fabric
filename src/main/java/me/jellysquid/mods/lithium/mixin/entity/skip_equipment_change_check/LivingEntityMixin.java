@@ -11,6 +11,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -22,11 +23,16 @@ import java.util.function.Predicate;
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements EquipmentEntity {
 
-    private static final Predicate<ItemStack> DYNAMIC_EQUIPMENT = item -> item.isOf(Items.CROSSBOW);
+    @Unique
+    private static final Predicate<ItemStack> DYNAMIC_EQUIPMENT = item -> item.isOf(Items.CROSSBOW) || item.isOf(Items.WOLF_ARMOR);
+
+    @Shadow
+    public abstract ItemStack getEquippedStack(EquipmentSlot slot);
 
     @Shadow
     public abstract boolean isHolding(Predicate<ItemStack> predicate);
 
+    @Unique
     private boolean equipmentChanged = true;
 
     public LivingEntityMixin(EntityType<?> type, World world) {
@@ -59,7 +65,7 @@ public abstract class LivingEntityMixin extends Entity implements EquipmentEntit
     private void resetEquipmentChanged(CallbackInfo ci) {
         //Not implemented for player entities and modded entities, fallback to never skipping inventory comparison
         //Work around dynamic items that are changed while holding them (only crossbow in 1.19.2)
-        if (this instanceof EquipmentTrackingEntity && !this.isHolding(DYNAMIC_EQUIPMENT)) {
+        if (this instanceof EquipmentTrackingEntity && !this.isHolding(DYNAMIC_EQUIPMENT) && !DYNAMIC_EQUIPMENT.test(this.getEquippedStack(EquipmentSlot.BODY))) {
             this.equipmentChanged = false;
         }
     }
