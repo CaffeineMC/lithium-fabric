@@ -35,7 +35,8 @@ public abstract class WorldMixin implements HeightLimitView {
         int z = pos.getZ();
 
         int chunkY = this.getSectionIndex(y);
-        if (chunkY < 0 || chunkY >= sections.length) {
+        //worldChunk.isEmpty() for EmptyChunk which is only VOID_AIR, used for client-side unloaded chunk
+        if (chunkY < 0 || chunkY >= sections.length || worldChunk.isEmpty()) {
             return OUTSIDE_WORLD_BLOCK;
         }
 
