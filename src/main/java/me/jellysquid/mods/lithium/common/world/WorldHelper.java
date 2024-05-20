@@ -16,10 +16,12 @@ import net.minecraft.util.math.Box;
 import net.minecraft.world.EntityView;
 import net.minecraft.world.World;
 import net.minecraft.world.entity.SectionedEntityCache;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class WorldHelper {
     public static final boolean CUSTOM_TYPE_FILTERABLE_LIST_DISABLED = !ClassGroupFilterableList.class.isAssignableFrom(TypeFilterableList.class);
@@ -38,7 +40,7 @@ public class WorldHelper {
      * @return iterator of entities with collision boxes
      */
     public static List<Entity> getEntitiesForCollision(EntityView entityView, Box box, Entity collidingEntity) {
-        if (!CUSTOM_TYPE_FILTERABLE_LIST_DISABLED && entityView instanceof World world && (collidingEntity == null || !EntityClassGroup.MINECART_BOAT_LIKE_COLLISION.contains(collidingEntity.getClass()))) {
+        if (!CUSTOM_TYPE_FILTERABLE_LIST_DISABLED && entityView instanceof World world && (collidingEntity == null || !EntityClassGroup.CUSTOM_COLLIDE_LIKE_MINECART_BOAT_WINDCHARGE.contains(collidingEntity.getClass()))) {
             SectionedEntityCache<Entity> cache = getEntityCacheOrNull(world);
             if (cache != null) {
                 world.getProfiler().visit("getEntities");
@@ -48,6 +50,21 @@ public class WorldHelper {
         //use vanilla code in case the shortcut is not applicable
         // due to the reference entity implementing special collision or the mixin being disabled in the config
         return entityView.getOtherEntities(collidingEntity, box);
+    }
+
+    public static List<Entity> getOtherEntitiesForCollision(EntityView entityView, Box box, @Nullable Entity collidingEntity, Predicate<? super Entity> entityPredicate) {
+        if (!CUSTOM_TYPE_FILTERABLE_LIST_DISABLED && entityView instanceof World world) {
+            if (collidingEntity == null || !EntityClassGroup.CUSTOM_COLLIDE_LIKE_MINECART_BOAT_WINDCHARGE.contains(collidingEntity.getClass())) {
+                SectionedEntityCache<Entity> cache = getEntityCacheOrNull(world);
+                if (cache != null) {
+                    world.getProfiler().visit("getEntities");
+                    return getEntitiesOfClassGroup(cache, collidingEntity, EntityClassGroup.NoDragonClassGroup.BOAT_SHULKER_LIKE_COLLISION, box);
+                }
+            }
+        }
+        //use vanilla code in case the shortcut is not applicable
+        // due to the reference entity implementing special collision or the mixin being disabled in the config
+        return entityView.getOtherEntities(collidingEntity, box, entityPredicate);
     }
 
 
@@ -73,7 +90,7 @@ public class WorldHelper {
             if (!entitiesOfType.isEmpty()) {
                 for (Entity entity : entitiesOfType) {
                     if (entity.getBoundingBox().intersects(box) && !entity.isSpectator() && entity != collidingEntity) {
-                        //skip the dragon piece check without issues by only allowing only EntityClassGroup.NoDragonClassGroup as type
+                        //skip the dragon piece check without issues by only allowing EntityClassGroup.NoDragonClassGroup as type
                         entities.add(entity);
                     }
                 }

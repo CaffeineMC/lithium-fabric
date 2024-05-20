@@ -6,6 +6,8 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.mob.ShulkerEntity;
+import net.minecraft.entity.projectile.BreezeWindChargeEntity;
+import net.minecraft.entity.projectile.WindChargeEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
 
 import java.util.Objects;
@@ -21,22 +23,25 @@ import java.util.logging.Logger;
  * @author 2No2Name
  */
 public class EntityClassGroup {
-    public static final EntityClassGroup MINECART_BOAT_LIKE_COLLISION; //aka entities that will attempt to collide with all other entities when moving
+    public static final EntityClassGroup CUSTOM_COLLIDE_LIKE_MINECART_BOAT_WINDCHARGE; //aka entities that will attempt to collide with all other entities when moving
 
     static {
         String remapped_collidesWith = FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_1297", "method_30949", "(Lnet/minecraft/class_1297;)Z");
-        MINECART_BOAT_LIKE_COLLISION = new EntityClassGroup(
+        CUSTOM_COLLIDE_LIKE_MINECART_BOAT_WINDCHARGE = new EntityClassGroup(
                 (Class<?> entityClass) -> ReflectionUtil.hasMethodOverride(entityClass, Entity.class, true, remapped_collidesWith, Entity.class));
 
         //sanity check: in case intermediary mappings changed, we fail
-        if ((!MINECART_BOAT_LIKE_COLLISION.contains(MinecartEntity.class))) {
+        if ((!CUSTOM_COLLIDE_LIKE_MINECART_BOAT_WINDCHARGE.contains(MinecartEntity.class))) {
             throw new AssertionError();
         }
-        if ((MINECART_BOAT_LIKE_COLLISION.contains(ShulkerEntity.class))) {
+        if ((!CUSTOM_COLLIDE_LIKE_MINECART_BOAT_WINDCHARGE.contains(WindChargeEntity.class)) || (!CUSTOM_COLLIDE_LIKE_MINECART_BOAT_WINDCHARGE.contains(BreezeWindChargeEntity.class))) {
+            throw new AssertionError();
+        }
+        if ((CUSTOM_COLLIDE_LIKE_MINECART_BOAT_WINDCHARGE.contains(ShulkerEntity.class))) {
             //should not throw an Error here, because another mod *could* add the method to ShulkerEntity. Wwarning when this sanity check fails.
             Logger.getLogger("Lithium EntityClassGroup").warning("Either Lithium EntityClassGroup is broken or something else gave Shulkers the minecart-like collision behavior.");
         }
-        MINECART_BOAT_LIKE_COLLISION.clear();
+        CUSTOM_COLLIDE_LIKE_MINECART_BOAT_WINDCHARGE.clear();
     }
 
     private final Predicate<Class<?>> classFitEvaluator;

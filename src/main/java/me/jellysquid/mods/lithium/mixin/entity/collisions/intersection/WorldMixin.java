@@ -3,7 +3,6 @@ package me.jellysquid.mods.lithium.mixin.entity.collisions.intersection;
 import me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
-import net.minecraft.world.EntityView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +24,7 @@ public abstract class WorldMixin implements WorldAccess {
         boolean ret = !LithiumEntityCollisions.doesBoxCollideWithBlocks((World) (Object) this, entity, box);
 
         // If no blocks were collided with, try to check for entity collisions if we can read entities
-        if (ret && this instanceof EntityView) {
+        if (ret) {
             //needs to include world border collision
             ret = !LithiumEntityCollisions.doesBoxCollideWithHardEntities(this, entity, box);
         }

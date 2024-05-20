@@ -101,7 +101,7 @@ public class LithiumEntityCollisions {
                         if (entityList == null) {
                             /*
                              * In case entity's class is overriding Entity#collidesWith(Entity), all types of entities may be (=> are assumed to be) required.
-                             * Otherwise only get entities that override Entity#isCollidable(), as other entities cannot collide.
+                             * Otherwise, only get entities that override Entity#isCollidable(), as other entities cannot collide.
                              */
                             entityList = WorldHelper.getEntitiesForCollision(view, box, entity);
                             nextFilterIndex = 0;

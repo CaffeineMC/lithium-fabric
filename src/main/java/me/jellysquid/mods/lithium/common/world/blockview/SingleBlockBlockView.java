@@ -83,16 +83,6 @@ public record SingleBlockBlockView(BlockState state, BlockPos blockPos) implemen
     }
 
     @Override
-    public boolean isSpaceEmpty(Box box) {
-        throw SingleBlockViewException.INSTANCE;
-    }
-
-    @Override
-    public boolean isSpaceEmpty(Entity entity) {
-        throw SingleBlockViewException.INSTANCE;
-    }
-
-    @Override
     public boolean isSpaceEmpty(@Nullable Entity entity, Box box) {
         throw SingleBlockViewException.INSTANCE;
     }
