@@ -465,6 +465,10 @@ BlockEntity Inventories update their listeners when a comparator is placed near 
 Requirements:
 - `mixin.util.block_entity_retrieval=true`  
   
+### `mixin.util.item_component_and_count_tracking`
+(default: `true`)  
+Implements a subscription / publishing system for changes of item stack components and item entity item type.  
+  
 ### `mixin.util.item_stack_tracking`
 (default: `true`)  
 ItemStacks notify subscribers about changes to their count.  
