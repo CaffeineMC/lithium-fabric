@@ -2,7 +2,8 @@ package me.jellysquid.mods.lithium.common.hopper;
 
 import me.jellysquid.mods.lithium.api.inventory.LithiumDefaultedList;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
-import me.jellysquid.mods.lithium.common.entity.item.ItemStackSubscriber;
+import me.jellysquid.mods.lithium.common.util.change_tracking.ChangePublisher;
+import me.jellysquid.mods.lithium.common.util.change_tracking.ChangeSubscriber;
 import me.jellysquid.mods.lithium.mixin.block.hopper.DefaultedListAccessor;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.inventory.Inventory;
@@ -10,8 +11,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class LithiumStackList extends DefaultedList<ItemStack> implements LithiumDefaultedList, ItemStackSubscriber {
+public class LithiumStackList extends DefaultedList<ItemStack> implements LithiumDefaultedList, ChangeSubscriber.CountChangeSubscriber<ItemStack> {
     final int maxCountPerStack;
 
     protected int cachedSignalStrength;
@@ -47,8 +49,8 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
                 if (stack.getMaxCount() <= stack.getCount()) {
                     this.fullSlots++;
                 }
-                //noinspection ConstantConditions
-                ((NotifyingItemStack) (Object) stack).lithium$subscribeWithIndex(this, i);
+                //noinspection unchecked
+                ((ChangePublisher<ItemStack>) (Object) stack).lithium$subscribe(this, i);
             }
         }
 
@@ -81,32 +83,18 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
                 if (stack.getMaxCount() <= stack.getCount()) {
                     this.fullSlots++;
                 }
-                //noinspection ConstantConditions
-                ((NotifyingItemStack) (Object) stack).lithium$unsubscribe(this);
+                //noinspection unchecked
+                ((ChangePublisher<ItemStack>) (Object) stack).lithium$unsubscribe(this);
             }
         }
         for (int i = 0; i < size; i++) {
             ItemStack stack = this.get(i);
             if (!stack.isEmpty()) {
-                //noinspection ConstantConditions
-                ((NotifyingItemStack) (Object) stack).lithium$subscribeWithIndex(this, i);
+                //noinspection unchecked
+                ((ChangePublisher<ItemStack>) (Object) stack).lithium$subscribe(this, i);
             }
         }
 
-    }
-
-    public void lithium$notifyBeforeCountChange(ItemStack itemStack, int index, int newCount) {
-        ItemStack stack = this.get(index);
-        int count = stack.getCount();
-        if (newCount <= 0) {
-            //noinspection ConstantConditions
-            ((NotifyingItemStack) (Object) stack).lithium$unsubscribeWithIndex(this, index);
-        }
-        int maxCount = stack.getMaxCount();
-        this.occupiedSlots -= newCount <= 0 ? 1 : 0;
-        this.fullSlots += (newCount >= maxCount ? 1 : 0) - (count >= maxCount ? 1 : 0);
-
-        this.changed();
     }
 
     /**
@@ -129,11 +117,11 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
     public ItemStack set(int index, ItemStack element) {
         ItemStack previous = super.set(index, element);
         if (previous != element) {
-            //noinspection ConstantConditions
-            ((NotifyingItemStack) (Object) previous).lithium$unsubscribeWithIndex(this, index);
+            //noinspection unchecked
+            ((ChangePublisher<ItemStack>) (Object) previous).lithium$unsubscribeWithData(this, index);
             if (!element.isEmpty()) {
-                //noinspection ConstantConditions
-                ((NotifyingItemStack) (Object) element).lithium$subscribeWithIndex(this, index);
+                //noinspection unchecked
+                ((ChangePublisher<ItemStack>) (Object) element).lithium$subscribe(this, index);
             }
 
             this.occupiedSlots += (previous.isEmpty() ? 1 : 0) - (element.isEmpty() ? 1 : 0);
@@ -148,8 +136,8 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
     public void add(int slot, ItemStack element) {
         super.add(slot, element);
         if (!element.isEmpty()) {
-            //noinspection ConstantConditions
-            ((NotifyingItemStack) (Object) element).lithium$subscribeWithIndex(this, this.indexOf(element));
+            //noinspection unchecked
+            ((ChangePublisher<ItemStack>) (Object) element).lithium$subscribe(this, this.indexOf(element));
         }
         this.changedALot();
     }
@@ -157,8 +145,8 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
     @Override
     public ItemStack remove(int index) {
         ItemStack previous = super.remove(index);
-        //noinspection ConstantConditions
-        ((NotifyingItemStack) (Object) previous).lithium$unsubscribeWithIndex(this, index);
+        //noinspection unchecked
+        ((ChangePublisher<ItemStack>) (Object) previous).lithium$unsubscribeWithData(this, index);
         this.changedALot();
         return previous;
     }
@@ -169,8 +157,8 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
         for (int i = 0; i < size; i++) {
             ItemStack stack = this.get(i);
             if (!stack.isEmpty()) {
-                //noinspection ConstantConditions
-                ((NotifyingItemStack) (Object) stack).lithium$unsubscribeWithIndex(this, i);
+                //noinspection unchecked
+                ((ChangePublisher<ItemStack>) (Object) stack).lithium$unsubscribeWithData(this, i);
             }
         }
         super.clear();
@@ -265,5 +253,30 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
         if (this.inventoryModificationCallback != null && this.inventoryModificationCallback == inventoryModificationCallback) {
             this.inventoryModificationCallback = null;
         }
+    }
+
+    @Override
+    public void lithium$notify(@Nullable ItemStack publisher, int subscriberData) {
+        //Item component changes: LithiumStackList does not care about this
+    }
+
+    @Override
+    public void lithium$forceUnsubscribe(ItemStack publisher, int subscriberData) {
+        throw new UnsupportedOperationException("Cannot force unsubscribe on a LithiumStackList!");
+    }
+
+    @Override
+    public void lithium$notifyCount(ItemStack itemStack, int index, int newCount) {
+        ItemStack stack = this.get(index);
+        int count = stack.getCount();
+        if (newCount <= 0) {
+            //noinspection unchecked
+            ((ChangePublisher<ItemStack>) (Object) stack).lithium$unsubscribeWithData(this, index);
+        }
+        int maxCount = stack.getMaxCount();
+        this.occupiedSlots -= newCount <= 0 ? 1 : 0;
+        this.fullSlots += (newCount >= maxCount ? 1 : 0) - (count >= maxCount ? 1 : 0);
+
+        this.changed();
     }
 }

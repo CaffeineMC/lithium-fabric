@@ -136,7 +136,7 @@ Requirements:
 - `mixin.util.entity_movement_tracking=true`
 - `mixin.util.block_entity_retrieval=true`
 - `mixin.util.inventory_change_listening=true`
-- `mixin.util.item_stack_tracking=true`  
+- `mixin.util.item_component_and_count_tracking=true`  
   
 ### `mixin.block.hopper.worldedit_compat`
 (default: `false`)  
@@ -249,7 +249,6 @@ Requirements:
 (default: `true`)  
 Uses faster block access for block collisions and delayed entity access with grouped boat/shulker for entity collisions when available  
 Requirements:
-- `mixin.util.block_tracking=true`
 - `mixin.util.chunk_access=true`  
   
 ### `mixin.entity.collisions.movement`
@@ -339,19 +338,12 @@ Requirements:
 Optimize item entity merging by categorizing item entities by item type and only attempting to merge with the same type. Categorizing by stack size allows skipping merge attempts of full item entities or two more than half full item entities.  
 Requirements:
 - `mixin.util.accessors=true`
-- `mixin.experimental.util.item_entity_by_type=true`
-- `mixin.util.item_stack_tracking=true`  
+- `mixin.util.entity_collection_replacement=true`
+- `mixin.util.item_component_and_count_tracking=true`  
   
 ### `mixin.experimental.spawning`
 (default: `true`)  
 Experimental optimizations to spawning conditions. Reorders the iteration over entities to match the chunks and chunk sections, reducing the number of cache misses.  
-  
-### `mixin.experimental.util.item_entity_by_type`
-(default: `true`)  
-Allow retrieving item entities grouped by item type and count from the world.  
-Requirements:
-- `mixin.util.accessors=true`
-- `mixin.util.item_stack_tracking=true`  
   
 ### `mixin.gen`
 (default: `true`)  
@@ -445,6 +437,10 @@ Chunk sections can notify registered listeners about certain blocks being placed
 (default: `true`)  
 Access chunks of worlds, chunk caches and chunk regions directly.  
   
+### `mixin.util.entity_collection_replacement`
+(default: `true`)  
+Allow replacing entity collections with custom collection types.  
+  
 ### `mixin.util.entity_movement_tracking`
 (default: `true`)  
 System to notify subscribers of certain entity sections about position changes of certain entity types.  
@@ -468,10 +464,6 @@ Requirements:
 ### `mixin.util.item_component_and_count_tracking`
 (default: `true`)  
 Implements a subscription / publishing system for changes of item stack components and item entity item type.  
-  
-### `mixin.util.item_stack_tracking`
-(default: `true`)  
-ItemStacks notify subscribers about changes to their count.  
   
 ### `mixin.util.world_border_listener`
 (default: `true`)  

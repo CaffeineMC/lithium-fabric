@@ -4,8 +4,8 @@
                 " entities or two more than half full item entities.",
         depends = {
                 @MixinConfigDependency(dependencyPath = "mixin.util.accessors"),
-                @MixinConfigDependency(dependencyPath = "mixin.experimental.util.item_entity_by_type"),
-                @MixinConfigDependency(dependencyPath = "mixin.util.item_stack_tracking")
+                @MixinConfigDependency(dependencyPath = "mixin.util.entity_collection_replacement"),
+                @MixinConfigDependency(dependencyPath = "mixin.util.item_component_and_count_tracking")
         }
 )
 package me.jellysquid.mods.lithium.mixin.experimental.entity.item_entity_merging;
