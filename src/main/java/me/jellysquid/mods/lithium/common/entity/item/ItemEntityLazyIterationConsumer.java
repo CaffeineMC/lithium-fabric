@@ -42,12 +42,12 @@ public class ItemEntityLazyIterationConsumer implements LazyIterationConsumer<It
         if (!this.box.intersects(otherItemEntity.getBoundingBox()) || !this.predicate.test(otherItemEntity)) {
             return NextIteration.CONTINUE;
         }
-        //Since we are not creating a copy of the list of entities, we must determine the entities to interact with
-        //before starting to modify any item entities, as this would otherwise invalidate the iterator.
-        //Dry run the merging logic to determine a small list of entities to merge with:
-        int receivedItemCount = predictReceivedItemCount(this.searchingEntity, this.stack, this.adjustedStackCount, otherItemEntity, otherItemEntity.getStack());
+        //We have to finish the iteration of the entity lists before we can start modifying or removing the entities.
+        // This is why we dry-run the merging operation, and then only actually merge later.
+
+        int receivedItemCount = predictReceivedItemCount(this.searchingEntity, this.stack, this.adjustedStackCount, otherItemEntity);
         if (receivedItemCount != 0) {
-            //The item entity is mergeable, so add it to the list of entities to merge with and adjust the stack count.
+            //The item entity can be merged, so add it to the list of entities to merge with and adjust the stack count.
             this.mergeEntities.add(otherItemEntity);
             this.adjustedStackCount += receivedItemCount;
 
@@ -64,14 +64,18 @@ public class ItemEntityLazyIterationConsumer implements LazyIterationConsumer<It
      * Here the number of items transferred between the two item entities is calculated after
      * the two item entities have been determined to be mergeable.
      */
-    private static int predictReceivedItemCount(ItemEntity thisEntity, ItemStack thisStack, int adjustedStackCount, ItemEntity otherEntity, ItemStack otherStack) {
+    private static int predictReceivedItemCount(ItemEntity thisEntity, ItemStack thisStack, int adjustedStackCount, ItemEntity otherEntity) {
+        ItemStack otherStack;
         if (Objects.equals(((ItemEntityAccessor) thisEntity).lithium$getOwner(), ((ItemEntityAccessor) otherEntity).lithium$getOwner())
-                && ItemEntity.canMerge(thisStack, otherStack)) {
+                && ItemEntity.canMerge(thisStack, otherStack = otherEntity.getStack())) {
             if (otherStack.getCount() < adjustedStackCount) {
-                return getTransferAmount(thisStack.getMaxCount(), adjustedStackCount, otherStack.getCount());
+                    return getTransferAmount(thisStack.getMaxCount(), adjustedStackCount, otherStack.getCount());
+//                return otherStack.getCount(); //This would make sense, but vanilla actually limits the transfer to 64 items.
+                // The itemEntity.canMerge call above ensures that in normal circumstances the entire stack is transferred.
+                // When the stack has a custom max stack size > 64, at most 64 items are transferred.
             } else {
-                int lostAmount = getTransferAmount(otherStack.getMaxCount(), otherStack.getCount(), adjustedStackCount);
-                return -lostAmount;
+                    return -getTransferAmount(otherStack.getMaxCount(), otherStack.getCount(), adjustedStackCount);
+//                return -adjustedStackCount;
             }
         }
         return 0;
