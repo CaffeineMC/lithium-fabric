@@ -133,6 +133,7 @@ public class VoxelShapeHelper {
                 }
             }
         }
+        BitSet remove = new BitSet(voxelSet.size());
         for (Box box : boxes) {
             int minX = xIndex.getOrDefault(box.minX, 0);
             int maxX = xIndex.getOrDefault(box.maxX, xSize);
@@ -143,11 +144,12 @@ public class VoxelShapeHelper {
             for (int x = minX; x < maxX; x++) {
                 for (int y = minY; y < maxY; y++) {
                     for (int z = minZ; z < maxZ; z++) {
-                        voxelSet.set(getIndex(x, y, z, xSize, ySize, zSize), false);
+                        remove.set(getIndex(x, y, z, xSize, ySize, zSize));
                     }
                 }
             }
         }
+        voxelSet.andNot(remove);
     }
 
     private static int getIndex(int x, int y, int z, int sizeX, int sizeY, int sizeZ) {
