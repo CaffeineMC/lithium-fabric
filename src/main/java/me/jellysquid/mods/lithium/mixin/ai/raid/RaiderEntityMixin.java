@@ -36,7 +36,7 @@ public abstract class RaiderEntityMixin extends Entity {
     }
 
     @Redirect(
-            method = "onDeath(Lnet/minecraft/entity/damage/DamageSource;)V",
+            method = {"loot(Lnet/minecraft/entity/ItemEntity;)V", "isCaptain()Z"},
             at = @At(value = "INVOKE", target = "Lnet/minecraft/village/raid/Raid;getOminousBanner(Lnet/minecraft/registry/RegistryEntryLookup;)Lnet/minecraft/item/ItemStack;")
     )
     private ItemStack getOminousBanner(RegistryEntryLookup<BannerPattern> bannerPatternLookup) {

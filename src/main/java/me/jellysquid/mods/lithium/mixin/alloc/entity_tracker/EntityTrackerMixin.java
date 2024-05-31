@@ -2,14 +2,14 @@ package me.jellysquid.mods.lithium.mixin.alloc.entity_tracker;
 
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.server.network.PlayerAssociatedNetworkHandler;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
+import net.minecraft.server.world.ServerChunkLoadingManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.Set;
 
-@Mixin(ThreadedAnvilChunkStorage.EntityTracker.class)
+@Mixin(ServerChunkLoadingManager.EntityTracker.class)
 public class EntityTrackerMixin {
 
     /**

@@ -2,14 +2,14 @@ accessWidener v1 named
 
 accessible class net/minecraft/server/world/ChunkTicketManager$TicketDistanceLevelPropagator
 accessible class net/minecraft/server/world/ServerChunkManager$MainThreadExecutor
-accessible class net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker
-accessible class net/minecraft/server/world/ThreadedAnvilChunkStorage$TicketManager
+accessible class net/minecraft/server/world/ServerChunkLoadingManager$EntityTracker
+accessible class net/minecraft/server/world/ServerChunkLoadingManager$TicketManager
 accessible class net/minecraft/util/shape/PairList
 accessible class net/minecraft/world/chunk/PaletteResizeListener
 accessible class net/minecraft/world/chunk/PalettedContainer$Data
 accessible class net/minecraft/world/chunk/PalettedContainer$DataProvider
 
-accessible field net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker entity Lnet/minecraft/entity/Entity;
+accessible field net/minecraft/server/world/ServerChunkLoadingManager$EntityTracker entity Lnet/minecraft/entity/Entity;
 accessible field net/minecraft/util/shape/VoxelShape voxels Lnet/minecraft/util/shape/VoxelSet;
 
 accessible field net/minecraft/util/math/noise/SimplexNoiseSampler GRADIENTS [[I
@@ -18,7 +18,7 @@ accessible method net/minecraft/world/chunk/PalettedContainer$DataProvider <init
 accessible method net/minecraft/world/chunk/PalettedContainer$PaletteProvider getBits (Lnet/minecraft/util/collection/IndexedIterable;I)I
 accessible method net/minecraft/world/chunk/PalettedContainer$PaletteProvider <init> (I)V
 accessible method net/minecraft/fluid/Fluid isEmpty ()Z
-accessible method net/minecraft/server/world/ChunkHolder combineSavingFuture (Ljava/util/concurrent/CompletableFuture;Ljava/lang/String;)V
+accessible method net/minecraft/server/world/ChunkHolder combineSavingFuture (Ljava/util/concurrent/CompletableFuture;)V
 accessible method net/minecraft/server/world/ChunkTicket isExpired (J)Z
 accessible method net/minecraft/util/shape/FractionalDoubleList <init> (I)V
 accessible method net/minecraft/util/shape/VoxelShape getPointPositions (Lnet/minecraft/util/math/Direction$Axis;)Lit/unimi/dsi/fastutil/doubles/DoubleList;

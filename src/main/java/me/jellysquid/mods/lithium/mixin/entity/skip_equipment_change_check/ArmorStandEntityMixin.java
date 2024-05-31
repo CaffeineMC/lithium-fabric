@@ -6,6 +6,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -30,10 +31,10 @@ public class ArmorStandEntityMixin implements EquipmentEntity.EquipmentTrackingE
     }
 
     @Inject(
-            method = "onBreak(Lnet/minecraft/entity/damage/DamageSource;)V",
+            method = "onBreak(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/damage/DamageSource;)V",
             at = @At("RETURN")
     )
-    private void trackEquipChange(DamageSource damageSource, CallbackInfo ci) {
+    private void trackEquipChange(ServerWorld world, DamageSource damageSource, CallbackInfo ci) {
         this.lithium$OnEquipmentChanged();
     }
 }

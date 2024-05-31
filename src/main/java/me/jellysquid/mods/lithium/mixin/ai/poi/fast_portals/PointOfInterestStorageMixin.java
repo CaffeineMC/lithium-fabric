@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.mixin.ai.poi.fast_portals;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import net.minecraft.class_9820;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -31,8 +32,8 @@ public abstract class PointOfInterestStorageMixin extends SerializingRegionBased
     @Unique
     private int preloadRadius = 0;
 
-    public PointOfInterestStorageMixin(ChunkPosKeyedStorage storageAccess, Function<Runnable, Codec<PointOfInterestSet>> codecFactory, Function<Runnable, PointOfInterestSet> factory, DynamicRegistryManager registryManager, HeightLimitView world) {
-        super(storageAccess, codecFactory, factory, registryManager, world);
+    public PointOfInterestStorageMixin(ChunkPosKeyedStorage storageAccess, Function<Runnable, Codec<PointOfInterestSet>> codecFactory, Function<Runnable, PointOfInterestSet> factory, DynamicRegistryManager registryManager, class_9820 arg, HeightLimitView heightLimitView) {
+        super(storageAccess, codecFactory, factory, registryManager, arg, heightLimitView);
     }
 
     /**

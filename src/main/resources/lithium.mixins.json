@@ -211,6 +211,7 @@
     "world.block_entity_ticking.support_cache.DirectBlockEntityTickInvokerMixin",
     "world.block_entity_ticking.support_cache.WorldChunkMixin",
     "world.block_entity_ticking.world_border.DirectBlockEntityTickInvokerMixin",
+    "world.chunk_access.AbstractChunkHolderAccessor",
     "world.chunk_access.ChunkHolderMixin",
     "world.chunk_access.ServerChunkManagerMixin",
     "world.chunk_access.WorldMixin",
