@@ -59,9 +59,7 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
     private int maxHitX;
     private int maxHitY;
     private int maxHitZ;
-    private int maxIndex;
-    private int index;
-
+    private VoxelShape maxShape;
     private int cTotalSize;
     private int cIterated;
 
@@ -91,8 +89,7 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
         this.maxHitX = Integer.MIN_VALUE;
         this.maxHitY = Integer.MIN_VALUE;
         this.maxHitZ = Integer.MIN_VALUE;
-        this.maxIndex = Integer.MIN_VALUE;
-        this.index = 0;
+        this.maxShape = null;
 
         //decrement as first nextSection call will increment it again
         this.chunkX--;
@@ -224,13 +221,25 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
                         this.maxHitX = x;
                         this.maxHitY = y;
                         this.maxHitZ = z;
-                        this.maxIndex = this.index;
+                        //Always make sure the shape at the maximum position is the last one returned, because
+                        // the last shape has a different 1e-7 behavior (no next shape that clips movement to 0).
+                        // This does affect certain contraptions: https://github.com/CaffeineMC/lithium-fabric/issues/443
+                        VoxelShape previousMaxShape = this.maxShape;
+                        this.maxShape = collidedShape;
+                        if (previousMaxShape != null) {
+                            return previousMaxShape;
+                        }
+                    } else {
+                        return collidedShape;
                     }
-                    this.index++;
-
-                    return collidedShape;
                 }
             }
+        }
+
+        if (this.maxShape != null) {
+            VoxelShape previousMaxShape = this.maxShape;
+            this.maxShape = null;
+            return previousMaxShape;
         }
 
         return this.endOfData();
@@ -299,11 +308,6 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
 
         while (this.hasNext()) {
             collisions.add(this.next());
-        }
-        if (collisions.size() >= 2) {
-            //Swap the maxIndex element to the end.
-            //Part of a fix of wrong movement when last collision results in movement smaller than 1e-7. Changing which collision is the last one will change the result. https://github.com/CaffeineMC/lithium-fabric/issues/443
-            collisions.set(this.maxIndex, collisions.set(collisions.size() - 1, collisions.get(this.maxIndex)));
         }
 
         return collisions;
