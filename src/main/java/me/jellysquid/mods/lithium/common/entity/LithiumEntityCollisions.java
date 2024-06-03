@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.common.entity;
 import com.google.common.collect.AbstractIterator;
 import me.jellysquid.mods.lithium.common.entity.movement.ChunkAwareBlockCollisionSweeper;
 import me.jellysquid.mods.lithium.common.util.Pos;
+import me.jellysquid.mods.lithium.common.util.collections.LazyList;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.Entity;
@@ -38,6 +39,16 @@ public class LithiumEntityCollisions {
      */
     public static List<VoxelShape> getBlockCollisions(World world, Entity entity, Box box) {
         return new ChunkAwareBlockCollisionSweeper(world, entity, box).collectAll();
+    }
+
+    public static List<VoxelShape> getBlockEntityAndWorldBorderCollisionsWithLastBlockCollisionLast(World world, Entity entity, Box box) {
+        ChunkAwareBlockCollisionSweeper collisionSweeper = new ChunkAwareBlockCollisionSweeper(world, entity, box, true);
+        LazyList<VoxelShape> voxelShapes = new LazyList<>(new ArrayList<>());
+        voxelShapes.appendIterator(collisionSweeper);
+        voxelShapes.appendIterator(getEntityWorldBorderCollisionIterable(world, entity, box.expand(EPSILON), entity != null).iterator());
+        voxelShapes.appendIterator(collisionSweeper.getLastCollisionIterator());
+
+        return voxelShapes;
     }
 
     /***

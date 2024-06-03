@@ -21,7 +21,9 @@ import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.ChunkStatus;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions.EPSILON;
 
@@ -60,6 +62,9 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
     private int maxHitY;
     private int maxHitZ;
     private VoxelShape maxShape;
+    private final boolean hideLastCollision;
+
+
     private int cTotalSize;
     private int cIterated;
 
@@ -68,6 +73,9 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
     private ChunkSection cachedChunkSection;
 
     public ChunkAwareBlockCollisionSweeper(World world, Entity entity, Box box) {
+        this(world, entity, box, false);
+    }
+    public ChunkAwareBlockCollisionSweeper(World world, Entity entity, Box box, boolean hideLastCollision) {
         this.box = box;
         this.shape = VoxelShapes.cuboid(box);
         this.context = entity == null ? ShapeContext.absent() : ShapeContext.of(entity);
@@ -90,9 +98,29 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
         this.maxHitY = Integer.MIN_VALUE;
         this.maxHitZ = Integer.MIN_VALUE;
         this.maxShape = null;
+        this.hideLastCollision = hideLastCollision;
 
         //decrement as first nextSection call will increment it again
         this.chunkX--;
+    }
+
+    public Iterator<VoxelShape> getLastCollisionIterator() {
+        return new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return hideLastCollision && maxShape != null;
+            }
+
+            @Override
+            public VoxelShape next() {
+                if (this.hasNext()) {
+                    VoxelShape previousMaxShape = maxShape;
+                    maxShape = null;
+                    return previousMaxShape;
+                }
+                throw new NoSuchElementException();
+            }
+        };
     }
 
     private boolean nextSection() {
@@ -236,7 +264,7 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
             }
         }
 
-        if (this.maxShape != null) {
+        if (!this.hideLastCollision && this.maxShape != null) {
             VoxelShape previousMaxShape = this.maxShape;
             this.maxShape = null;
             return previousMaxShape;
