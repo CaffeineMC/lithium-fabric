@@ -62,18 +62,21 @@ public class EntityMixin {
         double movementY = movement.y;
         double movementZ = movement.z;
         boolean isSingleAxisMovement = (movementX == 0D ? 0 : 1) + (movementY == 0D ? 0 : 1) + (movementZ == 0D ? 0 : 1) == 1;
-        Box movementSpace;
-        if (isSingleAxisMovement) {
-            if (movementY < 0D) {
-                //Only downwards / gravity: Common fast path: Check block directly below center of entity first
-                VoxelShape voxelShape = LithiumEntityCollisions.getCollisionShapeBelowEntity(world, entity, entityBoundingBox);
-                if (voxelShape != null) {
-                    double v = voxelShape.calculateMaxDistance(Direction.Axis.Y, entityBoundingBox, movementY);
-                    if (v == 0) {
-                        return Vec3d.ZERO;
-                    }
+
+        if (movementY < 0D) {
+            //Downwards / gravity optimization: Check supporting block or directly below center of entity first
+            VoxelShape voxelShape = LithiumEntityCollisions.getSupportingCollisionForEntity(world, entity, entityBoundingBox);
+            if (voxelShape != null) {
+                double v = voxelShape.calculateMaxDistance(Direction.Axis.Y, entityBoundingBox, movementY);
+                if (v == 0) {
+                    movementY = 0D;
+                    isSingleAxisMovement = (movementX == 0D ? 0 : 1) + (movementZ == 0D ? 0 : 1) == 1;
                 }
             }
+        }
+
+        Box movementSpace;
+        if (isSingleAxisMovement) {
             movementSpace = LithiumEntityCollisions.getSmallerBoxForSingleAxisMovement(movement, entityBoundingBox, movementY, movementX, movementZ);
         } else {
             movementSpace = entityBoundingBox.stretch(movement);
@@ -104,8 +107,8 @@ public class EntityMixin {
                 }
             }
         }
-        boolean xMovementSmallerThanZMovement = Math.abs(movementX) < Math.abs(movementZ);
-        if (xMovementSmallerThanZMovement) {
+        boolean zMovementBiggerThanXMovement = Math.abs(movementX) < Math.abs(movementZ);
+        if (zMovementBiggerThanXMovement) {
             movementZ = VoxelShapes.calculateMaxOffset(Direction.Axis.Z, entityBoundingBox, blockCollisions, movementZ);
             if (movementZ != 0.0) {
                 //noinspection DuplicatedCode
@@ -140,7 +143,7 @@ public class EntityMixin {
                 }
             }
         }
-        if (!xMovementSmallerThanZMovement && movementZ != 0.0) {
+        if (!zMovementBiggerThanXMovement && movementZ != 0.0) {
             movementZ = VoxelShapes.calculateMaxOffset(Direction.Axis.Z, entityBoundingBox, blockCollisions, movementZ);
             if (movementZ != 0.0) {
                 //noinspection UnusedAssignment,DuplicatedCode

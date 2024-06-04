@@ -3,7 +3,7 @@ package me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching.block
 import com.llamalad7.mixinextras.sugar.Local;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.BlockCache;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.BlockCacheProvider;
-import me.jellysquid.mods.lithium.common.entity.block_tracking.block_support.CollisionShapeBelowProvider;
+import me.jellysquid.mods.lithium.common.entity.block_tracking.block_support.SupportingBlockCollisionShapeProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.Entity;
@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Optional;
 
 @Mixin(Entity.class)
-public abstract class EntityMixin implements BlockCacheProvider, CollisionShapeBelowProvider {
+public abstract class EntityMixin implements BlockCacheProvider, SupportingBlockCollisionShapeProvider {
     @Shadow
     public abstract World getWorld();
 

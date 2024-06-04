@@ -253,7 +253,7 @@ Requirements:
   
 ### `mixin.entity.collisions.movement`
 (default: `true`)  
-Entity movement uses optimized block access and optimized and delayed entity access  
+Entity movement uses optimized block access and optimized and delayed entity access. Additionally, the supporting block of entities that only move downwards is checked first. This can profit from mixin.experimental.entity.block_caching.block_support, but it is not required.  
 Requirements:
 - `mixin.util.chunk_access=true`  
   

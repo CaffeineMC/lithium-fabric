@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.common.entity;
 
 import com.google.common.collect.AbstractIterator;
-import me.jellysquid.mods.lithium.common.entity.block_tracking.block_support.CollisionShapeBelowProvider;
+import me.jellysquid.mods.lithium.common.entity.block_tracking.block_support.SupportingBlockCollisionShapeProvider;
 import me.jellysquid.mods.lithium.common.entity.movement.ChunkAwareBlockCollisionSweeper;
 import me.jellysquid.mods.lithium.common.util.Pos;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
@@ -225,9 +225,16 @@ public class LithiumEntityCollisions {
         return worldBorder.canCollide(entity, box) ? worldBorder.asVoxelShape() : null;
     }
 
-    public static @Nullable VoxelShape getCollisionShapeBelowEntity(World world, @Nullable Entity entity, Box entityBoundingBox) {
-        if (entity instanceof CollisionShapeBelowProvider collisionShapeBelowProvider) {
-            return collisionShapeBelowProvider.lithium$getCollisionShapeBelow();
+    public static @Nullable VoxelShape getSupportingCollisionForEntity(World world, @Nullable Entity entity, Box entityBoundingBox) {
+        if (entity instanceof SupportingBlockCollisionShapeProvider supportingBlockCollisionShapeProvider) {
+            //Technically, the supporting block that vanilla calculates and caches is not always the one
+            // that cancels the downwards motion, but usually it is, and this is only for a quick, additional test.
+            //TODO: This may lead to the movement attempt not creating any chunk load tickets.
+            // Entities and pistons **probably** create these tickets elsewhere anyways.
+            VoxelShape voxelShape = supportingBlockCollisionShapeProvider.lithium$getCollisionShapeBelow();
+            if (voxelShape != null) {
+                return voxelShape;
+            }
         }
         return getCollisionShapeBelowEntityFallback(world, entity, entityBoundingBox);
     }
