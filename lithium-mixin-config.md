@@ -353,10 +353,6 @@ Various world generation optimizations
 (default: `false`)  
 World generator settings cache the sea level. Disabled by default due to startup crash.  
   
-### `mixin.gen.chunk_region`
-(default: `true`)  
-An optimized chunk cache is used for world population features which avoids array indirection and complex logic  
-  
 ### `mixin.math`
 (default: `true`)  
 Various math optimizations  

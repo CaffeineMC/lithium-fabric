@@ -139,7 +139,6 @@
     "experimental.spawning.ServerEntityManagerAccessor",
     "experimental.spawning.ServerWorldAccessor",
     "gen.cached_generator_settings.NoiseChunkGeneratorMixin",
-    "gen.chunk_region.ChunkRegionMixin",
     "math.fast_blockpos.BlockPosMixin",
     "math.fast_blockpos.DirectionMixin",
     "math.fast_util.AxisCycleDirectionMixin$BackwardMixin",
