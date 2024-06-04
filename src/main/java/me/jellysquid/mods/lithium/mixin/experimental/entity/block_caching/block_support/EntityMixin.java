@@ -1,16 +1,36 @@
 package me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching.block_support;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.BlockCache;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.BlockCacheProvider;
+import me.jellysquid.mods.lithium.common.entity.block_tracking.block_support.CollisionShapeBelowProvider;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Optional;
+
 @Mixin(Entity.class)
-public abstract class EntityMixin implements BlockCacheProvider {
+public abstract class EntityMixin implements BlockCacheProvider, CollisionShapeBelowProvider {
+    @Shadow
+    public abstract World getWorld();
+
+    @Shadow
+    protected abstract double getGravity();
+
+    @Shadow
+    public Optional<BlockPos> supportingBlockPos;
+
     @Inject(
             method = "updateSupportingBlockPos", cancellable = true,
             at = @At(
@@ -28,14 +48,21 @@ public abstract class EntityMixin implements BlockCacheProvider {
         }
     }
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     @Inject(
             method = "updateSupportingBlockPos",
-            at = @At(value = "INVOKE", ordinal = 0, target = "Lnet/minecraft/world/World;findSupportingBlockPos(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;)Ljava/util/Optional;")
+            at = @At(
+                    value = "INVOKE_ASSIGN", ordinal = 0, shift = At.Shift.AFTER,
+                    target = "Lnet/minecraft/world/World;findSupportingBlockPos(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;)Ljava/util/Optional;"
+            )
     )
-    private void cacheSupportingBlockSearch(CallbackInfo ci) {
+    private void cacheSupportingBlockSearch(CallbackInfo ci, @Local Optional<BlockPos> pos) {
         BlockCache bc = this.lithium$getBlockCache();
         if (bc.isTracking()) {
             bc.setCanSkipSupportingBlockSearch(true);
+            if (pos.isPresent() && this.getGravity() > 0D) {
+                bc.cacheSupportingBlock(this.getWorld().getBlockState(pos.get()));
+            }
         }
     }
 
@@ -59,5 +86,17 @@ public abstract class EntityMixin implements BlockCacheProvider {
         if (bc.isTracking()) {
             bc.setCanSkipSupportingBlockSearch(false);
         }
+    }
+
+    @Override
+    public @Nullable VoxelShape lithium$getCollisionShapeBelow() {
+        BlockCache bc = this.getUpdatedBlockCache((Entity) (Object) this);
+        if (bc.isTracking()) {
+            BlockState cachedSupportingBlock = bc.getCachedSupportingBlock();
+            if (cachedSupportingBlock != null && this.supportingBlockPos.isPresent()) {
+                return cachedSupportingBlock.getCollisionShape(this.getWorld(), this.supportingBlockPos.get(), ShapeContext.of((Entity) (Object) this));
+            }
+        }
+        return null;
     }
 }

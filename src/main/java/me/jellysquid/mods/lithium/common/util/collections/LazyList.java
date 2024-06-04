@@ -1,6 +1,5 @@
 package me.jellysquid.mods.lithium.common.util.collections;
 
-import com.google.common.collect.Iterators;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractList;
@@ -11,28 +10,23 @@ import java.util.Iterator;
 public class LazyList<T> extends AbstractList<T> {
 
     private final ArrayList<T> delegate;
-    private final ArrayList<Iterator<T>> iterators;
+    private Iterator<T> iterator;
 
-    public LazyList(ArrayList<T> delegate) {
+    public LazyList(ArrayList<T> delegate, Iterator<T> iterator) {
         this.delegate = delegate;
-        this.iterators = new ArrayList<>();
-    }
-
-    public void appendIterator(Iterator<T> iterator) {
-        this.iterators.add(iterator);
+        this.iterator = iterator;
     }
 
     private boolean produceToIndex(int n) {
         n -= this.delegate.size();
-        while (n >= 0 && !this.iterators.isEmpty()) {
-            Iterator<T> iterator = this.iterators.get(0);
-            while (iterator.hasNext()) {
-                this.delegate.add(iterator.next());
+        if (n >= 0 && this.iterator != null) {
+            while (this.iterator.hasNext()) {
+                this.delegate.add(this.iterator.next());
                 if (--n < 0) {
                     return true;
                 }
             }
-            this.iterators.remove(0);
+            this.iterator = null;
         }
         return n < 0;
     }
@@ -87,17 +81,13 @@ public class LazyList<T> extends AbstractList<T> {
     @Override
     public void clear() {
         this.delegate.clear();
-        this.iterators.clear();
+        this.iterator = null;
     }
 
     @Override
     public boolean add(T t) {
-        if (this.iterators.isEmpty()) {
-            this.delegate.add(t);
-        } else {
-            this.appendIterator(Iterators.singletonIterator(t));
-        }
-        return true;
+        this.produceToIndex(Integer.MAX_VALUE);
+        return this.delegate.add(t);
     }
 
     @Override
@@ -110,7 +100,7 @@ public class LazyList<T> extends AbstractList<T> {
         if (c.isEmpty()) {
             return false;
         }
-        this.appendIterator(new ArrayList<T>(c).iterator());
-        return true;
+        this.produceToIndex(index - 1);
+        return this.delegate.addAll(index, c);
     }
 }

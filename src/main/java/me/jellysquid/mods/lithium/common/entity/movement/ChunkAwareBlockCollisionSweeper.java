@@ -104,6 +104,11 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
         this.chunkX--;
     }
 
+
+    public VoxelShape getLastCollision() {
+        return this.maxShape;
+    }
+
     public Iterator<VoxelShape> getLastCollisionIterator() {
         return new Iterator<>() {
             @Override

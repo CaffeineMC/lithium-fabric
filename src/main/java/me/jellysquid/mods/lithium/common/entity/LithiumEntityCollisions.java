@@ -1,9 +1,9 @@
 package me.jellysquid.mods.lithium.common.entity;
 
 import com.google.common.collect.AbstractIterator;
+import me.jellysquid.mods.lithium.common.entity.block_tracking.block_support.CollisionShapeBelowProvider;
 import me.jellysquid.mods.lithium.common.entity.movement.ChunkAwareBlockCollisionSweeper;
 import me.jellysquid.mods.lithium.common.util.Pos;
-import me.jellysquid.mods.lithium.common.util.collections.LazyList;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.Entity;
@@ -11,6 +11,7 @@ import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.CollisionView;
@@ -39,16 +40,6 @@ public class LithiumEntityCollisions {
      */
     public static List<VoxelShape> getBlockCollisions(World world, Entity entity, Box box) {
         return new ChunkAwareBlockCollisionSweeper(world, entity, box).collectAll();
-    }
-
-    public static List<VoxelShape> getBlockEntityAndWorldBorderCollisionsWithLastBlockCollisionLast(World world, Entity entity, Box box) {
-        ChunkAwareBlockCollisionSweeper collisionSweeper = new ChunkAwareBlockCollisionSweeper(world, entity, box, true);
-        LazyList<VoxelShape> voxelShapes = new LazyList<>(new ArrayList<>());
-        voxelShapes.appendIterator(collisionSweeper);
-        voxelShapes.appendIterator(getEntityWorldBorderCollisionIterable(world, entity, box.expand(EPSILON), entity != null).iterator());
-        voxelShapes.appendIterator(collisionSweeper.getLastCollisionIterator());
-
-        return voxelShapes;
     }
 
     /***
@@ -86,6 +77,43 @@ public class LithiumEntityCollisions {
             shapes.add(shape);
         }
         return shapes;
+    }
+
+    /**
+     * Collects entity and world border collision boxes.
+     */
+    public static void appendEntityWorldBorderCollisions(ArrayList<VoxelShape> entityCollisions, ArrayList<VoxelShape> worldBorderCollisions, World world, Entity entity, Box box, boolean includeWorldBorder) {
+        if (isBoxEmpty(box)) {
+            return;
+        }
+        Box expandedBox = box.expand(EPSILON);
+        assert !includeWorldBorder || entity != null;
+
+        for(Entity otherEntity : WorldHelper.getEntitiesForCollision(world, expandedBox, entity)) {
+            /*
+             * {@link Entity#isCollidable()} returns false by default, designed to be overridden by
+             * entities whose collisions should be "hard" (boats and shulkers, for now).
+             *
+             * {@link Entity#collidesWith(Entity)} only allows hard collisions if the calling entity is not riding
+             * otherEntity as a vehicle.
+             */
+            if (entity == null) {
+                if (!otherEntity.isCollidable()) {
+                    continue;
+                }
+            } else if (!entity.collidesWith(otherEntity)) {
+                continue;
+            }
+
+            entityCollisions.add(VoxelShapes.cuboid(otherEntity.getBoundingBox()));
+        }
+
+        if (includeWorldBorder) {
+            WorldBorder worldBorder = entity.getWorld().getWorldBorder();
+            if (!isWithinWorldBorder(worldBorder, expandedBox) && isWithinWorldBorder(worldBorder, entity.getBoundingBox())) {
+                worldBorderCollisions.add(worldBorder.asVoxelShape());
+            }
+        }
     }
 
     /**
@@ -197,7 +225,15 @@ public class LithiumEntityCollisions {
         return worldBorder.canCollide(entity, box) ? worldBorder.asVoxelShape() : null;
     }
 
-    public static VoxelShape getCollisionShapeBelowEntity(World world, @Nullable Entity entity, Box entityBoundingBox) {
+    public static @Nullable VoxelShape getCollisionShapeBelowEntity(World world, @Nullable Entity entity, Box entityBoundingBox) {
+        if (entity instanceof CollisionShapeBelowProvider collisionShapeBelowProvider) {
+            return collisionShapeBelowProvider.lithium$getCollisionShapeBelow();
+        }
+        return getCollisionShapeBelowEntityFallback(world, entity, entityBoundingBox);
+    }
+
+    @Nullable
+    private static VoxelShape getCollisionShapeBelowEntityFallback(World world, Entity entity, Box entityBoundingBox) {
         int x = MathHelper.floor(entityBoundingBox.minX + (entityBoundingBox.maxX - entityBoundingBox.minX) / 2);
         int y = MathHelper.floor(entityBoundingBox.minY);
         int z = MathHelper.floor(entityBoundingBox.minZ + (entityBoundingBox.maxZ - entityBoundingBox.minZ) / 2);
@@ -210,5 +246,59 @@ public class LithiumEntityCollisions {
             return cachedChunkSection.getBlockState(x & 15, y & 15, z & 15).getCollisionShape(world, new BlockPos(x, y, z), entity == null ? ShapeContext.absent() : ShapeContext.of(entity));
         }
         return null;
+    }
+
+    public static boolean addLastBlockCollisionIfRequired(boolean addLastBlockCollision, ChunkAwareBlockCollisionSweeper blockCollisionSweeper, List<VoxelShape> list) {
+        if (addLastBlockCollision) {
+            VoxelShape lastCollision = blockCollisionSweeper.getLastCollision();
+            if (lastCollision != null) {
+                list.add(lastCollision);
+            }
+        }
+        return false;
+    }
+
+    public static Box getSmallerBoxForSingleAxisMovement(Vec3d movement, Box entityBoundingBox, double velY, double velX, double velZ) {
+        double minX = entityBoundingBox.minX;
+        double minY = entityBoundingBox.minY;
+        double minZ = entityBoundingBox.minZ;
+        double maxX = entityBoundingBox.maxX;
+        double maxY = entityBoundingBox.maxY;
+        double maxZ = entityBoundingBox.maxZ;
+
+        if (velY > 0) {
+            //Reduced collision volume optimization for entities that only move in one direction:
+            // If the entity is already inside the collision surface, it will not collide with it
+            // Thus the surface / block can be skipped -> Only check for collisions outside the entity
+            minY = maxY;
+            maxY += velY;
+        } else if (velY < 0) {
+            maxY = minY;
+            minY += velY;
+        } else if (velX > 0) {
+            minX = maxX;
+            maxX += velX;
+        } else if (velX < 0) {
+            maxX = minX;
+            minX += velX;
+        } else if (velZ > 0) {
+            minZ = maxZ;
+            maxZ += velZ;
+        } else if (velZ < 0) {
+            maxZ = minZ;
+            minZ += velZ;
+        } else {
+            //Movement is 0 or NaN, fall back to what vanilla usually does in this case
+            return entityBoundingBox.stretch(movement);
+        }
+
+        return new Box(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
+    public static boolean addEntityWorldBorderCollisionIfRequired(@Nullable Entity entity, World world, boolean getEntityCollisions, ArrayList<VoxelShape> entityWorldBorderAndLastBlockCollisions, ArrayList<VoxelShape> worldBorderCollisions, Box movementSpace) {
+        if (getEntityCollisions) {
+            appendEntityWorldBorderCollisions(entityWorldBorderAndLastBlockCollisions, worldBorderCollisions, world, entity, movementSpace, entity != null);
+        }
+        return false;
     }
 }

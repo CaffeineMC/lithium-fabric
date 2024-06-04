@@ -2,14 +2,15 @@ package me.jellysquid.mods.lithium.common.entity.block_tracking;
 
 import it.unimi.dsi.fastutil.objects.Reference2DoubleArrayMap;
 import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.math.Box;
 
 public final class BlockCache {
-    // To avoid slowing down setblock operations, only start caching after 3 Seconds = 60 gameticks with N accesses per tick
-    private static final int MIN_DELAY = 60 * 5;
+    // To avoid slowing down setblock operations, only start caching after 1.5 Seconds = 30 gameticks with estimated 6 accesses per tick
+    private static final int MIN_DELAY = 30 * 6;
     private int initDelay; //Changing MIN_DELAY should not affect correctness, just performance in some cases
 
     private Box trackedPos;
@@ -17,6 +18,7 @@ public final class BlockCache {
     private long trackingSince;
 
     private boolean canSkipSupportingBlockSearch;
+    private BlockState cachedSupportingBlock;
 
     private boolean canSkipBlockTouching;
     //0 if not touching fire/lava. 1 if touching fire/lava. -1 if not cached
@@ -77,6 +79,7 @@ public final class BlockCache {
     public void resetCachedInfo() {
         this.trackingSince = !this.isTracking() ? Long.MIN_VALUE : this.tracker.getWorldTime();
         this.canSkipSupportingBlockSearch = false;
+        this.cachedSupportingBlock = null;
         this.cachedIsSuffocating = (byte) -1;
         this.cachedTouchingFireLava = (byte) -1;
         this.canSkipBlockTouching = false;
@@ -136,5 +139,17 @@ public final class BlockCache {
 
     public void setCanSkipSupportingBlockSearch(boolean canSkip) {
         this.canSkipSupportingBlockSearch = canSkip;
+        this.cachedSupportingBlock = null;
+    }
+
+    public void cacheSupportingBlock(BlockState blockState) {
+        this.cachedSupportingBlock = blockState;
+    }
+
+    public BlockState getCachedSupportingBlock() {
+        if (!this.isTracking()) {
+            return null;
+        }
+        return this.cachedSupportingBlock;
     }
 }
