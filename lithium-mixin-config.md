@@ -65,6 +65,14 @@ Keep track of AI memory changes to skip checking AI task memory prerequisites
 (default: `true`)  
 Replace Stream code of AI tasks with more traditional iteration.  
   
+### `mixin.ai.useless_sensors`
+(default: `true`)  
+Disabling useless brain sensors to avoid useless sensing calculations.  
+  
+### `mixin.ai.useless_sensors.goat_item_sensor`
+(default: `true`)  
+Disable the goat item sensor whose memories are never used.  
+  
 ### `mixin.alloc`
 (default: `true`)  
 Patches that reduce memory allocations  
