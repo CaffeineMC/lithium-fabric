@@ -1,5 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.entity.collisions.movement;
 
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions;
 import me.jellysquid.mods.lithium.common.entity.movement.ChunkAwareBlockCollisionSweeper;
 import me.jellysquid.mods.lithium.common.util.collections.LazyList;
@@ -13,15 +15,23 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(Entity.class)
-public class EntityMixin {
+public abstract class EntityMixin {
+    @Shadow
+    public abstract World getWorld();
+
+    @Shadow
+    public abstract Box getBoundingBox();
+
     @Redirect(
             method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;",
             at = @At(
@@ -29,7 +39,8 @@ public class EntityMixin {
                     target = "Lnet/minecraft/world/World;getEntityCollisions(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;)Ljava/util/List;"
             )
     )
-    private List<VoxelShape> postponeGetEntities(World world, Entity entity, Box box) {
+    private List<VoxelShape> postponeGetEntities(World world, Entity entity, Box box, @Share("requireAddEntities") LocalBooleanRef requireAddEntities) {
+        requireAddEntities.set(true);
         return new ArrayList<>();
     }
 
@@ -41,8 +52,24 @@ public class EntityMixin {
                     target = "Lnet/minecraft/entity/Entity;adjustMovementForCollisions(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Box;Lnet/minecraft/world/World;Ljava/util/List;)Lnet/minecraft/util/math/Vec3d;"
             )
     )
-    private Vec3d collideMovementWithPostponedGetEntities(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, List<VoxelShape> entityCollisions) {
-        return lithium$CollideMovement(entity, movement, entityBoundingBox, world, true, entityCollisions);
+    private Vec3d collideMovementWithPostponedGetEntities(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, List<VoxelShape> entityCollisions, @Share("requireAddEntities") LocalBooleanRef requireAddEntities) {
+        return lithium$CollideMovement(entity, movement, entityBoundingBox, world, entityCollisions, requireAddEntities);
+    }
+
+    @ModifyVariable(
+            method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;",
+            at = @At(
+                    value = "INVOKE", shift = At.Shift.BEFORE,
+                    target = "Lnet/minecraft/entity/Entity;findCollisionsForMovement(Lnet/minecraft/entity/Entity;Lnet/minecraft/world/World;Ljava/util/List;Lnet/minecraft/util/math/Box;)Ljava/util/List;")
+    )
+    private List<VoxelShape> collectEntities(List<VoxelShape> entityCollisions, @Share("requireAddEntities") LocalBooleanRef requireAddEntities) {
+        if (requireAddEntities.get()) {
+            requireAddEntities.set(false);
+            ArrayList<VoxelShape> collisions = entityCollisions instanceof ArrayList<VoxelShape> ? (ArrayList<VoxelShape>) entityCollisions : new ArrayList<>(entityCollisions);
+            LithiumEntityCollisions.appendEntityCollisions(collisions, this.getWorld(), (Entity) (Object) this, this.getBoundingBox());
+            return collisions;
+        }
+        return entityCollisions;
     }
 
     /**
@@ -51,10 +78,10 @@ public class EntityMixin {
      */
     @Overwrite
     public static Vec3d adjustMovementForCollisions(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, List<VoxelShape> entityCollisions) {
-        return lithium$CollideMovement(entity, movement, entityBoundingBox, world, false, entityCollisions);
+        return lithium$CollideMovement(entity, movement, entityBoundingBox, world, entityCollisions, null);
     }
     @Unique
-    private static Vec3d lithium$CollideMovement(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, boolean shouldAddEntitiesAndWorldBorder, List<VoxelShape> otherCollisions) {
+    private static Vec3d lithium$CollideMovement(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, List<VoxelShape> otherCollisions, LocalBooleanRef requireAddEntities) {
         //vanilla order: entities, world border, blocks.
         // The most important ordering constraint is that the last collision is last, since the result is not clipped to 0 when it is <1e-7.
         // Other reordering of collisions does not seem to matter.
@@ -82,18 +109,23 @@ public class EntityMixin {
             movementSpace = entityBoundingBox.stretch(movement);
         }
 
+        boolean shouldAddEntities = requireAddEntities != null && requireAddEntities.get();
+        boolean shouldAddWorldBorder = true;
         // For 1-e7 margin behavior correctness, the last block collision must be last of all collisions
-        final boolean delayLastBlockCollision = shouldAddEntitiesAndWorldBorder || !otherCollisions.isEmpty();
-        boolean shouldAddLastBlock = delayLastBlockCollision;
-        ChunkAwareBlockCollisionSweeper blockCollisionSweeper = new ChunkAwareBlockCollisionSweeper(world, entity, movementSpace, delayLastBlockCollision);
+        boolean shouldAddLastBlock = true;
+        ChunkAwareBlockCollisionSweeper blockCollisionSweeper = new ChunkAwareBlockCollisionSweeper(world, entity, movementSpace, true);
+
         LazyList<VoxelShape> blockCollisions = new LazyList<>(new ArrayList<>(), blockCollisionSweeper);
         ArrayList<VoxelShape> entityCollisions = (ArrayList<VoxelShape>) otherCollisions;
-        ArrayList<VoxelShape> worldBorderAndLastBlockCollision = new ArrayList<>(shouldAddEntitiesAndWorldBorder ? 2 : 1);
+        ArrayList<VoxelShape> worldBorderAndLastBlockCollision = new ArrayList<>(2);
 
         if (movementY != 0.0) {
             movementY = VoxelShapes.calculateMaxOffset(Direction.Axis.Y, entityBoundingBox, blockCollisions, movementY);
             if (movementY != 0.0) {
-                shouldAddEntitiesAndWorldBorder = LithiumEntityCollisions.addEntityWorldBorderCollisionIfRequired(entity, world, shouldAddEntitiesAndWorldBorder, entityCollisions, worldBorderAndLastBlockCollision, movementSpace);
+                shouldAddEntities = LithiumEntityCollisions.addEntityCollisionsIfRequired(shouldAddEntities, entity, world, entityCollisions, movementSpace);
+                //noinspection ConstantValue
+                shouldAddWorldBorder = LithiumEntityCollisions.addWorldBorderCollisionIfRequired(shouldAddWorldBorder, entity, worldBorderAndLastBlockCollision, movementSpace);
+                //noinspection ConstantValue
                 shouldAddLastBlock = LithiumEntityCollisions.addLastBlockCollisionIfRequired(shouldAddLastBlock, blockCollisionSweeper, worldBorderAndLastBlockCollision);
                 if (!entityCollisions.isEmpty()) {
                     movementY = VoxelShapes.calculateMaxOffset(Direction.Axis.Y, entityBoundingBox, entityCollisions, movementY);
@@ -112,7 +144,8 @@ public class EntityMixin {
             movementZ = VoxelShapes.calculateMaxOffset(Direction.Axis.Z, entityBoundingBox, blockCollisions, movementZ);
             if (movementZ != 0.0) {
                 //noinspection DuplicatedCode
-                shouldAddEntitiesAndWorldBorder = LithiumEntityCollisions.addEntityWorldBorderCollisionIfRequired(entity, world, shouldAddEntitiesAndWorldBorder, entityCollisions, worldBorderAndLastBlockCollision, movementSpace);
+                shouldAddEntities = LithiumEntityCollisions.addEntityCollisionsIfRequired(shouldAddEntities, entity, world, entityCollisions, movementSpace);
+                shouldAddWorldBorder = LithiumEntityCollisions.addWorldBorderCollisionIfRequired(shouldAddWorldBorder, entity, worldBorderAndLastBlockCollision, movementSpace);
                 shouldAddLastBlock = LithiumEntityCollisions.addLastBlockCollisionIfRequired(shouldAddLastBlock, blockCollisionSweeper, worldBorderAndLastBlockCollision);
                 if (!entityCollisions.isEmpty()) {
                     movementZ = VoxelShapes.calculateMaxOffset(Direction.Axis.Z, entityBoundingBox, entityCollisions, movementZ);
@@ -129,7 +162,8 @@ public class EntityMixin {
         if (movementX != 0.0) {
             movementX = VoxelShapes.calculateMaxOffset(Direction.Axis.X, entityBoundingBox, blockCollisions, movementX);
             if (movementX != 0.0) {
-                shouldAddEntitiesAndWorldBorder = LithiumEntityCollisions.addEntityWorldBorderCollisionIfRequired(entity, world, shouldAddEntitiesAndWorldBorder, entityCollisions, worldBorderAndLastBlockCollision, movementSpace);
+                shouldAddEntities = LithiumEntityCollisions.addEntityCollisionsIfRequired(shouldAddEntities, entity, world, entityCollisions, movementSpace);
+                shouldAddWorldBorder = LithiumEntityCollisions.addWorldBorderCollisionIfRequired(shouldAddWorldBorder, entity, worldBorderAndLastBlockCollision, movementSpace);
                 shouldAddLastBlock = LithiumEntityCollisions.addLastBlockCollisionIfRequired(shouldAddLastBlock, blockCollisionSweeper, worldBorderAndLastBlockCollision);
                 if (!entityCollisions.isEmpty()) {
                     movementX = VoxelShapes.calculateMaxOffset(Direction.Axis.X, entityBoundingBox, entityCollisions, movementX);
@@ -146,8 +180,10 @@ public class EntityMixin {
         if (!zMovementBiggerThanXMovement && movementZ != 0.0) {
             movementZ = VoxelShapes.calculateMaxOffset(Direction.Axis.Z, entityBoundingBox, blockCollisions, movementZ);
             if (movementZ != 0.0) {
-                //noinspection UnusedAssignment,DuplicatedCode
-                shouldAddEntitiesAndWorldBorder = LithiumEntityCollisions.addEntityWorldBorderCollisionIfRequired(entity, world, shouldAddEntitiesAndWorldBorder, entityCollisions, worldBorderAndLastBlockCollision, movementSpace);
+                //noinspection DuplicatedCode
+                shouldAddEntities = LithiumEntityCollisions.addEntityCollisionsIfRequired(shouldAddEntities, entity, world, entityCollisions, movementSpace);
+                //noinspection UnusedAssignment
+                shouldAddWorldBorder = LithiumEntityCollisions.addWorldBorderCollisionIfRequired(shouldAddWorldBorder, entity, worldBorderAndLastBlockCollision, movementSpace);
                 //noinspection UnusedAssignment
                 shouldAddLastBlock = LithiumEntityCollisions.addLastBlockCollisionIfRequired(shouldAddLastBlock, blockCollisionSweeper, worldBorderAndLastBlockCollision);
                 if (!entityCollisions.isEmpty()) {
@@ -158,6 +194,10 @@ public class EntityMixin {
                 }
                 //No need to offset box here, as it is the last axis
             }
+        }
+
+        if (requireAddEntities != null && !shouldAddEntities) {
+            requireAddEntities.set(false);
         }
         return new Vec3d(movementX, movementY, movementZ);
     }

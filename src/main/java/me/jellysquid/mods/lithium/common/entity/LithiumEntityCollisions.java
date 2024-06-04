@@ -25,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -65,29 +64,13 @@ public class LithiumEntityCollisions {
     }
 
     /**
-     * Iterates entity and world border collision boxes.
-     */
-    public static List<VoxelShape> getEntityWorldBorderCollisions(World world, Entity entity, Box box, boolean includeWorldBorder) {
-        if (isBoxEmpty(box)) {
-            return Collections.emptyList();
-        }
-        ArrayList<VoxelShape> shapes = new ArrayList<>();
-        Iterable<VoxelShape> collisions = getEntityWorldBorderCollisionIterable(world, entity, box.expand(EPSILON), includeWorldBorder);
-        for (VoxelShape shape : collisions) {
-            shapes.add(shape);
-        }
-        return shapes;
-    }
-
-    /**
      * Collects entity and world border collision boxes.
      */
-    public static void appendEntityWorldBorderCollisions(ArrayList<VoxelShape> entityCollisions, ArrayList<VoxelShape> worldBorderCollisions, World world, Entity entity, Box box, boolean includeWorldBorder) {
+    public static void appendEntityCollisions(ArrayList<VoxelShape> entityCollisions, World world, Entity entity, Box box) {
         if (isBoxEmpty(box)) {
             return;
         }
         Box expandedBox = box.expand(EPSILON);
-        assert !includeWorldBorder || entity != null;
 
         for(Entity otherEntity : WorldHelper.getEntitiesForCollision(world, expandedBox, entity)) {
             /*
@@ -107,12 +90,13 @@ public class LithiumEntityCollisions {
 
             entityCollisions.add(VoxelShapes.cuboid(otherEntity.getBoundingBox()));
         }
+    }
 
-        if (includeWorldBorder) {
-            WorldBorder worldBorder = entity.getWorld().getWorldBorder();
-            if (!isWithinWorldBorder(worldBorder, expandedBox) && isWithinWorldBorder(worldBorder, entity.getBoundingBox())) {
-                worldBorderCollisions.add(worldBorder.asVoxelShape());
-            }
+    public static void appendWorldBorderCollision(ArrayList<VoxelShape> worldBorderCollisions, Entity entity, Box box) {
+        WorldBorder worldBorder = entity.getWorld().getWorldBorder();
+        //TODO this might be different regarding 1e-7 margins
+        if (!isWithinWorldBorder(worldBorder, box) && isWithinWorldBorder(worldBorder, entity.getBoundingBox())) {
+            worldBorderCollisions.add(worldBorder.asVoxelShape());
         }
     }
 
@@ -302,9 +286,15 @@ public class LithiumEntityCollisions {
         return new Box(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
-    public static boolean addEntityWorldBorderCollisionIfRequired(@Nullable Entity entity, World world, boolean getEntityCollisions, ArrayList<VoxelShape> entityWorldBorderAndLastBlockCollisions, ArrayList<VoxelShape> worldBorderCollisions, Box movementSpace) {
+    public static boolean addEntityCollisionsIfRequired(boolean getEntityCollisions, @Nullable Entity entity, World world, ArrayList<VoxelShape> entityCollisions, Box movementSpace) {
         if (getEntityCollisions) {
-            appendEntityWorldBorderCollisions(entityWorldBorderAndLastBlockCollisions, worldBorderCollisions, world, entity, movementSpace, entity != null);
+            appendEntityCollisions(entityCollisions, world, entity, movementSpace);
+        }
+        return false;
+    }
+    public static boolean addWorldBorderCollisionIfRequired(boolean getWorldBorderCollision, @Nullable Entity entity, ArrayList<VoxelShape> worldBorderCollisions, Box movementSpace) {
+        if (getWorldBorderCollision && entity != null) {
+            appendWorldBorderCollision(worldBorderCollisions, entity, movementSpace);
         }
         return false;
     }
