@@ -81,7 +81,7 @@ public abstract class EntityMixin {
         return lithium$CollideMovement(entity, movement, entityBoundingBox, world, entityCollisions, null);
     }
     @Unique
-    private static Vec3d lithium$CollideMovement(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, List<VoxelShape> otherCollisions, LocalBooleanRef requireAddEntities) {
+    private static Vec3d lithium$CollideMovement(@Nullable Entity entity, Vec3d movement, Box entityBoundingBox, World world, List<VoxelShape> entityCollisions, LocalBooleanRef requireAddEntities) {
         //vanilla order: entities, world border, blocks.
         // The most important ordering constraint is that the last collision is last, since the result is not clipped to 0 when it is <1e-7.
         // Other reordering of collisions does not seem to matter.
@@ -116,7 +116,6 @@ public abstract class EntityMixin {
         ChunkAwareBlockCollisionSweeper blockCollisionSweeper = new ChunkAwareBlockCollisionSweeper(world, entity, movementSpace, true);
 
         LazyList<VoxelShape> blockCollisions = new LazyList<>(new ArrayList<>(), blockCollisionSweeper);
-        ArrayList<VoxelShape> entityCollisions = (ArrayList<VoxelShape>) otherCollisions;
         ArrayList<VoxelShape> worldBorderAndLastBlockCollision = new ArrayList<>(2);
 
         if (movementY != 0.0) {

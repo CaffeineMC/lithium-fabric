@@ -66,7 +66,7 @@ public class LithiumEntityCollisions {
     /**
      * Collects entity and world border collision boxes.
      */
-    public static void appendEntityCollisions(ArrayList<VoxelShape> entityCollisions, World world, Entity entity, Box box) {
+    public static void appendEntityCollisions(List<VoxelShape> entityCollisions, World world, Entity entity, Box box) {
         if (isBoxEmpty(box)) {
             return;
         }
@@ -286,7 +286,7 @@ public class LithiumEntityCollisions {
         return new Box(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
-    public static boolean addEntityCollisionsIfRequired(boolean getEntityCollisions, @Nullable Entity entity, World world, ArrayList<VoxelShape> entityCollisions, Box movementSpace) {
+    public static boolean addEntityCollisionsIfRequired(boolean getEntityCollisions, @Nullable Entity entity, World world, List<VoxelShape> entityCollisions, Box movementSpace) {
         if (getEntityCollisions) {
             appendEntityCollisions(entityCollisions, world, entity, movementSpace);
         }
