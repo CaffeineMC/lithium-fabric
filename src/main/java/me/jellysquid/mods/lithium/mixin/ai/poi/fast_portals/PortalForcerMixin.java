@@ -28,7 +28,7 @@ public class PortalForcerMixin {
      * [VanillaCopy] everything but the Optional<PointOfInterest> lookup
      */
     @Overwrite
-    public Optional<BlockPos> getPortalRect(BlockPos centerPos, boolean dstIsNether, WorldBorder worldBorder) {
+    public Optional<BlockPos> getPortalPos(BlockPos centerPos, boolean dstIsNether, WorldBorder worldBorder) {
         int searchRadius = dstIsNether ? 16 : 128;
 
         PointOfInterestStorage poiStorage = this.world.getPointOfInterestStorage();
