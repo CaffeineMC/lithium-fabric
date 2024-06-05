@@ -1,9 +1,11 @@
 package me.jellysquid.mods.lithium.mixin.ai.useless_sensors.goat_item_sensor;
 
 import me.jellysquid.mods.lithium.common.ai.brain.SensorHelper;
+import net.minecraft.SharedConstants;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.Brain;
+import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.sensor.SensorType;
 import net.minecraft.entity.passive.GoatEntity;
 import net.minecraft.world.World;
@@ -28,6 +30,10 @@ public abstract class GoatEntityMixin extends LivingEntity {
             at = @At("RETURN")
     )
     private void disableItemSensor(CallbackInfo ci) {
-        SensorHelper.disableSensor(this, SensorType.NEAREST_ITEMS);
+        if (!this.getBrain().hasMemoryModule(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM)) {
+            SensorHelper.disableSensor(this, SensorType.NEAREST_ITEMS);
+        } else if (SharedConstants.isDevelopment) {
+            throw new IllegalStateException("Goat Entity has a nearest visible wanted item memory module! The mixin.ai.useless_sensors.goat_item_sensor should probably be removed permanently!");
+        }
     }
 }
