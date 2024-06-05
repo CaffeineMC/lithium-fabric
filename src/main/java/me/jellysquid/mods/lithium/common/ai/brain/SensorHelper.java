@@ -6,10 +6,14 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.sensor.Sensor;
 import net.minecraft.entity.ai.brain.sensor.SensorType;
+import net.minecraft.server.world.ServerWorld;
 
 public class SensorHelper {
 
     public static void disableSensor(LivingEntity brainedEntity, SensorType<?> sensorType) {
+        if (brainedEntity.getWorld().isClient()) {
+            return;
+        }
         Brain<?> brain = brainedEntity.getBrain();
         Sensor<?> sensor = ((BrainAccessor<?>) brain).getSensors().get(sensorType);
         if (sensor instanceof SensorAccessor sensorAccessor) {
@@ -28,9 +32,18 @@ public class SensorHelper {
         }
     }
 
-    public static void enableSensor(LivingEntity brainedEntity, SensorType<?> sensorType) {
+    public static <T extends LivingEntity, U extends Sensor<T>> void enableSensor(T brainedEntity, SensorType<U> sensorType) {
+        enableSensor(brainedEntity, sensorType, false);
+    }
+
+    public static <T extends LivingEntity, U extends Sensor<T>> void enableSensor(T brainedEntity, SensorType<U> sensorType, boolean extraTick) {
+        if (brainedEntity.getWorld().isClient()) {
+            return;
+        }
+
         Brain<?> brain = brainedEntity.getBrain();
-        Sensor<?> sensor = ((BrainAccessor<?>) brain).getSensors().get(sensorType);
+        //noinspection unchecked
+        U sensor = (U) ((BrainAccessor<?>) brain).getSensors().get(sensorType);
         if (sensor instanceof SensorAccessor sensorAccessor) {
             long lastSenseTime = sensorAccessor.getLastSenseTime();
             int senseInterval = sensorAccessor.getSenseInterval();
@@ -38,6 +51,10 @@ public class SensorHelper {
             //Recover the random offset of the sensor:
             if (lastSenseTime > senseInterval) {
                 lastSenseTime = lastSenseTime % senseInterval;
+                if (extraTick) {
+                    ((SensorAccessor) sensor).setLastSenseTime(0L);
+                    sensor.tick((ServerWorld) brainedEntity.getWorld(), brainedEntity);
+                }
             }
             sensorAccessor.setLastSenseTime(lastSenseTime);
         }

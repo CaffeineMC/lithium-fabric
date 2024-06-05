@@ -34,6 +34,7 @@
     "ai.useless_sensors.BrainAccessor",
     "ai.useless_sensors.SensorAccessor",
     "ai.useless_sensors.goat_item_sensor.GoatEntityMixin",
+    "ai.useless_sensors.parent_animal_sensor.PassiveEntityMixin",
     "alloc.blockstate.StateMixin",
     "alloc.chunk_random.ServerWorldMixin",
     "alloc.chunk_random.WorldMixin",
