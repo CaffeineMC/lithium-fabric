@@ -130,6 +130,7 @@
     "entity.skip_equipment_change_check.ArmorStandEntityMixin",
     "entity.skip_equipment_change_check.LivingEntityMixin",
     "entity.skip_equipment_change_check.MobEntityMixin",
+    "entity.sprinting_particles.EntityMixin",
     "experimental.entity.block_caching.EntityMixin",
     "experimental.entity.block_caching.block_support.EntityMixin",
     "experimental.entity.block_caching.block_touching.EntityMixin",

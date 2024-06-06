@@ -303,6 +303,10 @@ Accesses entities of the correct type directly instead of accessing all nearby e
 (default: `true`)  
 Skips repeated checks whether the equipment of an entity changed. Instead equipment updates are detected  
   
+### `mixin.entity.sprinting_particles`
+(default: `true`)  
+Skips trying to create sprinting particles for all entities on the server side.  
+  
 ### `mixin.experimental`
 (default: `false`)  
 Various experimental optimizations  
