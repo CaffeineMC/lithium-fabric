@@ -141,6 +141,14 @@ Optimizations related to blocks
 (default: `true`)  
 FluidStates store directly whether they are empty  
   
+### `mixin.block.fluid`
+(default: `true`)  
+Fluid optimizations  
+  
+### `mixin.block.fluid.flow`
+(default: `true`)  
+Fluid flow optimization  
+  
 ### `mixin.block.hopper`
 (default: `true`)  
 Reduces hopper lag using caching, notification systems and BlockEntity sleeping  

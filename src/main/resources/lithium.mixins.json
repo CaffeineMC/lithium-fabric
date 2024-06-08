@@ -52,6 +52,7 @@
     "alloc.nbt.NbtCompoundMixin",
     "alloc.nbt.NbtCompoundMixin$Type",
     "block.flatten_states.FluidStateMixin",
+    "block.fluid.flow.FlowableFluidMixin",
     "block.hopper.AbstractMinecartEntityMixin",
     "block.hopper.ChestBoatEntityMixin",
     "block.hopper.ComposterMixin$ComposterBlockComposterInventoryMixin",
