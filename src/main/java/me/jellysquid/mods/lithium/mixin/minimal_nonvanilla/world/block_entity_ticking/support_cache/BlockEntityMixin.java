@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.support_cache;
+package me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.world.block_entity_ticking.support_cache;
 
 import me.jellysquid.mods.lithium.common.world.blockentity.SupportCache;
 import net.minecraft.block.BlockState;
@@ -7,6 +7,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -16,6 +17,7 @@ public abstract class BlockEntityMixin implements SupportCache {
     @Shadow
     public abstract BlockEntityType<?> getType();
 
+    @Unique
     private boolean supportTestResult;
 
     @Inject(method = "<init>(Lnet/minecraft/block/entity/BlockEntityType;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V", at = @At("RETURN"))

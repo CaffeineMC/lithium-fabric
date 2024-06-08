@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.support_cache;
+package me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.world.block_entity_ticking.support_cache;
 
 import me.jellysquid.mods.lithium.common.world.blockentity.SupportCache;
 import net.minecraft.block.BlockState;
@@ -20,7 +20,6 @@ public class DirectBlockEntityTickInvokerMixin<T extends BlockEntity> {
     @Final
     private T blockEntity;
 
-    @SuppressWarnings("UnresolvedMixinReference")
     @Redirect(
             method = "tick()V",
             at = @At(

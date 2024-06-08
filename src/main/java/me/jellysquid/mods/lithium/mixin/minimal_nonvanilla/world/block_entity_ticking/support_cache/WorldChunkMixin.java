@@ -1,4 +1,4 @@
-package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.support_cache;
+package me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.world.block_entity_ticking.support_cache;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
