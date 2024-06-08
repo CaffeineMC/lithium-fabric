@@ -96,6 +96,10 @@ public abstract class EntityMixin {
             if (voxelShape != null) {
                 double v = voxelShape.calculateMaxDistance(Direction.Axis.Y, entityBoundingBox, movementY);
                 if (v == 0) {
+                    if (isSingleAxisMovement) {
+                        //Y was the only movement axis, movement completely cancelled<
+                        return Vec3d.ZERO;
+                    }
                     movementY = 0D;
                     isSingleAxisMovement = (movementX == 0D ? 0 : 1) + (movementZ == 0D ? 0 : 1) == 1;
                 }
