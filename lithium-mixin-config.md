@@ -71,6 +71,14 @@ Keep track of AI memory changes to skip checking AI task memory prerequisites
 (default: `true`)  
 Replace Stream code of AI tasks with more traditional iteration.  
   
+### `mixin.ai.task.run`
+(default: `true`)  
+Various optimizations inside AI tasks  
+  
+### `mixin.ai.task.run.long_jump_weighted_choice`
+(default: `true`)  
+Speed up the weighted random choice of long jump target positions.  
+  
 ### `mixin.ai.useless_sensors`
 (default: `true`)  
 Disabling useless brain sensors to avoid useless sensing calculations.  

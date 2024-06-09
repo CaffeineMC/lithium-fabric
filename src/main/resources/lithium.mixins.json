@@ -30,6 +30,7 @@
     "ai.task.memory_change_counting.MultiTickTaskMixin",
     "ai.task.replace_streams.CompositeTaskMixin",
     "ai.task.replace_streams.WeightedListMixin",
+    "ai.task.run.long_jump_weighted_choice.LongJumpTaskMixin",
     "ai.useless_sensors.BrainAccessor",
     "ai.useless_sensors.SensorAccessor",
     "ai.useless_sensors.goat_item_sensor.GoatEntityMixin",
