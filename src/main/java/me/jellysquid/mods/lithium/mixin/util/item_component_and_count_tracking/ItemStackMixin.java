@@ -95,7 +95,7 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
     }
 
     @Inject(method = "setCount(I)V", at = @At("HEAD"))
-    private void unsubscribeOnEmpty(int count, CallbackInfo ci) {
+    private void beforeChangeCount(int count, CallbackInfo ci) {
         if (count != this.count) {
 
             if (this.subscriber instanceof ChangeSubscriber.CountChangeSubscriber<ItemStack> countChangeSubscriber) {
@@ -103,12 +103,14 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
             }
 
             if (count == 0) {
-                //Safe because ComponentMapImplMixin
+                //Safe because ComponentMapImplMixin implements the interface
                 //noinspection unchecked
                 ((ChangePublisher<ComponentMapImpl>) (Object) this.components).lithium$unsubscribe(this);
 
                 if (this.subscriber != null) {
                     this.subscriber.lithium$forceUnsubscribe((ItemStack) (Object) this, this.subscriberData);
+                    this.subscriber = null;
+                    this.subscriberData = 0;
                 }
             }
         }

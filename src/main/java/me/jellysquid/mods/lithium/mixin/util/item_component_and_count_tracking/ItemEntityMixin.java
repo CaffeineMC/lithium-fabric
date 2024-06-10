@@ -76,6 +76,8 @@ public abstract class ItemEntityMixin implements ChangePublisher<ItemEntity>, Ch
     public void lithium$forceUnsubscribe(ItemStack publisher, int subscriberData) {
         if (this.subscriber != null) {
             this.subscriber.lithium$forceUnsubscribe((ItemEntity) (Object) this, this.subscriberData);
+            this.subscriber = null;
+            this.subscriberData = 0;
         }
     }
 
@@ -106,6 +108,8 @@ public abstract class ItemEntityMixin implements ChangePublisher<ItemEntity>, Ch
                     this.subscriber.lithium$notify((ItemEntity) (Object) this, this.subscriberData);
                 } else {
                     this.subscriber.lithium$forceUnsubscribe((ItemEntity) (Object) this, this.subscriberData);
+                    this.subscriber = null;
+                    this.subscriberData = 0;
                 }
             }
         }
