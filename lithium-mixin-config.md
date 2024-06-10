@@ -283,6 +283,14 @@ In chunks with many mobs in ladders a separate list of pushable entities for cra
 Requirements:
 - `mixin.chunk.entity_class_groups=true`  
   
+### `mixin.entity.equipment_tracking`
+(default: `true`)  
+Skips repeated checks whether the equipment of an entity changed. Instead equipment updates are detected  
+  
+### `mixin.entity.equipment_tracking.enchantment_ticking`
+(default: `true`)  
+Use equipment tracking to skip ticking enchantments (Soul speed) when no such enchantments are present on the equipment of a living entity.  
+  
 ### `mixin.entity.fast_elytra_check`
 (default: `true`)  
 Skip repeatedly writing to the data tracker that an entity is not flying  

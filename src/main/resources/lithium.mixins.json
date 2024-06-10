@@ -112,6 +112,7 @@
     "entity.collisions.unpushable_cramming.EntityPredicatesMixin",
     "entity.collisions.unpushable_cramming.EntityTrackingSectionMixin",
     "entity.collisions.unpushable_cramming.LivingEntityMixin",
+    "entity.equipment_tracking.enchantment_ticking.LivingEntityMixin",
     "entity.fast_elytra_check.LivingEntityMixin",
     "entity.fast_hand_swing.LivingEntityMixin",
     "entity.fast_powder_snow_check.LivingEntityMixin",
