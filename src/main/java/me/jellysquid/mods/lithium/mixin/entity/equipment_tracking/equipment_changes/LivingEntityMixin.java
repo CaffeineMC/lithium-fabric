@@ -1,17 +1,15 @@
-package me.jellysquid.mods.lithium.mixin.entity.skip_equipment_change_check;
+package me.jellysquid.mods.lithium.mixin.entity.equipment_tracking.equipment_changes;
 
 import me.jellysquid.mods.lithium.common.entity.EquipmentEntity;
-import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,19 +17,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Map;
-import java.util.function.Predicate;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity implements EquipmentEntity {
-
-    @Unique
-    private static final Predicate<ItemStack> DYNAMIC_EQUIPMENT = item -> item.isOf(Items.CROSSBOW) || item.isOf(Items.WOLF_ARMOR);
-
-    @Shadow
-    public abstract ItemStack getEquippedStack(EquipmentSlot slot);
-
-    @Shadow
-    public abstract boolean isHolding(Predicate<ItemStack> predicate);
+public abstract class LivingEntityMixin extends Entity implements EquipmentEntity.EquipmentTrackingEntity {
 
     @Unique
     private boolean equipmentChanged = true;
@@ -41,7 +29,7 @@ public abstract class LivingEntityMixin extends Entity implements EquipmentEntit
     }
 
     @Override
-    public void lithium$OnEquipmentChanged() { //TODO: Move to item stack listening system - should be more robust to changes to vanilla / from other mods
+    public void lithium$onEquipmentChanged() {
         this.equipmentChanged = true;
     }
 
@@ -64,18 +52,10 @@ public abstract class LivingEntityMixin extends Entity implements EquipmentEntit
             )
     )
     private void resetEquipmentChanged(CallbackInfo ci) {
-        //Not implemented for player entities and modded entities, fallback to never skipping inventory comparison
-        //Work around dynamic items that are changed while holding them (only crossbow and wolf armor)
-        if (this instanceof EquipmentTrackingEntity && !this.isHolding(DYNAMIC_EQUIPMENT) && !DYNAMIC_EQUIPMENT.test(this.getEquippedStack(EquipmentSlot.BODY))) {
+        //Not implemented for player entities.
+        //noinspection ConstantValue
+        if (!((Object) this instanceof PlayerEntity)) {
             this.equipmentChanged = false;
         }
-    }
-
-    @Inject(
-            method = "eatFood(Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;Lnet/minecraft/component/type/FoodComponent;)Lnet/minecraft/item/ItemStack;",
-            at = @At("RETURN")
-    )
-    private void trackEatingEquipmentChange(World world, ItemStack stack, FoodComponent foodComponent, CallbackInfoReturnable<ItemStack> cir) {
-        this.lithium$OnEquipmentChanged();
     }
 }

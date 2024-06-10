@@ -3,7 +3,10 @@ package me.jellysquid.mods.lithium.mixin.util.item_component_and_count_tracking;
 import me.jellysquid.mods.lithium.common.util.change_tracking.ChangePublisher;
 import me.jellysquid.mods.lithium.common.util.change_tracking.ChangeSubscriber;
 import net.minecraft.component.ComponentMapImpl;
+import net.minecraft.component.ComponentType;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -11,6 +14,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, ChangeSubscriber<ComponentMapImpl> {
@@ -125,6 +129,18 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
 
         if (this.subscriber != null) {
             this.subscriber.lithium$notify((ItemStack) (Object) this, this.subscriberData);
+        }
+    }
+
+    @Inject(
+            method = "set(Lnet/minecraft/component/ComponentType;Ljava/lang/Object;)Ljava/lang/Object;",
+            at = @At("RETURN")
+    )
+    private <T> void onSetComponent(ComponentType<? super T> type, @Nullable T value, CallbackInfoReturnable<T> cir) {
+        if (type == DataComponentTypes.ENCHANTMENTS) {
+            if (this.subscriber instanceof ChangeSubscriber.EnchantmentSubscriber<ItemStack> enchantmentSubscriber) {
+                enchantmentSubscriber.lithium$notifyAfterEnchantmentChange((ItemStack) (Object) this, this.subscriberData);
+            }
         }
     }
 }

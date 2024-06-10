@@ -285,11 +285,17 @@ Requirements:
   
 ### `mixin.entity.equipment_tracking`
 (default: `true`)  
-Skips repeated checks whether the equipment of an entity changed. Instead equipment updates are detected  
+Skips repeated checks whether the equipment of an entity changed. Equipment updates are detected instead.  
+Requirements:
+- `mixin.util.item_component_and_count_tracking=true`  
   
 ### `mixin.entity.equipment_tracking.enchantment_ticking`
 (default: `true`)  
 Use equipment tracking to skip ticking enchantments (Soul speed) when no such enchantments are present on the equipment of a living entity.  
+  
+### `mixin.entity.equipment_tracking.equipment_changes`
+(default: `true`)  
+Skips repeated checks whether the equipment of an entity changed.  
   
 ### `mixin.entity.fast_elytra_check`
 (default: `true`)  
@@ -314,10 +320,6 @@ Block updates skip notifying mobs that won't react to the block update anyways
 ### `mixin.entity.replace_entitytype_predicates`
 (default: `true`)  
 Accesses entities of the correct type directly instead of accessing all nearby entities and filtering them afterwards  
-  
-### `mixin.entity.skip_equipment_change_check`
-(default: `true`)  
-Skips repeated checks whether the equipment of an entity changed. Instead equipment updates are detected  
   
 ### `mixin.entity.sprinting_particles`
 (default: `true`)  

@@ -107,7 +107,17 @@ public interface ChangeSubscriber<T> {
         void lithium$notifyCount(T publisher, int subscriberData, int newCount);
     }
 
-    class Multi<T> implements CountChangeSubscriber<T> {
+    interface EnchantmentSubscriber<T> extends ChangeSubscriber<T> {
+
+        /**
+         * Notify the subscriber that the publisher's enchantment data has been changed immediately before this call.
+         * @param publisher The publisher that has changed
+         * @param subscriberData The data associated with the subscriber, given when the subscriber was added
+         */
+        void lithium$notifyAfterEnchantmentChange(T publisher, int subscriberData);
+    }
+
+    class Multi<T> implements CountChangeSubscriber<T>, EnchantmentSubscriber<T> {
         private final ArrayList<ChangeSubscriber<T>> subscribers;
         private final IntArrayList subscriberDatas;
 
@@ -155,6 +165,17 @@ public interface ChangeSubscriber<T> {
                     }
                 }
                 return -1;
+            }
+        }
+
+        @Override
+        public void lithium$notifyAfterEnchantmentChange(T publisher, int subscriberData) {
+            ArrayList<ChangeSubscriber<T>> changeSubscribers = this.subscribers;
+            for (int i = 0; i < changeSubscribers.size(); i++) {
+                ChangeSubscriber<T> subscriber = changeSubscribers.get(i);
+                if (subscriber instanceof ChangeSubscriber.EnchantmentSubscriber<T> enchantmentSubscriber) {
+                    enchantmentSubscriber.lithium$notifyAfterEnchantmentChange(publisher, this.subscriberDatas.getInt(i));
+                }
             }
         }
     }
