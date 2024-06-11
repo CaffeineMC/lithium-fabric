@@ -583,6 +583,14 @@ Various improvements to explosion block damage, e.g. not accessing blocks along 
 (default: `true`)  
 Caches entity explosion exposure to avoid duplicate calculations.  
   
+### `mixin.world.game_events`
+(default: `true`)  
+Various improvements to game events (vibrations).  
+  
+### `mixin.world.game_events.dispatch_to_empty`
+(default: `true`)  
+Create game event dispatchers for chunk sections only when needed, i.e. when a listener is added to a section. This reduces memory usage for chunks that do not have any listeners. This speeds up attempting to dispatch events when there are no nearby listeners, which could be sculk sensors, allays, wardens or sculk shriekers.  
+  
 ### `mixin.world.inline_block_access`
 (default: `true`)  
 Faster block and fluid access due to inlining and reduced method size  
