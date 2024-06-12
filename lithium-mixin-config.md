@@ -477,6 +477,10 @@ Chunk sections can notify registered listeners about certain blocks being placed
 (default: `true`)  
 Access chunks of worlds, chunk caches and chunk regions directly.  
   
+### `mixin.util.chunk_status_tracking`
+(default: `true`)  
+Allows reacting to changes of the load status of chunks.  
+  
 ### `mixin.util.data_storage`
 (default: `true`)  
 Stores lithium's extra data used for various optimizations on a per-world basis. The data is not saved, but allows optimizations to quickly store and access data.  

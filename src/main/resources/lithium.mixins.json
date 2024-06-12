@@ -181,6 +181,7 @@
     "util.block_tracking.block_listening.WorldMixin",
     "util.chunk_access.ChunkCacheMixin",
     "util.chunk_access.WorldViewMixin",
+    "util.chunk_status_tracking.ServerWorldMixin",
     "util.data_storage.WorldMixin",
     "util.entity_collection_replacement.TypeFilterableListMixin",
     "util.entity_movement_tracking.EntityTrackingSectionMixin",
