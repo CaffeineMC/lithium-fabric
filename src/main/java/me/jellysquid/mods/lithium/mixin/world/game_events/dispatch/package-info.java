@@ -3,7 +3,10 @@
         " listener is added to a section. This reduces memory usage for chunks that do not have any listeners." +
         " The dispatchers are accessed more directly instead of indirectly through chunks." +
         " In total this speeds up attempting to dispatch events especially when there are no nearby listeners.",
-        depends = @MixinConfigDependency(dependencyPath = "mixin.util.data_storage")
+        depends = {
+                @MixinConfigDependency(dependencyPath = "mixin.util.data_storage"),
+                @MixinConfigDependency(dependencyPath = "mixin.util.chunk_status_tracking")
+        }
 )
 package me.jellysquid.mods.lithium.mixin.world.game_events.dispatch;
 

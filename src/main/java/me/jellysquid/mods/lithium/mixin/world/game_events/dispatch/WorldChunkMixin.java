@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 import me.jellysquid.mods.lithium.common.world.LithiumData;
+import me.jellysquid.mods.lithium.common.world.chunk.ChunkStatusTracker;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.HeightLimitView;
@@ -29,6 +30,14 @@ public abstract class WorldChunkMixin extends Chunk {
 
     @Unique
     private static final Int2ObjectOpenHashMap<?> EMPTY_MAP = new Int2ObjectOpenHashMap<>(0);
+
+    static {
+        ChunkStatusTracker.registerUnloadCallback((serverWorld, chunkPos) -> {
+            Long2ReferenceOpenHashMap<Int2ObjectMap<GameEventDispatcher>> dispatchersByChunk =
+                    ((LithiumData) serverWorld).lithium$getData().gameEventDispatchersByChunk();
+            dispatchersByChunk.remove(chunkPos.toLong());
+        });
+    }
 
     @Shadow
     @Final
