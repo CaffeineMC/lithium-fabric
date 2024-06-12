@@ -1,10 +1,15 @@
-package me.jellysquid.mods.lithium.mixin.world.game_events.dispatch_to_empty;
+package me.jellysquid.mods.lithium.mixin.world.game_events.dispatch;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import me.jellysquid.mods.lithium.common.world.chunk.ChunkWithEmptyGameEventDispatcher;
+import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
+import me.jellysquid.mods.lithium.common.world.LithiumData;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.UpgradeData;
 import net.minecraft.world.chunk.WorldChunk;
@@ -12,10 +17,7 @@ import net.minecraft.world.event.listener.GameEventDispatcher;
 import net.minecraft.world.gen.chunk.BlendingData;
 import net.minecraft.world.tick.ChunkTickScheduler;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -23,14 +25,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(WorldChunk.class)
-public class WorldChunkMixin implements ChunkWithEmptyGameEventDispatcher {
+public abstract class WorldChunkMixin extends Chunk {
 
+    @Unique
     private static final Int2ObjectOpenHashMap<?> EMPTY_MAP = new Int2ObjectOpenHashMap<>(0);
 
     @Shadow
     @Final
     @Mutable
     private Int2ObjectMap<GameEventDispatcher> gameEventDispatchers;
+
+    public WorldChunkMixin(ChunkPos pos, UpgradeData upgradeData, HeightLimitView heightLimitView, Registry<Biome> biomeRegistry, long inhabitedTime, @Nullable ChunkSection[] sectionArray, @Nullable BlendingData blendingData) {
+        super(pos, upgradeData, heightLimitView, biomeRegistry, inhabitedTime, sectionArray, blendingData);
+    }
+
+    @Shadow
+    public abstract World getWorld();
 
     @Redirect(
             method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/tick/ChunkTickScheduler;Lnet/minecraft/world/tick/ChunkTickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Lnet/minecraft/world/chunk/WorldChunk$EntityLoader;Lnet/minecraft/world/gen/chunk/BlendingData;)V",
@@ -47,16 +57,8 @@ public class WorldChunkMixin implements ChunkWithEmptyGameEventDispatcher {
     )
     private void replaceWithNullMap(World world, ChunkPos pos, UpgradeData upgradeData, ChunkTickScheduler<?> blockTickScheduler, ChunkTickScheduler<?> fluidTickScheduler, long inhabitedTime, ChunkSection[] sectionArrayInitializer, WorldChunk.EntityLoader entityLoader, BlendingData blendingData, CallbackInfo ci) {
         if (this.gameEventDispatchers == EMPTY_MAP) {
-            this.gameEventDispatchers = null;
+            this.setGameEventDispatchers(null);
         }
-    }
-
-    @Override
-    public @Nullable GameEventDispatcher lithium$getExistingGameEventDispatcher(int ySectionCoord) {
-        if (this.gameEventDispatchers != null) {
-            return this.gameEventDispatchers.get(ySectionCoord);
-        }
-        return null;
     }
 
     @Inject(
@@ -65,7 +67,7 @@ public class WorldChunkMixin implements ChunkWithEmptyGameEventDispatcher {
     )
     private void initializeCollection(int ySectionCoord, CallbackInfoReturnable<GameEventDispatcher> cir) {
         if (this.gameEventDispatchers == null) {
-            this.gameEventDispatchers = new Int2ObjectOpenHashMap<>(4);
+            this.setGameEventDispatchers(new Int2ObjectOpenHashMap<>(4));
         }
     }
 
@@ -75,7 +77,20 @@ public class WorldChunkMixin implements ChunkWithEmptyGameEventDispatcher {
     )
     private void removeGameEventDispatcher(int ySectionCoord, CallbackInfo ci) {
         if (this.gameEventDispatchers != null && this.gameEventDispatchers.isEmpty()) {
-            this.gameEventDispatchers = null;
+            this.setGameEventDispatchers(null);
+        }
+    }
+
+    @Unique
+    public void setGameEventDispatchers(Int2ObjectMap<GameEventDispatcher> gameEventDispatchers) {
+        this.gameEventDispatchers = gameEventDispatchers;
+
+        Long2ReferenceOpenHashMap<Int2ObjectMap<GameEventDispatcher>> dispatchersByChunk =
+                ((LithiumData) this.getWorld()).lithium$getData().gameEventDispatchersByChunk();
+        if (gameEventDispatchers == null) {
+            dispatchersByChunk.remove(this.getPos().toLong());
+        } else {
+            dispatchersByChunk.put(this.getPos().toLong(), gameEventDispatchers);
         }
     }
 }

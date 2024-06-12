@@ -589,11 +589,13 @@ Caches entity explosion exposure to avoid duplicate calculations.
   
 ### `mixin.world.game_events`
 (default: `true`)  
-Various improvements to game events (vibrations).  
+Various improvements to game events (vibrations) that are detected by allays, wardens and several sculk blocks.  
   
-### `mixin.world.game_events.dispatch_to_empty`
+### `mixin.world.game_events.dispatch`
 (default: `true`)  
-Create game event dispatchers for chunk sections only when needed, i.e. when a listener is added to a section. This reduces memory usage for chunks that do not have any listeners. This speeds up attempting to dispatch events when there are no nearby listeners, which could be sculk sensors, allays, wardens or sculk shriekers.  
+Create game event dispatchers for chunk sections only when needed, i.e. when a listener is added to a section. This reduces memory usage for chunks that do not have any listeners. The dispatchers are accessed more directly instead of indirectly through chunks. In total this speeds up attempting to dispatch events especially when there are no nearby listeners.  
+Requirements:
+- `mixin.util.data_storage=true`  
   
 ### `mixin.world.inline_block_access`
 (default: `true`)  
