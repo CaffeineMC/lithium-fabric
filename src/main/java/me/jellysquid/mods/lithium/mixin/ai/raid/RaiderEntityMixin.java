@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.ai.raid;
 
-import me.jellysquid.mods.lithium.common.ai.raid.OminousBannerCache;
+import me.jellysquid.mods.lithium.common.world.LithiumData;
 import net.minecraft.block.entity.BannerPattern;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -28,7 +28,7 @@ public abstract class RaiderEntityMixin extends Entity {
     static {
         // The call to Raid#getOminousBanner() is very expensive, use a cached banner during AI ticking
         OBTAINABLE_OMINOUS_BANNER_PREDICATE = (itemEntity) -> !itemEntity.cannotPickup() && itemEntity.isAlive() &&
-                ItemStack.areEqual(itemEntity.getStack(), ((OminousBannerCache) itemEntity.getWorld()).lithium$getCachedOminousBanner());
+                ItemStack.areEqual(itemEntity.getStack(), ((LithiumData) itemEntity.getWorld()).lithium$getData().ominousBanner());
     }
 
     public RaiderEntityMixin(EntityType<?> type, World world) {
@@ -40,6 +40,6 @@ public abstract class RaiderEntityMixin extends Entity {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/village/raid/Raid;getOminousBanner(Lnet/minecraft/registry/RegistryEntryLookup;)Lnet/minecraft/item/ItemStack;")
     )
     private ItemStack getOminousBanner(RegistryEntryLookup<BannerPattern> bannerPatternLookup) {
-        return ((OminousBannerCache) this.getWorld()).lithium$getCachedOminousBanner();
+        return ((LithiumData) this.getWorld()).lithium$getData().ominousBanner();
     }
 }

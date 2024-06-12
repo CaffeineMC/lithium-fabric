@@ -24,7 +24,6 @@
     "ai.raid.PickupBannerAsLeaderGoalMixin",
     "ai.raid.RaiderEntityMixin",
     "ai.raid.RaidMixin",
-    "ai.raid.WorldMixin",
     "ai.sensor.secondary_poi.SecondaryPointsOfInterestSensorMixin",
     "ai.task.launch.BrainMixin",
     "ai.task.memory_change_counting.BrainMixin",

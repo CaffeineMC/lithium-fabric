@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.ai.raid;
 
-import me.jellysquid.mods.lithium.common.ai.raid.OminousBannerCache;
+import me.jellysquid.mods.lithium.common.world.LithiumData;
 import net.minecraft.block.entity.BannerPattern;
 import net.minecraft.entity.raid.RaiderEntity;
 import net.minecraft.item.ItemStack;
@@ -26,6 +26,6 @@ public class PickupBannerAsLeaderGoalMixin<T extends RaiderEntity> {
             )
     )
     private ItemStack getOminousBanner(RegistryEntryLookup<BannerPattern> bannerPatternLookup) {
-        return ((OminousBannerCache) this.actor.getWorld()).lithium$getCachedOminousBanner();
+        return ((LithiumData) this.actor.getWorld()).lithium$getData().ominousBanner();
     }
 }

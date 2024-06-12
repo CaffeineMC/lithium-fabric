@@ -44,6 +44,8 @@ Mob Tasks which search for POIs use the optimized POI search
 ### `mixin.ai.raid`
 (default: `true`)  
 Avoids unnecessary raid bar updates and optimizes expensive leader banner operations  
+Requirements:
+- `mixin.util.data_storage=true`  
   
 ### `mixin.ai.sensor.secondary_poi`
 (default: `true`)  
