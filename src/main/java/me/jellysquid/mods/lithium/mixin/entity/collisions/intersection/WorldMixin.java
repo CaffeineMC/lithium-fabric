@@ -31,7 +31,7 @@ public abstract class WorldMixin implements WorldAccess {
         }
 
         if (ret && entity != null) {
-            ret = !LithiumEntityCollisions.doesEntityCollideWithWorldBorder(this, entity);
+            ret = !LithiumEntityCollisions.doesBoxCollideWithWorldBorder(this, entity, box);
         }
 
         return ret;

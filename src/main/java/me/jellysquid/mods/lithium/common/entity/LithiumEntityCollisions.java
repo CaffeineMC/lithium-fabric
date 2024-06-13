@@ -43,7 +43,7 @@ public class LithiumEntityCollisions {
     /***
      * @return True if the box (possibly that of an entity's) collided with any blocks
      */
-    public static boolean doesBoxCollideWithBlocks(World world, Entity entity, Box box) {
+    public static boolean doesBoxCollideWithBlocks(World world, @Nullable Entity entity, Box box) {
         final ChunkAwareBlockCollisionSweeper sweeper = new ChunkAwareBlockCollisionSweeper(world, entity, box);
 
         final VoxelShape shape = sweeper.computeNext();
@@ -54,7 +54,7 @@ public class LithiumEntityCollisions {
     /**
      * @return True if the box (possibly that of an entity's) collided with any other hard entities
      */
-    public static boolean doesBoxCollideWithHardEntities(EntityView view, Entity entity, Box box) {
+    public static boolean doesBoxCollideWithHardEntities(EntityView view, @Nullable Entity entity, Box box) {
         if (isBoxEmpty(box)) {
             return false;
         }
@@ -82,7 +82,7 @@ public class LithiumEntityCollisions {
      * Re-implements the function named above without stream code or unnecessary allocations. This can provide a small
      * boost in some situations (such as heavy entity crowding) and reduces the allocation rate significantly.
      */
-    public static Iterable<VoxelShape> getEntityWorldBorderCollisionIterable(EntityView view, Entity entity, Box box, boolean includeWorldBorder) {
+    public static Iterable<VoxelShape> getEntityWorldBorderCollisionIterable(EntityView view, @Nullable Entity entity, Box box, boolean includeWorldBorder) {
         assert !includeWorldBorder || entity != null;
         return new Iterable<>() {
             private List<Entity> entityList;
@@ -171,17 +171,16 @@ public class LithiumEntityCollisions {
         return box.getAverageSideLength() <= EPSILON;
     }
 
-    public static boolean doesEntityCollideWithWorldBorder(CollisionView collisionView, Entity entity) {
-        if (isWithinWorldBorder(collisionView.getWorldBorder(), entity.getBoundingBox())) {
+    public static boolean doesBoxCollideWithWorldBorder(CollisionView collisionView, Entity entity, Box box) {
+        if (isWithinWorldBorder(collisionView.getWorldBorder(), box)) {
             return false;
         } else {
-            VoxelShape worldBorderShape = getWorldBorderCollision(collisionView, entity);
-            return worldBorderShape != null && VoxelShapes.matchesAnywhere(worldBorderShape, VoxelShapes.cuboid(entity.getBoundingBox()), BooleanBiFunction.AND);
+            VoxelShape worldBorderShape = getWorldBorderCollision(collisionView, entity, box);
+            return worldBorderShape != null && VoxelShapes.matchesAnywhere(worldBorderShape, VoxelShapes.cuboid(box), BooleanBiFunction.AND);
         }
     }
 
-    public static VoxelShape getWorldBorderCollision(CollisionView collisionView, Entity entity) {
-        Box box = entity.getBoundingBox();
+    public static VoxelShape getWorldBorderCollision(CollisionView collisionView, @Nullable Entity entity, Box box) {
         WorldBorder worldBorder = collisionView.getWorldBorder();
         return worldBorder.canCollide(entity, box) ? worldBorder.asVoxelShape() : null;
     }
