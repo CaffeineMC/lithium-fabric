@@ -318,6 +318,8 @@ Access entities faster when accessing a relatively small number of entity sectio
 ### `mixin.entity.inactive_navigations`
 (default: `true`)  
 Block updates skip notifying mobs that won't react to the block update anyways  
+Requirements:
+- `mixin.util.data_storage=true`  
   
 ### `mixin.entity.replace_entitytype_predicates`
 (default: `true`)  

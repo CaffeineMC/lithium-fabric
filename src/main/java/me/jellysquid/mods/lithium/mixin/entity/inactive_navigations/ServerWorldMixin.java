@@ -2,6 +2,7 @@ package me.jellysquid.mods.lithium.mixin.entity.inactive_navigations;
 
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.NavigatingEntity;
+import me.jellysquid.mods.lithium.common.world.LithiumData;
 import me.jellysquid.mods.lithium.common.world.ServerWorldExtended;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.pathing.EntityNavigation;
@@ -22,10 +23,7 @@ import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.level.ServerWorldProperties;
 import net.minecraft.world.level.storage.LevelStorage;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -61,8 +59,6 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
     @Final
     Set<MobEntity> loadedMobs;
 
-    private ReferenceOpenHashSet<EntityNavigation> activeNavigations;
-
     protected ServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
     }
@@ -88,17 +84,18 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
     @Inject(method = "<init>", at = @At("TAIL"))
     private void init(MinecraftServer server, Executor workerExecutor, LevelStorage.Session session, ServerWorldProperties properties, RegistryKey worldKey, DimensionOptions dimensionOptions, WorldGenerationProgressListener worldGenerationProgressListener, boolean debugWorld, long seed, List spawners, boolean shouldTickTime, RandomSequencesState randomSequencesState, CallbackInfo ci) {
         this.loadedMobs = new ReferenceOpenHashSet<>(this.loadedMobs);
-        this.activeNavigations = new ReferenceOpenHashSet<>();
     }
 
     @Override
     public void lithium$setNavigationActive(MobEntity mobEntity) {
-        this.activeNavigations.add(((NavigatingEntity) mobEntity).lithium$getRegisteredNavigation());
+        ReferenceOpenHashSet<EntityNavigation> activeNavigations = ((LithiumData) this).lithium$getData().activeNavigations();
+        activeNavigations.add(((NavigatingEntity) mobEntity).lithium$getRegisteredNavigation());
     }
 
     @Override
     public void lithium$setNavigationInactive(MobEntity mobEntity) {
-        this.activeNavigations.remove(((NavigatingEntity) mobEntity).lithium$getRegisteredNavigation());
+        ReferenceOpenHashSet<EntityNavigation> activeNavigations = ((LithiumData) this).lithium$getData().activeNavigations();
+        activeNavigations.remove(((NavigatingEntity) mobEntity).lithium$getRegisteredNavigation());
     }
 
     @Inject(
@@ -110,7 +107,8 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     private void updateActiveListeners(BlockPos pos, BlockState oldState, BlockState newState, int arg3, CallbackInfo ci, VoxelShape string, VoxelShape voxelShape, List<EntityNavigation> list) {
-        for (EntityNavigation entityNavigation : this.activeNavigations) {
+        ReferenceOpenHashSet<EntityNavigation> activeNavigations = ((LithiumData) this).lithium$getData().activeNavigations();
+        for (EntityNavigation entityNavigation : activeNavigations) {
             if (entityNavigation.shouldRecalculatePath(pos)) {
                 list.add(entityNavigation);
             }
@@ -122,18 +120,20 @@ public abstract class ServerWorldMixin extends World implements ServerWorldExten
      *
      * @return whether the activeEntityNavigation set is in the correct state
      */
+    @Unique
     @SuppressWarnings("unused")
-    public boolean isConsistent() {
+    public boolean areEntityNavigationsConsistent() {
+        ReferenceOpenHashSet<EntityNavigation> activeNavigations = ((LithiumData) this).lithium$getData().activeNavigations();
         int i = 0;
         for (MobEntity mobEntity : this.loadedMobs) {
             EntityNavigation entityNavigation = mobEntity.getNavigation();
-            if ((entityNavigation.getCurrentPath() != null && ((NavigatingEntity) mobEntity).lithium$isRegisteredToWorld()) != this.activeNavigations.contains(entityNavigation)) {
+            if ((entityNavigation.getCurrentPath() != null && ((NavigatingEntity) mobEntity).lithium$isRegisteredToWorld()) != activeNavigations.contains(entityNavigation)) {
                 return false;
             }
             if (entityNavigation.getCurrentPath() != null) {
                 i++;
             }
         }
-        return this.activeNavigations.size() == i;
+        return activeNavigations.size() == i;
     }
 }
