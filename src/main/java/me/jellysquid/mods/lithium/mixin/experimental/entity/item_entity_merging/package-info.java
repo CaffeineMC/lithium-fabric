@@ -6,7 +6,7 @@
                 @MixinConfigDependency(dependencyPath = "mixin.util.accessors"),
                 @MixinConfigDependency(dependencyPath = "mixin.util.entity_collection_replacement"),
                 @MixinConfigDependency(dependencyPath = "mixin.util.item_component_and_count_tracking")
-        }
+        }, enabled = false
 )
 package me.jellysquid.mods.lithium.mixin.experimental.entity.item_entity_merging;
 
