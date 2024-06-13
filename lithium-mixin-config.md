@@ -495,7 +495,8 @@ Allow replacing entity collections with custom collection types.
 (default: `true`)  
 System to notify subscribers of certain entity sections about position changes of certain entity types.  
 Requirements:
-- `mixin.util.entity_section_position=true`  
+- `mixin.util.entity_section_position=true`
+- `mixin.util.data_storage=true`  
   
 ### `mixin.util.entity_section_position`
 (default: `true`)  

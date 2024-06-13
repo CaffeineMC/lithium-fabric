@@ -1,9 +1,8 @@
 package me.jellysquid.mods.lithium.common.entity.movement_tracker;
 
 import me.jellysquid.mods.lithium.common.util.tuples.WorldSectionBox;
+import me.jellysquid.mods.lithium.common.world.LithiumData;
 import me.jellysquid.mods.lithium.mixin.block.hopper.EntityTrackingSectionAccessor;
-import me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking.ServerEntityManagerAccessor;
-import me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking.ServerWorldAccessor;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.TypeFilterableList;
@@ -19,11 +18,9 @@ public class SectionedInventoryEntityMovementTracker<S> extends SectionedEntityM
     }
 
     public static <S> SectionedInventoryEntityMovementTracker<S> registerAt(ServerWorld world, Box interactionArea, Class<S> clazz) {
-        MovementTrackerCache cache = (MovementTrackerCache) ((ServerEntityManagerAccessor<?>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
-
         WorldSectionBox worldSectionBox = WorldSectionBox.entityAccessBox(world, interactionArea);
         SectionedInventoryEntityMovementTracker<S> tracker = new SectionedInventoryEntityMovementTracker<>(worldSectionBox, clazz);
-        tracker = cache.lithium$deduplicate(tracker);
+        tracker = ((LithiumData) world).lithium$getData().entityMovementTrackers().getCanonical(tracker);
 
         tracker.register(world);
         return tracker;

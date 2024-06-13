@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.SectionedBlockChangeTracker;
+import me.jellysquid.mods.lithium.common.entity.movement_tracker.SectionedEntityMovementTracker;
 import me.jellysquid.mods.lithium.common.util.deduplication.LithiumInterner;
 import net.minecraft.entity.ai.pathing.EntityNavigation;
 import net.minecraft.item.ItemStack;
@@ -28,13 +29,17 @@ public interface LithiumData {
             ReferenceOpenHashSet<EntityNavigation> activeNavigations,
 
             // Block change tracker deduplication
-            LithiumInterner<SectionedBlockChangeTracker> blockChangeTrackers
+            LithiumInterner<SectionedBlockChangeTracker> blockChangeTrackers,
+
+            // Entity movement tracker deduplication
+            LithiumInterner<SectionedEntityMovementTracker<?, ?>> entityMovementTrackers
     ) {
         public Data(World world) {
             this(
                     new Long2ReferenceOpenHashMap<>(),
                     Raid.getOminousBanner(world.getRegistryManager().getWrapperOrThrow(RegistryKeys.BANNER_PATTERN)),
                     new ReferenceOpenHashSet<>(),
+                    new LithiumInterner<>(),
                     new LithiumInterner<>()
             );
         }

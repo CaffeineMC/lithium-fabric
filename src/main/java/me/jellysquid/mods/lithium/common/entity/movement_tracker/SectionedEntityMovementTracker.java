@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.common.entity.movement_tracker;
 import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import me.jellysquid.mods.lithium.common.util.tuples.WorldSectionBox;
+import me.jellysquid.mods.lithium.common.world.LithiumData;
 import me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking.ServerEntityManagerAccessor;
 import me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking.ServerWorldAccessor;
 import net.minecraft.server.world.ServerWorld;
@@ -115,8 +116,7 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
         assert this.timesRegistered == 0;
         //noinspection unchecked
         SectionedEntityCache<E> cache = ((ServerEntityManagerAccessor<E>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
-        MovementTrackerCache storage = (MovementTrackerCache) cache;
-        storage.lithium$remove(this);
+        ((LithiumData) world).lithium$getData().entityMovementTrackers().deleteCanonical(this);
 
         ArrayList<EntityTrackingSection<E>> sections = this.sortedSections;
         for (int i = sections.size() - 1; i >= 0; i--) {
