@@ -19,6 +19,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.ChunkStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -72,10 +73,10 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
     private Chunk cachedChunk;
     private ChunkSection cachedChunkSection;
 
-    public ChunkAwareBlockCollisionSweeper(World world, Entity entity, Box box) {
+    public ChunkAwareBlockCollisionSweeper(World world, @Nullable Entity entity, Box box) {
         this(world, entity, box, false);
     }
-    public ChunkAwareBlockCollisionSweeper(World world, Entity entity, Box box, boolean hideLastCollision) {
+    public ChunkAwareBlockCollisionSweeper(World world, @Nullable Entity entity, Box box, boolean hideLastCollision) {
         this.box = box;
         this.shape = VoxelShapes.cuboid(box);
         this.context = entity == null ? ShapeContext.absent() : ShapeContext.of(entity);
