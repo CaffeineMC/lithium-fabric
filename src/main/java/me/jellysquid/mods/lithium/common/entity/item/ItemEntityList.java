@@ -36,7 +36,7 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
     public static final int UPGRADE_THRESHOLD = 10;
 
     private final ArrayList<ItemEntity> delegate;
-    private final ArrayList<ItemEntity> delegateWithNulls;
+    private final ArrayList<ItemEntity> delegateWithNulls; //TODO consider setting empty stacks to null as well!
     private final Object2ReferenceOpenCustomHashMap<ItemStack, IntArrayList> elementsByCategory;
     private final Object2ReferenceOpenCustomHashMap<ItemStack, IntArrayList> maxHalfFullElementsByCategory;
     private final IntOpenHashSet tempUncategorizedElements;
@@ -117,6 +117,9 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
 
     private void addToCategories(ItemEntity element, int index, boolean insertionSort) {
         ItemStack stack = element.getStack();
+        if (stack.isEmpty()) {
+            return;
+        }
 
         ItemStack key = addToCategoryList(index, stack, null, this.elementsByCategory, insertionSort);
 
@@ -126,6 +129,9 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
     }
 
     private static ItemStack addToCategoryList(int index, ItemStack stack, @Nullable ItemStack key, Object2ReferenceOpenCustomHashMap<ItemStack, IntArrayList> categoryMap, boolean insertionSort) {
+        if (stack.isEmpty()) {
+            return key;
+        }
         IntArrayList categoryList = categoryMap.get(stack);
         if (categoryList == null) {
             if (key == null) {
@@ -231,6 +237,9 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
 
     private void removeFromCategories(ItemEntity element, int index) {
         ItemStack stack = element.getStack();
+        if (stack.isEmpty()) {
+            return;
+        }
         removeFromCategoryList(this.elementsByCategory, stack, index);
 
         if (isMaxHalfFull(stack)) {
@@ -288,6 +297,7 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
         if (previous != element) {
             this.processOutdated();
 
+            //TODO THIS DOESN'T WORK FOR EMPTY STACKS which are not subscribed...
             index = this.unsubscribeElement(previous);
             this.removeFromCategories(previous, index);
 
@@ -347,6 +357,11 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
         this.processOutdated();
 
         ItemStack stack = element.getStack();
+        if (newCount <= 0) {
+            this.removeFromCategories(element, index);
+            return;
+        }
+
         boolean wasMaxHalfFull = isMaxHalfFull(stack);
         boolean isMaxHalfFull = isMaxHalfFull(newCount, stack.getMaxCount());
 

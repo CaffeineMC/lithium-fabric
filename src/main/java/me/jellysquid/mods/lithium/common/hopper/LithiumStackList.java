@@ -117,8 +117,10 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
     public ItemStack set(int index, ItemStack element) {
         ItemStack previous = super.set(index, element);
         if (previous != element) {
-            //noinspection unchecked
-            ((ChangePublisher<ItemStack>) (Object) previous).lithium$unsubscribeWithData(this, index);
+            if (!previous.isEmpty()) {
+                //noinspection unchecked
+                ((ChangePublisher<ItemStack>) (Object) previous).lithium$unsubscribeWithData(this, index);
+            }
             if (!element.isEmpty()) {
                 //noinspection unchecked
                 ((ChangePublisher<ItemStack>) (Object) element).lithium$subscribe(this, index);
@@ -145,8 +147,10 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
     @Override
     public ItemStack remove(int index) {
         ItemStack previous = super.remove(index);
-        //noinspection unchecked
-        ((ChangePublisher<ItemStack>) (Object) previous).lithium$unsubscribeWithData(this, index);
+        if (!previous.isEmpty()) {
+            //noinspection unchecked
+            ((ChangePublisher<ItemStack>) (Object) previous).lithium$unsubscribeWithData(this, index);
+        }
         this.changedALot();
         return previous;
     }
@@ -266,8 +270,8 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
     }
 
     @Override
-    public void lithium$notifyCount(ItemStack itemStack, int index, int newCount) {
-        ItemStack stack = this.get(index);
+    public void lithium$notifyCount(ItemStack stack, int index, int newCount) {
+        assert stack ==  this.get(index);
         int count = stack.getCount();
         if (newCount <= 0) {
             //noinspection unchecked

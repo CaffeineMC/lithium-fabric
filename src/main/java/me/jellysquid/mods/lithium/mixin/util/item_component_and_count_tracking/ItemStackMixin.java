@@ -37,7 +37,7 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
     @Override
     public void lithium$subscribe(ChangeSubscriber<ItemStack> subscriber, int subscriberData) {
         if (this.isEmpty()) {
-            return;
+            throw new IllegalStateException("Cannot subscribe to an empty ItemStack!");
         }
 
         if (this.subscriber == null) {
@@ -54,11 +54,9 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
     @Override
     public int lithium$unsubscribe(ChangeSubscriber<ItemStack> subscriber) {
         if (this.isEmpty()) {
-            if (subscriber != null) {
-                throw new IllegalStateException("Empty Item Stack may not have any subscribers!");
-            }
             throw new IllegalStateException("Cannot unsubscribe from an empty ItemStack!");
         }
+
         int retval = ChangeSubscriber.dataOf(this.subscriber, subscriber, this.subscriberData);
         this.subscriberData = ChangeSubscriber.dataWithout(this.subscriber, subscriber, this.subscriberData);
         this.subscriber = ChangeSubscriber.without(this.subscriber, subscriber);
@@ -72,6 +70,10 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
 
     @Override
     public void lithium$unsubscribeWithData(ChangeSubscriber<ItemStack> subscriber, int subscriberData) {
+        if (this.isEmpty()) {
+            throw new IllegalStateException("Cannot unsubscribe from an empty ItemStack!");
+        }
+
         this.subscriberData = ChangeSubscriber.dataWithout(this.subscriber, subscriber, this.subscriberData, subscriberData, true);
         this.subscriber = ChangeSubscriber.without(this.subscriber, subscriber, subscriberData, true);
 
