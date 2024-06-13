@@ -62,9 +62,9 @@ public abstract class LandPathNodeMakerMixin {
             ),
             cancellable = true
     )
-    private static void doNotIteratePositionsIfLithiumSinglePosCall(PathContext context, int x, int y, int z, PathNodeType fallback, CallbackInfoReturnable<PathNodeType> cir) {
+    private static void doNotIteratePositionsIfLithiumSinglePosCall(PathContext context, int x, int y, int z, PathNodeType fallback, CallbackInfoReturnable<PathNodeType> cir, int i, int j, int k) {
         if (fallback == null) {
-            if (x != -1 || y != -1 || z != -1) {
+            if (i != -1 || j != -1 || k != -1) {
                 cir.setReturnValue(null);
             }
         }
