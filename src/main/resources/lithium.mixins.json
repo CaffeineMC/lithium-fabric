@@ -177,7 +177,6 @@
     "util.block_entity_retrieval.WorldMixin",
     "util.block_tracking.AbstractBlockStateMixin",
     "util.block_tracking.ChunkSectionMixin",
-    "util.block_tracking.block_listening.WorldMixin",
     "util.chunk_access.ChunkCacheMixin",
     "util.chunk_access.WorldViewMixin",
     "util.chunk_status_tracking.ServerWorldMixin",

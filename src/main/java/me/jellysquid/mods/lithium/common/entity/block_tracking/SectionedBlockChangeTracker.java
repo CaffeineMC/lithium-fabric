@@ -3,8 +3,9 @@ package me.jellysquid.mods.lithium.common.entity.block_tracking;
 import me.jellysquid.mods.lithium.common.block.BlockListeningSection;
 import me.jellysquid.mods.lithium.common.block.ListeningBlockStatePredicate;
 import me.jellysquid.mods.lithium.common.util.Pos;
-import me.jellysquid.mods.lithium.common.util.deduplication.LithiumInternerWrapper;
+import me.jellysquid.mods.lithium.common.util.deduplication.LithiumInterner;
 import me.jellysquid.mods.lithium.common.util.tuples.WorldSectionBox;
+import me.jellysquid.mods.lithium.common.world.LithiumData;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.World;
@@ -41,8 +42,9 @@ public class SectionedBlockChangeTracker {
     public static SectionedBlockChangeTracker registerAt(World world, Box entityBoundingBox, ListeningBlockStatePredicate blockGroup) {
         WorldSectionBox worldSectionBox = WorldSectionBox.relevantExpandedBlocksBox(world, entityBoundingBox);
         SectionedBlockChangeTracker tracker = new SectionedBlockChangeTracker(worldSectionBox, blockGroup);
-        //noinspection unchecked
-        tracker = ((LithiumInternerWrapper<SectionedBlockChangeTracker>) world).lithium$getCanonical(tracker);
+
+        LithiumInterner<SectionedBlockChangeTracker> blockChangeTrackers = ((LithiumData) world).lithium$getData().blockChangeTrackers();
+        tracker = blockChangeTrackers.getCanonical(tracker);
 
         tracker.register();
         return tracker;
@@ -110,8 +112,8 @@ public class SectionedBlockChangeTracker {
             }
         }
         this.sectionsNotListeningTo = null;
-        //noinspection unchecked
-        ((LithiumInternerWrapper<SectionedBlockChangeTracker>) world).lithium$deleteCanonical(this);
+        LithiumInterner<SectionedBlockChangeTracker> blockChangeTrackers = ((LithiumData) world).lithium$getData().blockChangeTrackers();
+        blockChangeTrackers.deleteCanonical(this);
     }
 
     public void listenToAllSections() {
