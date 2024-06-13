@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(AbstractBlock.AbstractBlockState.class)
+@Mixin(value = AbstractBlock.AbstractBlockState.class, priority = 1010)
 public class AbstractBlockStateMixin implements BlockStateFlagHolder {
     @Unique
     private int flags;
