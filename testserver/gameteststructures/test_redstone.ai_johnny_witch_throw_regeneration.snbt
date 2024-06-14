@@ -1,0 +1,32 @@
+{
+    DataVersion: 3953,
+    size: [3, 5, 1],
+    data: [
+        {pos: [0, 0, 0], state: "minecraft:command_block{conditional:false,facing:up}", nbt: {Command: "/summon minecraft:vindicator ~ ~.5 ~ {Patrolling: 1b, CanJoinRaid: 1b, PatrolLeader: 1b, CustomName: '\"Johnny\"', ArmorItems: [{}, {}, {}, {id: \"minecraft:white_banner\", tag: {display: {Name: '{\"translate\":\"block.minecraft.ominous_banner\",\"color\":\"gold\"}'}, HideFlags: 32, BlockEntityTag: {id: \"minecraft:banner\", Patterns: [{Pattern: \"mr\", Color: 9}, {Pattern: \"bs\", Color: 8}, {Pattern: \"cs\", Color: 7}, {Pattern: \"bo\", Color: 8}, {Pattern: \"ms\", Color: 15}, {Pattern: \"hh\", Color: 8}, {Pattern: \"mc\", Color: 8}, {Pattern: \"bo\", Color: 15}]}}, Count: 1b}], RaidId: 5, HandItems: [{id: \"minecraft:iron_axe\", tag: {Damage: 0}, Count: 1b}, {}], Wave: 1, PersistenceRequired: 1b, Johnny: 1b}", SuccessCount: 0, TrackOutput: 1b, UpdateLastExecution: 1b, auto: 0b, conditionMet: 0b, id: "minecraft:command_block", powered: 0b}},
+        {pos: [1, 0, 0], state: "minecraft:red_terracotta"},
+        {pos: [2, 0, 0], state: "minecraft:command_block{conditional:false,facing:up}", nbt: {Command: "summon witch ~ ~.5 ~", SuccessCount: 0, TrackOutput: 1b, UpdateLastExecution: 1b, auto: 0b, conditionMet: 0b, id: "minecraft:command_block", powered: 0b}},
+        {pos: [0, 1, 0], state: "minecraft:air"},
+        {pos: [1, 1, 0], state: "minecraft:white_stained_glass"},
+        {pos: [2, 1, 0], state: "minecraft:air"},
+        {pos: [0, 2, 0], state: "minecraft:air"},
+        {pos: [1, 2, 0], state: "minecraft:air"},
+        {pos: [2, 2, 0], state: "minecraft:air"},
+        {pos: [0, 3, 0], state: "minecraft:green_wool"},
+        {pos: [1, 3, 0], state: "minecraft:observer{facing:east,powered:false}"},
+        {pos: [2, 3, 0], state: "minecraft:tripwire{attached:false,disarmed:false,east:false,north:false,powered:false,south:false,west:false}"},
+        {pos: [0, 4, 0], state: "minecraft:note_block{instrument:guitar,note:0,powered:false}"},
+        {pos: [1, 4, 0], state: "minecraft:air"},
+        {pos: [2, 4, 0], state: "minecraft:air"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:red_terracotta",
+        "minecraft:white_stained_glass",
+        "minecraft:green_wool",
+        "minecraft:observer{facing:east,powered:false}",
+        "minecraft:note_block{instrument:guitar,note:0,powered:false}",
+        "minecraft:air",
+        "minecraft:tripwire{attached:false,disarmed:false,east:false,north:false,powered:false,south:false,west:false}",
+        "minecraft:command_block{conditional:false,facing:up}"
+    ]
+}
