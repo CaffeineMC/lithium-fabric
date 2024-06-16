@@ -8,6 +8,8 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.raid.RaiderEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryEntryLookup;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.village.raid.Raid;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,8 +29,15 @@ public abstract class RaiderEntityMixin extends Entity {
 
     static {
         // The call to Raid#getOminousBanner() is very expensive, use a cached banner during AI ticking
-        OBTAINABLE_OMINOUS_BANNER_PREDICATE = (itemEntity) -> !itemEntity.cannotPickup() && itemEntity.isAlive() &&
-                ItemStack.areEqual(itemEntity.getStack(), ((LithiumData) itemEntity.getWorld()).lithium$getData().ominousBanner());
+        OBTAINABLE_OMINOUS_BANNER_PREDICATE = (itemEntity) -> {
+            ItemStack ominousBanner = ((LithiumData) itemEntity.getWorld()).lithium$getData().ominousBanner();
+            if (ominousBanner == null) {
+                ominousBanner = Raid.getOminousBanner(itemEntity.getRegistryManager().getWrapperOrThrow(RegistryKeys.BANNER_PATTERN));
+            }
+
+            return !itemEntity.cannotPickup() && itemEntity.isAlive() &&
+                    ItemStack.areEqual(itemEntity.getStack(), ominousBanner);
+        };
     }
 
     public RaiderEntityMixin(EntityType<?> type, World world) {
@@ -40,6 +49,10 @@ public abstract class RaiderEntityMixin extends Entity {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/village/raid/Raid;getOminousBanner(Lnet/minecraft/registry/RegistryEntryLookup;)Lnet/minecraft/item/ItemStack;")
     )
     private ItemStack getOminousBanner(RegistryEntryLookup<BannerPattern> bannerPatternLookup) {
-        return ((LithiumData) this.getWorld()).lithium$getData().ominousBanner();
+        ItemStack ominousBanner = ((LithiumData) this.getWorld()).lithium$getData().ominousBanner();
+        if (ominousBanner == null) {
+            ominousBanner = Raid.getOminousBanner(bannerPatternLookup);
+        }
+        return ominousBanner;
     }
 }

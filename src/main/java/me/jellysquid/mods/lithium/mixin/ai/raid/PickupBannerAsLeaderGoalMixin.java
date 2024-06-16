@@ -5,6 +5,7 @@ import net.minecraft.block.entity.BannerPattern;
 import net.minecraft.entity.raid.RaiderEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryEntryLookup;
+import net.minecraft.village.raid.Raid;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,6 +27,10 @@ public class PickupBannerAsLeaderGoalMixin<T extends RaiderEntity> {
             )
     )
     private ItemStack getOminousBanner(RegistryEntryLookup<BannerPattern> bannerPatternLookup) {
-        return ((LithiumData) this.actor.getWorld()).lithium$getData().ominousBanner();
+        ItemStack ominousBanner = ((LithiumData) this.actor.getWorld()).lithium$getData().ominousBanner();
+        if (ominousBanner == null) {
+            ominousBanner = Raid.getOminousBanner(bannerPatternLookup);
+        }
+        return ominousBanner;
     }
 }
