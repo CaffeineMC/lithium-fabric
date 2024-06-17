@@ -59,23 +59,25 @@ public class SectionedBlockChangeTracker {
             WorldSectionBox trackedSections = this.trackedWorldSections;
             for (int x = trackedSections.chunkX1(); x < trackedSections.chunkX2(); x++) {
                 for (int z = trackedSections.chunkZ1(); z < trackedSections.chunkZ2(); z++) {
-                    Chunk chunk = trackedSections.world().getChunk(x, z, ChunkStatus.FULL, false);
+                    World world = trackedSections.world();
+                    Chunk chunk = world.getChunk(x, z, ChunkStatus.FULL, false);
                     ChunkSection[] sectionArray = chunk == null ? null : chunk.getSectionArray();
                     for (int y = trackedSections.chunkY1(); y < trackedSections.chunkY2(); y++) {
-                        if (Pos.SectionYCoord.getMinYSection(trackedSections.world()) > y || Pos.SectionYCoord.getMaxYSectionExclusive(trackedSections.world()) <= y) {
+                        if (Pos.SectionYCoord.getMinYSection(world) > y || Pos.SectionYCoord.getMaxYSectionExclusive(world) <= y) {
                             continue;
                         }
+                        ChunkSectionPos sectionPos = ChunkSectionPos.from(x, y, z);
                         if (sectionArray == null) {
                             if (this.sectionsNotListeningTo == null) {
                                 this.sectionsNotListeningTo = new ArrayList<>();
                             }
-                            this.sectionsNotListeningTo.add(ChunkSectionPos.from(x, y, z));
+                            this.sectionsNotListeningTo.add(sectionPos);
                             continue;
                         }
-                        ChunkSection section = sectionArray[Pos.SectionYIndex.fromSectionCoord(trackedSections.world(), y)];
+                        ChunkSection section = sectionArray[Pos.SectionYIndex.fromSectionCoord(world, y)];
 
                         BlockListeningSection blockListeningSection = (BlockListeningSection) section;
-                        blockListeningSection.lithium$addToCallback(this.blockGroup, this);
+                        blockListeningSection.lithium$addToCallback(this.blockGroup, this, ChunkSectionPos.asLong(x, y, z), world);
                     }
                 }
             }
@@ -123,16 +125,17 @@ public class SectionedBlockChangeTracker {
             for (int i = notListeningTo.size() - 1; i >= 0; i--) {
                 changed = true;
                 ChunkSectionPos chunkSectionPos = notListeningTo.get(i);
-                Chunk chunk = this.trackedWorldSections.world().getChunk(chunkSectionPos.getX(), chunkSectionPos.getZ(), ChunkStatus.FULL, false);
+                World world = this.trackedWorldSections.world();
+                Chunk chunk = world.getChunk(chunkSectionPos.getX(), chunkSectionPos.getZ(), ChunkStatus.FULL, false);
                 if (chunk != null) {
                     notListeningTo.remove(i);
                 } else {
                     //Chunk not loaded, cannot listen to all sections.
                     return;
                 }
-                ChunkSection section = chunk.getSectionArray()[Pos.SectionYIndex.fromSectionCoord(this.trackedWorldSections.world(), chunkSectionPos.getY())];
+                ChunkSection section = chunk.getSectionArray()[Pos.SectionYIndex.fromSectionCoord(world, chunkSectionPos.getY())];
                 BlockListeningSection blockListeningSection = (BlockListeningSection) section;
-                blockListeningSection.lithium$addToCallback(this.blockGroup, this);
+                blockListeningSection.lithium$addToCallback(this.blockGroup, this, chunkSectionPos.asLong(), world);
             }
         }
         if (this.sectionsUnsubscribed != null) {
@@ -140,7 +143,7 @@ public class SectionedBlockChangeTracker {
             for (int i = unsubscribed.size() - 1; i >= 0; i--) {
                 changed = true;
                 BlockListeningSection blockListeningSection = unsubscribed.remove(i);
-                blockListeningSection.lithium$addToCallback(this.blockGroup, this);
+                blockListeningSection.lithium$addToCallback(this.blockGroup, this, Long.MIN_VALUE, null);
             }
         }
         this.isListeningToAll = true;

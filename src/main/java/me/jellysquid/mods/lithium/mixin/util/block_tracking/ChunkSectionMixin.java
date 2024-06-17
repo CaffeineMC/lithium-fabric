@@ -6,6 +6,7 @@ import me.jellysquid.mods.lithium.common.entity.block_tracking.SectionedBlockCha
 import net.minecraft.block.BlockState;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.PalettedContainer;
 import org.spongepowered.asm.mixin.Final;
@@ -143,9 +144,12 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
     }
 
     @Override
-    public void lithium$addToCallback(ListeningBlockStatePredicate blockGroup, SectionedBlockChangeTracker tracker) {
+    public void lithium$addToCallback(ListeningBlockStatePredicate blockGroup, SectionedBlockChangeTracker tracker, long sectionPos, World world) {
         if (this.changeListener == null) {
-            this.changeListener = new ChunkSectionChangeCallback();
+            if (sectionPos == Long.MIN_VALUE || world == null) {
+                throw new IllegalArgumentException("Expected world and section pos during intialization!");
+            }
+            this.changeListener = ChunkSectionChangeCallback.create(sectionPos, world);
         }
 
         this.listeningMask = this.changeListener.addTracker(tracker, blockGroup);
@@ -161,8 +165,6 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
     @Override
     @Unique
     public void lithium$invalidateListeningSection(ChunkSectionPos sectionPos) {
-        //TODO call this on chunk unload. Entities should already be unloaded, but just to be safe, try to unregister too
-
         if ((this.listeningMask) != 0) {
             this.changeListener.onChunkSectionInvalidated(sectionPos);
         }

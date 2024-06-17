@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.common.world;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import me.jellysquid.mods.lithium.common.entity.block_tracking.ChunkSectionChangeCallback;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.SectionedBlockChangeTracker;
 import me.jellysquid.mods.lithium.common.entity.movement_tracker.SectionedEntityMovementTracker;
 import me.jellysquid.mods.lithium.common.util.deduplication.LithiumInterner;
@@ -32,7 +33,10 @@ public interface LithiumData {
             LithiumInterner<SectionedBlockChangeTracker> blockChangeTrackers,
 
             // Entity movement tracker deduplication
-            LithiumInterner<SectionedEntityMovementTracker<?, ?>> entityMovementTrackers
+            LithiumInterner<SectionedEntityMovementTracker<?, ?>> entityMovementTrackers,
+
+            // Block ChunkSection listeners
+            Long2ReferenceOpenHashMap<ChunkSectionChangeCallback> chunkSectionChangeCallbacks
     ) {
         public Data(World world) {
             this(
@@ -40,7 +44,8 @@ public interface LithiumData {
                     world.getRegistryManager().getOptionalWrapper(RegistryKeys.BANNER_PATTERN).map(Raid::getOminousBanner).orElse(null),
                     new ReferenceOpenHashSet<>(),
                     new LithiumInterner<>(),
-                    new LithiumInterner<>()
+                    new LithiumInterner<>(),
+                    new Long2ReferenceOpenHashMap<>()
             );
         }
     }
