@@ -36,7 +36,9 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
     public static final int UPGRADE_THRESHOLD = 10;
 
     private final ArrayList<ItemEntity> delegate;
-    private final ArrayList<ItemEntity> delegateWithNulls; //TODO consider setting empty stacks to null as well!
+
+    //Ordered like delegate, but null elements are either removed or empty elements, while delegate can hold empty elements
+    private final ArrayList<ItemEntity> delegateWithNulls;
     private final Object2ReferenceOpenCustomHashMap<ItemStack, IntArrayList> elementsByCategory;
     private final Object2ReferenceOpenCustomHashMap<ItemStack, IntArrayList> maxHalfFullElementsByCategory;
     private final IntOpenHashSet tempUncategorizedElements;
@@ -70,7 +72,12 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
         this.tempUncategorizedElements.forEach((index) -> {
             ItemEntity element = this.delegateWithNulls.get(index);
             if (element != null) {
-                this.addToCategories(element, index, true);
+                if (element.getStack().isEmpty()) {
+                    this.delegateWithNulls.set(index, null);
+                    this.unsubscribeElement(element);
+                } else {
+                    this.addToCategories(element, index, true);
+                }
             }
         });
 
@@ -107,11 +114,15 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
     @Override
     public boolean add(ItemEntity element) {
         this.processOutdated();
-        
-        int index = this.delegateWithNulls.size();
-        this.delegateWithNulls.add(element);
-        this.addToCategories(element, index, false);
-        this.subscribeElement(element, index);
+
+        if (element.getStack().isEmpty()) {
+            this.delegateWithNulls.add(null);
+        } else {
+            int index = this.delegateWithNulls.size();
+            this.delegateWithNulls.add(element);
+            this.addToCategories(element, index, false);
+            this.subscribeElement(element, index);
+        }
         return this.delegate.add(element);
     }
 
@@ -189,19 +200,20 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
     }
 
     private void removeElement(ItemEntity element) {
-        int index = this.unsubscribeElement(element);
+        if (!element.getStack().isEmpty()) {
+            int index = this.unsubscribeElement(element);
 
-        if (index == this.delegateWithNulls.size() - 1) {
-            ItemEntity remove = this.delegateWithNulls.remove(index);
-            if (remove != element) {
-                throw new IllegalStateException("Element mismatch, expected " + element + " but got " + remove);
+            if (index == this.delegateWithNulls.size() - 1) {
+                ItemEntity remove = this.delegateWithNulls.remove(index);
+                if (remove != element) {
+                    throw new IllegalStateException("Element mismatch, expected " + element + " but got " + remove);
+                }
+            } else {
+                this.delegateWithNulls.set(index, null); //Set to null so the indices in the category lists stay valid
             }
-        } else {
-            this.delegateWithNulls.set(index, null); //Set to null so the indices in the category lists stay valid
+
+            this.removeFromCategories(element, index);
         }
-
-        this.removeFromCategories(element, index);
-
         int size = this.delegateWithNulls.size();
         if (size > 64 && size > this.delegate.size() * 2) {
             this.reinitialize();
@@ -222,11 +234,14 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
         this.elementsByCategory.clear();
         this.maxHalfFullElementsByCategory.clear();
 
-        for (int i = 0; i < this.delegate.size(); i++) {
+        for (int i = 0, j = 0; i < this.delegate.size(); i++) {
             ItemEntity element = this.delegate.get(i);
-            this.delegateWithNulls.add(element);
-            this.addToCategories(element, i, false);
-            this.subscribeElement(element, i);
+            if (!element.getStack().isEmpty()) {
+                this.delegateWithNulls.add(element);
+                this.addToCategories(element, j, false);
+                this.subscribeElement(element, j);
+                j++;
+            }
         }
     }
 
@@ -292,24 +307,40 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
     }
 
     @Override
-    public ItemEntity set(int index, ItemEntity element) {
-        ItemEntity previous = this.delegate.set(index, element);
-        if (previous != element) {
+    public ItemEntity set(int i, ItemEntity newElement) {
+        ItemEntity previousElement = this.delegate.set(i, newElement);
+        if (previousElement != newElement) {
             this.processOutdated();
 
-            //TODO THIS DOESN'T WORK FOR EMPTY STACKS which are not subscribed...
-            index = this.unsubscribeElement(previous);
-            this.removeFromCategories(previous, index);
-
-            ItemEntity replaced = this.delegateWithNulls.set(index, element);
-            if (replaced != previous) {
-                throw new IllegalStateException("Element mismatch, expected " + previous + " but got " + replaced);
+            int index;
+            if (previousElement.getStack().isEmpty()) {
+                if (this.delegateWithNulls.size() == this.delegate.size()) {
+                    index = i;
+                } else {
+                    //Have to reinitialize because we cannot reconstruct where to insert
+                    this.reinitialize(); //Find a better solution if this shows up in the profiler
+                    return previousElement;
+                }
+            } else {
+                index = this.unsubscribeElement(previousElement);
+                this.removeFromCategories(previousElement, index);
             }
 
-            this.addToCategories(element, index, true);
-            this.subscribeElement(element, index);
+            if (newElement.getStack().isEmpty()) {
+                this.delegateWithNulls.set(index, null);
+                return previousElement;
+            } else {
+                ItemEntity replaced = this.delegateWithNulls.set(index, newElement);
+                this.addToCategories(newElement, index, true);
+                this.subscribeElement(newElement, index);
+
+                if (replaced != null && replaced != previousElement && !replaced.getStack().isEmpty()) {
+                    throw new IllegalStateException("Element mismatch, expected " + previousElement + " but got " + replaced);
+                }
+            }
+
         }
-        return previous;
+        return previousElement;
     }
 
     @Override

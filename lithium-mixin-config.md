@@ -372,7 +372,7 @@ Requirements:
 - `mixin.util.block_tracking=true`  
   
 ### `mixin.experimental.entity.item_entity_merging`
-(default: `false`)  
+(default: `true`)  
 Optimize item entity merging by categorizing item entities by item type and only attempting to merge with the same type. Categorizing by stack size allows skipping merge attempts of full item entities or two more than half full item entities.  
 Requirements:
 - `mixin.util.accessors=true`
