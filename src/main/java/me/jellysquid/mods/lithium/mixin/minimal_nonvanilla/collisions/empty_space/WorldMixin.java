@@ -31,7 +31,7 @@ public abstract class WorldMixin implements WorldAccess {
 
             List<VoxelShape> blockCollisions = LithiumEntityCollisions.getBlockCollisions((World) (Object) this, collidingEntity, searchBox);
             if (blockCollisions.isEmpty()) {
-                return Optional.empty();
+                return collidingShape.getClosestPointTo(originalPosition);
             }
             WorldBorder worldBorder = this.getWorldBorder();
             if (worldBorder != null) {
