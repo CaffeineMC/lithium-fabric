@@ -19,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -67,6 +68,9 @@ public abstract class FlowableFluidMixin {
     @Shadow
     protected abstract boolean receivesFlow(Direction face, BlockView world, BlockPos pos, BlockState state, BlockPos fromPos, BlockState fromState);
 
+
+    @Shadow
+    protected abstract void flow(WorldAccess world, BlockPos pos, BlockState state, Direction direction, FluidState fluidState);
 
     @Unique
     private static int getNumIndicesFromRadius(int radius) {
@@ -218,8 +222,10 @@ public abstract class FlowableFluidMixin {
 
                 for (int j = 0; j < DirectionConstants.HORIZONTAL.length; j++) {
                     Direction flowDirection = DirectionConstants.HORIZONTAL[j];
-                    if (((currentInfo >> 4) & (1 << ((j + 2) % 4))) != (byte) 0) {
-                        //In this direction is one of the disallowed directions, +2%4 to get opposite direction index
+                    int oppositeDirection = DirectionConstants.HORIZONTAL_OPPOSITE_INDICES[j];
+
+                    if (((currentInfo >> 4) & (1 << oppositeDirection)) != (byte) 0) {
+                        //In this direction is one of the disallowed directions
                         continue;
                     }
                     BlockPos flowTargetPos = currentPos.offset(flowDirection);

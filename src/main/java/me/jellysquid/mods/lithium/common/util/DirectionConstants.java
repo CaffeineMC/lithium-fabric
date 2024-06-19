@@ -11,4 +11,5 @@ public final class DirectionConstants {
     public static final Direction[] ALL = Direction.values();
     public static final Direction[] VERTICAL = {Direction.DOWN, Direction.UP};
     public static final Direction[] HORIZONTAL = {Direction.WEST, Direction.EAST, Direction.NORTH, Direction.SOUTH};
+    public static final byte[] HORIZONTAL_OPPOSITE_INDICES = {1, 0, 3, 2};
 }
