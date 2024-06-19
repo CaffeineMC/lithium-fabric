@@ -46,7 +46,7 @@ public class BlockEntityMixin implements ComparatorTracker {
     public void lithium$onComparatorAdded(Direction direction, int offset) {
         byte hasComparators = this.hasComparators;
         if (direction.getAxis() != Direction.Axis.Y && hasComparators != COMPARATOR_PRESENT && offset >= 1 && offset <= 2) {
-            this.hasComparators = 1;
+            this.hasComparators = COMPARATOR_PRESENT;
 
             if (this instanceof InventoryChangeTracker inventoryChangeTracker) {
                 inventoryChangeTracker.lithium$emitFirstComparatorAdded();

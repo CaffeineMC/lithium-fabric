@@ -1,6 +1,7 @@
 package me.jellysquid.mods.lithium.common.util.change_tracking;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -77,6 +78,13 @@ public interface ChangeSubscriber<T> {
 
     static int dataOf(ChangeSubscriber<?> subscribers, ChangeSubscriber<?> subscriber, int subscriberData) {
         return subscribers instanceof Multi<?> multi ? multi.subscriberDatas.getInt(multi.subscribers.indexOf(subscriber)) : subscriberData;
+    }
+
+    static boolean containsSubscriber(ChangeSubscriber<ItemStack> subscriber, int subscriberData, ChangeSubscriber<ItemStack> subscriber1, int subscriberData1) {
+        if (subscriber instanceof Multi<ItemStack> multi) {
+            return multi.indexOf(subscriber1, subscriberData1, true) != -1;
+        }
+        return subscriber == subscriber1 && subscriberData == subscriberData1;
     }
 
 

@@ -84,6 +84,15 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
     }
 
     @Override
+    public boolean lithium$isSubscribedWithData(ChangeSubscriber<ItemStack> subscriber, int subscriberData) {
+        if (this.isEmpty()) {
+            throw new IllegalStateException("Cannot be subscribed to an empty ItemStack!");
+        }
+
+        return ChangeSubscriber.containsSubscriber(this.subscriber, this.subscriberData, subscriber, subscriberData);
+    }
+
+    @Override
     public void lithium$forceUnsubscribe(ComponentMapImpl publisher, int subscriberData) {
         if (publisher != this.components) {
             throw new IllegalStateException("Invalid publisher, expected " + this.components + " but got " + publisher);

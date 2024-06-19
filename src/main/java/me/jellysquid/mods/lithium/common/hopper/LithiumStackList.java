@@ -116,6 +116,19 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
     @Override
     public ItemStack set(int index, ItemStack element) {
         ItemStack previous = super.set(index, element);
+
+        //Handle vanilla's item stack resurrection in HopperBlockEntity extract(Hopper hopper, Inventory inventory, int slot, Direction side):
+        // Item stacks are set to 0 items, then back to 1. Then inventory.set(index, element) is called.
+        // At this point, the LithiumStackList unsubscribed from the stack when it reached 0.
+        // Handle: If the previous == element, and the stack is not subscribed, we handle it as if an empty stack was replaced.
+        if (previous == element && !element.isEmpty()) {
+            //noinspection unchecked
+            boolean notSubscribed = ((ChangePublisher<ItemStack>) (Object) previous).lithium$isSubscribedWithData(this, index);
+            if (!notSubscribed)  {
+                previous = ItemStack.EMPTY;
+            }
+        }
+
         if (previous != element) {
             if (!previous.isEmpty()) {
                 //noinspection unchecked
