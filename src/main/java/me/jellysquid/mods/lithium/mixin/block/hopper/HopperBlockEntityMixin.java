@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.block.hopper;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import me.jellysquid.mods.lithium.api.inventory.LithiumCooldownReceivingInventory;
 import me.jellysquid.mods.lithium.api.inventory.LithiumInventory;
 import me.jellysquid.mods.lithium.common.block.entity.SleepingBlockEntity;
@@ -820,6 +821,21 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
     public void lithium$handleEntityMovement(Class<?> category) {
         if (this instanceof SleepingBlockEntity sleepingBlockEntity) {
             sleepingBlockEntity.wakeUpNow();
+        }
+    }
+
+
+    //FIX for item stack revival issues
+    @Inject(
+            method = "extract(Lnet/minecraft/block/entity/Hopper;Lnet/minecraft/inventory/Inventory;ILnet/minecraft/util/math/Direction;)Z",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;setCount(I)V")
+    )
+    private static void replaceEmptyStackWithEmptyBeforeRevival(Hopper hopper, Inventory inventory, int slot, Direction side, CallbackInfoReturnable<Boolean> cir, @Local(ordinal = 0) ItemStack itemStack) {
+        if (itemStack.getCount() == 0) {
+            if (inventory instanceof LithiumInventory lithiumInventory) {
+                LithiumStackList lithiumStackList = InventoryHelper.getLithiumStackList(lithiumInventory);
+                lithiumStackList.set(slot, ItemStack.EMPTY);
+            }
         }
     }
 }
