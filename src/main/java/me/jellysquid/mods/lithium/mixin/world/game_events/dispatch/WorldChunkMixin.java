@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 import me.jellysquid.mods.lithium.common.world.LithiumData;
-import me.jellysquid.mods.lithium.common.world.chunk.ChunkStatusTracker;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.HeightLimitView;
@@ -31,13 +30,6 @@ public abstract class WorldChunkMixin extends Chunk {
     @Unique
     private static final Int2ObjectOpenHashMap<?> EMPTY_MAP = new Int2ObjectOpenHashMap<>(0);
 
-    static {
-        ChunkStatusTracker.registerUnloadCallback((serverWorld, chunkPos) -> {
-            Long2ReferenceOpenHashMap<Int2ObjectMap<GameEventDispatcher>> dispatchersByChunk =
-                    ((LithiumData) serverWorld).lithium$getData().gameEventDispatchersByChunk();
-            dispatchersByChunk.remove(chunkPos.toLong());
-        });
-    }
 
     @Shadow
     @Final
@@ -51,9 +43,12 @@ public abstract class WorldChunkMixin extends Chunk {
     @Shadow
     public abstract World getWorld();
 
+    @Shadow
+    private boolean loadedToWorld;
+
     @Redirect(
             method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/tick/ChunkTickScheduler;Lnet/minecraft/world/tick/ChunkTickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Lnet/minecraft/world/chunk/WorldChunk$EntityLoader;Lnet/minecraft/world/gen/chunk/BlendingData;)V",
-            at = @At(value = "NEW", target = "it/unimi/dsi/fastutil/ints/Int2ObjectOpenHashMap"),
+            at = @At(value = "NEW", target = "it/unimi/dsi/fastutil/ints/Int2ObjectOpenHashMap", remap = false),
             require = 1, allow = 1
     )
     private Int2ObjectOpenHashMap<?> initGameEventDispatchers() {
@@ -65,9 +60,7 @@ public abstract class WorldChunkMixin extends Chunk {
             require = 1, allow = 1
     )
     private void replaceWithNullMap(World world, ChunkPos pos, UpgradeData upgradeData, ChunkTickScheduler<?> blockTickScheduler, ChunkTickScheduler<?> fluidTickScheduler, long inhabitedTime, ChunkSection[] sectionArrayInitializer, WorldChunk.EntityLoader entityLoader, BlendingData blendingData, CallbackInfo ci) {
-        if (this.gameEventDispatchers == EMPTY_MAP) {
-            this.setGameEventDispatchers(null);
-        }
+        this.setGameEventDispatchers(this.gameEventDispatchers == EMPTY_MAP ? null : this.gameEventDispatchers);
     }
 
     @Inject(
@@ -92,14 +85,39 @@ public abstract class WorldChunkMixin extends Chunk {
 
     @Unique
     public void setGameEventDispatchers(Int2ObjectMap<GameEventDispatcher> gameEventDispatchers) {
-        this.gameEventDispatchers = gameEventDispatchers;
+        if (this.loadedToWorld) {
+            this.updateGameEventDispatcherStorage(gameEventDispatchers, this.gameEventDispatchers);
+        }
 
+        this.gameEventDispatchers = gameEventDispatchers;
+    }
+
+    @Unique
+    private void updateGameEventDispatcherStorage(Int2ObjectMap<GameEventDispatcher> newDispatchers, Int2ObjectMap<GameEventDispatcher> expectedDispatchers) {
         Long2ReferenceOpenHashMap<Int2ObjectMap<GameEventDispatcher>> dispatchersByChunk =
                 ((LithiumData) this.getWorld()).lithium$getData().gameEventDispatchersByChunk();
-        if (gameEventDispatchers == null) {
-            dispatchersByChunk.remove(this.getPos().toLong());
+        Int2ObjectMap<GameEventDispatcher> removedDispatchers;
+        if (newDispatchers != null) {
+            removedDispatchers = dispatchersByChunk.put(this.getPos().toLong(), newDispatchers);
         } else {
-            dispatchersByChunk.put(this.getPos().toLong(), gameEventDispatchers);
+            removedDispatchers = dispatchersByChunk.remove(this.getPos().toLong());
+        }
+        if (removedDispatchers != expectedDispatchers) {
+            throw new IllegalStateException("Wrong game event dispatcher map found in lithium storage: " + removedDispatchers + " (expected " + expectedDispatchers + ")");
+        }
+    }
+
+    @Inject(
+            method = "setLoadedToWorld(Z)V", at = @At("RETURN")
+    )
+    private void handleLoadOrUnload(boolean loadedToWorld, CallbackInfo ci) {
+        if (this.gameEventDispatchers == null) {
+            return;
+        }
+        if (loadedToWorld) {
+            this.updateGameEventDispatcherStorage(this.gameEventDispatchers, null);
+        } else {
+            this.updateGameEventDispatcherStorage(null, this.gameEventDispatchers);
         }
     }
 }
