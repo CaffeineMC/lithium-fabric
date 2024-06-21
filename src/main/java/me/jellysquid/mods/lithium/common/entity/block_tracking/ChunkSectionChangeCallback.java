@@ -50,14 +50,16 @@ public final class ChunkSectionChangeCallback {
         return chunkSectionChangeCallback;
     }
 
-    public short onBlockChange(int flagIndex, BlockListeningSection section) {
-        ArrayList<SectionedBlockChangeTracker> sectionedBlockChangeTrackers = this.trackers[flagIndex];
-        this.trackers[flagIndex] = null;
-        //noinspection ForLoopReplaceableByForEach
-        for (int i = 0; i < sectionedBlockChangeTrackers.size(); i++) {
-            sectionedBlockChangeTrackers.get(i).setChanged(section);
+    public short onBlockChange(int blockGroupIndex, BlockListeningSection section) {
+        ArrayList<SectionedBlockChangeTracker> sectionedBlockChangeTrackers = this.trackers[blockGroupIndex];
+        this.trackers[blockGroupIndex] = null;
+        if (sectionedBlockChangeTrackers != null) {
+            //noinspection ForLoopReplaceableByForEach
+            for (int i = 0; i < sectionedBlockChangeTrackers.size(); i++) {
+                sectionedBlockChangeTrackers.get(i).setChanged(section);
+            }
         }
-        this.listeningMask &= (short) ~(1 << flagIndex);
+        this.listeningMask &= (short) ~(1 << blockGroupIndex);
 
         return this.listeningMask;
     }

@@ -165,8 +165,9 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
     @Override
     @Unique
     public void lithium$invalidateListeningSection(ChunkSectionPos sectionPos) {
-        if ((this.listeningMask) != 0) {
+        if (this.listeningMask != 0) {
             this.changeListener.onChunkSectionInvalidated(sectionPos);
+            this.listeningMask = 0;
         }
     }
 }
