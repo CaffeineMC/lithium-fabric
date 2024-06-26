@@ -153,6 +153,7 @@
     "math.fast_util.BoxMixin",
     "math.fast_util.DirectionMixin",
     "math.sine_lut.MixinMathHelper",
+    "minimal_nonvanilla.ai.sensor.frog_attackables.FrogAttackablesSensorMixin",
     "minimal_nonvanilla.collisions.empty_space.ArrayVoxelShapeInvoker",
     "minimal_nonvanilla.collisions.empty_space.BitSetVoxelSetAccessor",
     "minimal_nonvanilla.collisions.empty_space.WorldMixin",

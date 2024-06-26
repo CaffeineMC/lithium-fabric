@@ -411,6 +411,18 @@ Reduces the sine table size to reduce memory usage and increase access speed
 (default: `true`)  
 Optimizations that technically deviate from vanilla behavior, but must not affect gameplay or contraptions. Each optimization includes a description of the differences to vanilla behavior. In case any of these optimizations breaks any of your contraptions or affects your gameplay, please report it to our issue tracker as we consider this to be a bug.  
   
+### `mixin.minimal_nonvanilla.ai`
+(default: `true`)  
+Mob AI optimizations  
+  
+### `mixin.minimal_nonvanilla.ai.sensor`
+(default: `true`)  
+Brain sensor optimizations  
+  
+### `mixin.minimal_nonvanilla.ai.sensor.frog_attackables`
+(default: `true`)  
+Speed up frog attackable sensor by checking entity type before visibility test. This is slightly non-vanilla because the visibility information is cached for up to a second. If this sensor does not compute the visibility test, a later access might compute the visibility instead. That can cause a different result, since the later computation leads to a more updated result.  
+  
 ### `mixin.minimal_nonvanilla.collisions.empty_space`
 (default: `true`)  
 Speed up finding empty spaces mobs fit into. This speeds up entity pose checks and nether portal positioning for colliding mobs (This code is vanilla's nether portal horse suffocation fix). If certain block collision surfaces have coordinates that are different but within 1e-7 of each other, this optimization may cause entities coming from nether portals or changing pose to be placed in a different position or pose than vanilla. This effect only occurs when the decision whether the entity fits into a space depends on a difference in the magnitude of 1e-7 blocks.  
