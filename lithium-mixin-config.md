@@ -47,6 +47,10 @@ Avoids unnecessary raid bar updates and optimizes expensive leader banner operat
 Requirements:
 - `mixin.util.data_storage=true`  
   
+### `mixin.ai.sensor`
+(default: `true`)  
+Brain sensor optimizations  
+  
 ### `mixin.ai.sensor.secondary_poi`
 (default: `true`)  
 Avoid unnecessary secondary POI searches of non-farmer villagers  
