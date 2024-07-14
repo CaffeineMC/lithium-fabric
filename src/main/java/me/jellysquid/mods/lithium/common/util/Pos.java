@@ -3,6 +3,7 @@ package me.jellysquid.mods.lithium.common.util;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.HeightLimitView;
 
+//REFACTORED
 public class Pos {
 
     public static class BlockCoord {

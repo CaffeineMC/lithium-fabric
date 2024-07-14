@@ -1,0 +1,772 @@
+Project Name,Package Name,Type Name,Method Name,Code Smell
+java,me.jellysquid.mods.lithium.common.ai.pathing,PathNodeCache,getNodeTypeFromNeighbors,Complex Method
+java,me.jellysquid.mods.lithium.common.ai.pathing,PathNodeCache,getNodeTypeFromNeighbors,Long Parameter List
+java,me.jellysquid.mods.lithium.common.ai.pathing,PathNodeCache,getNodeTypeFromNeighbors,Magic Number
+java,me.jellysquid.mods.lithium.common.ai.pathing,PathNodeCache,getNodeTypeFromNeighbors,Magic Number
+java,me.jellysquid.mods.lithium.common.ai.pathing,PathNodeCache,getNodeTypeFromNeighbors,Magic Number
+java,me.jellysquid.mods.lithium.common.block,TrackedBlockStatePredicate,TrackedBlockStatePredicate,Long Statement
+java,me.jellysquid.mods.lithium.common.block.entity.inventory_comparator_tracking,ComparatorTracking,notifyNearbyBlockEntitiesAboutNewComparator,Magic Number
+java,me.jellysquid.mods.lithium.common.block.entity.inventory_comparator_tracking,ComparatorTracking,findNearbyComparators,Magic Number
+java,me.jellysquid.mods.lithium.common.block.entity,SleepingBlockEntity,sleepOnlyCurrentTick,Long Statement
+java,me.jellysquid.mods.lithium.common.config,LithiumConfig,LithiumConfig,Long Statement
+java,me.jellysquid.mods.lithium.common.config,LithiumConfig,LithiumConfig,Long Statement
+java,me.jellysquid.mods.lithium.common.config,LithiumConfig,LithiumConfig,Magic Number
+java,me.jellysquid.mods.lithium.common.config,LithiumConfig,addRuleDependency,Long Statement
+java,me.jellysquid.mods.lithium.common.config,LithiumConfig,applyModOverride,Complex Conditional
+java,me.jellysquid.mods.lithium.common.config,Option,disableIfDependenciesNotMet,Long Statement
+java,me.jellysquid.mods.lithium.common.entity.block_tracking,BlockCache,BlockCache,Magic Number
+java,me.jellysquid.mods.lithium.common.entity.block_tracking,ChunkSectionChangeCallback,create,Long Statement
+java,me.jellysquid.mods.lithium.common.entity.block_tracking,SectionedBlockChangeTracker,registerAt,Long Statement
+java,me.jellysquid.mods.lithium.common.entity.block_tracking,SectionedBlockChangeTracker,register,Complex Method
+java,me.jellysquid.mods.lithium.common.entity.block_tracking,SectionedBlockChangeTracker,register,Long Statement
+java,me.jellysquid.mods.lithium.common.entity.block_tracking,SectionedBlockChangeTracker,unregister,Long Statement
+java,me.jellysquid.mods.lithium.common.entity.block_tracking,SectionedBlockChangeTracker,equals,Long Statement
+java,me.jellysquid.mods.lithium.common.entity,EntityClassGroup,contains,Magic Number
+java,me.jellysquid.mods.lithium.common.entity,EntityClassGroup,contains,Magic Number
+java,me.jellysquid.mods.lithium.common.entity,EntityClassGroup,testAndAddClass,Magic Number
+java,me.jellysquid.mods.lithium.common.entity,EntityClassGroup,testAndAddClass,Magic Number
+java,me.jellysquid.mods.lithium.common.entity,EntityClassGroup,NoDragonClassGroup,Long Statement
+java,me.jellysquid.mods.lithium.common.entity,NoDragonClassGroup,NoDragonClassGroup,Long Statement
+java,me.jellysquid.mods.lithium.common.entity,LithiumEntityCollisions,getEntityWorldBorderCollisionIterable,Complex Method
+java,me.jellysquid.mods.lithium.common.entity,LithiumEntityCollisions,iterator,Complex Method
+java,me.jellysquid.mods.lithium.common.entity,LithiumEntityCollisions,computeNext,Complex Method
+java,me.jellysquid.mods.lithium.common.entity,LithiumEntityCollisions,isWithinWorldBorder,Long Statement
+java,me.jellysquid.mods.lithium.common.entity,LithiumEntityCollisions,doesBoxCollideWithWorldBorder,Long Statement
+java,me.jellysquid.mods.lithium.common.entity,LithiumEntityCollisions,getCollisionShapeBelowEntityFallback,Long Statement
+java,me.jellysquid.mods.lithium.common.entity,LithiumEntityCollisions,getCollisionShapeBelowEntityFallback,Magic Number
+java,me.jellysquid.mods.lithium.common.entity,LithiumEntityCollisions,getCollisionShapeBelowEntityFallback,Magic Number
+java,me.jellysquid.mods.lithium.common.entity,LithiumEntityCollisions,getCollisionShapeBelowEntityFallback,Magic Number
+java,me.jellysquid.mods.lithium.common.entity,LithiumEntityCollisions,getCollisionShapeBelowEntityFallback,Magic Number
+java,me.jellysquid.mods.lithium.common.entity,LithiumEntityCollisions,getCollisionShapeBelowEntityFallback,Magic Number
+java,me.jellysquid.mods.lithium.common.entity,LithiumEntityCollisions,getSmallerBoxForSingleAxisMovement,Long Parameter List
+java,me.jellysquid.mods.lithium.common.entity,LithiumEntityCollisions,addEntityCollisionsIfRequired,Long Parameter List
+java,me.jellysquid.mods.lithium.common.entity.item,ItemEntityLazyIterationConsumer,predictReceivedItemCount,Long Statement
+java,me.jellysquid.mods.lithium.common.entity.item,ItemEntityLazyIterationConsumer,getTransferAmount,Magic Number
+java,me.jellysquid.mods.lithium.common.entity.item,ItemEntityList,equals,Long Statement
+java,me.jellysquid.mods.lithium.common.entity.item,ItemEntityList,addToCategoryList,Long Parameter List
+java,me.jellysquid.mods.lithium.common.entity.item,ItemEntityList,isMaxHalfFull,Magic Number
+java,me.jellysquid.mods.lithium.common.entity.item,ItemEntityList,removeElement,Magic Number
+java,me.jellysquid.mods.lithium.common.entity.item,ItemEntityList,removeElement,Magic Number
+java,me.jellysquid.mods.lithium.common.entity.item,ItemEntityList,set,Complex Conditional
+java,me.jellysquid.mods.lithium.common.entity.item,ItemEntityList,consumeForEntityStacking,Magic Number
+java,me.jellysquid.mods.lithium.common.entity.movement,ChunkAwareBlockCollisionSweeper,ChunkAwareBlockCollisionSweeper,Long Statement
+java,me.jellysquid.mods.lithium.common.entity.movement,ChunkAwareBlockCollisionSweeper,ChunkAwareBlockCollisionSweeper,Long Statement
+java,me.jellysquid.mods.lithium.common.entity.movement,ChunkAwareBlockCollisionSweeper,nextSection,Complex Conditional
+java,me.jellysquid.mods.lithium.common.entity.movement,ChunkAwareBlockCollisionSweeper,nextSection,Long Statement
+java,me.jellysquid.mods.lithium.common.entity.movement,ChunkAwareBlockCollisionSweeper,nextSection,Long Statement
+java,me.jellysquid.mods.lithium.common.entity.movement,ChunkAwareBlockCollisionSweeper,computeNext,Complex Conditional
+java,me.jellysquid.mods.lithium.common.entity.movement,ChunkAwareBlockCollisionSweeper,computeNext,Complex Method
+java,me.jellysquid.mods.lithium.common.entity.movement,ChunkAwareBlockCollisionSweeper,computeNext,Long Statement
+java,me.jellysquid.mods.lithium.common.entity.movement,ChunkAwareBlockCollisionSweeper,computeNext,Magic Number
+java,me.jellysquid.mods.lithium.common.entity.movement,ChunkAwareBlockCollisionSweeper,computeNext,Magic Number
+java,me.jellysquid.mods.lithium.common.entity.movement,ChunkAwareBlockCollisionSweeper,computeNext,Magic Number
+java,me.jellysquid.mods.lithium.common.entity.movement,ChunkAwareBlockCollisionSweeper,computeNext,Magic Number
+java,me.jellysquid.mods.lithium.common.entity.movement,ChunkAwareBlockCollisionSweeper,canInteractWithBlock,Magic Number
+java,me.jellysquid.mods.lithium.common.entity.movement,ChunkAwareBlockCollisionSweeper,getCollidedShape,Long Parameter List
+java,me.jellysquid.mods.lithium.common.entity.movement_tracker,MovementTrackerHelper,calculateNotificationMask,Long Identifier
+java,me.jellysquid.mods.lithium.common.entity.movement_tracker,SectionedEntityMovementTracker,SectionedEntityMovementTracker,Long Identifier
+java,me.jellysquid.mods.lithium.common.entity.movement_tracker,SectionedEntityMovementTracker,hashCode,Long Statement
+java,me.jellysquid.mods.lithium.common.entity.movement_tracker,SectionedEntityMovementTracker,equals,Long Statement
+java,me.jellysquid.mods.lithium.common.entity.movement_tracker,SectionedEntityMovementTracker,register,Long Statement
+java,me.jellysquid.mods.lithium.common.entity.movement_tracker,SectionedEntityMovementTracker,unRegister,Long Statement
+java,me.jellysquid.mods.lithium.common.entity.movement_tracker,SectionedEntityMovementTracker,listenToEntityMovementOnce,Long Identifier
+java,me.jellysquid.mods.lithium.common.entity.movement_tracker,SectionedEntityMovementTracker,notifyAllListeners,Long Identifier
+java,me.jellysquid.mods.lithium.common.entity.movement_tracker,SectionedItemEntityMovementTracker,getEntities,Long Statement
+java,me.jellysquid.mods.lithium.common.hopper,HopperHelper,tryMoveSingleItem,Complex Conditional
+java,me.jellysquid.mods.lithium.common.hopper,HopperHelper,tryMoveSingleItem,Complex Conditional
+java,me.jellysquid.mods.lithium.common.hopper,HopperHelper,tryMoveSingleItem,Long Parameter List
+java,me.jellysquid.mods.lithium.common.hopper,HopperHelper,tryMoveSingleItem,Long Statement
+java,me.jellysquid.mods.lithium.common.hopper,HopperHelper,tryMoveSingleItem,Long Statement
+java,me.jellysquid.mods.lithium.common.hopper,HopperHelper,calculateReducedSignalStrength,Long Parameter List
+java,me.jellysquid.mods.lithium.common.hopper,HopperHelper,calculateReducedSignalStrength,Magic Number
+java,me.jellysquid.mods.lithium.common.hopper,HopperHelper,determineComparatorUpdatePattern,Complex Conditional
+java,me.jellysquid.mods.lithium.common.hopper,HopperHelper,determineComparatorUpdatePattern,Complex Method
+java,me.jellysquid.mods.lithium.common.hopper,HopperHelper,determineComparatorUpdatePattern,Long Statement
+java,me.jellysquid.mods.lithium.common.hopper,HopperHelper,determineComparatorUpdatePattern,Magic Number
+java,me.jellysquid.mods.lithium.common.hopper,LithiumDoubleInventory,getLithiumInventory,Complex Conditional
+java,me.jellysquid.mods.lithium.common.hopper,LithiumDoubleInventory,getLithiumInventory,Long Statement
+java,me.jellysquid.mods.lithium.common.hopper,LithiumDoubleInventory,getLithiumInventory,Long Statement
+java,me.jellysquid.mods.lithium.common.hopper,LithiumDoubleInventory,lithium$emitStackListReplaced,Long Identifier
+java,me.jellysquid.mods.lithium.common.hopper,LithiumDoubleInventory,lithium$emitRemoved,Long Identifier
+java,me.jellysquid.mods.lithium.common.hopper,LithiumDoubleInventory,lithium$emitFirstComparatorAdded,Long Statement
+java,me.jellysquid.mods.lithium.common.hopper,LithiumDoubleInventory,lithium$forwardMajorInventoryChanges,Long Identifier
+java,me.jellysquid.mods.lithium.common.hopper,LithiumDoubleInventory,lithium$stopForwardingMajorInventoryChanges,Long Identifier
+java,me.jellysquid.mods.lithium.common.hopper,LithiumDoubleInventory,lithium$onComparatorAdded,Long Statement
+java,me.jellysquid.mods.lithium.common.hopper,LithiumDoubleInventory,lithium$hasAnyComparatorNearby,Long Statement
+java,me.jellysquid.mods.lithium.common.hopper,LithiumDoubleStackList,getOrCreate,Complex Conditional
+java,me.jellysquid.mods.lithium.common.hopper,LithiumDoubleStackList,getOrCreate,Long Statement
+java,me.jellysquid.mods.lithium.common.hopper,LithiumStackList,set,Long Statement
+java,me.jellysquid.mods.lithium.common.hopper,LithiumStackList,calculateSignalStrength,Magic Number
+java,me.jellysquid.mods.lithium.common.hopper,LithiumStackList,maybeSendsComparatorUpdatesOnFailedExtract,Long Statement
+java,me.jellysquid.mods.lithium.common.reflection,ReflectionUtil,hasMethodOverride,Long Parameter List
+java,me.jellysquid.mods.lithium.common.reflection,ReflectionUtil,hasMethodOverride,Long Statement
+java,me.jellysquid.mods.lithium.common.reflection,ReflectionUtil,hasMethodOverride,Long Statement
+java,me.jellysquid.mods.lithium.common.reflection,ReflectionUtil,isBlockStateEntityTouchable,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,CuboidVoxelSet,CuboidVoxelSet,Long Parameter List
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboid,VoxelShapeAlignedCuboid,Complex Conditional
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboid,VoxelShapeAlignedCuboid,Long Parameter List
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboid,VoxelShapeAlignedCuboid,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboid,VoxelShapeAlignedCuboid,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboid,VoxelShapeAlignedCuboid,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboid,VoxelShapeAlignedCuboid,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboid,VoxelShapeAlignedCuboid,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboid,VoxelShapeAlignedCuboid,Long Parameter List
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboid,calculatePenetration,Missing default
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboid,calculatePenetration,Complex Method
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboid,calculatePenetration,Long Parameter List
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboid,getXSegments,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboid,getYSegments,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboid,getYSegments,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboid,getZSegments,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboidOffset,VoxelShapeAlignedCuboidOffset,Long Parameter List
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboidOffset,VoxelShapeAlignedCuboidOffset,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboidOffset,calculatePenetration,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboidOffset,calculatePenetration,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboidOffset,calculatePenetration,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboidOffset,calculatePenetration,Missing default
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboidOffset,calculatePenetration,Complex Method
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeAlignedCuboidOffset,calculatePenetration,Long Parameter List
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeHelper,getClosestPointTo,Complex Method
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeHelper,initVoxelSet,Complex Method
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeHelper,initVoxelSet,Long Parameter List
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeHelper,getIndex,Long Parameter List
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Complex Conditional
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Complex Method
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,cuboidMatchesAnywhere,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,isTiny,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,isTiny,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,isTiny,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,isTiny,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,exceedsCube,Long Parameter List
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,exceedsCube,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,exceedsCube,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,exceedsCube,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,exceedsCube,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,exceedsCube,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,exceedsCube,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,exceedsCube,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,exceedsShape,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,exceedsShape,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,exceedsShape,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,exceedsShape,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,exceedsShape,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,exceedsShape,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,exceedsShape,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,intersects,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,intersects,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,intersects,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,intersects,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,intersects,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,intersects,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeMatchesAnywhere,intersects,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,VoxelShapeSimpleCube,Long Parameter List
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,VoxelShapeSimpleCube,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,VoxelShapeSimpleCube,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,VoxelShapeSimpleCube,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,VoxelShapeSimpleCube,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,offset,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,calculatePenetration,Missing default
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,intersects,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,intersects,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,intersects,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,intersects,Missing default
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,calculatePenetration,Long Parameter List
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,intersects,Long Statement
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,intersects,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,intersects,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,intersects,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,intersects,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,intersects,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes,VoxelShapeSimpleCube,intersects,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes.pairs,LithiumDoublePairList,merge,Complex Conditional
+java,me.jellysquid.mods.lithium.common.shapes.pairs,LithiumDoublePairList,merge,Complex Conditional
+java,me.jellysquid.mods.lithium.common.shapes.pairs,LithiumDoublePairList,merge,Complex Method
+java,me.jellysquid.mods.lithium.common.shapes.pairs,LithiumDoublePairList,merge,Long Parameter List
+java,me.jellysquid.mods.lithium.common.shapes.pairs,LithiumDoublePairList,merge,Magic Number
+java,me.jellysquid.mods.lithium.common.shapes.pairs,LithiumDoublePairList,merge,Magic Number
+java,me.jellysquid.mods.lithium.common.util,Distances,getMinChunkToBlockDistanceL2Sq,Magic Number
+java,me.jellysquid.mods.lithium.common.util,Distances,getMinChunkToBlockDistanceL2Sq,Magic Number
+java,me.jellysquid.mods.lithium.common.util,Pos,getMaxInSectionCoord,Magic Number
+java,me.jellysquid.mods.lithium.common.util,Pos,fromBlockSize,Magic Number
+java,me.jellysquid.mods.lithium.common.util,BlockCoord,getMaxInSectionCoord,Magic Number
+java,me.jellysquid.mods.lithium.common.util,ChunkCoord,fromBlockSize,Magic Number
+java,me.jellysquid.mods.lithium.common.util.change_tracking,ChangeSubscriber,without,Magic Number
+java,me.jellysquid.mods.lithium.common.util.change_tracking,ChangeSubscriber,dataWithout,Long Parameter List
+java,me.jellysquid.mods.lithium.common.util.change_tracking,ChangeSubscriber,dataWithout,Magic Number
+java,me.jellysquid.mods.lithium.common.util.change_tracking,ChangeSubscriber,dataOf,Long Statement
+java,me.jellysquid.mods.lithium.common.util.collections,HashedReferenceList,removeAll,Complex Conditional
+java,me.jellysquid.mods.lithium.common.util.collections,HashedReferenceList,removeAll,Magic Number
+java,me.jellysquid.mods.lithium.common.util.collections,HashedReferenceList,removeAll,Magic Number
+java,me.jellysquid.mods.lithium.common.util.collections,MaskedList,add,Long Statement
+java,me.jellysquid.mods.lithium.common.util.collections,MaskedList,remove,Magic Number
+java,me.jellysquid.mods.lithium.common.util.collections,ReferenceMaskedList,add,Long Statement
+java,me.jellysquid.mods.lithium.common.util.collections,ReferenceMaskedList,remove,Magic Number
+java,me.jellysquid.mods.lithium.common.util.math,CompactSineLUT,sin,Magic Number
+java,me.jellysquid.mods.lithium.common.util.math,CompactSineLUT,sin,Magic Number
+java,me.jellysquid.mods.lithium.common.util.math,CompactSineLUT,cos,Magic Number
+java,me.jellysquid.mods.lithium.common.util.math,CompactSineLUT,cos,Magic Number
+java,me.jellysquid.mods.lithium.common.util.math,CompactSineLUT,cos,Magic Number
+java,me.jellysquid.mods.lithium.common.util.math,CompactSineLUT,lookup,Magic Number
+java,me.jellysquid.mods.lithium.common.util.math,CompactSineLUT,lookup,Magic Number
+java,me.jellysquid.mods.lithium.common.util.math,CompactSineLUT,lookup,Magic Number
+java,me.jellysquid.mods.lithium.common.util.math,CompactSineLUT,lookup,Magic Number
+java,me.jellysquid.mods.lithium.common.util.math,CompactSineLUT,lookup,Magic Number
+java,me.jellysquid.mods.lithium.common.util.math,CompactSineLUT,lookup,Magic Number
+java,me.jellysquid.mods.lithium.common.util.math,CompactSineLUT,lookup,Magic Number
+java,me.jellysquid.mods.lithium.common.world.chunk,LithiumHashPalette,LithiumHashPalette,Long Parameter List
+java,me.jellysquid.mods.lithium.common.world.chunk,LithiumHashPalette,copy,Long Statement
+java,me.jellysquid.mods.lithium.common.world.chunk.heightmap,CombinedHeightmapUpdate,updateHeightmaps,Complex Method
+java,me.jellysquid.mods.lithium.common.world.chunk.heightmap,CombinedHeightmapUpdate,updateHeightmaps,Long Method
+java,me.jellysquid.mods.lithium.common.world.chunk.heightmap,CombinedHeightmapUpdate,updateHeightmaps,Long Parameter List
+java,me.jellysquid.mods.lithium.common.world.chunk.heightmap,CombinedHeightmapUpdate,updateHeightmaps,Long Statement
+java,me.jellysquid.mods.lithium.common.world.chunk.heightmap,CombinedHeightmapUpdate,updateHeightmaps,Long Statement
+java,me.jellysquid.mods.lithium.common.world.chunk.heightmap,CombinedHeightmapUpdate,updateHeightmaps,Long Statement
+java,me.jellysquid.mods.lithium.common.world.chunk.heightmap,CombinedHeightmapUpdate,updateHeightmaps,Long Statement
+java,me.jellysquid.mods.lithium.common.world.chunk.heightmap,CombinedHeightmapUpdate,updateHeightmaps,Magic Number
+java,me.jellysquid.mods.lithium.common.world.chunk.heightmap,CombinedHeightmapUpdate,updateHeightmaps,Magic Number
+java,me.jellysquid.mods.lithium.common.world.chunk.heightmap,CombinedHeightmapUpdate,updateHeightmaps,Magic Number
+java,me.jellysquid.mods.lithium.common.world.chunk.heightmap,CombinedHeightmapUpdate,updateHeightmaps,Magic Number
+java,me.jellysquid.mods.lithium.common.world.chunk.heightmap,CombinedHeightmapUpdate,updateHeightmaps,Magic Number
+java,me.jellysquid.mods.lithium.common.world,ChunkRandomSource,lithium$getRandomPosInChunk,Long Parameter List
+java,me.jellysquid.mods.lithium.common.world,ClimbingMobCachingSection,lithium$collectPushableEntities,Long Parameter List
+java,me.jellysquid.mods.lithium.common.world,LithiumData,Data,Long Parameter List
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,getEntitiesForCollision,Complex Conditional
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,getEntitiesForCollision,Long Identifier
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,getEntitiesForCollision,Long Statement
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,getEntitiesForCollision,Long Statement
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,getOtherEntitiesForCollision,Long Identifier
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,getOtherEntitiesForCollision,Long Statement
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,getOtherEntitiesForCollision,Long Statement
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,getEntitiesOfClassGroup,Complex Conditional
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,getEntitiesOfClassGroup,Long Statement
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,getPushableEntities,Long Parameter List
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,getPushableEntities,Long Statement
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,areNeighborsWithinSameChunk,Magic Number
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,areNeighborsWithinSameChunk,Magic Number
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,areNeighborsWithinSameChunk,Magic Number
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,areNeighborsWithinSameChunk,Magic Number
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,areNeighborsWithinSameChunkSection,Magic Number
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,areNeighborsWithinSameChunkSection,Magic Number
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,areNeighborsWithinSameChunkSection,Magic Number
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,areNeighborsWithinSameChunkSection,Magic Number
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,areNeighborsWithinSameChunkSection,Magic Number
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,areNeighborsWithinSameChunkSection,Magic Number
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,arePosWithinSameChunk,Magic Number
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,arePosWithinSameChunk,Magic Number
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,arePosWithinSameChunk,Magic Number
+java,me.jellysquid.mods.lithium.common.world,WorldHelper,arePosWithinSameChunk,Magic Number
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,NearbyPointOfInterestStream,NearbyPointOfInterestStream,Complex Method
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,NearbyPointOfInterestStream,NearbyPointOfInterestStream,Long Parameter List
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,NearbyPointOfInterestStream,NearbyPointOfInterestStream,Magic Number
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,NearbyPointOfInterestStream,initChunkPositions,Long Statement
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,NearbyPointOfInterestStream,initChunkPositions,Magic Number
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,NearbyPointOfInterestStream,initChunkPositions,Magic Number
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,NearbyPointOfInterestStream,initChunkPositions,Magic Number
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,NearbyPointOfInterestStream,initChunkPositions,Magic Number
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,NearbyPointOfInterestStream,tryAdvance,Complex Method
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,SphereChunkOrderedPoiSetSpliterator,SphereChunkOrderedPoiSetSpliterator,Long Statement
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,SphereChunkOrderedPoiSetSpliterator,SphereChunkOrderedPoiSetSpliterator,Magic Number
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,SphereChunkOrderedPoiSetSpliterator,SphereChunkOrderedPoiSetSpliterator,Magic Number
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,SphereChunkOrderedPoiSetSpliterator,SphereChunkOrderedPoiSetSpliterator,Magic Number
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,SphereChunkOrderedPoiSetSpliterator,SphereChunkOrderedPoiSetSpliterator,Magic Number
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,SphereChunkOrderedPoiSetSpliterator,SphereChunkOrderedPoiSetSpliterator,Magic Number
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,SphereChunkOrderedPoiSetSpliterator,SphereChunkOrderedPoiSetSpliterator,Magic Number
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,SphereChunkOrderedPoiSetSpliterator,SphereChunkOrderedPoiSetSpliterator,Magic Number
+java,me.jellysquid.mods.lithium.common.world.interests.iterator,SphereChunkOrderedPoiSetSpliterator,SphereChunkOrderedPoiSetSpliterator,Magic Number
+java,me.jellysquid.mods.lithium.common.world.interests,PointOfInterestStorageExtended,lithium$findNearestForPortalLogic,Long Parameter List
+java,me.jellysquid.mods.lithium.common.world.scheduler,OrderedTickQueue,handleCompaction,Magic Number
+java,me.jellysquid.mods.lithium.mixin.ai.pathing,AbstractBlockStateMixin,init,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.pathing,AbstractBlockStateMixin,init,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.pathing,BirdPathNodeMakerMixin,getNodeTypeFromNeighbors,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.pathing,ChunkCacheMixin,getBlockState,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.ai.pathing,ChunkCacheMixin,getBlockState,Magic Number
+java,me.jellysquid.mods.lithium.mixin.ai.pathing,ChunkCacheMixin,getBlockState,Magic Number
+java,me.jellysquid.mods.lithium.mixin.ai.pathing,ChunkCacheMixin,getBlockState,Magic Number
+java,me.jellysquid.mods.lithium.mixin.ai.pathing,LandPathNodeMakerMixin,doNotIteratePositionsIfLithiumSinglePosCall,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.ai.pathing,LandPathNodeMakerMixin,doNotIteratePositionsIfLithiumSinglePosCall,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.pathing,LandPathNodeMakerMixin,getNodeTypeFromNeighbors,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.poi.fast_portals,PointOfInterestStorageMixin,PointOfInterestStorageMixin,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.poi.fast_portals,PointOfInterestStorageMixin,preloadChunks,Magic Number
+java,me.jellysquid.mods.lithium.mixin.ai.poi.fast_portals,PointOfInterestStorageMixin,lithium$preloadChunkIfAnySubChunkContainsPOI,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.poi.fast_portals,PortalForcerMixin,getPortalPos,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi.fast_portals,PortalForcerMixin,getPortalPos,Magic Number
+java,me.jellysquid.mods.lithium.mixin.ai.poi.fast_portals,PortalForcerMixin,getPortalPos,Magic Number
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestSetMixin,getWithDynamicTypeFilter,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,PointOfInterestStorageMixin,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,getInChunk,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,getPosition,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,getNearestPosition,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,getNearestPosition,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,lithium$findNearestForPortalLogic,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,lithium$findNearestForPortalLogic,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,lithium$findNearestForPortalLogic,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,lithium$findNearestForPortalLogic,Magic Number
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,withinSphereChunkSectionSortedStream,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,withinSphereChunkSectionSortedStream,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,withinSphereChunkSectionSortedStream,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,withinSphereChunkSectionSorted,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,withinSphereChunkSectionSorted,Magic Number
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,withinSphereChunkSectionSorted,Magic Number
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,withinSphereChunkSectionSorted,Magic Number
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,withinSphereChunkSectionSorted,Magic Number
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,streamOutwards,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,streamOutwards,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi,PointOfInterestStorageMixin,streamOutwards,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi,SerializingRegionBasedStorageMixin,init,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.poi,SerializingRegionBasedStorageMixin,lithium$getWithinChunkColumn,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi,SerializingRegionBasedStorageMixin,lithium$getInChunkColumn,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi,SerializingRegionBasedStorageMixin,computeNext,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi.tasks,HideInHomeTaskMixin,useFasterPOILookup,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.poi.tasks,HideInHomeTaskMixin,useFasterPOILookup,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi.tasks,HideInHomeTaskMixin,useFasterPOILookup,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.poi.tasks,HideInHomeTaskMixin,useFasterPOILookup,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.poi.tasks,RaiderEntityAttackHomeGoalMixin,redirect,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.poi.tasks,RaiderEntityAttackHomeGoalMixin,redirect,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.task.launch,BrainMixin,reinitializeBrainCollections,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.task.launch,BrainMixin,reinitializeTasksSorted,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.task.launch,BrainMixin,removeStoppedTask,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.task.launch,BrainMixin,removeTaskIfStopped,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.ai.task.memory_change_counting,MultiTickTaskMixin,hasRequiredMemoryState,Long Statement
+java,me.jellysquid.mods.lithium.mixin.ai.useless_sensors.goat_item_sensor,GoatEntityMixin,disableItemSensor,Long Statement
+java,me.jellysquid.mods.lithium.mixin.alloc.chunk_random,ServerWorldMixin,redirectTickGetRandomPosInChunk,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.alloc.chunk_random,WorldMixin,lithium$getRandomPosInChunk,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.alloc.chunk_random,WorldMixin,lithium$getRandomPosInChunk,Magic Number
+java,me.jellysquid.mods.lithium.mixin.alloc.chunk_random,WorldMixin,lithium$getRandomPosInChunk,Magic Number
+java,me.jellysquid.mods.lithium.mixin.alloc.chunk_random,WorldMixin,lithium$getRandomPosInChunk,Magic Number
+java,me.jellysquid.mods.lithium.mixin.alloc.chunk_random,WorldMixin,lithium$getRandomPosInChunk,Magic Number
+java,me.jellysquid.mods.lithium.mixin.alloc.chunk_random,WorldMixin,lithium$getRandomPosInChunk,Magic Number
+java,me.jellysquid.mods.lithium.mixin.alloc.chunk_random,WorldMixin,lithium$getRandomPosInChunk,Magic Number
+java,me.jellysquid.mods.lithium.mixin.alloc.chunk_random,WorldMixin,lithium$getRandomPosInChunk,Magic Number
+java,me.jellysquid.mods.lithium.mixin.alloc.explosion_behavior,EntityExplosionBehaviorMixin,getBlastResistance,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.alloc.explosion_behavior,EntityExplosionBehaviorMixin,getBlastResistance,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,receivesFlow,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,flow,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,getNumIndicesFromRadius,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,indexFromDiamondXZOffset,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,indexFromDiamondXZOffset,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,getSpread,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,getSpread,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,canFlowThrough,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,canFlowThrough,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,canFlowDownTo,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,canFlowDownTo,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,calculateComplexFluidFlowDirections,Complex Method
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,calculateComplexFluidFlowDirections,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,calculateComplexFluidFlowDirections,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,calculateComplexFluidFlowDirections,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,calculateComplexFluidFlowDirections,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,calculateComplexFluidFlowDirections,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,calculateComplexFluidFlowDirections,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,calculateComplexFluidFlowDirections,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,calculateComplexFluidFlowDirections,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,calculateComplexFluidFlowDirections,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,calculateComplexFluidFlowDirections,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.fluid.flow,FlowableFluidMixin,isHoleBelow,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.block.hopper,AbstractMinecartEntityMixin,avoidNotifyingMovementListeners,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.block.hopper,AbstractMinecartEntityMixin,notifyMovementListeners,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.block.hopper,AbstractMinecartEntityMixin,notifyMovementListeners,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,ChestBoatEntityMixin,tickRidingSummarizeMovementNotifications,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,getExtractInventory,Complex Method
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,getExtractInventory,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,getExtractInventory,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,getExtractInventory,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,getExtractInventory,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumInsert,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumInsert,Complex Method
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumInsert,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumInsert,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumInsert,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumInsert,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumInsert,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumInsert,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumInsert,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumInsert,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumInsert,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumExtract,Complex Method
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumExtract,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumHopperIsFull,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumHopperIsEmpty,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,canExtract,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithium$invalidateCacheOnNeighborUpdate,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithium$invalidateCacheOnNeighborUpdate,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumGetInputItemEntities,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumGetInputItemEntities,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumGetInputItemEntities,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,lithiumGetInputItemEntities,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,cacheInsertBlockInventory,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,cacheExtractBlockInventory,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,getExtractBlockInventory,Complex Method
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,getInsertBlockInventory,Complex Method
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,getInsertInventory,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,initCollectItemEntityTracker,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,initExtractInventoryTracker,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,initExtractInventoryTracker,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,initInsertInventoryTracker,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,initInsertInventoryTracker,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,invalidateOnSetCachedState,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,invalidateOnSetCachedState,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,invalidateInsertionData,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,invalidateExtractionData,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,checkSleepingConditions,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,checkSleepingConditions,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,checkSleepingConditions,Complex Method
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,checkSleepingConditions,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,checkSleepingConditions,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,checkSleepingConditions,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockEntityMixin,checkSleepingConditions,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockMixin,getStateForNeighborUpdate,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockMixin,notifyOnNeighborUpdate,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockMixin,updateBlockEntity,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockMixin,updateHopper,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockMixin,updateHopper,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,HopperBlockMixin,workAroundVanillaUpdateSuppression,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.block.hopper,WorldMixin,updateHopperOnUpdateSuppression,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.block.hopper,WorldMixin,updateHopperOnUpdateSuppression,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.block.hopper,WorldMixin,updateHopperOnUpdateSuppression,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper,WorldMixin,updateHopperOnUpdateSuppression,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.hopper.worldedit_compat,WorldChunkMixin,updateHoppersIfWorldEditPresent,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.block.hopper.worldedit_compat,WorldChunkMixin,updateHopperCachesOnNewInventoryAdded,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,PistonBlockEntityMixin,skipVoxelShapeUnion,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,PistonBlockEntityMixin,skipVoxelShapeUnion,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,PistonBlockEntityMixin,skipVoxelShapeUnion,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,PistonBlockEntityMixin,skipVoxelShapeUnion,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,PistonBlockEntityMixin,getOffsetAndSimplified,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,PistonBlockEntityMixin,precomputePistonBaseWithMovingHeadShapes,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,PistonBlockEntityMixin,precomputePistonBaseWithMovingHeadShapes,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,PistonBlockEntityMixin,precomputePistonBaseWithMovingHeadShapes,Long Statement
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,PistonBlockEntityMixin,precomputePistonBaseWithMovingHeadShapes,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,PistonBlockEntityMixin,getIndexForMergedShape,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,PistonBlockEntityMixin,getIndexForMergedShape,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,PistonBlockEntityMixin,getIndexForMergedShape,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,PistonBlockEntityMixin,getIndexForMergedShape,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,VoxelShapeMixin,lithium$setShape,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,VoxelShapeMixin,lithium$setShape,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,VoxelShapeMixin,getIndexForOffsetSimplifiedShapes,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,VoxelShapeMixin,getIndexForOffsetSimplifiedShapes,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,VoxelShapeMixin,getIndexForOffsetSimplifiedShapes,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.moving_block_shapes,VoxelShapeMixin,getIndexForOffsetSimplifiedShapes,Magic Number
+java,me.jellysquid.mods.lithium.mixin.block.redstone_wire,RedstoneWireBlockMixin,getPowerFromSide,Complex Method
+java,me.jellysquid.mods.lithium.mixin.cached_hashcode,BlockNeighborGroupMixin,generateHash,Magic Number
+java,me.jellysquid.mods.lithium.mixin.cached_hashcode,BlockNeighborGroupMixin,generateHash,Magic Number
+java,me.jellysquid.mods.lithium.mixin.chunk.no_locking,ChunkSectionMixin,setBlockState,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.chunk.no_locking,ChunkSectionMixin,setBlockStateNoLocking,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.chunk.serialization,PalettedContainerMixin,serialize,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.chunk.serialization,PalettedContainerMixin,serialize,Long Statement
+java,me.jellysquid.mods.lithium.mixin.chunk.serialization,PalettedContainerMixin,getOrCreate,Magic Number
+java,me.jellysquid.mods.lithium.mixin.chunk.serialization,PalettedContainerMixin,getOrCreate,Magic Number
+java,me.jellysquid.mods.lithium.mixin.chunk.serialization,PalettedContainerMixin,count,Magic Number
+java,me.jellysquid.mods.lithium.mixin.collections.block_entity_tickers,WorldChunkMixin,createFastUtilMap,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.collections.brain,BrainMixin,reinitializeBrainCollections,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.collections.mob_spawning,PoolMixin,init,Long Statement
+java,me.jellysquid.mods.lithium.mixin.collections.mob_spawning,PoolMixin,init,Magic Number
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.fluid,EntityMixin,tryShortcutFluidPushing,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.fluid,EntityMixin,tryShortcutFluidPushing,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.fluid,EntityMixin,tryShortcutFluidPushing,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.fluid,EntityMixin,tryShortcutFluidPushing,Magic Number
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.fluid,EntityMixin,tryShortcutFluidPushing,Magic Number
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.fluid,EntityMixin,tryShortcutFluidPushing,Magic Number
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.fluid,EntityMixin,tryShortcutFluidPushing,Magic Number
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,collideMovementWithPostponedGetEntities,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,collectEntities,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,adjustMovementForCollisions,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Complex Method
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Method
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.movement,EntityMixin,lithium$CollideMovement,Magic Number
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.unpushable_cramming,AbstractMinecartEntityMixin,getOtherPushableEntities,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.unpushable_cramming,BoatEntityMixin,getOtherPushableEntities,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.unpushable_cramming,EntityTrackingSectionMixin,lithium$collectPushableEntities,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.unpushable_cramming,EntityTrackingSectionMixin,lithium$collectPushableEntities,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.unpushable_cramming,EntityTrackingSectionMixin,lithium$collectPushableEntities,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.unpushable_cramming,EntityTrackingSectionMixin,lithium$collectPushableEntities,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.unpushable_cramming,EntityTrackingSectionMixin,lithium$collectPushableEntities,Magic Number
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.unpushable_cramming,EntityTrackingSectionMixin,lithium$collectPushableEntities,Magic Number
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.unpushable_cramming,LivingEntityMixin,getOtherPushableEntities,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.unpushable_cramming,LivingEntityMixin,lithium$SetClimbingMobCachingSectionUpdateBehavior,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.unpushable_cramming,LivingEntityMixin,lithium$OnBlockCacheDeleted,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.unpushable_cramming,LivingEntityMixin,lithium$OnBlockCacheSet,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.unpushable_cramming,LivingEntityMixin,updateClimbingMobCachingSection,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.entity.collisions.unpushable_cramming,LivingEntityMixin,updateClimbingMobCachingSection,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.equipment_tracking,ArmorStandEntityMixin,trackEquipChange,Magic Number
+java,me.jellysquid.mods.lithium.mixin.entity.equipment_tracking,ArmorStandEntityMixin,trackEquipChange,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.entity.equipment_tracking,MobEntityMixin,trackEquipChange,Magic Number
+java,me.jellysquid.mods.lithium.mixin.entity.equipment_tracking,MobEntityMixin,trackEquipChange,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.entity.fast_retrieval,SectionedEntityCacheMixin,forEachInBox,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.entity.fast_retrieval,SectionedEntityCacheMixin,forEachInBox,Magic Number
+java,me.jellysquid.mods.lithium.mixin.entity.fast_retrieval,SectionedEntityCacheMixin,forEachInBox,Magic Number
+java,me.jellysquid.mods.lithium.mixin.entity.fast_retrieval,SectionedEntityCacheMixin,forEachInBox,Magic Number
+java,me.jellysquid.mods.lithium.mixin.entity.fast_retrieval,SectionedEntityCacheMixin,forEachInColumn,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.entity.fast_retrieval,SectionedEntityCacheMixin,consumeSection,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.entity.inactive_navigations,ServerWorldMixin,ServerWorldMixin,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.entity.inactive_navigations,ServerWorldMixin,ServerWorldMixin,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.inactive_navigations,ServerWorldMixin,init,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.entity.inactive_navigations,ServerWorldMixin,init,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.entity.inactive_navigations,ServerWorldMixin,updateActiveListeners,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.entity.inactive_navigations,ServerWorldMixin,areEntityNavigationsConsistent,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.replace_entitytype_predicates,ArmorStandEntityMixin,getMinecartsDirectly,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.replace_entitytype_predicates,IronGolemWanderAroundGoalMixin,getEntities,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.replace_entitytype_predicates,IronGolemWanderAroundGoalMixin,getEntities,Long Statement
+java,me.jellysquid.mods.lithium.mixin.entity.replace_entitytype_predicates,IronGolemWanderAroundGoalMixin,getEntities,Magic Number
+java,me.jellysquid.mods.lithium.mixin.entity.replace_entitytype_predicates,IronGolemWanderAroundGoalMixin,getEntities,Magic Number
+java,me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching.block_support,EntityMixin,cancelIfSkippable,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching.block_support,EntityMixin,lithium$getCollisionShapeBelow,Long Statement
+java,me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching.block_touching,EntityMixin,checkTouchableBlock,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching.block_touching,EntityMixin,checkTouchableBlock,Long Statement
+java,me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching.fire_lava_touching,EntityMixin,skipFireTestIfResultDoesNotMatterOrIsCached,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching.fire_lava_touching,EntityMixin,skipFireTestIfResultDoesNotMatterOrIsCached,Complex Method
+java,me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching.fire_lava_touching,EntityMixin,skipFireTestIfResultDoesNotMatterOrIsCached,Long Statement
+java,me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching.fluid_pushing,EntityMixin,cacheFluidSearchResult,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching.fluid_pushing,EntityMixin,cacheFluidSearchResult,Long Statement
+java,me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching.suffocation,EntityMixin,isInsideWall,Complex Method
+java,me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching.suffocation,EntityMixin,isInsideWall,Long Statement
+java,me.jellysquid.mods.lithium.mixin.experimental.entity.item_entity_merging,ItemEntityMixin,consumeItemEntitiesForMerge,Long Statement
+java,me.jellysquid.mods.lithium.mixin.experimental.entity.item_entity_merging,ItemEntityMixin,consumeItemEntitiesForMerge,Long Statement
+java,me.jellysquid.mods.lithium.mixin.experimental.spawning,ServerChunkManagerMixin,iterateEntitiesChunkAware,Long Statement
+java,me.jellysquid.mods.lithium.mixin,LithiumMixinPlugin,onLoad,Long Statement
+java,me.jellysquid.mods.lithium.mixin,LithiumMixinPlugin,shouldApplyMixin,Long Statement
+java,me.jellysquid.mods.lithium.mixin,LithiumMixinPlugin,shouldApplyMixin,Long Statement
+java,me.jellysquid.mods.lithium.mixin.math.fast_blockpos,DirectionMixin,reinit,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.math.fast_util,AxisCycleDirectionMixin,cycle,Magic Number
+java,me.jellysquid.mods.lithium.mixin.math.fast_util,AxisCycleDirectionMixin,cycle,Magic Number
+java,me.jellysquid.mods.lithium.mixin.math.fast_util,ForwardMixin,cycle,Magic Number
+java,me.jellysquid.mods.lithium.mixin.math.fast_util,BackwardMixin,cycle,Magic Number
+java,me.jellysquid.mods.lithium.mixin.math.fast_util,BoxMixin,getMin,Magic Number
+java,me.jellysquid.mods.lithium.mixin.math.fast_util,BoxMixin,getMax,Magic Number
+java,me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.collisions.empty_space,WorldMixin,findClosestCollision,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.collisions.empty_space,WorldMixin,findClosestCollision,Long Statement
+java,me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.collisions.empty_space,WorldMixin,findClosestCollision,Magic Number
+java,me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.collisions.empty_space,WorldMixin,findClosestCollision,Magic Number
+java,me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.collisions.empty_space,WorldMixin,findClosestCollision,Magic Number
+java,me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.collisions.empty_space,WorldMixin,findClosestCollision,Magic Number
+java,me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.collisions.empty_space,WorldMixin,findClosestCollision,Magic Number
+java,me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.collisions.empty_space,WorldMixin,findClosestCollision,Magic Number
+java,me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.collisions.empty_space,WorldMixin,findClosestCollision,Magic Number
+java,me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.world.block_entity_ticking.support_cache,WorldChunkMixin,fixCachedState,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.world.expiring_chunk_tickets,ChunkTicketManagerMixin,registerExpiringTicket,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.world.expiring_chunk_tickets,ChunkTicketManagerMixin,updateSetMinExpiryTime,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.profiler,ServerWorldMixin,ServerWorldMixin,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.profiler,ServerWorldMixin,ServerWorldMixin,Long Statement
+java,me.jellysquid.mods.lithium.mixin.shapes.lazy_shape_context,EntityShapeContextMixin,redirectInstanceOf2,Magic Number
+java,me.jellysquid.mods.lithium.mixin.shapes.shape_merging,VoxelShapesMixin,injectCustomListPair,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapeMixin,calculateMaxDistance,Complex Method
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapeMixin,calculateMaxDistance,Long Statement
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapeMixin,calculateMaxDistance,Long Statement
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapeMixin,calculateMaxDistance,Long Statement
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapeMixin,calculateMaxDistance,Long Statement
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapeMixin,getCoordIndex,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapeMixin,getCoordIndex,Magic Number
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Long Statement
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Long Statement
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Magic Number
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Magic Number
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Magic Number
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Magic Number
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Magic Number
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Magic Number
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Magic Number
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Magic Number
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Magic Number
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Magic Number
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Magic Number
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Magic Number
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Magic Number
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Magic Number
+java,me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes,VoxelShapesMixin,cuboidUnchecked,Magic Number
+java,me.jellysquid.mods.lithium.mixin.util.block_entity_retrieval,WorldMixin,lithium$getLoadedExistingBlockEntity,Long Statement
+java,me.jellysquid.mods.lithium.mixin.util.block_tracking,ChunkSectionMixin,addToFlagCount,Magic Number
+java,me.jellysquid.mods.lithium.mixin.util.block_tracking,ChunkSectionMixin,fastInitClientCounts,Magic Number
+java,me.jellysquid.mods.lithium.mixin.util.block_tracking,ChunkSectionMixin,fastInitClientCounts,Magic Number
+java,me.jellysquid.mods.lithium.mixin.util.block_tracking,ChunkSectionMixin,fastInitClientCounts,Magic Number
+java,me.jellysquid.mods.lithium.mixin.util.block_tracking,ChunkSectionMixin,updateFlagCounters,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.util.block_tracking,ChunkSectionMixin,lithium$trackBlockStateChange,Long Statement
+java,me.jellysquid.mods.lithium.mixin.util.block_tracking,ChunkSectionMixin,lithium$trackBlockStateChange,Magic Number
+java,me.jellysquid.mods.lithium.mixin.util.data_storage,WorldMixin,initLithiumData,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking,EntityTrackingSectionMixin,lithium$trackEntityMovement,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking,EntityTrackingSectionMixin,lithium$trackEntityMovement,Long Statement
+java,me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking,EntityTrackingSectionMixin,lithium$trackEntityMovement,Magic Number
+java,me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking,ServerEntityManagerListenerMixin,init,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking,ServerEntityManagerListenerMixin,onAddEntity,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking,ServerEntityManagerListenerMixin,notifyMovementListeners,Long Statement
+java,me.jellysquid.mods.lithium.mixin.util.inventory_change_listening,BlockEntityMixin,updateStackListTracking,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.util.inventory_change_listening,LockableContainerBlockEntityMixin,lithium$emitStackListReplaced,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.util.inventory_change_listening,LockableContainerBlockEntityMixin,lithium$emitRemoved,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.util.inventory_change_listening,LockableContainerBlockEntityMixin,invalidateChangeListening,Long Statement
+java,me.jellysquid.mods.lithium.mixin.util.inventory_change_listening,LockableContainerBlockEntityMixin,lithium$emitFirstComparatorAdded,Long Statement
+java,me.jellysquid.mods.lithium.mixin.util.inventory_change_listening,LockableContainerBlockEntityMixin,lithium$forwardMajorInventoryChanges,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.util.inventory_change_listening,LockableContainerBlockEntityMixin,lithium$stopForwardingMajorInventoryChanges,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.util.inventory_comparator_tracking,BlockEntityMixin,lithium$onComparatorAdded,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.util.inventory_comparator_tracking,BlockEntityMixin,lithium$onComparatorAdded,Magic Number
+java,me.jellysquid.mods.lithium.mixin.util.inventory_comparator_tracking,BlockEntityMixin,lithium$hasAnyComparatorNearby,Long Statement
+java,me.jellysquid.mods.lithium.mixin.util.inventory_comparator_tracking,ComparatorBlockMixin,onBlockAdded,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.util.inventory_comparator_tracking,ComparatorBlockMixin,notifyOnBlockAdded,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.brewing_stand,BrewingStandBlockEntityMixin,checkSleep,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.brewing_stand,BrewingStandBlockEntityMixin,wakeUpOnMarkDirty,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.brewing_stand,BrewingStandBlockEntityMixin,checkSleep,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.brewing_stand,BrewingStandBlockEntityMixin,wakeUpAfterFromTag,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.brewing_stand,BrewingStandBlockEntityMixin,wakeOnMarkDirty,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.campfire.lit,CampfireBlockEntityMixin,trySleepLit,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.campfire.unlit,CampfireBlockEntityMixin,trySleepUnlit,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.furnace,AbstractFurnaceBlockEntityMixin,checkSleep,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.furnace,AbstractFurnaceBlockEntityMixin,checkSleep,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.furnace,AbstractFurnaceBlockEntityMixin,checkSleep,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.furnace,AbstractFurnaceBlockEntityMixin,wakeUpAfterFromTag,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.furnace,AbstractFurnaceBlockEntityMixin,wakeOnMarkDirty,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.hopper,HopperBlockEntityMixin,sleepIfNoCooldownAndLocked,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.hopper,HopperBlockEntityMixin,sleepIfNoCooldownAndLocked,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.hopper,HopperBlockEntityMixin,sleepIfNoCooldownAndLocked,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.hopper,HopperBlockEntityMixin,sleepIfNoCooldownAndLocked,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.hopper,HopperBlockEntityMixin,wakeUpOnCooldownSet,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping,WorldChunkMixin,setBlockEntityTickingOrder,Long Identifier
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping,WorldChunkMixin,setBlockEntityTickingOrder,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping,WorldChunkMixin,setBlockEntityTickingOrder,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.shulker_box,ShulkerBoxBlockEntityMixin,sleepOnAnimationEnd,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.shulker_box,ShulkerBoxBlockEntityMixin,sleepOnAnimationEnd,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.world_border,DirectBlockEntityTickInvokerMixin,cachedCanTickBlockEntity,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.world_border,DirectBlockEntityTickInvokerMixin,isInsideWorldBorder,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.world_border,DirectBlockEntityTickInvokerMixin,isInsideWorldBorder,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.world_border,DirectBlockEntityTickInvokerMixin,isInsideWorldBorder,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.world_border,DirectBlockEntityTickInvokerMixin,startWorldBorderCaching,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.world_border,DirectBlockEntityTickInvokerMixin,startWorldBorderCaching,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.chunk_access,ServerChunkManagerMixin,getChunk,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.chunk_access,ServerChunkManagerMixin,getChunkBlocking,Complex Method
+java,me.jellysquid.mods.lithium.mixin.world.chunk_access,ServerChunkManagerMixin,getChunkBlocking,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.chunk_access,ServerChunkManagerMixin,createCacheKey,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.chunk_access,ServerChunkManagerMixin,createCacheKey,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.chunk_access,ServerChunkManagerMixin,createCacheKey,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.chunk_access,ServerChunkManagerMixin,createCacheKey,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.chunk_access,ServerChunkManagerMixin,addToCache,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.chunk_access,WorldMixin,getChunk,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.combined_heightmap_update,WorldChunkMixin,WorldChunkMixin,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.combined_heightmap_update,WorldChunkMixin,skipGetHeightmap,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.world.combined_heightmap_update,WorldChunkMixin,skipGetHeightmap,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.combined_heightmap_update,WorldChunkMixin,skipHeightmapUpdate,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.combined_heightmap_update,WorldChunkMixin,updateHeightmapsCombined,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.combined_heightmap_update,WorldChunkMixin,updateHeightmapsCombined,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,init,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,init,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,init,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,init,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,init,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,init,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,skipLoop,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,collectBlocks,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,collectBlocks,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,collectBlocks,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,collectBlocks,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,collectBlocks,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,collectBlocks,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,collectBlocks,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,collectBlocks,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,collectBlocks,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,collectBlocks,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,collectBlocks,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,collectBlocks,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,collectBlocks,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,performRayCast,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,performRayCast,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,performRayCast,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,performRayCast,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,performRayCast,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,performRayCast,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,performRayCast,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,performRayCast,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,performRayCast,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,performRayCast,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,performRayCast,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,performRayCast,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,performRayCast,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,performRayCast,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,traverseBlock,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,traverseBlock,Complex Method
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,traverseBlock,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,traverseBlock,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,traverseBlock,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,traverseBlock,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,traverseBlock,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,traverseBlock,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.explosions.block_raycast,ExplosionMixin,traverseBlock,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.game_events.dispatch,GameEventDispatchManagerMixin,handleNullDispatcher,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.game_events.dispatch,GameEventDispatchManagerMixin,handleNullDispatcher,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.game_events.dispatch,GameEventDispatchManagerMixin,handleNullDispatcher,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.game_events.dispatch,GameEventDispatchManagerMixin,handleNullDispatcher,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.game_events.dispatch,GameEventDispatchManagerMixin,handleNullDispatcher,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.game_events.dispatch,WorldChunkMixin,WorldChunkMixin,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.game_events.dispatch,WorldChunkMixin,replaceWithNullMap,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.game_events.dispatch,WorldChunkMixin,initializeCollection,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.game_events.dispatch,WorldChunkMixin,updateGameEventDispatcherStorage,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.game_events.dispatch,WorldChunkMixin,updateGameEventDispatcherStorage,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.inline_block_access,WorldChunkMixin,WorldChunkMixin,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.inline_block_access,WorldChunkMixin,getBlockState,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.inline_block_access,WorldChunkMixin,getBlockState,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.inline_block_access,WorldChunkMixin,getBlockState,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.inline_block_access,WorldChunkMixin,getFluidState,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.inline_block_access,WorldChunkMixin,getFluidState,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.inline_block_access,WorldChunkMixin,getFluidState,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.inline_block_access,WorldMixin,getBlockState,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.world.inline_block_access,WorldMixin,getBlockState,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.inline_block_access,WorldMixin,getBlockState,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.inline_block_access,WorldMixin,getBlockState,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.inline_block_access,WorldMixin,getBlockState,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.inline_height,WorldMixin,initHeightCache,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.inline_height,WorldMixin,countVerticalSections,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.inline_height,WorldMixin,countVerticalSections,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.inline_height,WorldMixin,getBottomSectionCoord,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.inline_height,WorldMixin,getTopSectionCoord,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.inline_height,WorldMixin,getSectionIndex,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.inline_height,WorldMixin,getSectionIndex,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.inline_height,WorldMixin,sectionCoordToIndex,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.inline_height,WorldMixin,sectionIndexToCoord,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.raycast,BlockViewMixin,raycastBlock,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.raycast,BlockViewMixin,raycast,Long Parameter List
+java,me.jellysquid.mods.lithium.mixin.world.raycast,BlockViewMixin,raycast,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.tick_scheduler,ChunkTickSchedulerMixin,tickToInt,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.tick_scheduler,ChunkTickSchedulerMixin,tickToInt,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.tick_scheduler,ChunkTickSchedulerMixin,tickToInt,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.tick_scheduler,ChunkTickSchedulerMixin,tickToInt,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.tick_scheduler,ChunkTickSchedulerMixin,tickToInt,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.tick_scheduler,ChunkTickSchedulerMixin,tickToInt,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.tick_scheduler,ChunkTickSchedulerMixin,fixMissingType2Index,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.tick_scheduler,ChunkTickSchedulerMixin,fixMissingType2Index,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.tick_scheduler,ChunkTickSchedulerMixin,getBucketKey,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.tick_scheduler,ChunkTickSchedulerMixin,getBucketKey,Magic Number
+java,me.jellysquid.mods.lithium.mixin.world.tick_scheduler,ChunkTickSchedulerMixin,updateNextTickQueue,Complex Conditional
+java,me.jellysquid.mods.lithium.mixin.world.tick_scheduler,ChunkTickSchedulerMixin,queueTick,Long Statement
+java,me.jellysquid.mods.lithium.mixin.world.tick_scheduler,ChunkTickSchedulerMixin,removeTicksIf,Long Statement

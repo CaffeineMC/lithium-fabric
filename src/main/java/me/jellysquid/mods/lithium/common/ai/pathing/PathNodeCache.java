@@ -30,16 +30,7 @@ public abstract class PathNodeCache {
         return ((BlockStatePathingCache) state).lithium$getNeighborPathNodeType();
     }
 
-    /**
-     * Returns whether a chunk section is free of dangers. This makes use of a caching layer to greatly
-     * accelerate neighbor danger checks when path-finding.
-     *
-     * @param section The chunk section to test for dangers
-     * @return True if this neighboring section is free of any dangers, otherwise false if it could
-     * potentially contain dangers
-     */
     public static boolean isSectionSafeAsNeighbor(ChunkSection section) {
-        // Empty sections can never contribute a danger
         if (section.isEmpty()) {
             return true;
         }
@@ -50,32 +41,26 @@ public abstract class PathNodeCache {
         return !isChunkSectionDangerousNeighbor(section);
     }
 
-
-    public static PathNodeType getNodeTypeFromNeighbors(PathContext context, int x, int y, int z, PathNodeType fallback) {
+    //REFACTORING
+    public static PathNodeType getNodeTypeFromNeighbors(PathContext context, NodePosition pos, PathNodeType fallback) {
         BlockView world = context.getWorld();
+        int x = pos.getX();
+        int y = pos.getY();
+        int z = pos.getZ();
 
         ChunkSection section = null;
 
-        // Check that all the block's neighbors are within the same chunk column. If so, we can isolate all our block
-        // reads to just one chunk and avoid hits against the server chunk manager.
         if (world instanceof ChunkView chunkView && WorldHelper.areNeighborsWithinSameChunkSection(x, y, z)) {
-            // If the y-coordinate is within bounds, we can cache the chunk section. Otherwise, the if statement to check
-            // if the cached chunk section was initialized will early-exit.
             if (!world.isOutOfHeightLimit(y)) {
                 Chunk chunk = chunkView.lithium$getLoadedChunk(Pos.ChunkCoord.fromBlockCoord(x), Pos.ChunkCoord.fromBlockCoord(z));
 
-                // If the chunk is absent, the cached section above will remain null, as there is no chunk section anyway.
-                // An empty chunk or section will never pose any danger sources, which will be caught later.
                 if (chunk != null) {
                     section = chunk.getSectionArray()[Pos.SectionYIndex.fromBlockCoord(world, y)];
                 }
             }
 
-            // If we can guarantee that blocks won't be modified while the cache is active, try to see if the chunk
-            // section is empty or contains any dangerous blocks within the palette. If not, we can assume any checks
-            // against this chunk section will always fail, allowing us to fast-exit.
             if (section == null || PathNodeCache.isSectionSafeAsNeighbor(section)) {
-                return fallback; //TODO side effects of vanilla's path node caching
+                return fallback;
             }
         }
 
@@ -87,24 +72,20 @@ public abstract class PathNodeCache {
         int yEnd = y + 1;
         int zEnd = z + 1;
 
-        // Vanilla iteration order is XYZ
         for (int adjX = xStart; adjX <= xEnd; adjX++) {
             for (int adjY = yStart; adjY <= yEnd; adjY++) {
                 for (int adjZ = zStart; adjZ <= zEnd; adjZ++) {
-                    // Skip the vertical column of the origin block
                     if (adjX == x && adjZ == z) {
                         continue;
                     }
 
                     BlockState state;
 
-                    // If we're not accessing blocks outside a given section, we can greatly accelerate block state
-                    // retrieval by calling upon the cached chunk directly.
                     if (section != null) {
                         state = section.getBlockState(adjX & 15, adjY & 15, adjZ & 15);
                     } else {
-                        BlockPos.Mutable pos = ((PathContextAccessor) context).getLastNodePos().set(adjX, adjY, adjZ);
-                        state = world.getBlockState(pos);
+                        BlockPos.Mutable posMut = ((PathContextAccessor) context).getLastNodePos().set(adjX, adjY, adjZ);
+                        state = world.getBlockState(posMut);
                     }
 
                     if (state.isAir()) {
@@ -113,10 +94,8 @@ public abstract class PathNodeCache {
 
                     PathNodeType neighborType = PathNodeCache.getNeighborPathNodeType(state);
 
-                    if (neighborType == null) { //Here null means that no path node type is cached (uninitialized or dynamic)
-                        //Passing null as previous node type to the method signals to other lithium mixins that we only want the neighbor behavior of this block and not its neighbors
+                    if (neighborType == null) {
                         neighborType = LandPathNodeMaker.getNodeTypeFromNeighbors(context, adjX + 1, adjY + 1, adjZ + 1, null);
-                        //Here null means that the path node type is not changed by the block!
                         if (neighborType == null) {
                             neighborType = PathNodeType.OPEN;
                         }
@@ -130,5 +109,6 @@ public abstract class PathNodeCache {
 
         return fallback;
     }
-
 }
+
+
