@@ -116,7 +116,7 @@ public abstract class FlowableFluidMixin {
             byte blockIndex = indexFromDiamondXZOffset(pos, flowTargetPos, searchRadius);
             BlockState flowTargetBlock = world.getBlockState(flowTargetPos);
             blockStateCache[blockIndex] = flowTargetBlock;
-            if (this.canMaybeFlowIntoBlock(world, flowTargetBlock)) {
+            if (this.canMaybeFlowIntoBlock(world, flowTargetBlock, flowTargetPos)) {
                 if (onlyPossibleFlowDirection == null) {
                     onlyPossibleFlowDirection = flowDirection;
                     onlyBlockPos = flowTargetPos;
@@ -287,10 +287,10 @@ public abstract class FlowableFluidMixin {
      * Fast check to eliminate some choices for the flow direction
      */
     @Unique
-    private boolean canMaybeFlowIntoBlock(World world, BlockState blockState) {
+    private boolean canMaybeFlowIntoBlock(World world, BlockState blockState, BlockPos flowTargetPos) {
         //TODO maybe use this in more places
         //TODO maybe use the blockstate predicate system
-        return canFill(world, null, blockState, this.getStill());
+        return canFill(world, flowTargetPos, blockState, this.getStill());
     }
 
     @Unique
