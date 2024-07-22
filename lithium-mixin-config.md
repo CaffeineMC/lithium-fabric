@@ -616,7 +616,7 @@ Various improvements to explosions.
 Various improvements to explosion block damage, e.g. not accessing blocks along an explosion ray multiple times  
   
 ### `mixin.world.explosions.cache_exposure`
-(default: `false`)  
+(default: `true`)  
 Caches entity explosion exposure to avoid duplicate calculations.  
   
 ### `mixin.world.game_events`
