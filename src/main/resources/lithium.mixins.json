@@ -55,6 +55,7 @@
     "block.fluid.flow.FlowableFluidMixin",
     "block.hopper.AbstractMinecartEntityMixin",
     "block.hopper.ChestBoatEntityMixin",
+    "block.hopper.ChiseledBookshelfBlockEntityMixin",
     "block.hopper.ComposterMixin$ComposterBlockComposterInventoryMixin",
     "block.hopper.ComposterMixin$ComposterBlockDummyInventoryMixin",
     "block.hopper.ComposterMixin$ComposterBlockFullComposterInventoryMixin",

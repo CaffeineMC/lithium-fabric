@@ -1,5 +1,6 @@
 package me.jellysquid.mods.lithium.common.hopper;
 
+import me.jellysquid.mods.lithium.api.inventory.LithiumTransferConditionInventory;
 import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.block.entity.LootableContainerBlockEntity;
 import net.minecraft.inventory.DoubleInventory;
@@ -13,19 +14,27 @@ import org.jetbrains.annotations.Nullable;
 public class HopperHelper {
 
     public static boolean tryMoveSingleItem(Inventory to, ItemStack stack, @Nullable Direction fromDirection) {
+        ItemStack transferChecker;
+        if (((LithiumTransferConditionInventory) to).lithium$itemInsertionTestRequiresStackSize1()) {
+            transferChecker = stack.copy();
+            transferChecker.setCount(1);
+        } else {
+            transferChecker = stack;
+        }
+
         SidedInventory toSided = to instanceof SidedInventory ? ((SidedInventory) to) : null;
         if (toSided != null && fromDirection != null) {
             int[] slots = toSided.getAvailableSlots(fromDirection);
 
             for(int slotIndex = 0; slotIndex < slots.length; ++slotIndex) {
-                if (tryMoveSingleItem(to, toSided, stack, slots[slotIndex], fromDirection)) {
+                if (tryMoveSingleItem(to, toSided, stack, transferChecker, slots[slotIndex], fromDirection)) {
                     return true; //caller needs to take the item from the original inventory and call to.markDirty()
                 }
             }
         } else {
             int j = to.size();
             for(int slot = 0; slot < j; ++slot) {
-                if (tryMoveSingleItem(to, toSided, stack, slot, fromDirection)) {
+                if (tryMoveSingleItem(to, toSided, stack, transferChecker, slot, fromDirection)) {
                     return true; //caller needs to take the item from the original inventory and call to.markDirty()
                 }
             }
@@ -33,10 +42,9 @@ public class HopperHelper {
         return false;
     }
 
-    public static boolean tryMoveSingleItem(Inventory to, @Nullable SidedInventory toSided, ItemStack transferStack, int targetSlot, @Nullable Direction fromDirection) {
+    public static boolean tryMoveSingleItem(Inventory to, @Nullable SidedInventory toSided, ItemStack transferStack, ItemStack transferChecker, int targetSlot, @Nullable Direction fromDirection) {
         ItemStack toStack = to.getStack(targetSlot);
-        //Assumption: no mods depend on the stack size of transferStack in isValid or canInsert, like vanilla doesn't
-        if (to.isValid(targetSlot, transferStack) && (toSided == null || toSided.canInsert(targetSlot, transferStack, fromDirection))) {
+        if (to.isValid(targetSlot, transferChecker) && (toSided == null || toSided.canInsert(targetSlot, transferChecker, fromDirection))) {
             int toCount;
             if (toStack.isEmpty()) {
                 ItemStack singleItem = transferStack.split(1);
