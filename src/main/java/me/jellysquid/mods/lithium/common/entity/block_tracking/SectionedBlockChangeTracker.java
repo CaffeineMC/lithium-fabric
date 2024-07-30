@@ -23,7 +23,7 @@ public class SectionedBlockChangeTracker {
     private long maxChangeTime;
 
     private int timesRegistered;
-    //Some sections may not exist / be unloaded. We have to be aware of those. //TODO Invalidation when sections / chunks unload (but the entity does not (?), not sure whether this is possible)
+    //Some sections may not exist / be unloaded. We have to be aware of those. //TODO Invalidation when sections / chunks unload (but the entity does not (?), not sure whether this is possible) -> might be possible with entities riding lazy loaded vehicles and pushed to different chunks
     boolean isListeningToAll = false;
     private ArrayList<ChunkSectionPos> sectionsNotListeningTo = null;
     private ArrayList<BlockListeningSection> sectionsUnsubscribed = null;
