@@ -19,7 +19,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -38,8 +37,6 @@ public abstract class FlowableFluidMixin {
     @Shadow
     public abstract Fluid getFlowing();
 
-    @Shadow
-    protected abstract int getFlowSpeed(WorldView world);
 
     /*
      * getSpread:
@@ -68,9 +65,8 @@ public abstract class FlowableFluidMixin {
     @Shadow
     protected abstract boolean receivesFlow(Direction face, BlockView world, BlockPos pos, BlockState state, BlockPos fromPos, BlockState fromState);
 
-
     @Shadow
-    protected abstract void flow(WorldAccess world, BlockPos pos, BlockState state, Direction direction, FluidState fluidState);
+    protected abstract int getMaxFlowDistance(WorldView world);
 
     @Unique
     private static int getNumIndicesFromRadius(int radius) {
@@ -99,7 +95,7 @@ public abstract class FlowableFluidMixin {
         // otherwise just handle the single possible direction
 
         Map<Direction, FluidState> flowResultByDirection = Maps.newEnumMap(Direction.class);
-        int searchRadius = this.getFlowSpeed(world) + 1;
+        int searchRadius = this.getMaxFlowDistance(world) + 1;
         int numIndicesFromRadius = getNumIndicesFromRadius(searchRadius);
         if (numIndicesFromRadius > 256) {
             //We use bytes to represent the indices, which works with vanilla search radius of up to 5
@@ -177,7 +173,7 @@ public abstract class FlowableFluidMixin {
         Byte2ByteOpenHashMap currentPositions = new Byte2ByteOpenHashMap();
         Byte2BooleanOpenHashMap holeCache = new Byte2BooleanOpenHashMap();
         byte holeAccess = 0;
-        int searchRadius = this.getFlowSpeed(world) + 1;
+        int searchRadius = this.getMaxFlowDistance(world) + 1;
 
         //Like vanilla, the first iteration is separate, because getUpdatedState is called to check whether a
         // renewable fluid source block is created in the flow direction.
@@ -203,7 +199,7 @@ public abstract class FlowableFluidMixin {
 
         //Iterate over the positions and find the shortest path to the center
         //If a hole is found, stop the iteration
-        for (int i = 0; i < this.getFlowSpeed(world) && holeAccess == 0; i++) {
+        for (int i = 0; i < this.getMaxFlowDistance(world) && holeAccess == 0; i++) {
             Fluid targetFluid = this.getFlowing();
             for (ObjectIterator<Byte2ByteMap.Entry> iterator = prevPositions.byte2ByteEntrySet().fastIterator(); iterator.hasNext(); ) {
                 Byte2ByteMap.Entry entry = iterator.next();
