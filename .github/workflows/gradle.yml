@@ -1,29 +1,36 @@
-name: gradle-ci
+name: Build CI
 
 on: [ push ]
 
 jobs:
-  build:
-      runs-on: ubuntu-latest
+    Build:
+        runs-on: ubuntu-latest
 
-      steps:
-          -   uses: actions/checkout@v2
-          -   name: Set up JDK 21
-              uses: actions/setup-java@v2
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Setup JDK 21
+              uses: actions/setup-java@v4
               with:
-                  distribution: 'adopt'
+                  distribution: adopt
                   java-version: 21
-          -   name: Grant execute permission for gradlew
+
+            - name: Setup Gradle
+              uses: gradle/actions/setup-gradle@v4
+
+            - name: Grant execute permission for gradlew
               run: chmod +x gradlew
-          -   name: Build with Gradle
+
+            - name: Build with Gradle
               run: ./gradlew build
 
-          -   name: run test server
+            - name: Run Test Server
               timeout-minutes: 5
               run: ./gradlew runAutoTestServer
 
-          -   name: Upload build artifacts
-              uses: actions/upload-artifact@v1
+            - name: Upload Build Artifacts
+              uses: actions/upload-artifact@v4
               with:
                   name: build-artifacts
                   path: build/libs
