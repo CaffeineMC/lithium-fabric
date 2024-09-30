@@ -1,9 +1,9 @@
 package me.jellysquid.mods.lithium.common.shapes;
 
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelSet;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
 
-public class CuboidVoxelSet extends VoxelSet {
+public class CuboidVoxelSet extends DiscreteVoxelShape {
     private final int minX, minY, minZ, maxX, maxY, maxZ;
 
     protected CuboidVoxelSet(int xSize, int ySize, int zSize, double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
@@ -18,24 +18,24 @@ public class CuboidVoxelSet extends VoxelSet {
     }
 
     @Override
-    public boolean contains(int x, int y, int z) {
+    public boolean isFull(int x, int y, int z) {
         return x >= this.minX && x < this.maxX &&
                 y >= this.minY && y < this.maxY &&
                 z >= this.minZ && z < this.maxZ;
     }
 
     @Override
-    public void set(int x, int y, int z) {
+    public void fill(int x, int y, int z) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public int getMin(Direction.Axis axis) {
+    public int firstFull(Direction.Axis axis) {
         return axis.choose(this.minX, this.minY, this.minZ);
     }
 
     @Override
-    public int getMax(Direction.Axis axis) {
+    public int lastFull(Direction.Axis axis) {
         return axis.choose(this.maxX, this.maxY, this.maxZ);
     }
 

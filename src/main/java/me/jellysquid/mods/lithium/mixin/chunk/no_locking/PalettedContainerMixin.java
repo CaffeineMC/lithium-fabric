@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.chunk.no_locking;
 
-import net.minecraft.util.thread.LockHelper;
-import net.minecraft.world.chunk.PalettedContainer;
+import net.minecraft.util.ThreadingDetector;
+import net.minecraft.world.level.chunk.PalettedContainer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -31,18 +31,18 @@ public class PalettedContainerMixin {
     @Shadow
     @Final
     @Mutable
-    private LockHelper lockHelper;
+    private ThreadingDetector threadingDetector;
 
     @Inject(
             method = {
-                    "<init>(Lnet/minecraft/util/collection/IndexedIterable;Ljava/lang/Object;Lnet/minecraft/world/chunk/PalettedContainer$PaletteProvider;)V",
-                    "<init>(Lnet/minecraft/util/collection/IndexedIterable;Lnet/minecraft/world/chunk/PalettedContainer$PaletteProvider;Lnet/minecraft/world/chunk/PalettedContainer$Data;)V",
-                    "<init>(Lnet/minecraft/util/collection/IndexedIterable;Lnet/minecraft/world/chunk/PalettedContainer$PaletteProvider;Lnet/minecraft/world/chunk/PalettedContainer$DataProvider;Lnet/minecraft/util/collection/PaletteStorage;Ljava/util/List;)V",
+                    "<init>(Lnet/minecraft/core/IdMap;Ljava/lang/Object;Lnet/minecraft/world/level/chunk/PalettedContainer$Strategy;)V",
+                    "<init>(Lnet/minecraft/core/IdMap;Lnet/minecraft/world/level/chunk/PalettedContainer$Strategy;Lnet/minecraft/world/level/chunk/PalettedContainer$Configuration;Lnet/minecraft/util/BitStorage;Ljava/util/List;)V",
+                    "<init>(Lnet/minecraft/core/IdMap;Lnet/minecraft/world/level/chunk/PalettedContainer$Strategy;Lnet/minecraft/world/level/chunk/PalettedContainer$Data;)V",
             },
             at = @At("TAIL")
     )
     public void removeLockHelper(CallbackInfo ci) {
-        this.lockHelper = null;
+        this.threadingDetector = null;
     }
 
     /**
@@ -50,7 +50,7 @@ public class PalettedContainerMixin {
      * @author JellySquid
      */
     @Overwrite
-    public void lock() {
+    public void acquire() {
 
     }
 
@@ -59,7 +59,7 @@ public class PalettedContainerMixin {
      * @author JellySquid
      */
     @Overwrite
-    public void unlock() {
+    public void release() {
 
     }
 }

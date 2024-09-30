@@ -3,11 +3,10 @@ package me.jellysquid.mods.lithium.common.entity.movement_tracker;
 import me.jellysquid.mods.lithium.common.util.tuples.WorldSectionBox;
 import me.jellysquid.mods.lithium.common.world.LithiumData;
 import me.jellysquid.mods.lithium.mixin.block.hopper.EntityTrackingSectionAccessor;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.collection.TypeFilterableList;
-import net.minecraft.util.math.Box;
-
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ClassInstanceMultiMap;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.AABB;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +16,7 @@ public class SectionedItemEntityMovementTracker<S extends Entity> extends Sectio
         super(worldSectionBox, clazz);
     }
 
-    public static <S extends Entity> SectionedItemEntityMovementTracker<S> registerAt(ServerWorld world, Box interactionArea, Class<S> clazz) {
+    public static <S extends Entity> SectionedItemEntityMovementTracker<S> registerAt(ServerLevel world, AABB interactionArea, Class<S> clazz) {
         WorldSectionBox worldSectionBox = WorldSectionBox.entityAccessBox(world, interactionArea);
         SectionedItemEntityMovementTracker<S> tracker = new SectionedItemEntityMovementTracker<>(worldSectionBox, clazz);
         tracker = ((LithiumData) world).lithium$getData().entityMovementTrackers().getCanonical(tracker);
@@ -26,16 +25,16 @@ public class SectionedItemEntityMovementTracker<S extends Entity> extends Sectio
         return tracker;
     }
 
-    public List<S> getEntities(Box interactionArea) {
+    public List<S> getEntities(AABB interactionArea) {
         ArrayList<S> entities = new ArrayList<>();
         for (int sectionIndex = 0; sectionIndex < this.sortedSections.size(); sectionIndex++) {
             if (this.sectionVisible[sectionIndex]) {
                 //noinspection unchecked
-                TypeFilterableList<S> collection = ((EntityTrackingSectionAccessor<S>) this.sortedSections.get(sectionIndex)).getCollection();
+                ClassInstanceMultiMap<S> collection = ((EntityTrackingSectionAccessor<S>) this.sortedSections.get(sectionIndex)).getCollection();
 
-                for (S entity : collection.getAllOfType(this.clazz)) {
+                for (S entity : collection.find(this.clazz)) {
                     if (entity.isAlive()) {
-                        Box entityBoundingBox = entity.getBoundingBox();
+                        AABB entityBoundingBox = entity.getBoundingBox();
                         if (entityBoundingBox.intersects(interactionArea)) {
                             entities.add(entity);
                         }

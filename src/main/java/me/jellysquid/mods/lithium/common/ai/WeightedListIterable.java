@@ -1,8 +1,7 @@
 package me.jellysquid.mods.lithium.common.ai;
 
-import net.minecraft.util.collection.WeightedList;
-
 import java.util.Iterator;
+import net.minecraft.world.entity.ai.behavior.ShufflingList;
 
 public interface WeightedListIterable<U> extends Iterable<U> {
     /**
@@ -15,20 +14,20 @@ public interface WeightedListIterable<U> extends Iterable<U> {
      * of streams, providing a speed-up in other areas of the game.
      */
     @SuppressWarnings("unchecked")
-    static <T> Iterable<? extends T> cast(WeightedList<T> list) {
+    static <T> Iterable<? extends T> cast(ShufflingList<T> list) {
         return ((WeightedListIterable<T>) list);
     }
 
     /**
-     * A wrapper type for an iterator over the entries of a {@link WeightedList} which de-references the contained
+     * A wrapper type for an iterator over the entries of a {@link ShufflingList} which de-references the contained
      * values for consumers.
      *
      * @param <U> The value type stored in each list entry
      */
     class ListIterator<U> implements Iterator<U> {
-        private final Iterator<WeightedList.Entry<? extends U>> inner;
+        private final Iterator<ShufflingList.WeightedEntry<? extends U>> inner;
 
-        public ListIterator(Iterator<WeightedList.Entry<? extends U>> inner) {
+        public ListIterator(Iterator<ShufflingList.WeightedEntry<? extends U>> inner) {
             this.inner = inner;
         }
 
@@ -39,7 +38,7 @@ public interface WeightedListIterable<U> extends Iterable<U> {
 
         @Override
         public U next() {
-            return this.inner.next().getElement();
+            return this.inner.next().getData();
         }
     }
 }

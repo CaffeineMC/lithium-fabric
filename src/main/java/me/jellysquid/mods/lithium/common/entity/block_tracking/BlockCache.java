@@ -2,18 +2,18 @@ package me.jellysquid.mods.lithium.common.entity.block_tracking;
 
 import it.unimi.dsi.fastutil.objects.Reference2DoubleArrayMap;
 import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.math.Box;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.phys.AABB;
 
 public final class BlockCache {
     // To avoid slowing down setblock operations, only start caching after 1.5 Seconds = 30 gameticks with estimated 6 accesses per tick
     private static final int MIN_DELAY = 30 * 6;
     private int initDelay; //Changing MIN_DELAY should not affect correctness, just performance in some cases
 
-    private Box trackedPos;
+    private AABB trackedPos;
     private SectionedBlockChangeTracker tracker;
     private long trackingSince;
 
@@ -45,13 +45,13 @@ public final class BlockCache {
         if (this.isTracking()) {
             throw new IllegalStateException("Cannot init cache that is already initialized!");
         }
-        this.tracker = SectionedBlockChangeTracker.registerAt(entity.getWorld(), entity.getBoundingBox(), BlockStateFlags.ANY);
+        this.tracker = SectionedBlockChangeTracker.registerAt(entity.level(), entity.getBoundingBox(), BlockStateFlags.ANY);
         this.initDelay = 0;
         this.resetCachedInfo();
     }
     public void updateCache(Entity entity) {
         if (this.isTracking() || this.initDelay >= MIN_DELAY) {
-            Box boundingBox = entity.getBoundingBox();
+            AABB boundingBox = entity.getBoundingBox();
             if (boundingBox.equals(this.trackedPos)) {
                 if (!this.isTracking()) {
                     this.initTracking(entity);
@@ -70,7 +70,7 @@ public final class BlockCache {
         }
     }
 
-    public void resetTrackedPos(Box boundingBox) {
+    public void resetTrackedPos(AABB boundingBox) {
         this.trackedPos = boundingBox;
         this.initDelay = 0;
         this.resetCachedInfo();

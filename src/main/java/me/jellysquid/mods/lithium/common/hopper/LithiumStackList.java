@@ -5,15 +5,15 @@ import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.
 import me.jellysquid.mods.lithium.common.util.change_tracking.ChangePublisher;
 import me.jellysquid.mods.lithium.common.util.change_tracking.ChangeSubscriber;
 import me.jellysquid.mods.lithium.mixin.block.hopper.DefaultedListAccessor;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.core.NonNullList;
+import net.minecraft.util.Mth;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class LithiumStackList extends DefaultedList<ItemStack> implements LithiumDefaultedList, ChangeSubscriber.CountChangeSubscriber<ItemStack> {
+public class LithiumStackList extends NonNullList<ItemStack> implements LithiumDefaultedList, ChangeSubscriber.CountChangeSubscriber<ItemStack> {
     final int maxCountPerStack;
 
     protected int cachedSignalStrength;
@@ -29,7 +29,7 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
 
     InventoryChangeTracker inventoryModificationCallback;
 
-    public LithiumStackList(DefaultedList<ItemStack> original, int maxCountPerStack) {
+    public LithiumStackList(NonNullList<ItemStack> original, int maxCountPerStack) {
         //noinspection unchecked
         super(((DefaultedListAccessor<ItemStack>) original).getDelegate(), ItemStack.EMPTY);
         this.maxCountPerStack = maxCountPerStack;
@@ -46,7 +46,7 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
             ItemStack stack = this.get(i);
             if (!stack.isEmpty()) {
                 this.occupiedSlots++;
-                if (stack.getMaxCount() <= stack.getCount()) {
+                if (stack.getMaxStackSize() <= stack.getCount()) {
                     this.fullSlots++;
                 }
                 //noinspection unchecked
@@ -80,7 +80,7 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
             ItemStack stack = this.get(i);
             if (!stack.isEmpty()) {
                 this.occupiedSlots++;
-                if (stack.getMaxCount() <= stack.getCount()) {
+                if (stack.getMaxStackSize() <= stack.getCount()) {
                     this.fullSlots++;
                 }
                 //noinspection unchecked
@@ -140,7 +140,7 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
             }
 
             this.occupiedSlots += (previous.isEmpty() ? 1 : 0) - (element.isEmpty() ? 1 : 0);
-            this.fullSlots += (element.getCount() >= element.getMaxCount() ? 1 : 0) - (previous.getCount() >= previous.getMaxCount() ? 1 : 0);
+            this.fullSlots += (element.getCount() >= element.getMaxStackSize() ? 1 : 0) - (previous.getCount() >= previous.getMaxStackSize() ? 1 : 0);
             this.changed();
         }
 
@@ -186,19 +186,19 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
         return this.signalStrengthOverride;
     }
 
-    public int getSignalStrength(Inventory inventory) {
+    public int getSignalStrength(Container inventory) {
         if (this.signalStrengthOverride) {
             return 0;
         }
         int signalStrength = this.cachedSignalStrength;
         if (signalStrength == -1) {
-            return this.cachedSignalStrength = this.calculateSignalStrength(inventory.size());
+            return this.cachedSignalStrength = this.calculateSignalStrength(inventory.getContainerSize());
         }
         return signalStrength;
     }
 
     /**
-     * [VanillaCopy] {@link net.minecraft.screen.ScreenHandler#calculateComparatorOutput(Inventory)}
+     * [VanillaCopy] {@link net.minecraft.world.inventory.AbstractContainerMenu#getRedstoneSignalFromContainer(Container)}
      *
      * @return the signal strength for this inventory
      */
@@ -210,13 +210,13 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
         for (int j = 0; j < inventorySize; ++j) {
             ItemStack itemStack = this.get(j);
             if (!itemStack.isEmpty()) {
-                f += (float) itemStack.getCount() / (float) Math.min(this.maxCountPerStack, itemStack.getMaxCount());
+                f += (float) itemStack.getCount() / (float) Math.min(this.maxCountPerStack, itemStack.getMaxStackSize());
                 ++i;
             }
         }
 
         f /= (float) inventorySize;
-        return MathHelper.floor(f * 14.0F) + (i > 0 ? 1 : 0);
+        return Mth.floor(f * 14.0F) + (i > 0 ? 1 : 0);
     }
 
     public void setReducedSignalStrengthOverride() {
@@ -232,7 +232,7 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
      * @param masterStackList the stacklist of the inventory that comparators read from (double inventory for double chests)
      * @param inventory       the blockentity / inventory that this stacklist is inside
      */
-    public void runComparatorUpdatePatternOnFailedExtract(LithiumStackList masterStackList, Inventory inventory) {
+    public void runComparatorUpdatePatternOnFailedExtract(LithiumStackList masterStackList, Container inventory) {
         if (inventory instanceof BlockEntity) {
             if (this.cachedComparatorUpdatePattern == null) {
                 this.cachedComparatorUpdatePattern = HopperHelper.determineComparatorUpdatePattern(inventory, masterStackList);
@@ -290,7 +290,7 @@ public class LithiumStackList extends DefaultedList<ItemStack> implements Lithiu
             //noinspection unchecked
             ((ChangePublisher<ItemStack>) (Object) stack).lithium$unsubscribeWithData(this, index);
         }
-        int maxCount = stack.getMaxCount();
+        int maxCount = stack.getMaxStackSize();
         this.occupiedSlots -= newCount <= 0 ? 1 : 0;
         this.fullSlots += (newCount >= maxCount ? 1 : 0) - (count >= maxCount ? 1 : 0);
 

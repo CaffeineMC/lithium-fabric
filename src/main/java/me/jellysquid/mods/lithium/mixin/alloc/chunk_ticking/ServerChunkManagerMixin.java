@@ -1,7 +1,5 @@
 package me.jellysquid.mods.lithium.mixin.alloc.chunk_ticking;
 
-import net.minecraft.server.world.ChunkHolder;
-import net.minecraft.server.world.ServerChunkManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -10,8 +8,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
 import java.util.function.BooleanSupplier;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ServerChunkCache;
 
-@Mixin(ServerChunkManager.class)
+@Mixin(ServerChunkCache.class)
 public class ServerChunkManagerMixin {
     private final ArrayList<ChunkHolder> cachedChunkList = new ArrayList<>();
 

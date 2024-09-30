@@ -4,11 +4,11 @@ import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import me.jellysquid.mods.lithium.common.ai.MemoryModificationCounter;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.brain.Brain;
-import net.minecraft.entity.ai.brain.MemoryModuleState;
-import net.minecraft.entity.ai.brain.MemoryModuleType;
-import net.minecraft.entity.ai.brain.task.MultiTickTask;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.behavior.Behavior;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,12 +16,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
 
-@Mixin(MultiTickTask.class)
+@Mixin(Behavior.class)
 public class MultiTickTaskMixin<E extends LivingEntity> {
     @Mutable
     @Shadow
     @Final
-    protected Map<MemoryModuleType<?>, MemoryModuleState> requiredMemoryStates;
+    protected Map<MemoryModuleType<?>, MemoryStatus> entryCondition;
 
     @Unique
     private long cachedMemoryModCount = -1;
@@ -29,8 +29,8 @@ public class MultiTickTaskMixin<E extends LivingEntity> {
     private boolean cachedHasRequiredMemoryState;
 
     @Inject(method = "<init>(Ljava/util/Map;II)V", at = @At("RETURN"))
-    private void init(Map<MemoryModuleType<?>, MemoryModuleState> map, int int_1, int int_2, CallbackInfo ci) {
-        this.requiredMemoryStates = new Reference2ObjectOpenHashMap<>(map);
+    private void init(Map<MemoryModuleType<?>, MemoryStatus> map, int int_1, int int_2, CallbackInfo ci) {
+        this.entryCondition = new Reference2ObjectOpenHashMap<>(map);
     }
 
     /**
@@ -38,7 +38,7 @@ public class MultiTickTaskMixin<E extends LivingEntity> {
      * @author 2No2Name
      */
     @Overwrite
-    public boolean hasRequiredMemoryState(E entity) {
+    public boolean hasRequiredMemories(E entity) {
         Brain<?> brain = entity.getBrain();
         long modCount = ((MemoryModificationCounter) brain).lithium$getModCount();
         if (this.cachedMemoryModCount == modCount) {
@@ -46,10 +46,10 @@ public class MultiTickTaskMixin<E extends LivingEntity> {
         }
         this.cachedMemoryModCount = modCount;
 
-        ObjectIterator<Reference2ObjectMap.Entry<MemoryModuleType<?>, MemoryModuleState>> fastIterator = ((Reference2ObjectOpenHashMap<MemoryModuleType<?>, MemoryModuleState>) this.requiredMemoryStates).reference2ObjectEntrySet().fastIterator();
+        ObjectIterator<Reference2ObjectMap.Entry<MemoryModuleType<?>, MemoryStatus>> fastIterator = ((Reference2ObjectOpenHashMap<MemoryModuleType<?>, MemoryStatus>) this.entryCondition).reference2ObjectEntrySet().fastIterator();
         while (fastIterator.hasNext()) {
-            Reference2ObjectMap.Entry<MemoryModuleType<?>, MemoryModuleState> entry = fastIterator.next();
-            if (!brain.isMemoryInState(entry.getKey(), entry.getValue())) {
+            Reference2ObjectMap.Entry<MemoryModuleType<?>, MemoryStatus> entry = fastIterator.next();
+            if (!brain.checkMemory(entry.getKey(), entry.getValue())) {
                 return this.cachedHasRequiredMemoryState = false;
             }
         }

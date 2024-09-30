@@ -1,12 +1,12 @@
 package me.jellysquid.mods.lithium.common.hopper;
 
 import me.jellysquid.mods.lithium.api.inventory.LithiumInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.ItemStack;
 
 public class InventoryHelper {
     public static LithiumStackList getLithiumStackList(LithiumInventory inventory) {
-        DefaultedList<ItemStack> stackList = inventory.getInventoryLithium();
+        NonNullList<ItemStack> stackList = inventory.getInventoryLithium();
         if (stackList instanceof LithiumStackList lithiumStackList) {
             return lithiumStackList;
         }
@@ -14,7 +14,7 @@ public class InventoryHelper {
     }
 
     public static LithiumStackList getLithiumStackListOrNull(LithiumInventory inventory) {
-        DefaultedList<ItemStack> stackList = inventory.getInventoryLithium();
+        NonNullList<ItemStack> stackList = inventory.getInventoryLithium();
         if (stackList instanceof LithiumStackList lithiumStackList) {
             return lithiumStackList;
         }
@@ -27,8 +27,8 @@ public class InventoryHelper {
         //when the hopper checks whether the inventory is empty or full
         inventory.generateLootLithium();
         //get the stack list after generating loot, just in case generating loot creates a new stack list
-        DefaultedList<ItemStack> stackList = inventory.getInventoryLithium();
-        LithiumStackList lithiumStackList = new LithiumStackList(stackList, inventory.getMaxCountPerStack());
+        NonNullList<ItemStack> stackList = inventory.getInventoryLithium();
+        LithiumStackList lithiumStackList = new LithiumStackList(stackList, inventory.getMaxStackSize());
         inventory.setInventoryLithium(lithiumStackList);
         return lithiumStackList;
     }

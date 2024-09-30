@@ -1,9 +1,9 @@
 package me.jellysquid.mods.lithium.common.world;
 
-import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.world.entity.Mob;
 
 public interface ServerWorldExtended {
-    void lithium$setNavigationActive(MobEntity mobEntity);
+    void lithium$setNavigationActive(Mob mobEntity);
 
-    void lithium$setNavigationInactive(MobEntity mobEntity);
+    void lithium$setNavigationInactive(Mob mobEntity);
 }

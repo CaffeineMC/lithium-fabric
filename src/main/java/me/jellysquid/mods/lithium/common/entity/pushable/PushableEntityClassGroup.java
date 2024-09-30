@@ -3,18 +3,18 @@ package me.jellysquid.mods.lithium.common.entity.pushable;
 import me.jellysquid.mods.lithium.common.entity.EntityClassGroup;
 import me.jellysquid.mods.lithium.common.reflection.ReflectionUtil;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.boss.dragon.EnderDragonEntity;
-import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.entity.passive.BatEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ambient.Bat;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.player.Player;
 
 public class PushableEntityClassGroup {
 
     /**
      * Contains Entity Classes that use {@link LivingEntity#isPushable()} ()} to determine their pushability state
-     * and use {@link LivingEntity#isClimbing()} to determine their climbing state and are never spectators (no players).
+     * and use {@link LivingEntity#onClimbable()} to determine their climbing state and are never spectators (no players).
      * <p>
      * LivingEntity, but not Players and not Subclasses with different pushability calculations
      */
@@ -32,7 +32,7 @@ public class PushableEntityClassGroup {
         String remapped_isPushable = FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_1297", "method_5810", "()Z");
         CACHABLE_UNPUSHABILITY = new EntityClassGroup(
                 (Class<?> entityClass) -> {
-                    if (LivingEntity.class.isAssignableFrom(entityClass) && !PlayerEntity.class.isAssignableFrom(entityClass)) {
+                    if (LivingEntity.class.isAssignableFrom(entityClass) && !Player.class.isAssignableFrom(entityClass)) {
                         if (!ReflectionUtil.hasMethodOverride(entityClass, LivingEntity.class, true, remapped_isPushable)) {
                             if (!ReflectionUtil.hasMethodOverride(entityClass, LivingEntity.class, true, remapped_isClimbing)) {
                                 return true;
@@ -44,18 +44,18 @@ public class PushableEntityClassGroup {
         MAYBE_PUSHABLE = new EntityClassGroup(
                 (Class<?> entityClass) -> {
                     if (ReflectionUtil.hasMethodOverride(entityClass, Entity.class, true, remapped_isPushable)) {
-                        if (EnderDragonEntity.class.isAssignableFrom(entityClass)) {
+                        if (EnderDragon.class.isAssignableFrom(entityClass)) {
                             return false;
                         }
-                        if (ArmorStandEntity.class.isAssignableFrom(entityClass)) {
-                            return ReflectionUtil.hasMethodOverride(entityClass, ArmorStandEntity.class, true, remapped_isPushable);
+                        if (ArmorStand.class.isAssignableFrom(entityClass)) {
+                            return ReflectionUtil.hasMethodOverride(entityClass, ArmorStand.class, true, remapped_isPushable);
                         }
-                        if (BatEntity.class.isAssignableFrom(entityClass)) {
-                            return ReflectionUtil.hasMethodOverride(entityClass, BatEntity.class, true, remapped_isPushable);
+                        if (Bat.class.isAssignableFrom(entityClass)) {
+                            return ReflectionUtil.hasMethodOverride(entityClass, Bat.class, true, remapped_isPushable);
                         }
                         return true;
                     }
-                    if (PlayerEntity.class.isAssignableFrom(entityClass)) {
+                    if (Player.class.isAssignableFrom(entityClass)) {
                         return true;
                     }
                     return false;

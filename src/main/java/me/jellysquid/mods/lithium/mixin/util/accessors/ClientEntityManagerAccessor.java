@@ -1,13 +1,13 @@
 package me.jellysquid.mods.lithium.mixin.util.accessors;
 
-import net.minecraft.world.entity.ClientEntityManager;
-import net.minecraft.world.entity.EntityLike;
-import net.minecraft.world.entity.SectionedEntityCache;
+import net.minecraft.world.level.entity.EntityAccess;
+import net.minecraft.world.level.entity.EntitySectionStorage;
+import net.minecraft.world.level.entity.TransientEntitySectionManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(ClientEntityManager.class)
-public interface ClientEntityManagerAccessor<T extends EntityLike> {
-    @Accessor
-    SectionedEntityCache<T> getCache();
+@Mixin(TransientEntitySectionManager.class)
+public interface ClientEntityManagerAccessor<T extends EntityAccess> {
+    @Accessor("sectionStorage")
+    EntitySectionStorage<T> getCache();
 }

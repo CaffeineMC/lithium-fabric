@@ -2,11 +2,11 @@ package me.jellysquid.mods.lithium.mixin.entity.inactive_navigations;
 
 import me.jellysquid.mods.lithium.common.entity.NavigatingEntity;
 import me.jellysquid.mods.lithium.common.world.ServerWorldExtended;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ai.pathing.EntityNavigation;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -15,16 +15,16 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(MobEntity.class)
+@Mixin(Mob.class)
 public abstract class MobEntityMixin extends Entity implements NavigatingEntity {
-    private EntityNavigation registeredNavigation;
+    private PathNavigation registeredNavigation;
 
-    public MobEntityMixin(EntityType<?> type, World world) {
+    public MobEntityMixin(EntityType<?> type, Level world) {
         super(type, world);
     }
 
     @Shadow
-    public abstract EntityNavigation getNavigation();
+    public abstract PathNavigation getNavigation();
 
     @Override
     public boolean lithium$isRegisteredToWorld() {
@@ -32,16 +32,16 @@ public abstract class MobEntityMixin extends Entity implements NavigatingEntity 
     }
 
     @Override
-    public void lithium$setRegisteredToWorld(EntityNavigation navigation) {
+    public void lithium$setRegisteredToWorld(PathNavigation navigation) {
         this.registeredNavigation = navigation;
     }
 
     @Override
-    public EntityNavigation lithium$getRegisteredNavigation() {
+    public PathNavigation lithium$getRegisteredNavigation() {
         return this.registeredNavigation;
     }
 
-    @Inject(method = "startRiding(Lnet/minecraft/entity/Entity;Z)Z", at = @At("RETURN"))
+    @Inject(method = "startRiding(Lnet/minecraft/world/entity/Entity;Z)Z", at = @At("RETURN"))
     private void onNavigationReplacement(Entity entity, boolean force, CallbackInfoReturnable<Boolean> cir) {
         this.lithium$updateNavigationRegistration();
     }
@@ -61,13 +61,13 @@ public abstract class MobEntityMixin extends Entity implements NavigatingEntity 
     @Override
     public void lithium$updateNavigationRegistration() {
         if (this.lithium$isRegisteredToWorld()) {
-            EntityNavigation navigation = this.getNavigation();
+            PathNavigation navigation = this.getNavigation();
             if (this.registeredNavigation != navigation) {
-                ((ServerWorldExtended) this.getWorld()).lithium$setNavigationInactive((MobEntity) (Object) this);
+                ((ServerWorldExtended) this.level()).lithium$setNavigationInactive((Mob) (Object) this);
                 this.registeredNavigation = navigation;
 
-                if (navigation.getCurrentPath() != null) {
-                    ((ServerWorldExtended) this.getWorld()).lithium$setNavigationActive((MobEntity) (Object) this);
+                if (navigation.getPath() != null) {
+                    ((ServerWorldExtended) this.level()).lithium$setNavigationActive((Mob) (Object) this);
                 }
             }
         }

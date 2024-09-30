@@ -1,12 +1,12 @@
 package me.jellysquid.mods.lithium.common.world;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 public interface ChunkRandomSource {
     /**
-     * Alternative implementation of {@link World#getRandomPosInChunk(int, int, int, int)} which does not allocate
+     * Alternative implementation of {@link Level#getBlockRandomPos(int, int, int, int)} which does not allocate
      * a new {@link BlockPos}.
      */
-    void lithium$getRandomPosInChunk(int x, int y, int z, int mask, BlockPos.Mutable out);
+    void lithium$getRandomPosInChunk(int x, int y, int z, int mask, BlockPos.MutableBlockPos out);
 }

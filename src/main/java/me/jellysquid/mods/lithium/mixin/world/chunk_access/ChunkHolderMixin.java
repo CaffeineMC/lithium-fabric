@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.world.chunk_access;
 
 import me.jellysquid.mods.lithium.common.world.chunk.ChunkHolderExtended;
-import net.minecraft.server.world.ChunkHolder;
+import net.minecraft.server.level.ChunkHolder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 

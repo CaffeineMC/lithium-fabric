@@ -2,16 +2,16 @@ package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.cam
 
 import me.jellysquid.mods.lithium.common.block.entity.SleepingBlockEntity;
 import me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.WrappedBlockEntityTickInvokerAccessor;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.CampfireBlockEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.BlockEntityTickInvoker;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.CampfireBlockEntity;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class CampfireBlockEntityMixin extends BlockEntity implements SleepingBlockEntity {
 
     private WrappedBlockEntityTickInvokerAccessor tickWrapper = null;
-    private BlockEntityTickInvoker sleepingTicker = null;
+    private TickingBlockEntity sleepingTicker = null;
 
     public CampfireBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -40,29 +40,29 @@ public class CampfireBlockEntityMixin extends BlockEntity implements SleepingBlo
     }
 
     @Override
-    public BlockEntityTickInvoker lithium$getSleepingTicker() {
+    public TickingBlockEntity lithium$getSleepingTicker() {
         return sleepingTicker;
     }
 
     @Override
-    public void lithium$setSleepingTicker(BlockEntityTickInvoker sleepingTicker) {
+    public void lithium$setSleepingTicker(TickingBlockEntity sleepingTicker) {
         this.sleepingTicker = sleepingTicker;
     }
 
 
     @Inject(
-            method = "addItem",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/DefaultedList;set(ILjava/lang/Object;)Ljava/lang/Object;")
+            method = "placeFood(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;I)Z",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/core/NonNullList;set(ILjava/lang/Object;)Ljava/lang/Object;")
     )
     private void wakeUpOnAddItem(LivingEntity user, ItemStack stack, int cookTime, CallbackInfoReturnable<Boolean> cir) {
         this.wakeUpNow();
     }
 
     @Inject(
-            method = "readNbt",
+            method = "loadAdditional",
             at = @At(value = "RETURN")
     )
-    private void wakeUpOnReadNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
+    private void wakeUpOnReadNbt(CompoundTag nbt, HolderLookup.Provider registryLookup, CallbackInfo ci) {
         this.wakeUpNow();
     }
 }

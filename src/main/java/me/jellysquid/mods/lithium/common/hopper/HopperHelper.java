@@ -1,19 +1,19 @@
 package me.jellysquid.mods.lithium.common.hopper;
 
 import me.jellysquid.mods.lithium.api.inventory.LithiumTransferConditionInventory;
-import net.minecraft.block.entity.HopperBlockEntity;
-import net.minecraft.block.entity.LootableContainerBlockEntity;
-import net.minecraft.inventory.DoubleInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SidedInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.CompoundContainer;
+import net.minecraft.world.Container;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 public class HopperHelper {
 
-    public static boolean tryMoveSingleItem(Inventory to, ItemStack stack, @Nullable Direction fromDirection) {
+    public static boolean tryMoveSingleItem(Container to, ItemStack stack, @Nullable Direction fromDirection) {
         ItemStack transferChecker;
         if (((LithiumTransferConditionInventory) to).lithium$itemInsertionTestRequiresStackSize1()) {
             transferChecker = stack.copy();
@@ -22,9 +22,9 @@ public class HopperHelper {
             transferChecker = stack;
         }
 
-        SidedInventory toSided = to instanceof SidedInventory ? ((SidedInventory) to) : null;
+        WorldlyContainer toSided = to instanceof WorldlyContainer ? ((WorldlyContainer) to) : null;
         if (toSided != null && fromDirection != null) {
-            int[] slots = toSided.getAvailableSlots(fromDirection);
+            int[] slots = toSided.getSlotsForFace(fromDirection);
 
             for(int slotIndex = 0; slotIndex < slots.length; ++slotIndex) {
                 if (tryMoveSingleItem(to, toSided, stack, transferChecker, slots[slotIndex], fromDirection)) {
@@ -32,7 +32,7 @@ public class HopperHelper {
                 }
             }
         } else {
-            int j = to.size();
+            int j = to.getContainerSize();
             for(int slot = 0; slot < j; ++slot) {
                 if (tryMoveSingleItem(to, toSided, stack, transferChecker, slot, fromDirection)) {
                     return true; //caller needs to take the item from the original inventory and call to.markDirty()
@@ -42,17 +42,17 @@ public class HopperHelper {
         return false;
     }
 
-    public static boolean tryMoveSingleItem(Inventory to, @Nullable SidedInventory toSided, ItemStack transferStack, ItemStack transferChecker, int targetSlot, @Nullable Direction fromDirection) {
-        ItemStack toStack = to.getStack(targetSlot);
-        if (to.isValid(targetSlot, transferChecker) && (toSided == null || toSided.canInsert(targetSlot, transferChecker, fromDirection))) {
+    public static boolean tryMoveSingleItem(Container to, @Nullable WorldlyContainer toSided, ItemStack transferStack, ItemStack transferChecker, int targetSlot, @Nullable Direction fromDirection) {
+        ItemStack toStack = to.getItem(targetSlot);
+        if (to.canPlaceItem(targetSlot, transferChecker) && (toSided == null || toSided.canPlaceItemThroughFace(targetSlot, transferChecker, fromDirection))) {
             int toCount;
             if (toStack.isEmpty()) {
                 ItemStack singleItem = transferStack.split(1);
-                to.setStack(targetSlot, singleItem);
+                to.setItem(targetSlot, singleItem);
                 return true; //caller needs to call to.markDirty()
-            } else if (toStack.getMaxCount() > (toCount = toStack.getCount()) && to.getMaxCountPerStack() > toCount && ItemStack.areItemsAndComponentsEqual(toStack, transferStack)) {
-                transferStack.decrement(1);
-                toStack.increment(1);
+            } else if (toStack.getMaxStackSize() > (toCount = toStack.getCount()) && to.getMaxStackSize() > toCount && ItemStack.isSameItemSameComponents(toStack, transferStack)) {
+                transferStack.shrink(1);
+                toStack.grow(1);
                 return true; //caller needs to call to.markDirty()
             }
         }
@@ -65,40 +65,40 @@ public class HopperHelper {
         int newNumOccupiedSlots = numOccupiedSlots - (itemStackCount == 1 ? 1 : 0);
         float newContentWeight = contentWeight - (1f / (float) maxStackSize);
         newContentWeight /= (float) inventorySize;
-        return MathHelper.floor(newContentWeight * 14.0F) + (newNumOccupiedSlots > 0 ? 1 : 0);
+        return Mth.floor(newContentWeight * 14.0F) + (newNumOccupiedSlots > 0 ? 1 : 0);
     }
 
-    public static ComparatorUpdatePattern determineComparatorUpdatePattern(Inventory from, LithiumStackList fromStackList) {
-        if ((from instanceof HopperBlockEntity) || !(from instanceof LootableContainerBlockEntity)) {
+    public static ComparatorUpdatePattern determineComparatorUpdatePattern(Container from, LithiumStackList fromStackList) {
+        if ((from instanceof HopperBlockEntity) || !(from instanceof RandomizableContainerBlockEntity)) {
             return ComparatorUpdatePattern.NO_UPDATE;
         }
         //calculate the signal strength of the inventory, but also keep the content weight variable
         float contentWeight = 0f;
         int numOccupiedSlots = 0;
 
-        for (int j = 0; j < from.size(); ++j) {
-            ItemStack itemStack = from.getStack(j);
+        for (int j = 0; j < from.getContainerSize(); ++j) {
+            ItemStack itemStack = from.getItem(j);
             if (!itemStack.isEmpty()) {
-                int maxStackSize = Math.min(from.getMaxCountPerStack(), itemStack.getMaxCount());
+                int maxStackSize = Math.min(from.getMaxStackSize(), itemStack.getMaxStackSize());
                 contentWeight += itemStack.getCount() / (float) maxStackSize;
                 ++numOccupiedSlots;
             }
         }
         float f = contentWeight;
-        f /= (float)from.size();
-        int originalSignalStrength = MathHelper.floor(f * 14.0F) + (numOccupiedSlots > 0 ? 1 : 0);
+        f /= (float)from.getContainerSize();
+        int originalSignalStrength = Mth.floor(f * 14.0F) + (numOccupiedSlots > 0 ? 1 : 0);
 
 
         ComparatorUpdatePattern updatePattern = ComparatorUpdatePattern.NO_UPDATE;
         //check the signal strength change when failing to extract from each slot
-        int[] availableSlots = from instanceof SidedInventory ? ((SidedInventory) from).getAvailableSlots(Direction.DOWN) : null;
-        SidedInventory sidedInventory = from instanceof SidedInventory ? (SidedInventory) from : null;
-        int fromSize = availableSlots != null ? availableSlots.length : from.size();
+        int[] availableSlots = from instanceof WorldlyContainer ? ((WorldlyContainer) from).getSlotsForFace(Direction.DOWN) : null;
+        WorldlyContainer sidedInventory = from instanceof WorldlyContainer ? (WorldlyContainer) from : null;
+        int fromSize = availableSlots != null ? availableSlots.length : from.getContainerSize();
         for (int i = 0; i < fromSize; i++) {
             int fromSlot = availableSlots != null ? availableSlots[i] : i;
             ItemStack itemStack = fromStackList.get(fromSlot);
-            if (!itemStack.isEmpty() && (sidedInventory == null || sidedInventory.canExtract(fromSlot, itemStack, Direction.DOWN))) {
-                int newSignalStrength = calculateReducedSignalStrength(contentWeight, from.size(), from.getMaxCountPerStack(), numOccupiedSlots, itemStack.getCount(), itemStack.getMaxCount());
+            if (!itemStack.isEmpty() && (sidedInventory == null || sidedInventory.canTakeItemThroughFace(fromSlot, itemStack, Direction.DOWN))) {
+                int newSignalStrength = calculateReducedSignalStrength(contentWeight, from.getContainerSize(), from.getMaxStackSize(), numOccupiedSlots, itemStack.getCount(), itemStack.getMaxStackSize());
                 if (newSignalStrength != originalSignalStrength) {
                     updatePattern = updatePattern.thenDecrementUpdateIncrementUpdate();
                 } else {
@@ -112,8 +112,8 @@ public class HopperHelper {
         return updatePattern;
     }
 
-    public static Inventory replaceDoubleInventory(Inventory blockInventory) {
-        if (blockInventory instanceof DoubleInventory doubleInventory) {
+    public static Container replaceDoubleInventory(Container blockInventory) {
+        if (blockInventory instanceof CompoundContainer doubleInventory) {
             doubleInventory = LithiumDoubleInventory.getLithiumInventory(doubleInventory);
             if (doubleInventory != null) {
                 return doubleInventory;

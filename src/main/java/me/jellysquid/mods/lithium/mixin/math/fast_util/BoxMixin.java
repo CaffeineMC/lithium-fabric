@@ -1,13 +1,13 @@
 package me.jellysquid.mods.lithium.mixin.math.fast_util;
 
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(Box.class)
+@Mixin(AABB.class)
 public class BoxMixin {
     static {
         assert Direction.Axis.X.ordinal() == 0;
@@ -45,7 +45,7 @@ public class BoxMixin {
      * @author JellySquid
      */
     @Overwrite
-    public double getMin(Direction.Axis axis) {
+    public double min(Direction.Axis axis) {
         switch (axis.ordinal()) {
             case 0: //X
                 return this.minX;
@@ -63,7 +63,7 @@ public class BoxMixin {
      * @author JellySquid
      */
     @Overwrite
-    public double getMax(Direction.Axis axis) {
+    public double max(Direction.Axis axis) {
         switch (axis.ordinal()) {
             case 0: //X
                 return this.maxX;

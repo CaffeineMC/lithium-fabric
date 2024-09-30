@@ -1,18 +1,18 @@
 package me.jellysquid.mods.lithium.mixin.world.raycast;
 
 import me.jellysquid.mods.lithium.common.util.Pos;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.RaycastContext;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -23,63 +23,63 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 @SuppressWarnings("ShadowModifiers")
-@Mixin(BlockView.class)
+@Mixin(BlockGetter.class)
 public interface BlockViewMixin {
 
     @Shadow
     BlockState getBlockState(BlockPos pos);
 
     @Shadow
-    @Nullable BlockHitResult raycastBlock(Vec3d start, Vec3d end, BlockPos pos, VoxelShape shape, BlockState state);
+    @Nullable BlockHitResult clipWithInteractionOverride(Vec3 start, Vec3 end, BlockPos pos, VoxelShape shape, BlockState state);
 
     @Shadow
-    static <T, C> T raycast(Vec3d start, Vec3d end, C context, BiFunction<C, BlockPos, T> blockHitFactory, Function<C, T> missFactory) {throw new AssertionError();}
+    static <T, C> T traverseBlocks(Vec3 start, Vec3 end, C context, BiFunction<C, BlockPos, T> blockHitFactory, Function<C, T> missFactory) {throw new AssertionError();}
 
     @Shadow
-    public BlockHitResult method_17743(RaycastContext par1, BlockPos par2);
+    public BlockHitResult method_17743(ClipContext par1, BlockPos par2);
 
     @Shadow
-    public static BlockHitResult method_17746(RaycastContext par1) { throw new AssertionError();}
+    public static BlockHitResult method_17746(ClipContext par1) { throw new AssertionError();}
 
     /**
      * @author 2No2Name
      * @reason Get rid of unnecessary lambda allocation
      */
     @Overwrite
-    default BlockHitResult raycast(RaycastContext context) {
-        return raycast(context.getStart(), context.getEnd(), context, this instanceof WorldView ? this.blockHitFactory(context) : this::method_17743, BlockViewMixin::method_17746);
+    default BlockHitResult clip(ClipContext context) {
+        return traverseBlocks(context.getFrom(), context.getTo(), context, this instanceof LevelReader ? this.blockHitFactory(context) : this::method_17743, BlockViewMixin::method_17746);
     }
 
     @Unique
-    private BiFunction<RaycastContext, BlockPos, BlockHitResult> blockHitFactory(RaycastContext context) {
+    private BiFunction<ClipContext, BlockPos, BlockHitResult> blockHitFactory(ClipContext context) {
         return new BiFunction<>() {
             int chunkX = Integer.MIN_VALUE, chunkZ = Integer.MIN_VALUE;
-            Chunk chunk = null;
-            final boolean handleFluids = ((RaycastContextAccessor) context).getFluidHandling() != RaycastContext.FluidHandling.NONE;
+            ChunkAccess chunk = null;
+            final boolean handleFluids = ((RaycastContextAccessor) context).getFluidHandling() != ClipContext.Fluid.NONE;
 
             @Override
-            public BlockHitResult apply(RaycastContext innerContext, BlockPos pos) {
+            public BlockHitResult apply(ClipContext innerContext, BlockPos pos) {
                 //[VanillaCopy] BlockView.raycast, but optional fluid handling
-                BlockState blockState = this.getBlock((WorldView) BlockViewMixin.this, pos);
-                Vec3d start = innerContext.getStart();
-                Vec3d end = innerContext.getEnd();
-                VoxelShape blockShape = innerContext.getBlockShape(blockState, (BlockView) BlockViewMixin.this, pos);
-                BlockHitResult blockHitResult = BlockViewMixin.this.raycastBlock(start, end, pos, blockShape, blockState);
-                double d = blockHitResult == null ? Double.MAX_VALUE : innerContext.getStart().squaredDistanceTo(blockHitResult.getPos());
+                BlockState blockState = this.getBlock((LevelReader) BlockViewMixin.this, pos);
+                Vec3 start = innerContext.getFrom();
+                Vec3 end = innerContext.getTo();
+                VoxelShape blockShape = innerContext.getBlockShape(blockState, (BlockGetter) BlockViewMixin.this, pos);
+                BlockHitResult blockHitResult = BlockViewMixin.this.clipWithInteractionOverride(start, end, pos, blockShape, blockState);
+                double d = blockHitResult == null ? Double.MAX_VALUE : innerContext.getFrom().distanceToSqr(blockHitResult.getLocation());
                 double e = Double.MAX_VALUE;
                 BlockHitResult fluidHitResult = null;
                 if (this.handleFluids) {
                     FluidState fluidState = blockState.getFluidState();
-                    VoxelShape fluidShape = innerContext.getFluidShape(fluidState, (BlockView) BlockViewMixin.this, pos);
-                    fluidHitResult = fluidShape.raycast(start, end, pos);
-                    e = fluidHitResult == null ? Double.MAX_VALUE : innerContext.getStart().squaredDistanceTo(fluidHitResult.getPos());
+                    VoxelShape fluidShape = innerContext.getFluidShape(fluidState, (BlockGetter) BlockViewMixin.this, pos);
+                    fluidHitResult = fluidShape.clip(start, end, pos);
+                    e = fluidHitResult == null ? Double.MAX_VALUE : innerContext.getFrom().distanceToSqr(fluidHitResult.getLocation());
                 }
                 return d <= e ? blockHitResult : fluidHitResult;
             }
 
-            private BlockState getBlock(WorldView world, BlockPos blockPos) {
-                if (world.isOutOfHeightLimit(blockPos.getY())) {
-                    return Blocks.VOID_AIR.getDefaultState();
+            private BlockState getBlock(LevelReader world, BlockPos blockPos) {
+                if (world.isOutsideBuildHeight(blockPos.getY())) {
+                    return Blocks.VOID_AIR.defaultBlockState();
                 }
                 int chunkX = Pos.ChunkCoord.fromBlockCoord(blockPos.getX());
                 int chunkZ = Pos.ChunkCoord.fromBlockCoord(blockPos.getZ());
@@ -92,21 +92,21 @@ public interface BlockViewMixin {
                     this.chunkZ = chunkZ;
                 }
 
-                final Chunk chunk = this.chunk;
+                final ChunkAccess chunk = this.chunk;
 
                 // If the chunk is missing or out of bounds, assume that it is air
                 if (chunk != null) {
                     // We operate directly on chunk sections to avoid interacting with BlockPos and to squeeze out as much
                     // performance as possible here
-                    ChunkSection section = chunk.getSectionArray()[Pos.SectionYIndex.fromBlockCoord(chunk, blockPos.getY())];
+                    LevelChunkSection section = chunk.getSections()[Pos.SectionYIndex.fromBlockCoord(chunk, blockPos.getY())];
 
                     // If the section doesn't exist or is empty, assume that the block is air
-                    if (section != null && !section.isEmpty()) {
+                    if (section != null && !section.hasOnlyAir()) {
                         return section.getBlockState(blockPos.getX() & 15, blockPos.getY() & 15, blockPos.getZ() & 15);
                     }
                 }
 
-                return Blocks.AIR.getDefaultState();
+                return Blocks.AIR.defaultBlockState();
             }
         };
     }

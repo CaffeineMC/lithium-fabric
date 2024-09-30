@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.entity.sprinting_particles;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -10,16 +10,13 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(Entity.class)
 public abstract class EntityMixin {
 
-    @Shadow
-    public abstract World getWorld();
-
     @Redirect(
             method = "baseTick",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;shouldSpawnSprintingParticles()Z")
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;canSpawnSprintParticle()Z")
     )
     private boolean skipParticlesOnServerSide(Entity instance) {
-        if (instance.getWorld().isClient()) {
-            return instance.shouldSpawnSprintingParticles();
+        if (instance.level().isClientSide()) {
+            return instance.canSpawnSprintParticle();
         }
         return false;
     }

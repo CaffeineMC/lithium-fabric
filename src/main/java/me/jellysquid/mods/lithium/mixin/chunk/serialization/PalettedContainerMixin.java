@@ -2,13 +2,14 @@ package me.jellysquid.mods.lithium.mixin.chunk.serialization;
 
 import me.jellysquid.mods.lithium.common.world.chunk.CompactingPackedIntegerArray;
 import me.jellysquid.mods.lithium.common.world.chunk.LithiumHashPalette;
-import net.minecraft.util.collection.EmptyPaletteStorage;
-import net.minecraft.util.collection.IndexedIterable;
-import net.minecraft.util.collection.PackedIntegerArray;
-import net.minecraft.util.collection.PaletteStorage;
-import net.minecraft.world.chunk.Palette;
-import net.minecraft.world.chunk.PaletteResizeListener;
-import net.minecraft.world.chunk.PalettedContainer;
+import net.minecraft.core.IdMap;
+import net.minecraft.util.BitStorage;
+import net.minecraft.util.SimpleBitStorage;
+import net.minecraft.util.ZeroBitStorage;
+import net.minecraft.world.level.chunk.Palette;
+import net.minecraft.world.level.chunk.PaletteResize;
+import net.minecraft.world.level.chunk.PalettedContainer;
+import net.minecraft.world.level.chunk.PalettedContainerRO;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -32,7 +33,7 @@ public abstract class PalettedContainerMixin<T> {
     private static final ThreadLocal<short[]> CACHED_ARRAY_64 = ThreadLocal.withInitial(() -> new short[64]);
 
     @Shadow
-    public abstract void lock();
+    public abstract void acquire();
 
     @Shadow
     protected abstract T get(int index);
@@ -41,11 +42,11 @@ public abstract class PalettedContainerMixin<T> {
     private volatile PalettedContainer.Data<T> data;
 
     @Shadow
-    public abstract void unlock();
+    public abstract void release();
 
     @Shadow
     @Final
-    private PaletteResizeListener<T> dummyListener;
+    private PaletteResize<T> dummyPaletteResize;
 
     /**
      * This patch incorporates a number of changes to significantly reduce the time needed to serialize.
@@ -59,8 +60,8 @@ public abstract class PalettedContainerMixin<T> {
      * @author JellySquid
      */
     @Overwrite
-    public PalettedContainer.Serialized<T> serialize(IndexedIterable<T> idList, PalettedContainer.PaletteProvider provider) {
-        this.lock();
+    public PalettedContainerRO.PackedData<T> pack(IdMap<T> idList, PalettedContainer.Strategy provider) {
+        this.acquire();
 
         // The palette that will be serialized
         LithiumHashPalette<T> hashPalette = null;
@@ -68,43 +69,43 @@ public abstract class PalettedContainerMixin<T> {
         List<T> elements = null;
 
         final Palette<T> palette = this.data.palette();
-        final PaletteStorage storage = this.data.storage();
-        if (storage instanceof EmptyPaletteStorage || palette.getSize() == 1) {
+        final BitStorage storage = this.data.storage();
+        if (storage instanceof ZeroBitStorage || palette.getSize() == 1) {
             // If the palette only contains one entry, don't attempt to repack it.
-            elements = List.of(palette.get(0));
+            elements = List.of(palette.valueFor(0));
         } else if (palette instanceof LithiumHashPalette<T> lithiumHashPalette) {
             hashPalette = lithiumHashPalette;
         }
 
         if (elements == null) {
-            LithiumHashPalette<T> compactedPalette = new LithiumHashPalette<>(idList, storage.getElementBits(), this.dummyListener);
-            short[] array = this.getOrCreate(provider.getContainerSize());
+            LithiumHashPalette<T> compactedPalette = new LithiumHashPalette<>(idList, storage.getBits(), this.dummyPaletteResize);
+            short[] array = this.getOrCreate(provider.size());
 
             ((CompactingPackedIntegerArray) storage).lithium$compact(this.data.palette(), compactedPalette, array);
 
             // If the palette didn't change during compaction, do a simple copy of the data array
-            if (hashPalette != null && hashPalette.getSize() == compactedPalette.getSize() && storage.getElementBits() == provider.getBits(idList, hashPalette.getSize())) { // paletteSize can de-sync from palette - see https://github.com/CaffeineMC/lithium-fabric/issues/279
-                data = this.asOptional(storage.getData().clone());
+            if (hashPalette != null && hashPalette.getSize() == compactedPalette.getSize() && storage.getBits() == provider.calculateBitsForSerialization(idList, hashPalette.getSize())) { // paletteSize can de-sync from palette - see https://github.com/CaffeineMC/lithium-fabric/issues/279
+                data = this.asOptional(storage.getRaw().clone());
                 elements = hashPalette.getElements();
             } else {
-                int bits = provider.getBits(idList, compactedPalette.getSize());
+                int bits = provider.calculateBitsForSerialization(idList, compactedPalette.getSize());
                 if (bits != 0) {
                     // Re-pack the integer array as the palette has changed size
-                    PackedIntegerArray copy = new PackedIntegerArray(bits, array.length);
+                    SimpleBitStorage copy = new SimpleBitStorage(bits, array.length);
                     for (int i = 0; i < array.length; ++i) {
                         copy.set(i, array[i]);
                     }
 
                     // We don't need to clone the data array as we are the sole owner of it
-                    data = this.asOptional(copy.getData());
+                    data = this.asOptional(copy.getRaw());
                 }
 
                 elements = compactedPalette.getElements();
             }
         }
 
-        this.unlock();
-        return new PalettedContainer.Serialized<>(elements, data);
+        this.release();
+        return new PalettedContainerRO.PackedData<>(elements, data);
     }
 
     private Optional<LongStream> asOptional(long[] data) {
@@ -126,8 +127,8 @@ public abstract class PalettedContainerMixin<T> {
      *
      * @author JellySquid
      */
-    @Inject(method = "count(Lnet/minecraft/world/chunk/PalettedContainer$Counter;)V", at = @At("HEAD"), cancellable = true)
-    public void count(PalettedContainer.Counter<T> consumer, CallbackInfo ci) {
+    @Inject(method = "count(Lnet/minecraft/world/level/chunk/PalettedContainer$CountConsumer;)V", at = @At("HEAD"), cancellable = true)
+    public void count(PalettedContainer.CountConsumer<T> consumer, CallbackInfo ci) {
         int len = this.data.palette().getSize();
 
         // Do not allocate huge arrays if we're using a large palette
@@ -137,10 +138,10 @@ public abstract class PalettedContainerMixin<T> {
 
         short[] counts = new short[len];
 
-        this.data.storage().forEach(i -> counts[i]++);
+        this.data.storage().getAll(i -> counts[i]++);
 
         for (int i = 0; i < counts.length; i++) {
-            T obj = this.data.palette().get(i);
+            T obj = this.data.palette().valueFor(i);
 
             if (obj != null) {
                 consumer.accept(obj, counts[i]);

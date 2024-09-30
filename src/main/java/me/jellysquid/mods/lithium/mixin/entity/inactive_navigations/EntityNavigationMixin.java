@@ -2,10 +2,10 @@ package me.jellysquid.mods.lithium.mixin.entity.inactive_navigations;
 
 import me.jellysquid.mods.lithium.common.entity.NavigatingEntity;
 import me.jellysquid.mods.lithium.common.world.ServerWorldExtended;
-import net.minecraft.entity.ai.pathing.EntityNavigation;
-import net.minecraft.entity.ai.pathing.Path;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.pathfinder.Path;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -14,53 +14,53 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(EntityNavigation.class)
+@Mixin(PathNavigation.class)
 public abstract class EntityNavigationMixin {
 
     @Shadow
     @Final
-    protected World world;
+    protected Level level;
 
     @Shadow
-    protected Path currentPath;
+    protected Path path;
 
     @Shadow
     @Final
-    protected MobEntity entity;
+    protected Mob mob;
 
     @Inject(
-            method = "recalculatePath()V",
+            method = "recomputePath()V",
             at = @At(
                     value = "INVOKE_ASSIGN",
-                    target = "Lnet/minecraft/entity/ai/pathing/EntityNavigation;findPathTo(Lnet/minecraft/util/math/BlockPos;I)Lnet/minecraft/entity/ai/pathing/Path;",
+                    target = "Lnet/minecraft/world/entity/ai/navigation/PathNavigation;createPath(Lnet/minecraft/core/BlockPos;I)Lnet/minecraft/world/level/pathfinder/Path;",
                     shift = At.Shift.AFTER
             )
     )
     private void updateListeningState(CallbackInfo ci) {
-        if (((NavigatingEntity) this.entity).lithium$isRegisteredToWorld()) {
-            if (this.currentPath == null) {
-                ((ServerWorldExtended) this.world).lithium$setNavigationInactive(this.entity);
+        if (((NavigatingEntity) this.mob).lithium$isRegisteredToWorld()) {
+            if (this.path == null) {
+                ((ServerWorldExtended) this.level).lithium$setNavigationInactive(this.mob);
             } else {
-                ((ServerWorldExtended) this.world).lithium$setNavigationActive(this.entity);
+                ((ServerWorldExtended) this.level).lithium$setNavigationActive(this.mob);
             }
         }
     }
 
-    @Inject(method = "startMovingAlong(Lnet/minecraft/entity/ai/pathing/Path;D)Z", at = @At(value = "RETURN"))
+    @Inject(method = "moveTo(Lnet/minecraft/world/level/pathfinder/Path;D)Z", at = @At(value = "RETURN"))
     private void updateListeningState2(Path path, double speed, CallbackInfoReturnable<Boolean> cir) {
-        if (((NavigatingEntity) this.entity).lithium$isRegisteredToWorld()) {
-            if (this.currentPath == null) {
-                ((ServerWorldExtended) this.world).lithium$setNavigationInactive(this.entity);
+        if (((NavigatingEntity) this.mob).lithium$isRegisteredToWorld()) {
+            if (this.path == null) {
+                ((ServerWorldExtended) this.level).lithium$setNavigationInactive(this.mob);
             } else {
-                ((ServerWorldExtended) this.world).lithium$setNavigationActive(this.entity);
+                ((ServerWorldExtended) this.level).lithium$setNavigationActive(this.mob);
             }
         }
     }
 
     @Inject(method = "stop()V", at = @At(value = "RETURN"))
     private void stopListening(CallbackInfo ci) {
-        if (((NavigatingEntity) this.entity).lithium$isRegisteredToWorld()) {
-            ((ServerWorldExtended) this.world).lithium$setNavigationInactive(this.entity);
+        if (((NavigatingEntity) this.mob).lithium$isRegisteredToWorld()) {
+            ((ServerWorldExtended) this.level).lithium$setNavigationInactive(this.mob);
         }
     }
 }

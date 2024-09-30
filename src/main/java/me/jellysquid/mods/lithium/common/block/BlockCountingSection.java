@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.block;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 
 public interface BlockCountingSection {
     boolean lithium$mayContainAny(TrackedBlockStatePredicate trackedBlockStatePredicate);

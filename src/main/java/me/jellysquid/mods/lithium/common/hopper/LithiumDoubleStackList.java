@@ -2,9 +2,9 @@ package me.jellysquid.mods.lithium.common.hopper;
 
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
 import me.jellysquid.mods.lithium.mixin.block.hopper.DoubleInventoryAccessor;
-import net.minecraft.inventory.DoubleInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.CompoundContainer;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -80,7 +80,7 @@ public class LithiumDoubleStackList extends LithiumStackList {
     }
 
     @Override
-    public int getSignalStrength(Inventory inventory) {
+    public int getSignalStrength(Container inventory) {
         //signal strength override state has to be stored in the halves, because this object may be replaced with a copy at any time
         boolean signalStrengthOverride = this.first.hasSignalStrengthOverride() || this.second.hasSignalStrengthOverride();
         if (signalStrengthOverride) {
@@ -112,8 +112,8 @@ public class LithiumDoubleStackList extends LithiumStackList {
      * @param masterStackList the stacklist of the inventory that comparators read from (double inventory for double chests)
      * @param inventory the blockentity / inventory that this stacklist is inside
      */
-    public void runComparatorUpdatePatternOnFailedExtract(LithiumStackList masterStackList, Inventory inventory) {
-        if (inventory instanceof DoubleInventory) {
+    public void runComparatorUpdatePatternOnFailedExtract(LithiumStackList masterStackList, Container inventory) {
+        if (inventory instanceof CompoundContainer) {
             this.first.runComparatorUpdatePatternOnFailedExtract(
                     this, ((DoubleInventoryAccessor)inventory).getFirst()
             );

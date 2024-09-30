@@ -1,14 +1,13 @@
 package me.jellysquid.mods.lithium.common.world.interests;
 
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.world.poi.PointOfInterest;
-import net.minecraft.world.poi.PointOfInterestStorage;
-import net.minecraft.world.poi.PointOfInterestType;
-
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import net.minecraft.core.Holder;
+import net.minecraft.world.entity.ai.village.poi.PoiManager;
+import net.minecraft.world.entity.ai.village.poi.PoiRecord;
+import net.minecraft.world.entity.ai.village.poi.PoiType;
 
 public interface PointOfInterestSetExtended {
-    void lithium$collectMatchingPoints(Predicate<RegistryEntry<PointOfInterestType>> type, PointOfInterestStorage.OccupationStatus status,
-                                       Consumer<PointOfInterest> consumer);
+    void lithium$collectMatchingPoints(Predicate<Holder<PoiType>> type, PoiManager.Occupancy status,
+                                       Consumer<PoiRecord> consumer);
 }

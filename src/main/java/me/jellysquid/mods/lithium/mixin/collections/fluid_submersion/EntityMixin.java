@@ -1,9 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.collections.fluid_submersion;
 
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
-import net.minecraft.entity.Entity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.registry.tag.TagKey;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -14,6 +11,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Set;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.material.Fluid;
 
 @Mixin(Entity.class)
 public class EntityMixin {
@@ -21,18 +21,18 @@ public class EntityMixin {
     @Mutable
     @Shadow
     @Final
-    private Set<TagKey<Fluid>> submergedFluidTag;
+    private Set<TagKey<Fluid>> fluidOnEyes;
 
     @Inject(
             method = "<init>",
             at = @At("RETURN")
     )
     private void useReferenceArraySet(CallbackInfo ci) {
-        this.submergedFluidTag = new ReferenceArraySet<>(this.submergedFluidTag);
+        this.fluidOnEyes = new ReferenceArraySet<>(this.fluidOnEyes);
     }
 
     @Redirect(
-            method = "updateSubmergedInWaterState()V",
+            method = "updateFluidOnEyes()V",
             at = @At(value = "INVOKE", target = "Ljava/util/Set;clear()V"),
             require = 0
     )

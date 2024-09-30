@@ -1,10 +1,10 @@
 package me.jellysquid.mods.lithium.common.state;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.state.property.Property;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 
 /**
  * Many of the column and row key arrays in block state tables will be duplicated, leading to an unnecessary waste of

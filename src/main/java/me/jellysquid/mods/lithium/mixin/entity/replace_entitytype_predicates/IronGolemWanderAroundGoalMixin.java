@@ -1,14 +1,5 @@
 package me.jellysquid.mods.lithium.mixin.entity.replace_entitytype_predicates;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ai.goal.IronGolemWanderAroundGoal;
-import net.minecraft.entity.ai.goal.WanderAroundGoal;
-import net.minecraft.entity.mob.PathAwareEntity;
-import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.TypeFilter;
-import net.minecraft.util.math.Box;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,27 +7,36 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.List;
 import java.util.function.Predicate;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.goal.GolemRandomStrollInVillageGoal;
+import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
+import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.phys.AABB;
 
-@Mixin(IronGolemWanderAroundGoal.class)
-public abstract class IronGolemWanderAroundGoalMixin extends WanderAroundGoal {
-    public IronGolemWanderAroundGoalMixin(PathAwareEntity mob, double speed) {
+@Mixin(GolemRandomStrollInVillageGoal.class)
+public abstract class IronGolemWanderAroundGoalMixin extends RandomStrollGoal {
+    public IronGolemWanderAroundGoalMixin(PathfinderMob mob, double speed) {
         super(mob, speed);
     }
 
     @Shadow
-    protected abstract boolean canVillagerSummonGolem(VillagerEntity villager);
+    protected abstract boolean doesVillagerWantGolem(Villager villager);
 
     @Redirect(
-            method = "findVillagerPos",
+            method = "getPositionTowardsVillagerWhoWantsGolem",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/world/ServerWorld;getEntitiesByType(Lnet/minecraft/util/TypeFilter;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"
+                    target = "Lnet/minecraft/server/level/ServerLevel;getEntities(Lnet/minecraft/world/level/entity/EntityTypeTest;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;"
             )
     )
-    private List<VillagerEntity> getEntities(ServerWorld serverWorld, TypeFilter<Entity, VillagerEntity> filter, Box box, Predicate<? super VillagerEntity> predicate) {
+    private List<Villager> getEntities(ServerLevel serverWorld, EntityTypeTest<Entity, Villager> filter, AABB box, Predicate<? super Villager> predicate) {
         if (filter == EntityType.VILLAGER) {
-            return serverWorld.getEntitiesByClass(VillagerEntity.class, this.mob.getBoundingBox().expand(32.0), this::canVillagerSummonGolem);
+            return serverWorld.getEntitiesOfClass(Villager.class, this.mob.getBoundingBox().inflate(32.0), this::doesVillagerWantGolem);
         }
-        return serverWorld.getEntitiesByType(EntityType.VILLAGER, this.mob.getBoundingBox().expand(32.0), this::canVillagerSummonGolem);
+        return serverWorld.getEntities(EntityType.VILLAGER, this.mob.getBoundingBox().inflate(32.0), this::doesVillagerWantGolem);
     }
 }

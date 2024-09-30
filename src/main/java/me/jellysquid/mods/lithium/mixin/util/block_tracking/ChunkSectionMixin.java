@@ -3,12 +3,12 @@ package me.jellysquid.mods.lithium.mixin.util.block_tracking;
 import me.jellysquid.mods.lithium.common.block.*;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.ChunkSectionChangeCallback;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.SectionedBlockChangeTracker;
-import net.minecraft.block.BlockState;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.PalettedContainer;
+import net.minecraft.core.SectionPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.PalettedContainer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,12 +26,12 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
  *
  * @author 2No2Name
  */
-@Mixin(ChunkSection.class)
+@Mixin(LevelChunkSection.class)
 public abstract class ChunkSectionMixin implements BlockCountingSection, BlockListeningSection {
 
     @Shadow
     @Final
-    private PalettedContainer<BlockState> blockStateContainer;
+    private PalettedContainer<BlockState> states;
 
     @Unique
     private short[] countsByFlag = null;
@@ -63,7 +63,7 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
     private void fastInitClientCounts() {
         this.countsByFlag = new short[BlockStateFlags.NUM_TRACKED_FLAGS];
         for (TrackedBlockStatePredicate trackedBlockStatePredicate : BlockStateFlags.TRACKED_FLAGS) {
-            if (this.blockStateContainer.hasAny(trackedBlockStatePredicate)) {
+            if (this.states.maybeHas(trackedBlockStatePredicate)) {
                 //We haven't counted, so we just set the count so high that it never incorrectly reaches 0.
                 //For most situations, this overestimation does not hurt client performance compared to correct counting,
                 this.countsByFlag[trackedBlockStatePredicate.getIndex()] = 16 * 16 * 16;
@@ -72,37 +72,37 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
     }
 
     @Redirect(
-            method = "calculateCounts()V",
+            method = "recalcBlockCounts()V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/PalettedContainer;count(Lnet/minecraft/world/chunk/PalettedContainer$Counter;)V"
+                    target = "Lnet/minecraft/world/level/chunk/PalettedContainer;count(Lnet/minecraft/world/level/chunk/PalettedContainer$CountConsumer;)V"
             )
     )
-    private void initFlagCounters(PalettedContainer<BlockState> palettedContainer, PalettedContainer.Counter<BlockState> consumer) {
+    private void initFlagCounters(PalettedContainer<BlockState> palettedContainer, PalettedContainer.CountConsumer<BlockState> consumer) {
         palettedContainer.count((state, count) -> {
             consumer.accept(state, count);
             addToFlagCount(this.countsByFlag, state, (short) count);
         });
     }
 
-    @Inject(method = "calculateCounts()V", at = @At("HEAD"))
+    @Inject(method = "recalcBlockCounts()V", at = @At("HEAD"))
     private void createFlagCounters(CallbackInfo ci) {
         this.countsByFlag = new short[BlockStateFlags.NUM_TRACKED_FLAGS];
     }
 
     @Inject(
-            method = "readDataPacket",
+            method = "read(Lnet/minecraft/network/FriendlyByteBuf;)V",
             at = @At(value = "HEAD")
     )
-    private void resetData(PacketByteBuf buf, CallbackInfo ci) {
+    private void resetData(FriendlyByteBuf buf, CallbackInfo ci) {
         this.countsByFlag = null;
     }
 
     @Inject(
-            method = "setBlockState(IIILnet/minecraft/block/BlockState;Z)Lnet/minecraft/block/BlockState;",
+            method = "setBlockState(IIILnet/minecraft/world/level/block/state/BlockState;Z)Lnet/minecraft/world/level/block/state/BlockState;",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/block/BlockState;getFluidState()Lnet/minecraft/fluid/FluidState;",
+                    target = "Lnet/minecraft/world/level/block/state/BlockState;getFluidState()Lnet/minecraft/world/level/material/FluidState;",
                     ordinal = 0,
                     shift = At.Shift.BEFORE
             ),
@@ -144,7 +144,7 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
     }
 
     @Override
-    public void lithium$addToCallback(ListeningBlockStatePredicate blockGroup, SectionedBlockChangeTracker tracker, long sectionPos, World world) {
+    public void lithium$addToCallback(ListeningBlockStatePredicate blockGroup, SectionedBlockChangeTracker tracker, long sectionPos, Level world) {
         if (this.changeListener == null) {
             if (sectionPos == Long.MIN_VALUE || world == null) {
                 throw new IllegalArgumentException("Expected world and section pos during intialization!");
@@ -164,7 +164,7 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
 
     @Override
     @Unique
-    public void lithium$invalidateListeningSection(ChunkSectionPos sectionPos) {
+    public void lithium$invalidateListeningSection(SectionPos sectionPos) {
         if (this.listeningMask != 0) {
             this.changeListener.onChunkSectionInvalidated(sectionPos);
             this.listeningMask = 0;

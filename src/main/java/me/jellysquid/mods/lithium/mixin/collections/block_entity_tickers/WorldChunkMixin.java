@@ -1,14 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.collections.block_entity_tickers;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.UpgradeData;
-import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.gen.chunk.BlendingData;
-import net.minecraft.world.tick.ChunkTickScheduler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -19,20 +11,28 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.UpgradeData;
+import net.minecraft.world.level.levelgen.blending.BlendingData;
+import net.minecraft.world.ticks.LevelChunkTicks;
 
-@Mixin(WorldChunk.class)
+@Mixin(LevelChunk.class)
 public class WorldChunkMixin {
     @Mutable
     @Shadow
     @Final
-    private Map<BlockPos, ?> blockEntityTickers;
+    private Map<BlockPos, ?> tickersInLevel;
 
     @Inject(
-            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/tick/ChunkTickScheduler;Lnet/minecraft/world/tick/ChunkTickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Lnet/minecraft/world/chunk/WorldChunk$EntityLoader;Lnet/minecraft/world/gen/chunk/BlendingData;)V",
+            method = "<init>(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/UpgradeData;Lnet/minecraft/world/ticks/LevelChunkTicks;Lnet/minecraft/world/ticks/LevelChunkTicks;J[Lnet/minecraft/world/level/chunk/LevelChunkSection;Lnet/minecraft/world/level/chunk/LevelChunk$PostLoadProcessor;Lnet/minecraft/world/level/levelgen/blending/BlendingData;)V",
             at = @At(value = "INVOKE_ASSIGN", target = "Lcom/google/common/collect/Maps;newHashMap()Ljava/util/HashMap;", shift = At.Shift.AFTER, remap = false)
     )
     @Coerce
-    private void createFastUtilMap(World world, ChunkPos pos, UpgradeData upgradeData, ChunkTickScheduler<?> blockTickScheduler, ChunkTickScheduler<?> fluidTickScheduler, long inhabitedTime, ChunkSection[] sectionArrayInitializer, WorldChunk.EntityLoader entityLoader, BlendingData blendingData, CallbackInfo ci) {
-        this.blockEntityTickers = new Object2ObjectOpenHashMap<>();
+    private void createFastUtilMap(Level world, ChunkPos pos, UpgradeData upgradeData, LevelChunkTicks<?> blockTickScheduler, LevelChunkTicks<?> fluidTickScheduler, long inhabitedTime, LevelChunkSection[] sectionArrayInitializer, LevelChunk.PostLoadProcessor entityLoader, BlendingData blendingData, CallbackInfo ci) {
+        this.tickersInLevel = new Object2ObjectOpenHashMap<>();
     }
 }

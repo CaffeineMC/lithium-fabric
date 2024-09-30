@@ -1,13 +1,13 @@
 package me.jellysquid.mods.lithium.common.util;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 
 public class Distances {
 
     public static double getMinChunkToBlockDistanceL2Sq(BlockPos origin, int chunkX, int chunkZ) {
-        int chunkMinX = ChunkSectionPos.getBlockCoord(chunkX);
-        int chunkMinZ = ChunkSectionPos.getBlockCoord(chunkZ);
+        int chunkMinX = SectionPos.sectionToBlockCoord(chunkX);
+        int chunkMinZ = SectionPos.sectionToBlockCoord(chunkZ);
 
         int xDistance = origin.getX() - chunkMinX;
         if (xDistance > 0) {
@@ -27,6 +27,6 @@ public class Distances {
     }
 
     public static boolean isWithinCircleRadius(BlockPos origin, double radiusSq, BlockPos pos) {
-        return origin.getSquaredDistance(pos) <= radiusSq;
+        return origin.distSqr(pos) <= radiusSq;
     }
 }

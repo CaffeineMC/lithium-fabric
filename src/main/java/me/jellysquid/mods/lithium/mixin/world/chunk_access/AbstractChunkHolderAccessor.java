@@ -1,22 +1,22 @@
 package me.jellysquid.mods.lithium.mixin.world.chunk_access;
 
-import net.minecraft.server.world.OptionalChunk;
-import net.minecraft.world.chunk.AbstractChunkHolder;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReferenceArray;
+import net.minecraft.server.level.ChunkResult;
+import net.minecraft.server.level.GenerationChunkHolder;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 
-@Mixin(AbstractChunkHolder.class)
+@Mixin(GenerationChunkHolder.class)
 public interface AbstractChunkHolderAccessor {
 
-    @Accessor("chunkFuturesByStatus")
-    AtomicReferenceArray<CompletableFuture<OptionalChunk<Chunk>>> lithium$getChunkFuturesByStatus();
+    @Accessor("futures")
+    AtomicReferenceArray<CompletableFuture<ChunkResult<ChunkAccess>>> lithium$getChunkFuturesByStatus();
 
-    @Invoker("cannotBeLoaded")
+    @Invoker("isStatusDisallowed")
     boolean invokeCannotBeLoaded(ChunkStatus status);
 }

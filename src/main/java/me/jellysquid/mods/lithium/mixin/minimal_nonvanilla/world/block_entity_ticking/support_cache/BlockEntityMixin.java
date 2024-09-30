@@ -1,10 +1,10 @@
 package me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.world.block_entity_ticking.support_cache;
 
 import me.jellysquid.mods.lithium.common.world.blockentity.SupportCache;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -20,14 +20,14 @@ public abstract class BlockEntityMixin implements SupportCache {
     @Unique
     private boolean supportTestResult;
 
-    @Inject(method = "<init>(Lnet/minecraft/block/entity/BlockEntityType;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V", at = @At("RETURN"))
+    @Inject(method = "<init>(Lnet/minecraft/world/level/block/entity/BlockEntityType;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V", at = @At("RETURN"))
     private void initSupportCache(BlockEntityType<?> type, BlockPos pos, BlockState cachedState, CallbackInfo ci) {
-        this.supportTestResult = this.getType().supports(cachedState);
+        this.supportTestResult = this.getType().isValid(cachedState);
     }
 
-    @Inject(method = "setCachedState(Lnet/minecraft/block/BlockState;)V", at = @At("RETURN"))
+    @Inject(method = "setBlockState(Lnet/minecraft/world/level/block/state/BlockState;)V", at = @At("RETURN"))
     private void updateSupportCache(BlockState cachedState, CallbackInfo ci) {
-        this.supportTestResult = this.getType().supports(cachedState);
+        this.supportTestResult = this.getType().isValid(cachedState);
     }
 
     @Override

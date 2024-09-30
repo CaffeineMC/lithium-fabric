@@ -1,26 +1,26 @@
 package me.jellysquid.mods.lithium.mixin.world.inline_block_access;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.HeightLimitView;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(World.class)
-public abstract class WorldMixin implements HeightLimitView {
-    private static final BlockState OUTSIDE_WORLD_BLOCK = Blocks.VOID_AIR.getDefaultState();
-    private static final BlockState INSIDE_WORLD_DEFAULT_BLOCK = Blocks.AIR.getDefaultState();
+@Mixin(Level.class)
+public abstract class WorldMixin implements LevelHeightAccessor {
+    private static final BlockState OUTSIDE_WORLD_BLOCK = Blocks.VOID_AIR.defaultBlockState();
+    private static final BlockState INSIDE_WORLD_DEFAULT_BLOCK = Blocks.AIR.defaultBlockState();
 
     @Shadow
-    public abstract WorldChunk getChunk(int i, int j);
+    public abstract LevelChunk getChunk(int i, int j);
 
     /**
      * @reason Reduce method size to help the JVM inline, Avoid excess height limit checks
@@ -28,8 +28,8 @@ public abstract class WorldMixin implements HeightLimitView {
      */
     @Overwrite
     public BlockState getBlockState(BlockPos pos) {
-        WorldChunk worldChunk = this.getChunk(ChunkSectionPos.getSectionCoord(pos.getX()), ChunkSectionPos.getSectionCoord(pos.getZ()));
-        ChunkSection[] sections = worldChunk.getSectionArray();
+        LevelChunk worldChunk = this.getChunk(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
+        LevelChunkSection[] sections = worldChunk.getSections();
         int x = pos.getX();
         int y = pos.getY();
         int z = pos.getZ();
@@ -40,8 +40,8 @@ public abstract class WorldMixin implements HeightLimitView {
             return OUTSIDE_WORLD_BLOCK;
         }
 
-        ChunkSection section = sections[chunkY];
-        if (section == null || section.isEmpty()) {
+        LevelChunkSection section = sections[chunkY];
+        if (section == null || section.hasOnlyAir()) {
             return INSIDE_WORLD_DEFAULT_BLOCK;
         }
         return section.getBlockState(x & 15, y & 15, z & 15);
@@ -52,10 +52,10 @@ public abstract class WorldMixin implements HeightLimitView {
             method = "getFluidState",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/World;isOutOfHeightLimit(Lnet/minecraft/util/math/BlockPos;)Z"
+                    target = "Lnet/minecraft/world/level/Level;isOutsideBuildHeight(Lnet/minecraft/core/BlockPos;)Z"
             )
     )
-    private boolean skipFluidHeightLimitTest(World world, BlockPos pos) {
-        return world.isOutOfHeightLimit(pos);
+    private boolean skipFluidHeightLimitTest(Level world, BlockPos pos) {
+        return world.isOutsideBuildHeight(pos);
     }
 }

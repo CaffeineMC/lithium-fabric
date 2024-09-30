@@ -7,13 +7,13 @@ import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
 import me.jellysquid.mods.lithium.common.block.entity.inventory_comparator_tracking.ComparatorTracker;
 import me.jellysquid.mods.lithium.mixin.block.hopper.DoubleInventoryAccessor;
-import net.minecraft.inventory.DoubleInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.CompoundContainer;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
-public class LithiumDoubleInventory extends DoubleInventory implements LithiumInventory, InventoryChangeTracker, InventoryChangeEmitter, InventoryChangeListener, ComparatorTracker {
+public class LithiumDoubleInventory extends CompoundContainer implements LithiumInventory, InventoryChangeTracker, InventoryChangeEmitter, InventoryChangeListener, ComparatorTracker {
 
     private final LithiumInventory first;
     private final LithiumInventory second;
@@ -31,16 +31,16 @@ public class LithiumDoubleInventory extends DoubleInventory implements LithiumIn
      * @param doubleInventory A double inventory
      * @return The only non-removed LithiumDoubleInventory instance for the double inventory. Null if not compatible
      */
-    public static LithiumDoubleInventory getLithiumInventory(DoubleInventory doubleInventory) {
-        Inventory vanillaFirst = ((DoubleInventoryAccessor) doubleInventory).getFirst();
-        Inventory vanillaSecond = ((DoubleInventoryAccessor) doubleInventory).getSecond();
+    public static LithiumDoubleInventory getLithiumInventory(CompoundContainer doubleInventory) {
+        Container vanillaFirst = ((DoubleInventoryAccessor) doubleInventory).getFirst();
+        Container vanillaSecond = ((DoubleInventoryAccessor) doubleInventory).getSecond();
         if (vanillaFirst != vanillaSecond && vanillaFirst instanceof LithiumInventory first && vanillaSecond instanceof LithiumInventory second) {
             LithiumDoubleInventory newDoubleInventory = new LithiumDoubleInventory(first, second);
             LithiumDoubleStackList doubleStackList = LithiumDoubleStackList.getOrCreate(
                     newDoubleInventory,
                     InventoryHelper.getLithiumStackList(first),
                     InventoryHelper.getLithiumStackList(second),
-                    newDoubleInventory.getMaxCountPerStack()
+                    newDoubleInventory.getMaxStackSize()
             );
             newDoubleInventory.doubleStackList = doubleStackList;
             return doubleStackList.doubleInventory;
@@ -137,27 +137,27 @@ public class LithiumDoubleInventory extends DoubleInventory implements LithiumIn
     }
 
     @Override
-    public DefaultedList<ItemStack> getInventoryLithium() {
+    public NonNullList<ItemStack> getInventoryLithium() {
         return this.doubleStackList;
     }
 
     @Override
-    public void setInventoryLithium(DefaultedList<ItemStack> inventory) {
+    public void setInventoryLithium(NonNullList<ItemStack> inventory) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void lithium$handleInventoryContentModified(Inventory inventory) {
+    public void lithium$handleInventoryContentModified(Container inventory) {
         this.lithium$emitContentModified();
     }
 
     @Override
-    public void lithium$handleInventoryRemoved(Inventory inventory) {
+    public void lithium$handleInventoryRemoved(Container inventory) {
         this.lithium$emitRemoved();
     }
 
     @Override
-    public boolean lithium$handleComparatorAdded(Inventory inventory) {
+    public boolean lithium$handleComparatorAdded(Container inventory) {
         this.lithium$emitFirstComparatorAdded();
         return this.inventoryChangeListeners.isEmpty();
     }

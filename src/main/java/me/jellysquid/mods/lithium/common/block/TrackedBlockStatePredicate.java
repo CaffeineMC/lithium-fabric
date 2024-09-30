@@ -1,9 +1,8 @@
 package me.jellysquid.mods.lithium.common.block;
 
-import net.minecraft.block.BlockState;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
+import net.minecraft.world.level.block.state.BlockState;
 
 public abstract class TrackedBlockStatePredicate implements Predicate<BlockState> {
     public static final AtomicBoolean FULLY_INITIALIZED;

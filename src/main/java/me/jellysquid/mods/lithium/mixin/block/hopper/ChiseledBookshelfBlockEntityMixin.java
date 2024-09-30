@@ -1,10 +1,10 @@
 package me.jellysquid.mods.lithium.mixin.block.hopper;
 
 import me.jellysquid.mods.lithium.api.inventory.LithiumTransferConditionInventory;
-import net.minecraft.block.entity.ChiseledBookshelfBlockEntity;
+import net.minecraft.world.level.block.entity.ChiseledBookShelfBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(ChiseledBookshelfBlockEntity.class)
+@Mixin(ChiseledBookShelfBlockEntity.class)
 public class ChiseledBookshelfBlockEntityMixin implements LithiumTransferConditionInventory {
 
     @Override

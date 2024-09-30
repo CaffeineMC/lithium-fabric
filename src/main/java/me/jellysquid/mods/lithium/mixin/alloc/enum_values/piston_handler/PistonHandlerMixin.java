@@ -1,20 +1,20 @@
 package me.jellysquid.mods.lithium.mixin.alloc.enum_values.piston_handler;
 
 import me.jellysquid.mods.lithium.common.util.DirectionConstants;
-import net.minecraft.block.piston.PistonHandler;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.piston.PistonStructureResolver;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(PistonHandler.class)
+@Mixin(PistonStructureResolver.class)
 public class PistonHandlerMixin {
 
     @Redirect(
-            method = "tryMoveAdjacentBlock(Lnet/minecraft/util/math/BlockPos;)Z",
+            method = "addBranchingBlocks(Lnet/minecraft/core/BlockPos;)Z",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/util/math/Direction;values()[Lnet/minecraft/util/math/Direction;"
+                    target = "Lnet/minecraft/core/Direction;values()[Lnet/minecraft/core/Direction;"
             )
     )
     private Direction[] removeAllocation() {

@@ -1,16 +1,16 @@
 package me.jellysquid.mods.lithium.mixin.block.moving_block_shapes;
 
 import me.jellysquid.mods.lithium.common.shapes.OffsetVoxelShapeCache;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.PistonBlock;
-import net.minecraft.block.PistonHeadBlock;
-import net.minecraft.block.entity.PistonBlockEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.piston.PistonBaseBlock;
+import net.minecraft.world.level.block.piston.PistonHeadBlock;
+import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,47 +22,47 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 /**
  * @author 2No2Name
  */
-@Mixin(PistonBlockEntity.class)
+@Mixin(PistonMovingBlockEntity.class)
 public abstract class PistonBlockEntityMixin {
     private static final VoxelShape[] PISTON_BASE_WITH_MOVING_HEAD_SHAPES = precomputePistonBaseWithMovingHeadShapes();
 
     @Shadow
-    private Direction facing;
+    private Direction direction;
     @Shadow
     private boolean extending;
     @Shadow
-    private boolean source;
+    private boolean isSourcePiston;
 
 
     @Shadow
-    private BlockState pushedBlock;
+    private BlockState movedState;
 
     /**
-     * Avoid calling {@link VoxelShapes#union(VoxelShape, VoxelShape)} whenever possible - use precomputed merged piston head + base shapes and
+     * Avoid calling {@link Shapes#or(VoxelShape, VoxelShape)} whenever possible - use precomputed merged piston head + base shapes and
      * cache the results for all union calls with an empty shape as first argument. (these are all other cases)
      */
     @Inject(
-            method = "getCollisionShape(Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/util/shape/VoxelShape;",
+            method = "getCollisionShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/shapes/VoxelShape;",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/util/math/Direction;getOffsetX()I",
+                    target = "Lnet/minecraft/core/Direction;getStepX()I",
                     shift = At.Shift.BEFORE
             ),
             locals = LocalCapture.CAPTURE_FAILHARD,
             cancellable = true
     )
-    private void skipVoxelShapeUnion(BlockView world, BlockPos pos, CallbackInfoReturnable<VoxelShape> cir, VoxelShape voxelShape, Direction direction, BlockState blockState, float f) {
-        if (this.extending || !this.source || !(this.pushedBlock.getBlock() instanceof PistonBlock)) {
+    private void skipVoxelShapeUnion(BlockGetter world, BlockPos pos, CallbackInfoReturnable<VoxelShape> cir, VoxelShape voxelShape, Direction direction, BlockState blockState, float f) {
+        if (this.extending || !this.isSourcePiston || !(this.movedState.getBlock() instanceof PistonBaseBlock)) {
             //here voxelShape2.isEmpty() is guaranteed, vanilla code would call union() which calls simplify()
             VoxelShape blockShape = blockState.getCollisionShape(world, pos);
 
             //we cache the simplified shapes, as the simplify() method costs a lot of CPU time and allocates several objects
-            VoxelShape offsetAndSimplified = getOffsetAndSimplified(blockShape, Math.abs(f), f < 0f ? this.facing.getOpposite() : this.facing);
+            VoxelShape offsetAndSimplified = getOffsetAndSimplified(blockShape, Math.abs(f), f < 0f ? this.direction.getOpposite() : this.direction);
             cir.setReturnValue(offsetAndSimplified);
         } else {
             //retracting piston heads have to act like their base as well, as the base block is replaced with the moving block
             //f >= 0f is guaranteed (assuming no other mod interferes)
-            int index = getIndexForMergedShape(f, this.facing);
+            int index = getIndexForMergedShape(f, this.direction);
             cir.setReturnValue(PISTON_BASE_WITH_MOVING_HEAD_SHAPES[index]);
         }
     }
@@ -82,7 +82,7 @@ public abstract class PistonBlockEntityMixin {
         VoxelShape offsetSimplifiedShape = ((OffsetVoxelShapeCache) blockShape).lithium$getOffsetSimplifiedShape(offset, direction);
         if (offsetSimplifiedShape == null) {
             //create the offset shape and store it for later use
-            offsetSimplifiedShape = blockShape.offset(direction.getOffsetX() * offset, direction.getOffsetY() * offset, direction.getOffsetZ() * offset).simplify();
+            offsetSimplifiedShape = blockShape.move(direction.getStepX() * offset, direction.getStepY() * offset, direction.getStepZ() * offset).optimize();
             ((OffsetVoxelShapeCache) blockShape).lithium$setShape(offset, direction, offsetSimplifiedShape);
         }
         return offsetSimplifiedShape;
@@ -100,8 +100,8 @@ public abstract class PistonBlockEntityMixin {
         VoxelShape[] mergedShapes = new VoxelShape[offsets.length * directions.length];
 
         for (Direction facing : directions) {
-            VoxelShape baseShape = Blocks.PISTON.getDefaultState().with(PistonBlock.EXTENDED, true)
-                    .with(PistonBlock.FACING, facing).getCollisionShape(null, null);
+            VoxelShape baseShape = Blocks.PISTON.defaultBlockState().setValue(PistonBaseBlock.EXTENDED, true)
+                    .setValue(PistonBaseBlock.FACING, facing).getCollisionShape(null, null);
             for (float offset : offsets) {
                 //this cache is only required for the merged piston head + base shape.
                 //this shape is only used when !this.extending
@@ -110,13 +110,13 @@ public abstract class PistonBlockEntityMixin {
                 //therefore isShort is dependent on the offset:
                 boolean isShort = offset < 0.25f;
 
-                VoxelShape headShape = (Blocks.PISTON_HEAD.getDefaultState().with(PistonHeadBlock.FACING, facing))
-                        .with(PistonHeadBlock.SHORT, isShort).getCollisionShape(null, null);
+                VoxelShape headShape = (Blocks.PISTON_HEAD.defaultBlockState().setValue(PistonHeadBlock.FACING, facing))
+                        .setValue(PistonHeadBlock.SHORT, isShort).getCollisionShape(null, null);
 
-                VoxelShape offsetHead = headShape.offset(facing.getOffsetX() * offset,
-                        facing.getOffsetY() * offset,
-                        facing.getOffsetZ() * offset);
-                mergedShapes[getIndexForMergedShape(offset, facing)] = VoxelShapes.union(baseShape, offsetHead);
+                VoxelShape offsetHead = headShape.move(facing.getStepX() * offset,
+                        facing.getStepY() * offset,
+                        facing.getStepZ() * offset);
+                mergedShapes[getIndexForMergedShape(offset, facing)] = Shapes.or(baseShape, offsetHead);
             }
 
         }
@@ -129,6 +129,6 @@ public abstract class PistonBlockEntityMixin {
             return -1;
         }
         //shape of offset 0 is still dependent on the direction, due to piston head and base being directional blocks
-        return (int) (2 * offset) + (3 * direction.getId());
+        return (int) (2 * offset) + (3 * direction.get3DDataValue());
     }
 }

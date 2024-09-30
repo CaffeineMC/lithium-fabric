@@ -1,9 +1,9 @@
 package me.jellysquid.mods.lithium.common.util.math;
 
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 /**
- * A replacement for the sine angle lookup table used in {@link MathHelper}, both reducing the size of LUT and improving
+ * A replacement for the sine angle lookup table used in {@link Mth}, both reducing the size of LUT and improving
  * the access patterns for common paired sin/cos operations.
  *
  *  sin(-x) = -sin(x)
@@ -21,7 +21,7 @@ import net.minecraft.util.math.MathHelper;
  * up being slower than vanilla when the lookup table is able to be kept in cache memory.
  *
  * Unlike other "fast math" implementations, the values returned by this class are *bit-for-bit identical* with those
- * from {@link MathHelper}. Validation is performed during runtime to ensure that the table is correct.
+ * from {@link Mth}. Validation is performed during runtime to ensure that the table is correct.
  *
  * @author coderbot16   Author of the original (and very clever) implementation in Rust:
  *  https://gitlab.com/coderbot16/i73/-/tree/master/i73-trig/src
@@ -34,14 +34,14 @@ public class CompactSineLUT {
     static {
         // Copy the sine table, covering to raw int bits
         for (int i = 0; i < SINE_TABLE_INT.length; i++) {
-            SINE_TABLE_INT[i] = Float.floatToRawIntBits(MathHelper.SINE_TABLE[i]);
+            SINE_TABLE_INT[i] = Float.floatToRawIntBits(Mth.SIN[i]);
         }
 
-        SINE_TABLE_MIDPOINT = MathHelper.SINE_TABLE[MathHelper.SINE_TABLE.length / 2];
+        SINE_TABLE_MIDPOINT = Mth.SIN[Mth.SIN.length / 2];
 
         // Test that the lookup table is correct during runtime
-        for (int i = 0; i < MathHelper.SINE_TABLE.length; i++) {
-            float expected = MathHelper.SINE_TABLE[i];
+        for (int i = 0; i < Mth.SIN.length; i++) {
+            float expected = Mth.SIN[i];
             float value = lookup(i);
 
             if (expected != value) {

@@ -3,12 +3,11 @@ package me.jellysquid.mods.lithium.common.shapes;
 import it.unimi.dsi.fastutil.doubles.*;
 import me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.collisions.empty_space.ArrayVoxelShapeInvoker;
 import me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.collisions.empty_space.BitSetVoxelSetAccessor;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.BitSetVoxelSet;
-import net.minecraft.util.shape.VoxelShape;
-
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +20,7 @@ public class VoxelShapeHelper {
      * not construct many unnecessary shapes. Instead, the resulting shape is constructed directly from a bitset.
      * <p>
      * [NotVanilla] This method is slightly different from vanilla if there are multiple point positions from
-     * {@link VoxelShape#getPointPositions(Direction.Axis)} that are within 1e-7 of each other. In that case, vanilla
+     * {@link VoxelShape#getCoords(Direction.Axis)} that are within 1e-7 of each other. In that case, vanilla
      * discards one of the point positions, effectively shifting one shape boundary by up to 1e-7.
      * This implementation just keeps all point positions, possibly leading to a completely different result.
      *
@@ -30,7 +29,7 @@ public class VoxelShapeHelper {
      * @param boxes The boxes that the point must not be inside
      * @return The closest point to the target point that is inside the collidingShape but not inside any of the boxes
      */
-    public static Optional<Vec3d> getClosestPointTo(Vec3d target, VoxelShape collidingShape, List<Box> boxes) {
+    public static Optional<Vec3> getClosestPointTo(Vec3 target, VoxelShape collidingShape, List<AABB> boxes) {
         // First create a shape that contains the volume: collidingShape \ boxes
 
         // Create the point positions for x, y and z:
@@ -38,18 +37,18 @@ public class VoxelShapeHelper {
         DoubleOpenHashSet yPoints = new DoubleOpenHashSet();
         DoubleOpenHashSet zPoints = new DoubleOpenHashSet();
 
-        xPoints.addAll(collidingShape.getPointPositions(Direction.Axis.X));
-        yPoints.addAll(collidingShape.getPointPositions(Direction.Axis.Y));
-        zPoints.addAll(collidingShape.getPointPositions(Direction.Axis.Z));
+        xPoints.addAll(collidingShape.getCoords(Direction.Axis.X));
+        yPoints.addAll(collidingShape.getCoords(Direction.Axis.Y));
+        zPoints.addAll(collidingShape.getCoords(Direction.Axis.Z));
 
-        double minX = collidingShape.getMin(Direction.Axis.X);
-        double maxX = collidingShape.getMax(Direction.Axis.X);
-        double minY = collidingShape.getMin(Direction.Axis.Y);
-        double maxY = collidingShape.getMax(Direction.Axis.Y);
-        double minZ = collidingShape.getMin(Direction.Axis.Z);
-        double maxZ = collidingShape.getMax(Direction.Axis.Z);
+        double minX = collidingShape.min(Direction.Axis.X);
+        double maxX = collidingShape.max(Direction.Axis.X);
+        double minY = collidingShape.min(Direction.Axis.Y);
+        double maxY = collidingShape.max(Direction.Axis.Y);
+        double minZ = collidingShape.min(Direction.Axis.Z);
+        double maxZ = collidingShape.max(Direction.Axis.Z);
 
-        for (Box box : boxes) {
+        for (AABB box : boxes) {
             if (box.minX > minX) {
                 xPoints.add(box.minX);
             }
@@ -98,10 +97,10 @@ public class VoxelShapeHelper {
         int ySize = yList.size() - 1;
         int zSize = zList.size() - 1;
 
-        BitSetVoxelSet bitSetVoxelSet = new BitSetVoxelSet(xSize, ySize, zSize);
+        BitSetDiscreteVoxelShape bitSetVoxelSet = new BitSetDiscreteVoxelShape(xSize, ySize, zSize);
         //Initialize min/max of the voxelSet:
-        bitSetVoxelSet.set(0,0,0);
-        bitSetVoxelSet.set(xSize, ySize, zSize);
+        bitSetVoxelSet.fill(0,0,0);
+        bitSetVoxelSet.fill(xSize, ySize, zSize);
         //Clear the values have just written, but without updating min/max x, y, z values. The voxelSet is empty
         // but has the correct min/max values after this
         BitSet bitSet = ((BitSetVoxelSetAccessor) (Object) bitSetVoxelSet).getStorage();
@@ -113,12 +112,12 @@ public class VoxelShapeHelper {
         //Get the closest point like vanilla, because the conflict resolution (two points with same distance)
         // details need to be the same.
         VoxelShape shape = ArrayVoxelShapeInvoker.init(bitSetVoxelSet, xList, yList, zList);
-        return shape.getClosestPointTo(target);
+        return shape.closestPointTo(target);
     }
 
-    private static void initVoxelSet(BitSet voxelSet, VoxelShape collidingShape, List<Box> boxes, DoubleArrayList xList, DoubleList yList, DoubleList zList, Double2IntMap xIndex, Double2IntMap yIndex, Double2IntMap zIndex, int xSize, int ySize, int zSize) {
+    private static void initVoxelSet(BitSet voxelSet, VoxelShape collidingShape, List<AABB> boxes, DoubleArrayList xList, DoubleList yList, DoubleList zList, Double2IntMap xIndex, Double2IntMap yIndex, Double2IntMap zIndex, int xSize, int ySize, int zSize) {
         //Add all points inside the collidingShape, remove all points in other boxes afterward
-        for(Box collidingBox : collidingShape.getBoundingBoxes()) {
+        for(AABB collidingBox : collidingShape.toAabbs()) {
             int minX = xIndex.get(collidingBox.minX);
             int maxX = xIndex.get(collidingBox.maxX);
             int minY = yIndex.get(collidingBox.minY);
@@ -134,7 +133,7 @@ public class VoxelShapeHelper {
             }
         }
         BitSet remove = new BitSet(voxelSet.size());
-        for (Box box : boxes) {
+        for (AABB box : boxes) {
             int minX = xIndex.getOrDefault(box.minX, 0);
             int maxX = xIndex.getOrDefault(box.maxX, xSize);
             int minY = yIndex.getOrDefault(box.minY, 0);

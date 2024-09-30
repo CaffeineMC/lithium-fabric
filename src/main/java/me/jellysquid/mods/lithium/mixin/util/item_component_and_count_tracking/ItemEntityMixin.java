@@ -2,8 +2,8 @@ package me.jellysquid.mods.lithium.mixin.util.item_component_and_count_tracking;
 
 import me.jellysquid.mods.lithium.common.util.change_tracking.ChangePublisher;
 import me.jellysquid.mods.lithium.common.util.change_tracking.ChangeSubscriber;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ItemEntityMixin implements ChangePublisher<ItemEntity>, ChangeSubscriber.CountChangeSubscriber<ItemStack> {
 
     @Shadow
-    public abstract ItemStack getStack();
+    public abstract ItemStack getItem();
 
     @Unique
     private ChangeSubscriber<ItemEntity> subscriber;
@@ -25,7 +25,7 @@ public abstract class ItemEntityMixin implements ChangePublisher<ItemEntity>, Ch
 
     @Unique
     private void startTrackingChanges() {
-        ItemStack stack = this.getStack();
+        ItemStack stack = this.getItem();
         if (!stack.isEmpty()) {
             //noinspection unchecked
             ((ChangePublisher<ItemStack>) (Object) stack).lithium$subscribe(this, 0);
@@ -52,7 +52,7 @@ public abstract class ItemEntityMixin implements ChangePublisher<ItemEntity>, Ch
         this.subscriber = ChangeSubscriber.without(this.subscriber, subscriber);
 
         if (this.subscriber == null) {
-            ItemStack stack = this.getStack();
+            ItemStack stack = this.getItem();
             if (!stack.isEmpty()) {
                 //noinspection unchecked
                 ((ChangePublisher<ItemStack>) (Object) stack).lithium$unsubscribe(this);
@@ -63,7 +63,7 @@ public abstract class ItemEntityMixin implements ChangePublisher<ItemEntity>, Ch
 
     @Override
     public void lithium$notify(ItemStack publisher, int subscriberData) {
-        if (publisher != this.getStack()) {
+        if (publisher != this.getItem()) {
             throw new IllegalStateException("Received notification from an unexpected publisher");
         }
 
@@ -83,7 +83,7 @@ public abstract class ItemEntityMixin implements ChangePublisher<ItemEntity>, Ch
 
     @Override
     public void lithium$notifyCount(ItemStack publisher, int subscriberData, int newCount) {
-        if (publisher != this.getStack()) {
+        if (publisher != this.getItem()) {
             throw new IllegalStateException("Received notification from an unexpected publisher");
         }
 
@@ -92,10 +92,10 @@ public abstract class ItemEntityMixin implements ChangePublisher<ItemEntity>, Ch
         }
     }
 
-    @Inject(method = "setStack", at = @At("HEAD"))
+    @Inject(method = "setItem(Lnet/minecraft/world/item/ItemStack;)V", at = @At("HEAD"))
     private void beforeSetStack(ItemStack newStack, CallbackInfo ci) {
         if (this.subscriber != null) {
-            ItemStack oldStack = this.getStack();
+            ItemStack oldStack = this.getItem();
             if (oldStack != newStack) {
                 if (!oldStack.isEmpty()) {
                     //noinspection unchecked

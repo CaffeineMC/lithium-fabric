@@ -1,26 +1,25 @@
 package me.jellysquid.mods.lithium.common.world.scheduler;
 
 import it.unimi.dsi.fastutil.HashCommon;
-import net.minecraft.world.tick.OrderedTick;
-
 import java.util.*;
+import net.minecraft.world.ticks.ScheduledTick;
 
-public class OrderedTickQueue<T> extends AbstractQueue<OrderedTick<T>> {
+public class OrderedTickQueue<T> extends AbstractQueue<ScheduledTick<T>> {
     private static final int INITIAL_CAPACITY = 16;
-    private static final Comparator<OrderedTick<?>> COMPARATOR = Comparator.comparingLong(OrderedTick::subTickOrder);
+    private static final Comparator<ScheduledTick<?>> COMPARATOR = Comparator.comparingLong(ScheduledTick::subTickOrder);
 
-    private OrderedTick<T>[] arr;
+    private ScheduledTick<T>[] arr;
 
     private int lastIndexExclusive;
     private int firstIndex;
 
     private long currentMaxSubTickOrder = Long.MIN_VALUE;
     private boolean isSorted;
-    private OrderedTick<T> unsortedPeekResult;
+    private ScheduledTick<T> unsortedPeekResult;
 
     @SuppressWarnings("unchecked")
     public OrderedTickQueue(int capacity) {
-        this.arr = (OrderedTick<T>[]) new OrderedTick[capacity];
+        this.arr = (ScheduledTick<T>[]) new ScheduledTick[capacity];
         this.lastIndexExclusive = 0;
         this.isSorted = true;
         this.unsortedPeekResult = null;
@@ -42,7 +41,7 @@ public class OrderedTickQueue<T> extends AbstractQueue<OrderedTick<T>> {
     }
 
     @Override
-    public Iterator<OrderedTick<T>> iterator() {
+    public Iterator<ScheduledTick<T>> iterator() {
         if (this.isEmpty()) {
             return Collections.emptyIterator();
         }
@@ -56,30 +55,30 @@ public class OrderedTickQueue<T> extends AbstractQueue<OrderedTick<T>> {
             }
 
             @Override
-            public OrderedTick<T> next() {
+            public ScheduledTick<T> next() {
                 return OrderedTickQueue.this.arr[this.nextIndex++];
             }
         };
     }
 
     @Override
-    public OrderedTick<T> poll() {
+    public ScheduledTick<T> poll() {
         if (this.isEmpty()) {
             return null;
         }
         if (!this.isSorted) {
             this.sort();
         }
-        OrderedTick<T> nextTick;
+        ScheduledTick<T> nextTick;
         int polledIndex = this.firstIndex++;
-        OrderedTick<T>[] ticks = this.arr;
+        ScheduledTick<T>[] ticks = this.arr;
         nextTick = ticks[polledIndex];
         ticks[polledIndex] = null;
         return nextTick;
     }
 
     @Override
-    public OrderedTick<T> peek() {
+    public ScheduledTick<T> peek() {
         if (!this.isSorted) {
             return this.unsortedPeekResult;
         } else if (this.lastIndexExclusive > this.firstIndex) {
@@ -88,7 +87,7 @@ public class OrderedTickQueue<T> extends AbstractQueue<OrderedTick<T>> {
         return null;
     }
 
-    public boolean offer(OrderedTick<T> tick) {
+    public boolean offer(ScheduledTick<T> tick) {
         if (this.lastIndexExclusive >= this.arr.length) {
             //todo remove consumed elements first
             this.arr = copyArray(this.arr, HashCommon.nextPowerOfTwo(this.arr.length + 1));
@@ -98,7 +97,7 @@ public class OrderedTickQueue<T> extends AbstractQueue<OrderedTick<T>> {
             //This is rare but may happen in bulk
             //Sorting later needs O(n*log(n)) time, but it only needs to happen when unordered insertion needs to happen
             //Therefore it is better than n times log(n) time of the PriorityQueue that happens on ordered insertion too
-            OrderedTick<T> firstTick = this.isSorted ? this.size() > 0 ? this.arr[this.firstIndex] : null : this.unsortedPeekResult;
+            ScheduledTick<T> firstTick = this.isSorted ? this.size() > 0 ? this.arr[this.firstIndex] : null : this.unsortedPeekResult;
             this.isSorted = false;
             this.unsortedPeekResult = firstTick == null || tick.subTickOrder() < firstTick.subTickOrder() ? tick : firstTick;
         } else {
@@ -127,7 +126,7 @@ public class OrderedTickQueue<T> extends AbstractQueue<OrderedTick<T>> {
         if (size == 0 || !this.isSorted) {
             this.currentMaxSubTickOrder = Long.MIN_VALUE;
         } else {
-            OrderedTick<T> tick = this.arr[size - 1];
+            ScheduledTick<T> tick = this.arr[size - 1];
             this.currentMaxSubTickOrder = tick == null ? Long.MIN_VALUE : tick.subTickOrder();
         }
     }
@@ -146,7 +145,7 @@ public class OrderedTickQueue<T> extends AbstractQueue<OrderedTick<T>> {
         int src = this.firstIndex;
         int dst = 0;
         while (src < this.lastIndexExclusive) {
-            OrderedTick<T> orderedTick = this.arr[src];
+            ScheduledTick<T> orderedTick = this.arr[src];
             if (orderedTick != null) {
                 this.arr[dst] = orderedTick;
                 dst++;
@@ -156,14 +155,14 @@ public class OrderedTickQueue<T> extends AbstractQueue<OrderedTick<T>> {
         this.handleCompaction(dst);
     }
 
-    public OrderedTick<T> getTickAtIndex(int index) {
+    public ScheduledTick<T> getTickAtIndex(int index) {
         if (!this.isSorted) {
             throw new IllegalStateException("Unexpected access on unsorted queue!");
         }
         return this.arr[index];
     }
 
-    public void setTickAtIndex(int index, OrderedTick<T> tick) {
+    public void setTickAtIndex(int index, ScheduledTick<T> tick) {
         if (!this.isSorted) {
             throw new IllegalStateException("Unexpected access on unsorted queue!");
         }
@@ -171,8 +170,8 @@ public class OrderedTickQueue<T> extends AbstractQueue<OrderedTick<T>> {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> OrderedTick<T>[] copyArray(OrderedTick<T>[] src, int size) {
-        final OrderedTick<T>[] copy = new OrderedTick[Math.max(INITIAL_CAPACITY, size)];
+    private static <T> ScheduledTick<T>[] copyArray(ScheduledTick<T>[] src, int size) {
+        final ScheduledTick<T>[] copy = new ScheduledTick[Math.max(INITIAL_CAPACITY, size)];
 
         if (size != 0) {
             System.arraycopy(src, 0, copy, 0, Math.min(src.length, size));

@@ -2,14 +2,14 @@ package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.fur
 
 import me.jellysquid.mods.lithium.common.block.entity.SleepingBlockEntity;
 import me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.WrappedBlockEntityTickInvokerAccessor;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.BlockEntityTickInvoker;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,12 +21,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class AbstractFurnaceBlockEntityMixin extends BlockEntity implements SleepingBlockEntity {
 
     @Shadow
-    protected abstract boolean isBurning();
+    protected abstract boolean isLit();
 
     @Shadow
-    int cookTime;
+    int cookingProgress;
     private WrappedBlockEntityTickInvokerAccessor tickWrapper = null;
-    private BlockEntityTickInvoker sleepingTicker = null;
+    private TickingBlockEntity sleepingTicker = null;
 
     public AbstractFurnaceBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -44,43 +44,43 @@ public abstract class AbstractFurnaceBlockEntityMixin extends BlockEntity implem
     }
 
     @Override
-    public BlockEntityTickInvoker lithium$getSleepingTicker() {
+    public TickingBlockEntity lithium$getSleepingTicker() {
         return sleepingTicker;
     }
 
     @Override
-    public void lithium$setSleepingTicker(BlockEntityTickInvoker sleepingTicker) {
+    public void lithium$setSleepingTicker(TickingBlockEntity sleepingTicker) {
         this.sleepingTicker = sleepingTicker;
     }
 
-    @Inject(method = "tick", at = @At("RETURN" ))
-    private static void checkSleep(World world, BlockPos pos, BlockState state, AbstractFurnaceBlockEntity blockEntity, CallbackInfo ci) {
+    @Inject(method = "serverTick(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity;)V", at = @At("RETURN" ))
+    private static void checkSleep(Level world, BlockPos pos, BlockState state, AbstractFurnaceBlockEntity blockEntity, CallbackInfo ci) {
         ((AbstractFurnaceBlockEntityMixin) (Object) blockEntity).checkSleep(state);
     }
 
     private void checkSleep(BlockState state) {
-        if (!this.isBurning() && this.cookTime == 0 && (state.isOf(Blocks.FURNACE) || state.isOf(Blocks.BLAST_FURNACE) || state.isOf(Blocks.SMOKER)) && this.world != null) {
+        if (!this.isLit() && this.cookingProgress == 0 && (state.is(Blocks.FURNACE) || state.is(Blocks.BLAST_FURNACE) || state.is(Blocks.SMOKER)) && this.level != null) {
             this.lithium$startSleeping();
         }
     }
 
-    @Inject(method = "readNbt", at = @At("RETURN" ))
+    @Inject(method = "loadAdditional(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;)V", at = @At("RETURN" ))
     private void wakeUpAfterFromTag(CallbackInfo ci) {
-        if (this.isSleeping() && this.world != null && !this.world.isClient) {
+        if (this.isSleeping() && this.level != null && !this.level.isClientSide) {
             this.wakeUpNow();
         }
     }
 
     @Override
     @Intrinsic
-    public void markDirty() {
-        super.markDirty();
+    public void setChanged() {
+        super.setChanged();
     }
 
     @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
-    @Inject(method = "markDirty()V", at = @At("RETURN"))
+    @Inject(method = "setChanged()V", at = @At("RETURN"))
     private void wakeOnMarkDirty(CallbackInfo ci) {
-        if (this.isSleeping() && this.world != null && !this.world.isClient) {
+        if (this.isSleeping() && this.level != null && !this.level.isClientSide) {
             this.wakeUpNow();
         }
     }

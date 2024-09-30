@@ -2,13 +2,12 @@ package me.jellysquid.mods.lithium.common.util.collections;
 
 import it.unimi.dsi.fastutil.bytes.ByteBytePair;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import net.minecraft.entity.ai.brain.task.LongJumpTask;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.ai.behavior.LongJumpToRandomPos;
 
 /**
  * This class represents a list of potential targets for a long jump task. It only implements the List interface, so
@@ -24,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * This implementation keeps an up-to-date total weight, allows random choice with fewer addition operations.
  * Removal is done quickly by swapping the removed element to the end, disregarding the order of elements.
  */
-public class LongJumpChoiceList extends AbstractList<LongJumpTask.Target> {
+public class LongJumpChoiceList extends AbstractList<LongJumpToRandomPos.PossibleJump> {
 
     /**
      * A cache of choice lists for different ranges. The elements must not be mutated, but copied instead.
@@ -57,7 +56,7 @@ public class LongJumpChoiceList extends AbstractList<LongJumpTask.Target> {
             throw new IllegalArgumentException("The ranges must be within 0..127!");
         }
 
-        this.origin = BlockPos.ORIGIN;
+        this.origin = BlockPos.ZERO;
         int maxSqDistance = horizontalRange*horizontalRange * 2 + verticalRange*verticalRange;
         this.packedOffsetsByDistanceSq = new IntArrayList[maxSqDistance];
         this.weightByDistanceSq = new int[maxSqDistance];
@@ -146,7 +145,7 @@ public class LongJumpChoiceList extends AbstractList<LongJumpTask.Target> {
         }
 
         return new LongJumpChoiceList(
-                this.origin.add(offset),
+                this.origin.offset(offset),
                 packedOffsetsByDistanceSq,
                 Arrays.copyOf(this.weightByDistanceSq, this.weightByDistanceSq.length), this.totalWeight);
     }
@@ -156,7 +155,7 @@ public class LongJumpChoiceList extends AbstractList<LongJumpTask.Target> {
      * @param random the random number generator
      * @return a random target
      */
-    public LongJumpTask.Target removeRandomWeightedByDistanceSq(Random random) {
+    public LongJumpToRandomPos.PossibleJump removeRandomWeightedByDistanceSq(RandomSource random) {
         int targetWeight = random.nextInt(this.totalWeight);
         for (int index = 0; targetWeight >= 0 && index < this.weightByDistanceSq.length; index++) {
             targetWeight -= this.weightByDistanceSq[index];
@@ -171,14 +170,14 @@ public class LongJumpChoiceList extends AbstractList<LongJumpTask.Target> {
                 this.weightByDistanceSq[index] -= distanceSq;
                 this.totalWeight -= distanceSq;
 
-                return new LongJumpTask.Target(this.origin.add(this.unpackX(packedOffset), this.unpackY(packedOffset), this.unpackZ(packedOffset)), distanceSq);
+                return new LongJumpToRandomPos.PossibleJump(this.origin.offset(this.unpackX(packedOffset), this.unpackY(packedOffset), this.unpackZ(packedOffset)), distanceSq);
             }
         }
         return null;
     }
 
     @Override
-    public LongJumpTask.Target get(int index) {
+    public LongJumpToRandomPos.PossibleJump get(int index) {
         int elementIndex = index;
         IntArrayList[] offsetsByDistanceSq = this.packedOffsetsByDistanceSq;
         for (int distanceSq = 0; distanceSq < offsetsByDistanceSq.length; distanceSq++) {
@@ -186,7 +185,7 @@ public class LongJumpChoiceList extends AbstractList<LongJumpTask.Target> {
             if (packedOffsets != null) {
                 if (elementIndex < packedOffsets.size()) {
                     int packedOffset = packedOffsets.getInt(elementIndex);
-                    return new LongJumpTask.Target(this.origin.add(this.unpackX(packedOffset), this.unpackY(packedOffset), this.unpackZ(packedOffset)), distanceSq);
+                    return new LongJumpToRandomPos.PossibleJump(this.origin.offset(this.unpackX(packedOffset), this.unpackY(packedOffset), this.unpackZ(packedOffset)), distanceSq);
                 }
                 elementIndex -= packedOffsets.size();
             }
@@ -211,7 +210,7 @@ public class LongJumpChoiceList extends AbstractList<LongJumpTask.Target> {
     }
 
     @Override
-    public LongJumpTask.Target remove(int index) {
+    public LongJumpToRandomPos.PossibleJump remove(int index) {
         int elementIndex = index;
         IntArrayList[] offsetsByDistanceSq = this.packedOffsetsByDistanceSq;
         for (int distanceSq = 0; distanceSq < offsetsByDistanceSq.length; distanceSq++) {
@@ -223,7 +222,7 @@ public class LongJumpChoiceList extends AbstractList<LongJumpTask.Target> {
                     packedOffsets.removeInt(packedOffsets.size() - 1);
                     this.weightByDistanceSq[distanceSq] -= distanceSq;
                     this.totalWeight -= distanceSq;
-                    return new LongJumpTask.Target(this.origin.add(this.unpackX(packedOffset), this.unpackY(packedOffset), this.unpackZ(packedOffset)), distanceSq);
+                    return new LongJumpToRandomPos.PossibleJump(this.origin.offset(this.unpackX(packedOffset), this.unpackY(packedOffset), this.unpackZ(packedOffset)), distanceSq);
                 }
                 elementIndex -= packedOffsets.size();
             }

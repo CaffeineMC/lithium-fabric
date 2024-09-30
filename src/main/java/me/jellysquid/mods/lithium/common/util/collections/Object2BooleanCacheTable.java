@@ -1,9 +1,8 @@
 package me.jellysquid.mods.lithium.common.util.collections;
 
 import it.unimi.dsi.fastutil.HashCommon;
-import net.minecraft.util.math.MathHelper;
-
 import java.util.function.Predicate;
+import net.minecraft.util.Mth;
 
 /**
  * A lossy hashtable implementation that stores a mapping between an object and a boolean.
@@ -22,7 +21,7 @@ public final class Object2BooleanCacheTable<T> {
 
     @SuppressWarnings("unchecked")
     public Object2BooleanCacheTable(int capacity, Predicate<T> operator) {
-        int capacity1 = MathHelper.smallestEncompassingPowerOfTwo(capacity);
+        int capacity1 = Mth.smallestEncompassingPowerOfTwo(capacity);
         this.mask = capacity1 - 1;
 
         this.nodes = (Node<T>[]) new Node[capacity1];

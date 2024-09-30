@@ -1,26 +1,26 @@
 package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.world_border;
 
 import me.jellysquid.mods.lithium.common.world.listeners.WorldBorderListenerOnce;
-import net.minecraft.server.world.ChunkLevelType;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.World;
-import net.minecraft.world.border.WorldBorder;
-import net.minecraft.world.border.WorldBorderStage;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.FullChunkStatus;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.border.BorderStatus;
+import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(targets = "net.minecraft.world.chunk.WorldChunk$DirectBlockEntityTickInvoker")
+@Mixin(targets = "net/minecraft/world/level/chunk/LevelChunk$BoundTickingBlockEntity")
 public abstract class DirectBlockEntityTickInvokerMixin implements WorldBorderListenerOnce {
 
     @Shadow
     @Final
-    WorldChunk worldChunk;
+    LevelChunk field_27223;
 
     @Shadow
     public abstract BlockPos getPos();
@@ -31,14 +31,14 @@ public abstract class DirectBlockEntityTickInvokerMixin implements WorldBorderLi
             method = "tick",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/chunk/WorldChunk;canTickBlockEntity(Lnet/minecraft/util/math/BlockPos;)Z"
+                    target = "Lnet/minecraft/world/level/chunk/LevelChunk;isTicking(Lnet/minecraft/core/BlockPos;)Z"
             )
     )
-    private boolean cachedCanTickBlockEntity(WorldChunk instance, BlockPos pos) {
+    private boolean cachedCanTickBlockEntity(LevelChunk instance, BlockPos pos) {
         if (this.isInsideWorldBorder()) {
-            World world = this.worldChunk.getWorld();
-            if (world instanceof ServerWorld serverWorld) {
-                return this.worldChunk.getLevelType().isAfter(ChunkLevelType.BLOCK_TICKING) && serverWorld.isChunkLoaded(ChunkPos.toLong(pos));
+            Level world = this.field_27223.getLevel();
+            if (world instanceof ServerLevel serverWorld) {
+                return this.field_27223.getFullStatus().isOrAfter(FullChunkStatus.BLOCK_TICKING) && serverWorld.areEntitiesLoaded(ChunkPos.asLong(pos));
             }
             return true;
         } else {
@@ -55,20 +55,20 @@ public abstract class DirectBlockEntityTickInvokerMixin implements WorldBorderLi
         if ((worldBorderState & 3) == 3) {
             return (worldBorderState & 4) != 0;
         }
-        return this.worldChunk.getWorld().getWorldBorder().contains(this.getPos());
+        return this.field_27223.getLevel().getWorldBorder().isWithinBounds(this.getPos());
     }
 
     private void startWorldBorderCaching() {
         this.worldBorderState = (byte) 1;
-        WorldBorder worldBorder = this.worldChunk.getWorld().getWorldBorder();
+        WorldBorder worldBorder = this.field_27223.getLevel().getWorldBorder();
         worldBorder.addListener(this);
-        boolean isStationary = worldBorder.getStage() == WorldBorderStage.STATIONARY;
-        if (worldBorder.contains(this.getPos())) {
-            if (isStationary || worldBorder.getStage() == WorldBorderStage.GROWING) {
+        boolean isStationary = worldBorder.getStatus() == BorderStatus.STATIONARY;
+        if (worldBorder.isWithinBounds(this.getPos())) {
+            if (isStationary || worldBorder.getStatus() == BorderStatus.GROWING) {
                 this.worldBorderState |= (byte) 6;
             }
         } else {
-            if (isStationary || worldBorder.getStage() == WorldBorderStage.SHRINKING) {
+            if (isStationary || worldBorder.getStatus() == BorderStatus.SHRINKING) {
                 this.worldBorderState |= (byte) 2;
             }
         }

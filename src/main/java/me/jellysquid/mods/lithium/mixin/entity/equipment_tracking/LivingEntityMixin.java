@@ -4,12 +4,12 @@ package me.jellysquid.mods.lithium.mixin.entity.equipment_tracking;
 import me.jellysquid.mods.lithium.common.entity.EquipmentEntity;
 import me.jellysquid.mods.lithium.common.util.change_tracking.ChangePublisher;
 import me.jellysquid.mods.lithium.common.util.change_tracking.ChangeSubscriber;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,16 +19,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements ChangeSubscriber.CountChangeSubscriber<ItemStack>, EquipmentEntity {
 
-    public LivingEntityMixin(EntityType<?> type, World world) {
+    public LivingEntityMixin(EntityType<?> type, Level world) {
         super(type, world);
     }
 
     @Inject(
-            method = "onEquipStack", require = 1, allow = 1,
-            at = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;firstUpdate:Z")
+            method = "onEquipItem(Lnet/minecraft/world/entity/EquipmentSlot;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)V", require = 1, allow = 1,
+            at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/LivingEntity;firstTick:Z")
     )
     private void handleStackEquip(EquipmentSlot slot, ItemStack oldStack, ItemStack newStack, CallbackInfo ci) {
-        if (!this.getWorld().isClient()) {
+        if (!this.level().isClientSide()) {
             this.lithium$onEquipmentReplaced(oldStack, newStack);
         }
     }

@@ -1,12 +1,12 @@
 package me.jellysquid.mods.lithium.common.util.tuples;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.poi.PointOfInterest;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.ai.village.poi.PoiRecord;
 
-public record SortedPointOfInterest(PointOfInterest poi, double distanceSq) {
+public record SortedPointOfInterest(PoiRecord poi, double distanceSq) {
 
-    public SortedPointOfInterest(PointOfInterest poi, BlockPos origin) {
-        this(poi, poi.getPos().getSquaredDistance(origin));
+    public SortedPointOfInterest(PoiRecord poi, BlockPos origin) {
+        this(poi, poi.getPos().distSqr(origin));
     }
 
     public BlockPos getPos() {

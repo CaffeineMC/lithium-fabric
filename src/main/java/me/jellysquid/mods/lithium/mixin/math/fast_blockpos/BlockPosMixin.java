@@ -1,8 +1,8 @@
 package me.jellysquid.mods.lithium.mixin.math.fast_blockpos;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Overwrite;
  * This class has been subject of many similar patches, but I've not been able to replicate the same magnitude of
  * improvement that has apparently been shown by other people through just inlining direction vectors.
  *
- * In fact, when inlining the {@link BlockPos#offset(Direction)} method, the common approach ended up generating
+ * In fact, when inlining the {@link BlockPos#relative(Direction)} method, the common approach ended up generating
  * significantly worse machine code by introducing a costly branching switch table and hugely inflating the
  * instruction count, which seems to match what I would expect.
  */
@@ -30,7 +30,7 @@ public abstract class BlockPosMixin extends Vec3i {
      */
     @Override
     @Overwrite
-    public BlockPos up() {
+    public BlockPos above() {
         return new BlockPos(this.getX(), this.getY() + 1, this.getZ());
     }
 
@@ -40,7 +40,7 @@ public abstract class BlockPosMixin extends Vec3i {
      */
     @Override
     @Overwrite
-    public BlockPos up(int distance) {
+    public BlockPos above(int distance) {
         return new BlockPos(this.getX(), this.getY() + distance, this.getZ());
     }
 
@@ -50,7 +50,7 @@ public abstract class BlockPosMixin extends Vec3i {
      */
     @Override
     @Overwrite
-    public BlockPos down() {
+    public BlockPos below() {
         return new BlockPos(this.getX(), this.getY() - 1, this.getZ());
     }
 
@@ -60,7 +60,7 @@ public abstract class BlockPosMixin extends Vec3i {
      */
     @Override
     @Overwrite
-    public BlockPos down(int distance) {
+    public BlockPos below(int distance) {
         return new BlockPos(this.getX(), this.getY() - distance, this.getZ());
     }
 

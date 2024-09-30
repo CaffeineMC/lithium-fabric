@@ -1,18 +1,17 @@
 package me.jellysquid.mods.lithium.common.world.chunk;
 
-import net.minecraft.server.world.ChunkLevelType;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.ChunkPos;
-
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
+import net.minecraft.server.level.FullChunkStatus;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 
 public class ChunkStatusTracker {
 
     //Add other callback types in the future when needed
-    private static final ArrayList<BiConsumer<ServerWorld, ChunkPos>> UNLOAD_CALLBACKS = new ArrayList<>();
-    public static void onChunkStatusChange(ServerWorld serverWorld, ChunkPos pos, ChunkLevelType levelType) {
-        boolean loaded = levelType.isAfter(ChunkLevelType.FULL);
+    private static final ArrayList<BiConsumer<ServerLevel, ChunkPos>> UNLOAD_CALLBACKS = new ArrayList<>();
+    public static void onChunkStatusChange(ServerLevel serverWorld, ChunkPos pos, FullChunkStatus levelType) {
+        boolean loaded = levelType.isOrAfter(FullChunkStatus.FULL);
         if (!loaded) {
             for (int i = 0; i < UNLOAD_CALLBACKS.size(); i++) {
                 UNLOAD_CALLBACKS.get(i).accept(serverWorld, pos);
@@ -20,7 +19,7 @@ public class ChunkStatusTracker {
         }
     }
 
-    public static void registerUnloadCallback(BiConsumer<ServerWorld, ChunkPos> callback) {
+    public static void registerUnloadCallback(BiConsumer<ServerLevel, ChunkPos> callback) {
         UNLOAD_CALLBACKS.add(callback);
     }
 }

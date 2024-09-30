@@ -9,33 +9,33 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 public class ComposterMixin {
 
-    @Mixin(targets = "net.minecraft.block.ComposterBlock$ComposterInventory")
+    @Mixin(targets = "net/minecraft/world/level/block/ComposterBlock$InputContainer")
     static abstract class ComposterBlockComposterInventoryMixin implements BlockStateOnlyInventory {
         @Shadow
-        private boolean dirty;
+        private boolean changed;
 
         /**
          * Fixes composter inventories becoming blocked forever for no reason, which makes them not cacheable.
          */
         @Inject(
-                method = "markDirty()V",
+                method = "setChanged",
                 at = @At(
                         value = "INVOKE",
-                        target = "Lnet/minecraft/block/ComposterBlock$ComposterInventory;removeStack(I)Lnet/minecraft/item/ItemStack;"
+                        target = "Lnet/minecraft/world/level/block/ComposterBlock$InputContainer;removeItemNoUpdate(I)Lnet/minecraft/world/item/ItemStack;"
                 )
         )
         private void resetDirty(CallbackInfo ci) {
-            this.dirty = false;
+            this.changed = false;
         }
 
     }
 
-    @Mixin(targets = "net.minecraft.block.ComposterBlock$DummyInventory")
+    @Mixin(targets = "net/minecraft/world/level/block/ComposterBlock$EmptyContainer")
     static abstract class ComposterBlockDummyInventoryMixin implements BlockStateOnlyInventory {
 
     }
 
-    @Mixin(targets = "net.minecraft.block.ComposterBlock$FullComposterInventory")
+    @Mixin(targets = "net/minecraft/world/level/block/ComposterBlock$OutputContainer")
     static abstract class ComposterBlockFullComposterInventoryMixin implements BlockStateOnlyInventory {
 
     }

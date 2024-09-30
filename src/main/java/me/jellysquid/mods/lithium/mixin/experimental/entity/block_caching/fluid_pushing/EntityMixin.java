@@ -3,12 +3,12 @@ package me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching.fluid
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.BlockCache;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.BlockCacheProvider;
-import net.minecraft.entity.Entity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,16 +19,13 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(Entity.class)
 public abstract class EntityMixin implements BlockCacheProvider {
     @Shadow
-    public abstract Box getBoundingBox();
+    public abstract AABB getBoundingBox();
 
     @Shadow
     protected Object2DoubleMap<TagKey<Fluid>> fluidHeight;
 
-    @Shadow
-    public abstract World getWorld();
-
     @Inject(
-            method = "updateMovementInFluid",
+            method = "updateFluidHeightAndDoFluidPushing(Lnet/minecraft/tags/TagKey;D)Z",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -44,12 +41,12 @@ public abstract class EntityMixin implements BlockCacheProvider {
 
     @SuppressWarnings("InvalidInjectorMethodSignature")
     @Inject(
-            method = "updateMovementInFluid", locals = LocalCapture.CAPTURE_FAILHARD,
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Vec3d;length()D", ordinal = 0, shift = At.Shift.BEFORE)
+            method = "updateFluidHeightAndDoFluidPushing(Lnet/minecraft/tags/TagKey;D)Z", locals = LocalCapture.CAPTURE_FAILHARD,
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/Vec3;length()D", ordinal = 0, shift = At.Shift.BEFORE)
     )
-    private void cacheFluidSearchResult(TagKey<Fluid> fluid, double speed, CallbackInfoReturnable<Boolean> cir, Box box, int i1, int i2, int i3, int i4, int i5, int i6, double fluidHeight, boolean isPushedbyFluids, boolean touchingFluid, Vec3d fluidPush, int i7) {
+    private void cacheFluidSearchResult(TagKey<Fluid> fluid, double speed, CallbackInfoReturnable<Boolean> cir, AABB box, int i1, int i2, int i3, int i4, int i5, int i6, double fluidHeight, boolean isPushedbyFluids, boolean touchingFluid, Vec3 fluidPush, int i7) {
         BlockCache bc = this.lithium$getBlockCache();
-        if (bc.isTracking() && fluidPush.lengthSquared() == 0d) {
+        if (bc.isTracking() && fluidPush.lengthSqr() == 0d) {
             if (touchingFluid == (fluidHeight == 0d)) {
                 throw new IllegalArgumentException("Expected fluid touching IFF fluid height is not 0! Fluid height: " + fluidHeight + " Touching fluid: " + touchingFluid + " Fluid Tag: " + fluid);
             }

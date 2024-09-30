@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.entity.block_tracking;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 
 public interface BlockCacheProvider {
     BlockCache lithium$getBlockCache();

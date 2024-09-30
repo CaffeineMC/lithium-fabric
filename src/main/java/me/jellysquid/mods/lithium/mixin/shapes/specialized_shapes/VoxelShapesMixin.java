@@ -3,10 +3,10 @@ package me.jellysquid.mods.lithium.mixin.shapes.specialized_shapes;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeAlignedCuboid;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeEmpty;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeSimpleCube;
-import net.minecraft.util.shape.BitSetVoxelSet;
-import net.minecraft.util.shape.VoxelSet;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
+import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.spongepowered.asm.mixin.*;
 
 /**
@@ -22,42 +22,42 @@ import org.spongepowered.asm.mixin.*;
  * (along with the help of the potent JVM) make the cost of dynamic dispatch negligible when compared to the execution
  * times of shape comparison methods.
  */
-@Mixin(VoxelShapes.class)
+@Mixin(Shapes.class)
 public abstract class VoxelShapesMixin {
     @Mutable
     @Shadow
     @Final
-    public static final VoxelShape UNBOUNDED;
+    public static final VoxelShape INFINITY;
 
     @Mutable
     @Shadow
     @Final
-    private static final VoxelShape FULL_CUBE;
+    private static final VoxelShape BLOCK;
 
     @Mutable
     @Shadow
     @Final
     private static final VoxelShape EMPTY;
 
-    private static final VoxelSet FULL_CUBE_VOXELS;
+    private static final DiscreteVoxelShape FULL_CUBE_VOXELS;
 
     // Re-initialize the global cached shapes with our specialized ones. This will happen right after all the static
     // state has been initialized and before any external classes access it.
     static {
         // [VanillaCopy] The FULL_CUBE and UNBOUNDED shape is initialized with a single 1x1x1 voxel as neither will
         // contain multiple inner cuboids.
-        FULL_CUBE_VOXELS = new BitSetVoxelSet(1, 1, 1);
-        FULL_CUBE_VOXELS.set(0, 0, 0);
+        FULL_CUBE_VOXELS = new BitSetDiscreteVoxelShape(1, 1, 1);
+        FULL_CUBE_VOXELS.fill(0, 0, 0);
 
         // Used in some rare cases to indicate a shape which encompasses the entire world (such as a moving world border)
-        UNBOUNDED = new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY,
+        INFINITY = new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY,
                 Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
 
         // Represents a full-block cube shape, such as that for a dirt block.
-        FULL_CUBE = new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
+        BLOCK = new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
 
         // Represents an empty cube shape with no vertices that cannot be collided with.
-        EMPTY = new VoxelShapeEmpty(new BitSetVoxelSet(0, 0, 0));
+        EMPTY = new VoxelShapeEmpty(new BitSetDiscreteVoxelShape(0, 0, 0));
     }
 
     /**
@@ -79,7 +79,7 @@ public abstract class VoxelShapesMixin {
      * @author JellySquid, 2No2Name
      */
     @Overwrite
-    public static VoxelShape cuboidUnchecked(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+    public static VoxelShape create(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         if (maxX - minX < 1.0E-7D || maxY - minY < 1.0E-7D || maxZ - minZ < 1.0E-7D) {
             return EMPTY;
         }
@@ -94,14 +94,14 @@ public abstract class VoxelShapesMixin {
         //If the VoxelShape cannot be represented by a BitSet with 3 bit resolution on any axis (BitSetVoxelSet),
         //a shape without boxes inside will be used in vanilla (ArrayVoxelShape with only 2 PointPositions on each axis)
 
-        if ((xRes = VoxelShapes.findRequiredBitResolution(minX, maxX)) < 0 ||
-                (yRes = VoxelShapes.findRequiredBitResolution(minY, maxY)) < 0 ||
-                (zRes = VoxelShapes.findRequiredBitResolution(minZ, maxZ)) < 0) {
+        if ((xRes = Shapes.findBits(minX, maxX)) < 0 ||
+                (yRes = Shapes.findBits(minY, maxY)) < 0 ||
+                (zRes = Shapes.findBits(minZ, maxZ)) < 0) {
             //vanilla uses ArrayVoxelShape here without any rounding of the coordinates
             return new VoxelShapeSimpleCube(FULL_CUBE_VOXELS, minX, minY, minZ, maxX, maxY, maxZ);
         } else {
             if (xRes == 0 && yRes == 0 && zRes == 0) {
-                return FULL_CUBE;
+                return BLOCK;
             }
             // vanilla would use a SimpleVoxelShape with a BitSetVoxelSet of resolution of xRes, yRes, zRes here, we match its behavior
             return new VoxelShapeAlignedCuboid(Math.round(minX * 8D) / 8D, Math.round(minY * 8D) / 8D, Math.round(minZ * 8D) / 8D,

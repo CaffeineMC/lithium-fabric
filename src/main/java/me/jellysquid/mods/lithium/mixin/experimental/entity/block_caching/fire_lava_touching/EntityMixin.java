@@ -2,14 +2,14 @@ package me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching.fire_
 
 import me.jellysquid.mods.lithium.common.entity.block_tracking.BlockCache;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.BlockCacheProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,34 +22,34 @@ import java.util.stream.Stream;
 public abstract class EntityMixin implements BlockCacheProvider {
     private static final Stream<BlockState> EMPTY_BLOCKSTATE_STREAM = Stream.empty();
     @Shadow
-    private int fireTicks;
+    private int remainingFireTicks;
 
     @Shadow
-    protected abstract int getBurningDuration();
+    protected abstract int getFireImmuneTicks();
 
     @Shadow
     public boolean wasOnFire;
 
     @Shadow
-    public boolean inPowderSnow;
+    public boolean isInPowderSnow;
 
     @Shadow
-    public abstract boolean isWet();
+    public abstract boolean isInWaterRainOrBubble();
 
     @Redirect(
-            method = "move(Lnet/minecraft/entity/MovementType;Lnet/minecraft/util/math/Vec3d;)V",
+            method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/World;getStatesInBoxIfLoaded(Lnet/minecraft/util/math/Box;)Ljava/util/stream/Stream;"
+                    target = "Lnet/minecraft/world/level/Level;getBlockStatesIfLoaded(Lnet/minecraft/world/phys/AABB;)Ljava/util/stream/Stream;"
             )
     )
-    private Stream<BlockState> skipFireTestIfResultDoesNotMatterOrIsCached(World world, Box box) {
+    private Stream<BlockState> skipFireTestIfResultDoesNotMatterOrIsCached(Level world, AABB box) {
         // Skip scanning the blocks around the entity touches by returning null when the result does not matter
         // Return null when there is no fire / lava => the branch of noneMatch is not taken
         // Otherwise return anything non-null. Here: Stream.empty. See skipNullStream(...) below.
         // Passing null vs Stream.empty() isn't nice but necessary to avoid the slow Stream API. Also
         // [VanillaCopy] the fire / lava check and the side effects (this.fireTicks) and their conditions needed to be copied. This might affect compatibility with other mods.
-        if ((this.fireTicks > 0 || this.fireTicks == -this.getBurningDuration()) && (!this.wasOnFire || !this.inPowderSnow && !this.isWet())) {
+        if ((this.remainingFireTicks > 0 || this.remainingFireTicks == -this.getFireImmuneTicks()) && (!this.wasOnFire || !this.isInPowderSnow && !this.isInWaterRainOrBubble())) {
             return null;
         }
 
@@ -63,22 +63,22 @@ public abstract class EntityMixin implements BlockCacheProvider {
             return EMPTY_BLOCKSTATE_STREAM;
         }
 
-        int minX = MathHelper.floor(box.minX);
-        int maxX = MathHelper.floor(box.maxX);
-        int minY = MathHelper.floor(box.minY);
-        int maxY = MathHelper.floor(box.maxY);
-        int minZ = MathHelper.floor(box.minZ);
-        int maxZ = MathHelper.floor(box.maxZ);
+        int minX = Mth.floor(box.minX);
+        int maxX = Mth.floor(box.maxX);
+        int minY = Mth.floor(box.minY);
+        int maxY = Mth.floor(box.maxY);
+        int minZ = Mth.floor(box.minZ);
+        int maxZ = Mth.floor(box.maxZ);
 
-        if (maxY >= world.getBottomY() && minY < world.getTopY()) {
-            if (world.isRegionLoaded(minX, minZ, maxX, maxZ)) {
-                BlockPos.Mutable blockPos = new BlockPos.Mutable();
+        if (maxY >= world.getMinBuildHeight() && minY < world.getMaxBuildHeight()) {
+            if (world.hasChunksAt(minX, minZ, maxX, maxZ)) {
+                BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos();
                 for (int y = minY; y <= maxY; y++) {
                     for (int z = minZ; z <= maxZ; z++) {
                         for (int x = minX; x <= maxX; x++) {
                             blockPos.set(x, y, z);
                             BlockState state = world.getBlockState(blockPos);
-                            if (state.isIn(BlockTags.FIRE) || state.isOf(Blocks.LAVA)) {
+                            if (state.is(BlockTags.FIRE) || state.is(Blocks.LAVA)) {
                                 bc.setCachedTouchingFireLava(true);
                                 return EMPTY_BLOCKSTATE_STREAM;
                             }
@@ -92,7 +92,7 @@ public abstract class EntityMixin implements BlockCacheProvider {
     }
 
     @Redirect(
-            method = "move(Lnet/minecraft/entity/MovementType;Lnet/minecraft/util/math/Vec3d;)V",
+            method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V",
             at = @At(
                     value = "INVOKE",
                     target = "Ljava/util/stream/Stream;noneMatch(Ljava/util/function/Predicate;)Z"

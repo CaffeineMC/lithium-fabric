@@ -2,14 +2,14 @@ package me.jellysquid.mods.lithium.mixin.minimal_nonvanilla.collisions.empty_spa
 
 import me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.border.WorldBorder;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 
@@ -17,40 +17,40 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Mixin(World.class)
-public abstract class WorldMixin implements WorldAccess {
+@Mixin(Level.class)
+public abstract class WorldMixin implements LevelAccessor {
 
 
     @Override
-    public Optional<Vec3d> findClosestCollision(@Nullable Entity collidingEntity, VoxelShape collidingShape, Vec3d originalPosition, double maxXOffset, double maxYOffset, double maxZOffset) {
+    public Optional<Vec3> findFreePosition(@Nullable Entity collidingEntity, VoxelShape collidingShape, Vec3 originalPosition, double maxXOffset, double maxYOffset, double maxZOffset) {
         if (collidingShape.isEmpty()) {
             return Optional.empty();
         } else {
-            Box collidingBox = collidingShape.getBoundingBox();
-            Box searchBox = collidingBox.expand(maxXOffset, maxYOffset, maxZOffset);
+            AABB collidingBox = collidingShape.bounds();
+            AABB searchBox = collidingBox.inflate(maxXOffset, maxYOffset, maxZOffset);
 
-            List<VoxelShape> blockCollisions = LithiumEntityCollisions.getBlockCollisions((World) (Object) this, collidingEntity, searchBox);
+            List<VoxelShape> blockCollisions = LithiumEntityCollisions.getBlockCollisions((Level) (Object) this, collidingEntity, searchBox);
             if (blockCollisions.isEmpty()) {
-                return collidingShape.getClosestPointTo(originalPosition);
+                return collidingShape.closestPointTo(originalPosition);
             }
             WorldBorder worldBorder = this.getWorldBorder();
             if (worldBorder != null) {
-                double sideLength = Math.max(searchBox.getLengthX(), searchBox.getLengthZ());
-                double centerX = MathHelper.lerp(0.5, searchBox.minX, searchBox.maxX);
-                double centerZ = MathHelper.lerp(0.5, searchBox.minZ, searchBox.maxZ);
+                double sideLength = Math.max(searchBox.getXsize(), searchBox.getZsize());
+                double centerX = Mth.lerp(0.5, searchBox.minX, searchBox.maxX);
+                double centerZ = Mth.lerp(0.5, searchBox.minZ, searchBox.maxZ);
 
                 //Use a magic margin of 2 blocks to avoid any over-sized blocks being handled incorrectly
-                boolean worldBorderIsNearby = 2 + 2 * sideLength >= worldBorder.getDistanceInsideBorder(centerX, centerZ);
+                boolean worldBorderIsNearby = 2 + 2 * sideLength >= worldBorder.getDistanceToBorder(centerX, centerZ);
                 if (worldBorderIsNearby) {
-                    blockCollisions.removeIf(voxelShape -> !worldBorder.contains(voxelShape.getBoundingBox()));
+                    blockCollisions.removeIf(voxelShape -> !worldBorder.isWithinBounds(voxelShape.bounds()));
                 }
             }
 
-            List<Box> allCollisionBoxes = new ArrayList<>();
+            List<AABB> allCollisionBoxes = new ArrayList<>();
             for (VoxelShape blockCollision : blockCollisions) {
-                for (Box box : blockCollision.getBoundingBoxes()) {
+                for (AABB box : blockCollision.toAabbs()) {
                     //Like vanilla, fold the boxes with the entity / the max offset
-                    Box foldedBox = box.expand(maxXOffset / 2.0, maxYOffset / 2.0, maxZOffset / 2.0);
+                    AABB foldedBox = box.inflate(maxXOffset / 2.0, maxYOffset / 2.0, maxZOffset / 2.0);
                     allCollisionBoxes.add(foldedBox);
                 }
             }

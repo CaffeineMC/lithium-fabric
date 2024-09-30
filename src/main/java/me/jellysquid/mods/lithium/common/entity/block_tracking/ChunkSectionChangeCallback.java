@@ -7,10 +7,9 @@ import me.jellysquid.mods.lithium.common.block.ListeningBlockStatePredicate;
 import me.jellysquid.mods.lithium.common.util.Pos;
 import me.jellysquid.mods.lithium.common.world.LithiumData;
 import me.jellysquid.mods.lithium.common.world.chunk.ChunkStatusTracker;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkSection;
-
+import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import java.util.ArrayList;
 
 public final class ChunkSectionChangeCallback {
@@ -18,13 +17,13 @@ public final class ChunkSectionChangeCallback {
     private short listeningMask;
 
     static {
-        if (BlockListeningSection.class.isAssignableFrom(ChunkSection.class)) {
+        if (BlockListeningSection.class.isAssignableFrom(LevelChunkSection.class)) {
             ChunkStatusTracker.registerUnloadCallback((serverWorld, chunkPos) -> {
                 Long2ReferenceOpenHashMap<ChunkSectionChangeCallback> changeCallbacks = ((LithiumData) serverWorld).lithium$getData().chunkSectionChangeCallbacks();
                 int x = chunkPos.x;
                 int z = chunkPos.z;
                 for (int y = Pos.SectionYCoord.getMinYSection(serverWorld); y <= Pos.SectionYCoord.getMaxYSectionInclusive(serverWorld); y++) {
-                    ChunkSectionPos chunkSectionPos = ChunkSectionPos.from(x, y, z);
+                    SectionPos chunkSectionPos = SectionPos.of(x, y, z);
                     ChunkSectionChangeCallback chunkSectionChangeCallback = changeCallbacks.remove(chunkSectionPos.asLong());
                     if (chunkSectionChangeCallback != null) {
                         chunkSectionChangeCallback.onChunkSectionInvalidated(chunkSectionPos);
@@ -40,12 +39,12 @@ public final class ChunkSectionChangeCallback {
         this.listeningMask = 0;
     }
 
-    public static ChunkSectionChangeCallback create(long sectionPos, World world) {
+    public static ChunkSectionChangeCallback create(long sectionPos, Level world) {
         ChunkSectionChangeCallback chunkSectionChangeCallback = new ChunkSectionChangeCallback();
         Long2ReferenceOpenHashMap<ChunkSectionChangeCallback> changeCallbacks = ((LithiumData) world).lithium$getData().chunkSectionChangeCallbacks();
         ChunkSectionChangeCallback previous = changeCallbacks.put(sectionPos, chunkSectionChangeCallback);
         if (previous != null) {
-            previous.onChunkSectionInvalidated(ChunkSectionPos.from(sectionPos));
+            previous.onChunkSectionInvalidated(SectionPos.of(sectionPos));
         }
         return chunkSectionChangeCallback;
     }
@@ -88,7 +87,7 @@ public final class ChunkSectionChangeCallback {
         return this.listeningMask;
     }
 
-    public void onChunkSectionInvalidated(ChunkSectionPos sectionPos) {
+    public void onChunkSectionInvalidated(SectionPos sectionPos) {
         for (int flagIndex = 0; flagIndex < this.trackers.length; flagIndex++) {
             ArrayList<SectionedBlockChangeTracker> sectionedBlockChangeTrackers = this.trackers[flagIndex];
             this.trackers[flagIndex] = null;

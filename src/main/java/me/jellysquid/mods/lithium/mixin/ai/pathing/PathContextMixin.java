@@ -2,21 +2,21 @@ package me.jellysquid.mods.lithium.mixin.ai.pathing;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.minecraft.entity.ai.pathing.PathContext;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.pathfinder.PathfindingContext;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(PathContext.class)
+@Mixin(PathfindingContext.class)
 public class PathContextMixin {
 
     @WrapOperation(
             method = "<init>",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/mob/MobEntity;getWorld()Lnet/minecraft/world/World;")
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Mob;level()Lnet/minecraft/world/level/Level;")
     )
-    private World getWorldIfNonNull(MobEntity instance, Operation<World> original) {
+    private Level getWorldIfNonNull(Mob instance, Operation<Level> original) {
         if (instance == null) {
             return null;
         }
@@ -25,9 +25,9 @@ public class PathContextMixin {
 
     @WrapOperation(
             method = "<init>",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/mob/MobEntity;getBlockPos()Lnet/minecraft/util/math/BlockPos;")
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Mob;blockPosition()Lnet/minecraft/core/BlockPos;")
     )
-    private BlockPos getBlockPosIfNonNull(MobEntity instance, Operation<BlockPos> original) {
+    private BlockPos getBlockPosIfNonNull(Mob instance, Operation<BlockPos> original) {
         if (instance == null) {
             return null;
         }

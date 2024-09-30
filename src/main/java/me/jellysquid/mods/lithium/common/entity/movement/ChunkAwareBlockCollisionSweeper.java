@@ -5,20 +5,20 @@ import me.jellysquid.mods.lithium.common.block.BlockCountingSection;
 import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
 import me.jellysquid.mods.lithium.common.shapes.VoxelShapeCaster;
 import me.jellysquid.mods.lithium.common.util.Pos;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.function.BooleanBiFunction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -34,21 +34,21 @@ import static me.jellysquid.mods.lithium.common.entity.LithiumEntityCollisions.E
  */
 public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape> {
 
-    private final BlockPos.Mutable pos = new BlockPos.Mutable();
+    private final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 
     /**
      * The collision box being swept through the world.
      */
-    private final Box box;
+    private final AABB box;
 
     /**
      * The VoxelShape of the collision box being swept through the world.
      */
     private final VoxelShape shape;
 
-    private final World world;
+    private final Level world;
 
-    private final ShapeContext context;
+    private final CollisionContext context;
 
     //limits of the area without extension for oversized blocks
     private final int minX, minY, minZ, maxX, maxY, maxZ;
@@ -70,24 +70,24 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
     private int cIterated;
 
     private boolean sectionOversizedBlocks;
-    private Chunk cachedChunk;
-    private ChunkSection cachedChunkSection;
+    private ChunkAccess cachedChunk;
+    private LevelChunkSection cachedChunkSection;
 
-    public ChunkAwareBlockCollisionSweeper(World world, @Nullable Entity entity, Box box) {
+    public ChunkAwareBlockCollisionSweeper(Level world, @Nullable Entity entity, AABB box) {
         this(world, entity, box, false);
     }
-    public ChunkAwareBlockCollisionSweeper(World world, @Nullable Entity entity, Box box, boolean hideLastCollision) {
+    public ChunkAwareBlockCollisionSweeper(Level world, @Nullable Entity entity, AABB box, boolean hideLastCollision) {
         this.box = box;
-        this.shape = VoxelShapes.cuboid(box);
-        this.context = entity == null ? ShapeContext.absent() : ShapeContext.of(entity);
+        this.shape = Shapes.create(box);
+        this.context = entity == null ? CollisionContext.empty() : CollisionContext.of(entity);
         this.world = world;
 
-        this.minX = MathHelper.floor(box.minX - EPSILON);
-        this.maxX = MathHelper.floor(box.maxX + EPSILON);
-        this.minY = MathHelper.clamp(MathHelper.floor(box.minY - EPSILON), Pos.BlockCoord.getMinY(this.world), Pos.BlockCoord.getMaxYInclusive(this.world));
-        this.maxY = MathHelper.clamp(MathHelper.floor(box.maxY + EPSILON), Pos.BlockCoord.getMinY(this.world), Pos.BlockCoord.getMaxYInclusive(this.world));
-        this.minZ = MathHelper.floor(box.minZ - EPSILON);
-        this.maxZ = MathHelper.floor(box.maxZ + EPSILON);
+        this.minX = Mth.floor(box.minX - EPSILON);
+        this.maxX = Mth.floor(box.maxX + EPSILON);
+        this.minY = Mth.clamp(Mth.floor(box.minY - EPSILON), Pos.BlockCoord.getMinY(this.world), Pos.BlockCoord.getMaxYInclusive(this.world));
+        this.maxY = Mth.clamp(Mth.floor(box.maxY + EPSILON), Pos.BlockCoord.getMinY(this.world), Pos.BlockCoord.getMaxYInclusive(this.world));
+        this.minZ = Mth.floor(box.minZ - EPSILON);
+        this.maxZ = Mth.floor(box.maxZ + EPSILON);
 
         this.chunkX = Pos.ChunkCoord.fromBlockCoord(expandMin(this.minX));
         this.chunkZ = Pos.ChunkCoord.fromBlockCoord(expandMin(this.minZ));
@@ -140,9 +140,9 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
                         this.chunkYIndex < Pos.SectionYIndex.fromBlockCoord(this.world,expandMax(this.maxY))
                 ) {
                     this.chunkYIndex++;
-                    this.cachedChunkSection = this.cachedChunk.getSectionArray()[this.chunkYIndex];
+                    this.cachedChunkSection = this.cachedChunk.getSections()[this.chunkYIndex];
                 } else {
-                    this.chunkYIndex = MathHelper.clamp(
+                    this.chunkYIndex = Mth.clamp(
                             Pos.SectionYIndex.fromBlockCoord(this.world, expandMin(this.minY)),
                             Pos.SectionYIndex.getMinYSectionIndex(this.world),
                             Pos.SectionYIndex.getMaxYSectionIndexInclusive(this.world)
@@ -162,11 +162,11 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
                     }
                     this.cachedChunk = this.world.getChunk(this.chunkX, this.chunkZ, ChunkStatus.FULL, false);
                     if (this.cachedChunk != null) {
-                        this.cachedChunkSection = this.cachedChunk.getSectionArray()[this.chunkYIndex];
+                        this.cachedChunkSection = this.cachedChunk.getSections()[this.chunkYIndex];
                     }
                 }
                 //skip empty chunks and empty chunk sections
-            } while (this.cachedChunk == null || this.cachedChunkSection == null || this.cachedChunkSection.isEmpty());
+            } while (this.cachedChunk == null || this.cachedChunkSection == null || this.cachedChunkSection.hasOnlyAir());
 
             this.sectionOversizedBlocks = hasChunkSectionOversizedBlocks(this.cachedChunk, this.chunkYIndex);
 
@@ -248,7 +248,7 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
 
             VoxelShape collisionShape = state.getCollisionShape(this.world, this.pos, this.context);
 
-            if (collisionShape != VoxelShapes.empty() && collisionShape != null /*collisionShape should never be null, but we received crash reports.*/) {
+            if (collisionShape != Shapes.empty() && collisionShape != null /*collisionShape should never be null, but we received crash reports.*/) {
                 VoxelShape collidedShape = getCollidedShape(this.box, this.shape, collisionShape, x, y, z);
                 if (collidedShape != null) {
                     if (z >= this.maxHitZ && (z > this.maxHitZ || y >= this.maxHitY && (y > this.maxHitY || x > this.maxHitX))) {
@@ -286,7 +286,7 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
      * @return True if the shape can be interacted with at the given edge boundary
      */
     private static boolean canInteractWithBlock(BlockState state, int edgesHit) {
-        return (edgesHit != 1 || state.exceedsCube()) && (edgesHit != 2 || state.getBlock() == Blocks.MOVING_PISTON);
+        return (edgesHit != 1 || state.hasLargeCollisionShape()) && (edgesHit != 2 || state.getBlock() == Blocks.MOVING_PISTON);
     }
 
     /**
@@ -296,21 +296,21 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
      *
      * @return A {@link VoxelShape} which contains the shape representing that which was collided with, otherwise null
      */
-    private static VoxelShape getCollidedShape(Box entityBox, VoxelShape entityShape, VoxelShape shape, int x, int y, int z) {
-        if (shape == VoxelShapes.fullCube()) {
-            return entityBox.intersects(x, y, z, x + 1.0, y + 1.0, z + 1.0) ? shape.offset(x, y, z) : null;
+    private static VoxelShape getCollidedShape(AABB entityBox, VoxelShape entityShape, VoxelShape shape, int x, int y, int z) {
+        if (shape == Shapes.block()) {
+            return entityBox.intersects(x, y, z, x + 1.0, y + 1.0, z + 1.0) ? shape.move(x, y, z) : null;
         }
         if (shape instanceof VoxelShapeCaster) {
             if (((VoxelShapeCaster) shape).intersects(entityBox, x, y, z)) {
-                return shape.offset(x, y, z);
+                return shape.move(x, y, z);
             } else {
                 return null;
             }
         }
 
-        shape = shape.offset(x, y, z);
+        shape = shape.move(x, y, z);
 
-        if (VoxelShapes.matchesAnywhere(shape, entityShape, BooleanBiFunction.AND)) {
+        if (Shapes.joinIsNotEmpty(shape, entityShape, BooleanOp.AND)) {
             return shape;
         }
 
@@ -329,9 +329,9 @@ public class ChunkAwareBlockCollisionSweeper extends AbstractIterator<VoxelShape
      *
      * @return Whether there are any oversized blocks in the chunk section.
      */
-    private static boolean hasChunkSectionOversizedBlocks(Chunk chunk, int chunkY) {
+    private static boolean hasChunkSectionOversizedBlocks(ChunkAccess chunk, int chunkY) {
         if (BlockStateFlags.ENABLED) {
-            ChunkSection section = chunk.getSectionArray()[chunkY];
+            LevelChunkSection section = chunk.getSections()[chunkY];
             return section != null && ((BlockCountingSection) section).lithium$mayContainAny(BlockStateFlags.OVERSIZED_SHAPE);
         }
         return true; //like vanilla, assume that a chunk section has oversized blocks, when the section mixin isn't loaded

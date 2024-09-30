@@ -2,16 +2,16 @@ package me.jellysquid.mods.lithium.common.ai.brain;
 
 import me.jellysquid.mods.lithium.mixin.ai.useless_sensors.BrainAccessor;
 import me.jellysquid.mods.lithium.mixin.ai.useless_sensors.SensorAccessor;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.brain.Brain;
-import net.minecraft.entity.ai.brain.sensor.Sensor;
-import net.minecraft.entity.ai.brain.sensor.SensorType;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.sensing.Sensor;
+import net.minecraft.world.entity.ai.sensing.SensorType;
 
 public class SensorHelper {
 
     public static void disableSensor(LivingEntity brainedEntity, SensorType<?> sensorType) {
-        if (brainedEntity.getWorld().isClient()) {
+        if (brainedEntity.level().isClientSide()) {
             return;
         }
         Brain<?> brain = brainedEntity.getBrain();
@@ -37,7 +37,7 @@ public class SensorHelper {
     }
 
     public static <T extends LivingEntity, U extends Sensor<T>> void enableSensor(T brainedEntity, SensorType<U> sensorType, boolean extraTick) {
-        if (brainedEntity.getWorld().isClient()) {
+        if (brainedEntity.level().isClientSide()) {
             return;
         }
 
@@ -53,7 +53,7 @@ public class SensorHelper {
                 lastSenseTime = lastSenseTime % senseInterval;
                 if (extraTick) {
                     ((SensorAccessor) sensor).setLastSenseTime(0L);
-                    sensor.tick((ServerWorld) brainedEntity.getWorld(), brainedEntity);
+                    sensor.tick((ServerLevel) brainedEntity.level(), brainedEntity);
                 }
             }
             sensorAccessor.setLastSenseTime(lastSenseTime);

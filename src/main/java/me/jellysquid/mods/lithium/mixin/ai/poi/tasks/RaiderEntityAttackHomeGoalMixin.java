@@ -2,11 +2,11 @@ package me.jellysquid.mods.lithium.mixin.ai.poi.tasks;
 
 import me.jellysquid.mods.lithium.common.util.POIRegistryEntries;
 import me.jellysquid.mods.lithium.common.world.interests.iterator.SinglePointOfInterestTypeFilter;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.poi.PointOfInterestStorage;
-import net.minecraft.world.poi.PointOfInterestType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.ai.village.poi.PoiManager;
+import net.minecraft.world.entity.ai.village.poi.PoiType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -14,17 +14,17 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-@Mixin(targets = "net.minecraft.entity.raid.RaiderEntity$AttackHomeGoal")
+@Mixin(targets = "net.minecraft.world.entity.raid.Raider$RaiderMoveThroughVillageGoal")
 public class RaiderEntityAttackHomeGoalMixin {
 
     @Redirect(
-            method = "tryFindHome()Z",
+            method = "hasSuitablePoi()Z",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/poi/PointOfInterestStorage;getPosition(Ljava/util/function/Predicate;Ljava/util/function/Predicate;Lnet/minecraft/world/poi/PointOfInterestStorage$OccupationStatus;Lnet/minecraft/util/math/BlockPos;ILnet/minecraft/util/math/random/Random;)Ljava/util/Optional;"
+                    target = "Lnet/minecraft/world/entity/ai/village/poi/PoiManager;getRandom(Ljava/util/function/Predicate;Ljava/util/function/Predicate;Lnet/minecraft/world/entity/ai/village/poi/PoiManager$Occupancy;Lnet/minecraft/core/BlockPos;ILnet/minecraft/util/RandomSource;)Ljava/util/Optional;"
             )
     )
-    private Optional<BlockPos> redirect(PointOfInterestStorage instance, Predicate<RegistryEntry<PointOfInterestType>> typePredicate, Predicate<BlockPos> positionPredicate, PointOfInterestStorage.OccupationStatus occupationStatus, BlockPos pos, int radius, Random random) {
-        return instance.getPosition(new SinglePointOfInterestTypeFilter(POIRegistryEntries.HOME_ENTRY), positionPredicate, occupationStatus, pos, radius, random);
+    private Optional<BlockPos> redirect(PoiManager instance, Predicate<Holder<PoiType>> typePredicate, Predicate<BlockPos> positionPredicate, PoiManager.Occupancy occupationStatus, BlockPos pos, int radius, RandomSource random) {
+        return instance.getRandom(new SinglePointOfInterestTypeFilter(POIRegistryEntries.HOME_ENTRY), positionPredicate, occupationStatus, pos, radius, random);
     }
 }

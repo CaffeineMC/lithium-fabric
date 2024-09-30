@@ -6,19 +6,18 @@ import me.jellysquid.mods.lithium.common.util.tuples.WorldSectionBox;
 import me.jellysquid.mods.lithium.common.world.LithiumData;
 import me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking.ServerEntityManagerAccessor;
 import me.jellysquid.mods.lithium.mixin.util.entity_movement_tracking.ServerWorldAccessor;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.entity.EntityLike;
-import net.minecraft.world.entity.EntityTrackingSection;
-import net.minecraft.world.entity.SectionedEntityCache;
-
+import net.minecraft.core.SectionPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.entity.EntityAccess;
+import net.minecraft.world.level.entity.EntitySection;
+import net.minecraft.world.level.entity.EntitySectionStorage;
 import java.util.ArrayList;
 
-public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
+public abstract class SectionedEntityMovementTracker<E extends EntityAccess, S> {
     final WorldSectionBox trackedWorldSections;
     final Class<S> clazz;
     private final int trackedClass;
-    ArrayList<EntityTrackingSection<E>> sortedSections;
+    ArrayList<EntitySection<E>> sortedSections;
     boolean[] sectionVisible;
     private int timesRegistered;
     private final ArrayList<EntityMovementTrackerSection> sectionsNotListeningTo;
@@ -77,12 +76,12 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
         return maxChangeTime;
     }
 
-    public void register(ServerWorld world) {
+    public void register(ServerLevel world) {
         assert world == this.trackedWorldSections.world();
 
         if (this.timesRegistered == 0) {
             //noinspection unchecked
-            SectionedEntityCache<E> cache = ((ServerEntityManagerAccessor<E>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
+            EntitySectionStorage<E> cache = ((ServerEntityManagerAccessor<E>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
 
             WorldSectionBox trackedSections = this.trackedWorldSections;
             int size = trackedSections.numSections();
@@ -95,46 +94,46 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
             for (int x = trackedSections.chunkX1(); x < trackedSections.chunkX2(); x++) {
                 for (int z = trackedSections.chunkZ1(); z < trackedSections.chunkZ2(); z++) {
                     for (int y = trackedSections.chunkY1(); y < trackedSections.chunkY2(); y++) {
-                        EntityTrackingSection<E> section = cache.getTrackingSection(ChunkSectionPos.asLong(x, y, z));
+                        EntitySection<E> section = cache.getOrCreateSection(SectionPos.asLong(x, y, z));
                         EntityMovementTrackerSection sectionAccess = (EntityMovementTrackerSection) section;
                         this.sortedSections.add(section);
                         sectionAccess.lithium$addListener(this);
                     }
                 }
             }
-            this.setChanged(world.getTime());
+            this.setChanged(world.getGameTime());
         }
 
         this.timesRegistered++;
     }
 
-    public void unRegister(ServerWorld world) {
+    public void unRegister(ServerLevel world) {
         assert world == this.trackedWorldSections.world();
         if (--this.timesRegistered > 0) {
             return;
         }
         assert this.timesRegistered == 0;
         //noinspection unchecked
-        SectionedEntityCache<E> cache = ((ServerEntityManagerAccessor<E>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
+        EntitySectionStorage<E> cache = ((ServerEntityManagerAccessor<E>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
         ((LithiumData) world).lithium$getData().entityMovementTrackers().deleteCanonical(this);
 
-        ArrayList<EntityTrackingSection<E>> sections = this.sortedSections;
+        ArrayList<EntitySection<E>> sections = this.sortedSections;
         for (int i = sections.size() - 1; i >= 0; i--) {
-            EntityTrackingSection<E> section = sections.get(i);
+            EntitySection<E> section = sections.get(i);
             EntityMovementTrackerSection sectionAccess = (EntityMovementTrackerSection) section;
             sectionAccess.lithium$removeListener(cache, this);
             if (!this.sectionsNotListeningTo.remove(section)) {
                 ((EntityMovementTrackerSection) section).lithium$removeListenToMovementOnce(this, this.trackedClass);
             }
         }
-        this.setChanged(world.getTime());
+        this.setChanged(world.getGameTime());
     }
 
     /**
      * Register an entity section to this listener, so this listener can look for changes in the section.
      */
     public void onSectionEnteredRange(EntityMovementTrackerSection section) {
-        this.setChanged(this.trackedWorldSections.world().getTime());
+        this.setChanged(this.trackedWorldSections.world().getGameTime());
         //noinspection SuspiciousMethodCalls
         int sectionIndex = this.sortedSections.lastIndexOf(section);
         this.sectionVisible[sectionIndex] = true;
@@ -144,7 +143,7 @@ public abstract class SectionedEntityMovementTracker<E extends EntityLike, S> {
     }
 
     public void onSectionLeftRange(EntityMovementTrackerSection section) {
-        this.setChanged(this.trackedWorldSections.world().getTime());
+        this.setChanged(this.trackedWorldSections.world().getGameTime());
         //noinspection SuspiciousMethodCalls
         int sectionIndex = this.sortedSections.lastIndexOf(section);
 

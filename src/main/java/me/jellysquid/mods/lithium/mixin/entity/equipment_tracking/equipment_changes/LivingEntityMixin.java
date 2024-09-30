@@ -1,13 +1,13 @@
 package me.jellysquid.mods.lithium.mixin.entity.equipment_tracking.equipment_changes;
 
 import me.jellysquid.mods.lithium.common.entity.EquipmentEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -24,7 +24,7 @@ public abstract class LivingEntityMixin extends Entity implements EquipmentEntit
     @Unique
     private boolean equipmentChanged = true;
 
-    public LivingEntityMixin(EntityType<?> type, World world) {
+    public LivingEntityMixin(EntityType<?> type, Level world) {
         super(type, world);
     }
 
@@ -34,7 +34,7 @@ public abstract class LivingEntityMixin extends Entity implements EquipmentEntit
     }
 
     @Inject(
-            method = "getEquipmentChanges()Ljava/util/Map;",
+            method = "collectEquipmentChanges()Ljava/util/Map;",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -45,16 +45,16 @@ public abstract class LivingEntityMixin extends Entity implements EquipmentEntit
     }
 
     @Inject(
-            method = "sendEquipmentChanges()V",
+            method = "detectEquipmentUpdates()V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/LivingEntity;checkHandStackSwap(Ljava/util/Map;)V"
+                    target = "Lnet/minecraft/world/entity/LivingEntity;handleHandSwap(Ljava/util/Map;)V"
             )
     )
     private void resetEquipmentChanged(CallbackInfo ci) {
         //Not implemented for player entities.
         //noinspection ConstantValue
-        if (!((Object) this instanceof PlayerEntity)) {
+        if (!((Object) this instanceof Player)) {
             this.equipmentChanged = false;
         }
     }

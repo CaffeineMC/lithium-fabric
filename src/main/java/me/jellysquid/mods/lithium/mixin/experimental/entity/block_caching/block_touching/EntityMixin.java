@@ -4,11 +4,11 @@ import me.jellysquid.mods.lithium.common.block.BlockStateFlagHolder;
 import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.BlockCache;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.BlockCacheProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,12 +22,12 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(Entity.class)
 public abstract class EntityMixin implements BlockCacheProvider {
     @Inject(
-            method = "checkBlockCollision()V",
+            method = "checkInsideBlocks()V",
             at = @At("HEAD"), cancellable = true
     )
     private void cancelIfSkippable(CallbackInfo ci) {
         //noinspection ConstantConditions
-        if (!((Object) this instanceof ServerPlayerEntity)) {
+        if (!((Object) this instanceof ServerPlayer)) {
             BlockCache bc = this.getUpdatedBlockCache((Entity)(Object)this);
             if (bc.canSkipBlockTouching()) {
                 ci.cancel();
@@ -36,8 +36,8 @@ public abstract class EntityMixin implements BlockCacheProvider {
     }
 
     @Inject(
-            method = "checkBlockCollision()V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/BlockPos;getX()I", ordinal = 0)
+            method = "checkInsideBlocks()V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/core/BlockPos;getX()I", ordinal = 0)
     )
     private void assumeNoTouchableBlock(CallbackInfo ci) {
         BlockCache bc = this.lithium$getBlockCache();
@@ -47,10 +47,10 @@ public abstract class EntityMixin implements BlockCacheProvider {
     }
 
     @Inject(
-            method = "checkBlockCollision()V", locals = LocalCapture.CAPTURE_FAILHARD,
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;onEntityCollision(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;)V")
+            method = "checkInsideBlocks()V", locals = LocalCapture.CAPTURE_FAILHARD,
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;entityInside(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;)V")
     )
-    private void checkTouchableBlock(CallbackInfo ci, Box box, BlockPos blockPos, BlockPos blockPos2, BlockPos.Mutable mutable, int i, int j, int k, BlockState blockState) {
+    private void checkTouchableBlock(CallbackInfo ci, AABB box, BlockPos blockPos, BlockPos blockPos2, BlockPos.MutableBlockPos mutable, int i, int j, int k, BlockState blockState) {
         BlockCache bc = this.lithium$getBlockCache();
         if (bc.canSkipBlockTouching() &&
                 0 != (((BlockStateFlagHolder)blockState).lithium$getAllFlags() & 1 << BlockStateFlags.ENTITY_TOUCHABLE.getIndex())

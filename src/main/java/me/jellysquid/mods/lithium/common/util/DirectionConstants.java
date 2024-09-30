@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.util;
 
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
 
 /**
  * Pre-initialized constants to avoid unnecessary allocations.

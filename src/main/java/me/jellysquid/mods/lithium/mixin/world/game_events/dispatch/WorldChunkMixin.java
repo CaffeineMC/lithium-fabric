@@ -4,18 +4,18 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceOpenHashMap;
 import me.jellysquid.mods.lithium.common.world.LithiumData;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.HeightLimitView;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.UpgradeData;
-import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.event.listener.GameEventDispatcher;
-import net.minecraft.world.gen.chunk.BlendingData;
-import net.minecraft.world.tick.ChunkTickScheduler;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.UpgradeData;
+import net.minecraft.world.level.gameevent.GameEventListenerRegistry;
+import net.minecraft.world.level.levelgen.blending.BlendingData;
+import net.minecraft.world.ticks.LevelChunkTicks;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,8 +24,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(WorldChunk.class)
-public abstract class WorldChunkMixin extends Chunk {
+@Mixin(LevelChunk.class)
+public abstract class WorldChunkMixin extends ChunkAccess {
 
     @Unique
     private static final Int2ObjectOpenHashMap<?> EMPTY_MAP = new Int2ObjectOpenHashMap<>(0);
@@ -34,20 +34,20 @@ public abstract class WorldChunkMixin extends Chunk {
     @Shadow
     @Final
     @Mutable
-    private Int2ObjectMap<GameEventDispatcher> gameEventDispatchers;
+    private Int2ObjectMap<GameEventListenerRegistry> gameEventListenerRegistrySections;
 
-    public WorldChunkMixin(ChunkPos pos, UpgradeData upgradeData, HeightLimitView heightLimitView, Registry<Biome> biomeRegistry, long inhabitedTime, @Nullable ChunkSection[] sectionArray, @Nullable BlendingData blendingData) {
+    public WorldChunkMixin(ChunkPos pos, UpgradeData upgradeData, LevelHeightAccessor heightLimitView, Registry<Biome> biomeRegistry, long inhabitedTime, @Nullable LevelChunkSection[] sectionArray, @Nullable BlendingData blendingData) {
         super(pos, upgradeData, heightLimitView, biomeRegistry, inhabitedTime, sectionArray, blendingData);
     }
 
     @Shadow
-    public abstract World getWorld();
+    public abstract Level getLevel();
 
     @Shadow
-    private boolean loadedToWorld;
+    private boolean loaded;
 
     @Redirect(
-            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/tick/ChunkTickScheduler;Lnet/minecraft/world/tick/ChunkTickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Lnet/minecraft/world/chunk/WorldChunk$EntityLoader;Lnet/minecraft/world/gen/chunk/BlendingData;)V",
+            method = "<init>(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/UpgradeData;Lnet/minecraft/world/ticks/LevelChunkTicks;Lnet/minecraft/world/ticks/LevelChunkTicks;J[Lnet/minecraft/world/level/chunk/LevelChunkSection;Lnet/minecraft/world/level/chunk/LevelChunk$PostLoadProcessor;Lnet/minecraft/world/level/levelgen/blending/BlendingData;)V",
             at = @At(value = "NEW", target = "it/unimi/dsi/fastutil/ints/Int2ObjectOpenHashMap", remap = false),
             require = 1, allow = 1
     )
@@ -55,48 +55,48 @@ public abstract class WorldChunkMixin extends Chunk {
         return EMPTY_MAP;
     }
     @Inject(
-            method = "<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/world/chunk/UpgradeData;Lnet/minecraft/world/tick/ChunkTickScheduler;Lnet/minecraft/world/tick/ChunkTickScheduler;J[Lnet/minecraft/world/chunk/ChunkSection;Lnet/minecraft/world/chunk/WorldChunk$EntityLoader;Lnet/minecraft/world/gen/chunk/BlendingData;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/Heightmap$Type;values()[Lnet/minecraft/world/Heightmap$Type;"),
+            method = "<init>(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/UpgradeData;Lnet/minecraft/world/ticks/LevelChunkTicks;Lnet/minecraft/world/ticks/LevelChunkTicks;J[Lnet/minecraft/world/level/chunk/LevelChunkSection;Lnet/minecraft/world/level/chunk/LevelChunk$PostLoadProcessor;Lnet/minecraft/world/level/levelgen/blending/BlendingData;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/Heightmap$Types;values()[Lnet/minecraft/world/level/levelgen/Heightmap$Types;"),
             require = 1, allow = 1
     )
-    private void replaceWithNullMap(World world, ChunkPos pos, UpgradeData upgradeData, ChunkTickScheduler<?> blockTickScheduler, ChunkTickScheduler<?> fluidTickScheduler, long inhabitedTime, ChunkSection[] sectionArrayInitializer, WorldChunk.EntityLoader entityLoader, BlendingData blendingData, CallbackInfo ci) {
-        this.setGameEventDispatchers(this.gameEventDispatchers == EMPTY_MAP ? null : this.gameEventDispatchers);
+    private void replaceWithNullMap(Level world, ChunkPos pos, UpgradeData upgradeData, LevelChunkTicks<?> blockTickScheduler, LevelChunkTicks<?> fluidTickScheduler, long inhabitedTime, LevelChunkSection[] sectionArrayInitializer, LevelChunk.PostLoadProcessor entityLoader, BlendingData blendingData, CallbackInfo ci) {
+        this.setGameEventListenerRegistrySections(this.gameEventListenerRegistrySections == EMPTY_MAP ? null : this.gameEventListenerRegistrySections);
     }
 
     @Inject(
-            method = "getGameEventDispatcher(I)Lnet/minecraft/world/event/listener/GameEventDispatcher;",
-            at = @At(value = "FIELD", shift = At.Shift.BEFORE, target = "Lnet/minecraft/world/chunk/WorldChunk;gameEventDispatchers:Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;")
+            method = "getListenerRegistry(I)Lnet/minecraft/world/level/gameevent/GameEventListenerRegistry;",
+            at = @At(value = "FIELD", shift = At.Shift.BEFORE, target = "Lnet/minecraft/world/level/chunk/LevelChunk;gameEventListenerRegistrySections:Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;")
     )
-    private void initializeCollection(int ySectionCoord, CallbackInfoReturnable<GameEventDispatcher> cir) {
-        if (this.gameEventDispatchers == null) {
-            this.setGameEventDispatchers(new Int2ObjectOpenHashMap<>(4));
+    private void initializeCollection(int ySectionCoord, CallbackInfoReturnable<GameEventListenerRegistry> cir) {
+        if (this.gameEventListenerRegistrySections == null) {
+            this.setGameEventListenerRegistrySections(new Int2ObjectOpenHashMap<>(4));
         }
     }
 
     @Inject(
-            method = "removeGameEventDispatcher(I)V",
+            method = "removeGameEventListenerRegistry",
             at = @At("RETURN")
     )
     private void removeGameEventDispatcher(int ySectionCoord, CallbackInfo ci) {
-        if (this.gameEventDispatchers != null && this.gameEventDispatchers.isEmpty()) {
-            this.setGameEventDispatchers(null);
+        if (this.gameEventListenerRegistrySections != null && this.gameEventListenerRegistrySections.isEmpty()) {
+            this.setGameEventListenerRegistrySections(null);
         }
     }
 
     @Unique
-    public void setGameEventDispatchers(Int2ObjectMap<GameEventDispatcher> gameEventDispatchers) {
-        if (this.loadedToWorld) {
-            this.updateGameEventDispatcherStorage(gameEventDispatchers, this.gameEventDispatchers);
+    public void setGameEventListenerRegistrySections(Int2ObjectMap<GameEventListenerRegistry> gameEventListenerRegistrySections) {
+        if (this.loaded) {
+            this.updateGameEventDispatcherStorage(gameEventListenerRegistrySections, this.gameEventListenerRegistrySections);
         }
 
-        this.gameEventDispatchers = gameEventDispatchers;
+        this.gameEventListenerRegistrySections = gameEventListenerRegistrySections;
     }
 
     @Unique
-    private void updateGameEventDispatcherStorage(Int2ObjectMap<GameEventDispatcher> newDispatchers, Int2ObjectMap<GameEventDispatcher> expectedDispatchers) {
-        Long2ReferenceOpenHashMap<Int2ObjectMap<GameEventDispatcher>> dispatchersByChunk =
-                ((LithiumData) this.getWorld()).lithium$getData().gameEventDispatchersByChunk();
-        Int2ObjectMap<GameEventDispatcher> removedDispatchers;
+    private void updateGameEventDispatcherStorage(Int2ObjectMap<GameEventListenerRegistry> newDispatchers, Int2ObjectMap<GameEventListenerRegistry> expectedDispatchers) {
+        Long2ReferenceOpenHashMap<Int2ObjectMap<GameEventListenerRegistry>> dispatchersByChunk =
+                ((LithiumData) this.getLevel()).lithium$getData().gameEventDispatchersByChunk();
+        Int2ObjectMap<GameEventListenerRegistry> removedDispatchers;
         if (newDispatchers != null) {
             removedDispatchers = dispatchersByChunk.put(this.getPos().toLong(), newDispatchers);
         } else {
@@ -108,16 +108,16 @@ public abstract class WorldChunkMixin extends Chunk {
     }
 
     @Inject(
-            method = "setLoadedToWorld(Z)V", at = @At("RETURN")
+            method = "setLoaded(Z)V", at = @At("RETURN")
     )
     private void handleLoadOrUnload(boolean loadedToWorld, CallbackInfo ci) {
-        if (this.gameEventDispatchers == null) {
+        if (this.gameEventListenerRegistrySections == null) {
             return;
         }
         if (loadedToWorld) {
-            this.updateGameEventDispatcherStorage(this.gameEventDispatchers, null);
+            this.updateGameEventDispatcherStorage(this.gameEventListenerRegistrySections, null);
         } else {
-            this.updateGameEventDispatcherStorage(null, this.gameEventDispatchers);
+            this.updateGameEventDispatcherStorage(null, this.gameEventListenerRegistrySections);
         }
     }
 }

@@ -1,15 +1,15 @@
 package me.jellysquid.mods.lithium.mixin.alloc.entity_tracker;
 
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import net.minecraft.server.network.PlayerAssociatedNetworkHandler;
-import net.minecraft.server.world.ServerChunkLoadingManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.Set;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.network.ServerPlayerConnection;
 
-@Mixin(ServerChunkLoadingManager.EntityTracker.class)
+@Mixin(ChunkMap.TrackedEntity.class)
 public class EntityTrackerMixin {
 
     /**
@@ -24,7 +24,7 @@ public class EntityTrackerMixin {
                     remap = false
             )
     )
-    private Set<PlayerAssociatedNetworkHandler> useFasterCollection() {
+    private Set<ServerPlayerConnection> useFasterCollection() {
         return new ReferenceOpenHashSet<>();
     }
 }

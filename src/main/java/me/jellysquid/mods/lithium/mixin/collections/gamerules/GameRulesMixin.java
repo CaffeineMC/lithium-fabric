@@ -1,7 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.collections.gamerules;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.world.GameRules;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -11,13 +10,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
+import net.minecraft.world.level.GameRules;
 
 @Mixin(GameRules.class)
 public class GameRulesMixin {
     @Mutable
     @Shadow
     @Final
-    private Map<GameRules.Key<?>, GameRules.Rule<?>> rules;
+    private Map<GameRules.Key<?>, GameRules.Value<?>> rules;
 
     @Inject(
             method = "<init>()V",

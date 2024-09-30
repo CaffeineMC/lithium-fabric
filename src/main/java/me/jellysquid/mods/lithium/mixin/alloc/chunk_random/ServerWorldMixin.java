@@ -1,30 +1,30 @@
 package me.jellysquid.mods.lithium.mixin.alloc.chunk_random;
 
 import me.jellysquid.mods.lithium.common.world.ChunkRandomSource;
-import net.minecraft.block.BlockState;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(ServerWorld.class)
+@Mixin(ServerLevel.class)
 public abstract class ServerWorldMixin {
-    private final BlockPos.Mutable randomPosInChunkCachedPos = new BlockPos.Mutable();
+    private final BlockPos.MutableBlockPos randomPosInChunkCachedPos = new BlockPos.MutableBlockPos();
 
     /**
      * @reason Avoid allocating BlockPos every invocation through using our allocation-free variant
      */
     @Redirect(
-            method = "tickChunk(Lnet/minecraft/world/chunk/WorldChunk;I)V",
+            method = "tickChunk(Lnet/minecraft/world/level/chunk/LevelChunk;I)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/world/ServerWorld;getRandomPosInChunk(IIII)Lnet/minecraft/util/math/BlockPos;"
+                    target = "Lnet/minecraft/server/level/ServerLevel;getBlockRandomPos(IIII)Lnet/minecraft/core/BlockPos;"
             )
     )
-    private BlockPos redirectTickGetRandomPosInChunk(ServerWorld serverWorld, int x, int y, int z, int mask) {
+    private BlockPos redirectTickGetRandomPosInChunk(ServerLevel serverWorld, int x, int y, int z, int mask) {
         ((ChunkRandomSource) serverWorld).lithium$getRandomPosInChunk(x, y, z, mask, this.randomPosInChunkCachedPos);
 
         return this.randomPosInChunkCachedPos;
@@ -34,27 +34,27 @@ public abstract class ServerWorldMixin {
      * @reason Ensure an immutable block position is passed on block tick
      */
     @Redirect(
-            method = "tickChunk(Lnet/minecraft/world/chunk/WorldChunk;I)V",
+            method = "tickChunk(Lnet/minecraft/world/level/chunk/LevelChunk;I)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/block/BlockState;randomTick(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/random/Random;)V"
+                    target = "Lnet/minecraft/world/level/block/state/BlockState;randomTick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V"
             )
     )
-    private void redirectBlockStateTick(BlockState blockState, ServerWorld world, BlockPos pos, net.minecraft.util.math.random.Random rand) {
-        blockState.randomTick(world, pos.toImmutable(), rand);
+    private void redirectBlockStateTick(BlockState blockState, ServerLevel world, BlockPos pos, net.minecraft.util.RandomSource rand) {
+        blockState.randomTick(world, pos.immutable(), rand);
     }
 
     /**
      * @reason Ensure an immutable block position is passed on fluid tick
      */
     @Redirect(
-            method = "tickChunk(Lnet/minecraft/world/chunk/WorldChunk;I)V",
+            method = "tickChunk(Lnet/minecraft/world/level/chunk/LevelChunk;I)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/fluid/FluidState;onRandomTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/random/Random;)V"
+                    target = "Lnet/minecraft/world/level/material/FluidState;randomTick(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V"
             )
     )
-    private void redirectFluidStateTick(FluidState fluidState, World world, BlockPos pos, net.minecraft.util.math.random.Random rand) {
-        fluidState.onRandomTick(world, pos.toImmutable(), rand);
+    private void redirectFluidStateTick(FluidState fluidState, Level world, BlockPos pos, net.minecraft.util.RandomSource rand) {
+        fluidState.randomTick(world, pos.immutable(), rand);
     }
 }

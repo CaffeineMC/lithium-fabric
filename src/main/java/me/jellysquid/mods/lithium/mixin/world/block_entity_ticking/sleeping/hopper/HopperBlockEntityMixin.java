@@ -2,14 +2,14 @@ package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.hop
 
 import me.jellysquid.mods.lithium.common.block.entity.SleepingBlockEntity;
 import me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping.WrappedBlockEntityTickInvokerAccessor;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HopperBlock;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.HopperBlockEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.BlockEntityTickInvoker;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.HopperBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,22 +23,22 @@ import java.util.function.BooleanSupplier;
 public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlockEntity {
 
     @Shadow
-    private long lastTickTime;
+    private long tickedGameTime;
 
     @Shadow
-    private native boolean needsCooldown();
+    private native boolean isOnCooldown();
 
     private WrappedBlockEntityTickInvokerAccessor tickWrapper = null;
-    private BlockEntityTickInvoker sleepingTicker = null;
+    private TickingBlockEntity sleepingTicker = null;
 
     @Inject(
-            method = "insertAndExtract",
+            method = "tryMoveItems(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/HopperBlockEntity;Ljava/util/function/BooleanSupplier;)Z",
             at = @At(value = "RETURN", ordinal = 2)
     )
-    private static void sleepIfNoCooldownAndLocked(World world, BlockPos pos, BlockState state, HopperBlockEntity blockEntity, BooleanSupplier booleanSupplier, CallbackInfoReturnable<Boolean> cir) {
-        if (!((HopperBlockEntityMixin) (Object) blockEntity).needsCooldown() &&
+    private static void sleepIfNoCooldownAndLocked(Level world, BlockPos pos, BlockState state, HopperBlockEntity blockEntity, BooleanSupplier booleanSupplier, CallbackInfoReturnable<Boolean> cir) {
+        if (!((HopperBlockEntityMixin) (Object) blockEntity).isOnCooldown() &&
                 !((HopperBlockEntityMixin) (Object) blockEntity).isSleeping() &&
-                !state.get(HopperBlock.ENABLED)) {
+                !state.getValue(HopperBlock.ENABLED)) {
             ((HopperBlockEntityMixin) (Object) blockEntity).lithium$startSleeping();
         }
     }
@@ -55,7 +55,7 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
     }
 
     @Override
-    public BlockEntityTickInvoker lithium$getSleepingTicker() {
+    public TickingBlockEntity lithium$getSleepingTicker() {
         return sleepingTicker;
     }
 
@@ -64,7 +64,7 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
     }
 
     @Override
-    public void lithium$setSleepingTicker(BlockEntityTickInvoker sleepingTicker) {
+    public void lithium$setSleepingTicker(TickingBlockEntity sleepingTicker) {
         this.sleepingTicker = sleepingTicker;
     }
 
@@ -82,19 +82,19 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
             // Set the last tick time to max value, so other hoppers transferring into this hopper will set it to 7gt
             // cooldown. Then when waking up, we make sure to not tick this hopper in the same gametick.
             // This makes the observable hopper cooldown not be different from vanilla.
-            this.lastTickTime = Long.MAX_VALUE;
+            this.tickedGameTime = Long.MAX_VALUE;
             return true;
         }
         return false;
     }
 
     @Inject(
-            method = "setTransferCooldown",
+            method = "setCooldown(I)V",
             at = @At("HEAD" )
     )
     private void wakeUpOnCooldownSet(int transferCooldown, CallbackInfo ci) {
         if (transferCooldown == 7) {
-            if (this.lastTickTime == Long.MAX_VALUE) {
+            if (this.tickedGameTime == Long.MAX_VALUE) {
                 this.sleepOnlyCurrentTick();
             } else {
                 this.wakeUpNow();

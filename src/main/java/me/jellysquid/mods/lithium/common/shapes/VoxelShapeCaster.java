@@ -1,12 +1,12 @@
 package me.jellysquid.mods.lithium.common.shapes;
 
-import net.minecraft.util.function.BooleanBiFunction;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
  * Provides a simple interface for directly querying intersections against a shape. This can be used instead of the
- * expensive {@link net.minecraft.util.shape.VoxelShapes#matchesAnywhere(VoxelShape, VoxelShape, BooleanBiFunction)}
+ * expensive {@link net.minecraft.world.phys.shapes.Shapes#joinIsNotEmpty(VoxelShape, VoxelShape, BooleanOp)}
  * in collision detection and resolution.
  */
 public interface VoxelShapeCaster {
@@ -19,5 +19,5 @@ public interface VoxelShapeCaster {
      * @param blockZ The z-coordinate of this shape
      * @return True if the box intersects with this shape, otherwise false
      */
-    boolean intersects(Box box, double blockX, double blockY, double blockZ);
+    boolean intersects(AABB box, double blockX, double blockY, double blockZ);
 }

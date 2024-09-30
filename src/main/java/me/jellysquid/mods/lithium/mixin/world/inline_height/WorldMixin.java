@@ -1,25 +1,25 @@
 package me.jellysquid.mods.lithium.mixin.world.inline_height;
 
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.HeightLimitView;
-import net.minecraft.world.MutableWorldProperties;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Supplier;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.storage.WritableLevelData;
 
 /**
  * Implement world height related methods directly instead of going through WorldView and Dimension
  */
-@Mixin(World.class)
-public abstract class WorldMixin implements HeightLimitView {
+@Mixin(Level.class)
+public abstract class WorldMixin implements LevelHeightAccessor {
     private int bottomY;
     private int height;
     private int topYInclusive;
@@ -28,7 +28,7 @@ public abstract class WorldMixin implements HeightLimitView {
             method = "<init>",
             at = @At("RETURN")
     )
-    private void initHeightCache(MutableWorldProperties properties, RegistryKey<?> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<?> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates, CallbackInfo ci) {
+    private void initHeightCache(WritableLevelData properties, ResourceKey<?> registryRef, RegistryAccess registryManager, Holder<DimensionType> dimensionEntry, Supplier<?> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates, CallbackInfo ci) {
         this.height = dimensionEntry.value().height();
         this.bottomY = dimensionEntry.value().minY();
         this.topYInclusive = this.bottomY + this.height - 1;
@@ -40,33 +40,33 @@ public abstract class WorldMixin implements HeightLimitView {
     }
 
     @Override
-    public int getBottomY() {
+    public int getMinBuildHeight() {
         return this.bottomY;
     }
 
     @Override
-    public int countVerticalSections() {
+    public int getSectionsCount() {
         return ((this.topYInclusive >> 4) + 1) - (this.bottomY >> 4);
     }
 
     @Override
-    public int getBottomSectionCoord() {
+    public int getMinSection() {
         return this.bottomY >> 4;
     }
 
     @Override
-    public int getTopSectionCoord() {
+    public int getMaxSection() {
         return (this.topYInclusive >> 4) + 1;
     }
 
     @Override
-    public boolean isOutOfHeightLimit(BlockPos pos) {
+    public boolean isOutsideBuildHeight(BlockPos pos) {
         int y = pos.getY();
         return (y < this.bottomY) || (y > this.topYInclusive);
     }
 
     @Override
-    public boolean isOutOfHeightLimit(int y) {
+    public boolean isOutsideBuildHeight(int y) {
         return (y < this.bottomY) || (y > this.topYInclusive);
     }
 
@@ -76,18 +76,18 @@ public abstract class WorldMixin implements HeightLimitView {
     }
 
     @Override
-    public int sectionCoordToIndex(int coord) {
+    public int getSectionIndexFromSectionY(int coord) {
         return coord - (this.bottomY >> 4);
 
     }
 
     @Override
-    public int sectionIndexToCoord(int index) {
+    public int getSectionYFromSectionIndex(int index) {
         return index + (this.bottomY >> 4);
     }
 
     @Override
-    public int getTopY() {
+    public int getMaxBuildHeight() {
         return this.topYInclusive + 1;
     }
 }

@@ -6,27 +6,27 @@ import me.jellysquid.mods.lithium.common.util.Pos;
 import me.jellysquid.mods.lithium.common.world.ChunkView;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import me.jellysquid.mods.lithium.mixin.ai.pathing.PathContextAccessor;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
-import net.minecraft.entity.ai.pathing.PathContext;
-import net.minecraft.entity.ai.pathing.PathNodeType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.level.pathfinder.PathfindingContext;
+import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 
 public abstract class PathNodeCache {
-    private static boolean isChunkSectionDangerousNeighbor(ChunkSection section) {
-        return section.getBlockStateContainer()
-                .hasAny(state -> getNeighborPathNodeType(state) != PathNodeType.OPEN);
+    private static boolean isChunkSectionDangerousNeighbor(LevelChunkSection section) {
+        return section.getStates()
+                .maybeHas(state -> getNeighborPathNodeType(state) != PathType.OPEN);
     }
 
-    public static PathNodeType getPathNodeType(BlockState state) {
+    public static PathType getPathNodeType(BlockState state) {
         return ((BlockStatePathingCache) state).lithium$getPathNodeType();
     }
 
-    public static PathNodeType getNeighborPathNodeType(AbstractBlock.AbstractBlockState state) {
+    public static PathType getNeighborPathNodeType(BlockBehaviour.BlockStateBase state) {
         return ((BlockStatePathingCache) state).lithium$getNeighborPathNodeType();
     }
 
@@ -38,9 +38,9 @@ public abstract class PathNodeCache {
      * @return True if this neighboring section is free of any dangers, otherwise false if it could
      * potentially contain dangers
      */
-    public static boolean isSectionSafeAsNeighbor(ChunkSection section) {
+    public static boolean isSectionSafeAsNeighbor(LevelChunkSection section) {
         // Empty sections can never contribute a danger
-        if (section.isEmpty()) {
+        if (section.hasOnlyAir()) {
             return true;
         }
 
@@ -51,23 +51,23 @@ public abstract class PathNodeCache {
     }
 
 
-    public static PathNodeType getNodeTypeFromNeighbors(PathContext context, int x, int y, int z, PathNodeType fallback) {
-        BlockView world = context.getWorld();
+    public static PathType getNodeTypeFromNeighbors(PathfindingContext context, int x, int y, int z, PathType fallback) {
+        BlockGetter world = context.level();
 
-        ChunkSection section = null;
+        LevelChunkSection section = null;
 
         // Check that all the block's neighbors are within the same chunk column. If so, we can isolate all our block
         // reads to just one chunk and avoid hits against the server chunk manager.
         if (world instanceof ChunkView chunkView && WorldHelper.areNeighborsWithinSameChunkSection(x, y, z)) {
             // If the y-coordinate is within bounds, we can cache the chunk section. Otherwise, the if statement to check
             // if the cached chunk section was initialized will early-exit.
-            if (!world.isOutOfHeightLimit(y)) {
-                Chunk chunk = chunkView.lithium$getLoadedChunk(Pos.ChunkCoord.fromBlockCoord(x), Pos.ChunkCoord.fromBlockCoord(z));
+            if (!world.isOutsideBuildHeight(y)) {
+                ChunkAccess chunk = chunkView.lithium$getLoadedChunk(Pos.ChunkCoord.fromBlockCoord(x), Pos.ChunkCoord.fromBlockCoord(z));
 
                 // If the chunk is absent, the cached section above will remain null, as there is no chunk section anyway.
                 // An empty chunk or section will never pose any danger sources, which will be caught later.
                 if (chunk != null) {
-                    section = chunk.getSectionArray()[Pos.SectionYIndex.fromBlockCoord(world, y)];
+                    section = chunk.getSections()[Pos.SectionYIndex.fromBlockCoord(world, y)];
                 }
             }
 
@@ -103,7 +103,7 @@ public abstract class PathNodeCache {
                     if (section != null) {
                         state = section.getBlockState(adjX & 15, adjY & 15, adjZ & 15);
                     } else {
-                        BlockPos.Mutable pos = ((PathContextAccessor) context).getLastNodePos().set(adjX, adjY, adjZ);
+                        BlockPos.MutableBlockPos pos = ((PathContextAccessor) context).getLastNodePos().set(adjX, adjY, adjZ);
                         state = world.getBlockState(pos);
                     }
 
@@ -111,17 +111,17 @@ public abstract class PathNodeCache {
                         continue;
                     }
 
-                    PathNodeType neighborType = PathNodeCache.getNeighborPathNodeType(state);
+                    PathType neighborType = PathNodeCache.getNeighborPathNodeType(state);
 
                     if (neighborType == null) { //Here null means that no path node type is cached (uninitialized or dynamic)
                         //Passing null as previous node type to the method signals to other lithium mixins that we only want the neighbor behavior of this block and not its neighbors
-                        neighborType = LandPathNodeMaker.getNodeTypeFromNeighbors(context, adjX + 1, adjY + 1, adjZ + 1, null);
+                        neighborType = WalkNodeEvaluator.checkNeighbourBlocks(context, adjX + 1, adjY + 1, adjZ + 1, null);
                         //Here null means that the path node type is not changed by the block!
                         if (neighborType == null) {
-                            neighborType = PathNodeType.OPEN;
+                            neighborType = PathType.OPEN;
                         }
                     }
-                    if (neighborType != PathNodeType.OPEN) {
+                    if (neighborType != PathType.OPEN) {
                         return neighborType;
                     }
                 }

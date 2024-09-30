@@ -1,13 +1,13 @@
 package me.jellysquid.mods.lithium.common.shapes;
 
 import it.unimi.dsi.fastutil.doubles.DoubleList;
-import net.minecraft.util.math.AxisCycleDirection;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.shape.FractionalDoubleList;
-import net.minecraft.util.shape.VoxelSet;
-import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.core.AxisCycle;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.CubePointRange;
+import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
  * An efficient implementation of {@link VoxelShape} for a shape with one simple cuboid.
@@ -38,19 +38,19 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
     /**
      * Constructor for use in offset() calls.
      */
-    public VoxelShapeAlignedCuboid(VoxelSet voxels, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, byte xyzResolution) {
+    public VoxelShapeAlignedCuboid(DiscreteVoxelShape voxels, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, byte xyzResolution) {
         super(voxels, minX, minY, minZ, maxX, maxY, maxZ);
         this.xyzResolution = xyzResolution;
     }
 
     @Override
-    public VoxelShape offset(double x, double y, double z) {
-        return new VoxelShapeAlignedCuboidOffset(this, this.voxels, x, y, z);
+    public VoxelShape move(double x, double y, double z) {
+        return new VoxelShapeAlignedCuboidOffset(this, this.shape, x, y, z);
     }
 
 
     @Override
-    public double calculateMaxDistance(AxisCycleDirection cycleDirection, Box box, double maxDist) {
+    public double collideX(AxisCycle cycleDirection, AABB box, double maxDist) {
         if (Math.abs(maxDist) < EPSILON) {
             return 0.0D;
         }
@@ -64,7 +64,7 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
         return maxDist;
     }
 
-    private double calculatePenetration(AxisCycleDirection dir, Box box, double maxDist) {
+    private double calculatePenetration(AxisCycle dir, AABB box, double maxDist) {
         switch (dir) {
             case NONE:
                 return VoxelShapeAlignedCuboid.calculatePenetration(this.minX, this.maxX, this.getXSegments(), box.minX, box.maxX, maxDist);
@@ -97,7 +97,7 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
                 }
                 //extra segment walls / hitboxes inside this shape, evenly spaced out in 0..1
                 //round to the next segment wall, but with epsilon margin like vanilla
-                double wallPos = MathHelper.ceil((bMax - EPSILON) * segmentsPerUnit) / (double) segmentsPerUnit;
+                double wallPos = Mth.ceil((bMax - EPSILON) * segmentsPerUnit) / (double) segmentsPerUnit;
                 //only use the wall when it is actually inside the shape, and not a border / outside the shape
                 if (wallPos < aMax - LARGE_EPSILON) {
                     return Math.min(maxDist, wallPos - bMax);
@@ -119,7 +119,7 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
                 }
                 //extra segment walls / hitboxes inside this shape, evenly spaced out in 0..1
                 //round to the next segment wall, but with epsilon margin like vanilla
-                double wallPos = MathHelper.floor((bMin + EPSILON) * segmentsPerUnit) / (double) segmentsPerUnit;
+                double wallPos = Mth.floor((bMin + EPSILON) * segmentsPerUnit) / (double) segmentsPerUnit;
                 //only use the wall when it is actually inside the shape, and not a border / outside the shape
                 if (wallPos > aMin + LARGE_EPSILON) {
                     return Math.max(maxDist, wallPos - bMin);
@@ -130,16 +130,16 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
     }
 
     @Override
-    public DoubleList getPointPositions(Direction.Axis axis) {
+    public DoubleList getCoords(Direction.Axis axis) {
         return switch (axis) {
-            case X -> new FractionalDoubleList(this.getXSegments());
-            case Y -> new FractionalDoubleList(this.getYSegments());
-            case Z -> new FractionalDoubleList(this.getZSegments());
+            case X -> new CubePointRange(this.getXSegments());
+            case Y -> new CubePointRange(this.getYSegments());
+            case Z -> new CubePointRange(this.getZSegments());
         };
     }
 
     @Override
-    protected double getPointPosition(Direction.Axis axis, int index) {
+    protected double get(Direction.Axis axis, int index) {
         return switch (axis) {
             case X -> (double) index / (double) this.getXSegments();
             case Y -> (double) index / (double) this.getYSegments();
@@ -148,13 +148,13 @@ public class VoxelShapeAlignedCuboid extends VoxelShapeSimpleCube {
     }
 
     @Override
-    protected int getCoordIndex(Direction.Axis axis, double coord) {
+    protected int findIndex(Direction.Axis axis, double coord) {
         int i = switch (axis) {
             case X -> this.getXSegments();
             case Y -> this.getYSegments();
             case Z -> this.getZSegments();
         };
-        return MathHelper.clamp(MathHelper.floor(coord * (double) i), -1, i);
+        return Mth.clamp(Mth.floor(coord * (double) i), -1, i);
     }
 
     protected int getXSegments() {

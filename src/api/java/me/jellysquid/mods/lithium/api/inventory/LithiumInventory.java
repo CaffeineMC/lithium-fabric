@@ -1,10 +1,10 @@
 package me.jellysquid.mods.lithium.api.inventory;
 
-import net.minecraft.block.entity.LootableContainerBlockEntity;
-import net.minecraft.entity.vehicle.VehicleInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.vehicle.ContainerEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 
 /**
  * Provides the ability for mods to allow Lithium's hopper optimizations to access their inventories' for item transfers.
@@ -13,8 +13,8 @@ import net.minecraft.util.collection.DefaultedList;
  * It is not required to implement this interface, but doing so will allow the mod's inventories to benefit from
  * Lithium's optimizations.
  * <p>
- * This interface should be implemented by your {@link net.minecraft.inventory.Inventory} or
- * {@link net.minecraft.inventory.SidedInventory} type to access the stack list.
+ * This interface should be implemented by your {@link net.minecraft.world.Container} or
+ * {@link net.minecraft.world.WorldlyContainer} type to access the stack list.
  * <p>
  * An inventory must not extend {@link net.minecraft.block.entity.BlockEntity} if it has a supporting block that
  * implements {@link net.minecraft.block.InventoryProvider}.
@@ -27,14 +27,14 @@ import net.minecraft.util.collection.DefaultedList;
  *
  * @author 2No2Name
  */
-public interface LithiumInventory extends Inventory {
+public interface LithiumInventory extends Container {
 
     /**
      * Getter for the inventory stack list of this inventory.
      *
      * @return inventory stack list
      */
-    DefaultedList<ItemStack> getInventoryLithium();
+    NonNullList<ItemStack> getInventoryLithium();
 
     /**
      * Setter for the inventory stack list of this inventory.
@@ -42,7 +42,7 @@ public interface LithiumInventory extends Inventory {
      *
      * @param inventory inventory stack list
      */
-    void setInventoryLithium(DefaultedList<ItemStack> inventory);
+    void setInventoryLithium(NonNullList<ItemStack> inventory);
 
     /**
      * Generates the loot like a hopper access would do in vanilla.
@@ -51,11 +51,11 @@ public interface LithiumInventory extends Inventory {
      * loot generation method. Otherwise, its loot may be generated too late.
      */
     default void generateLootLithium() {
-        if (this instanceof LootableContainerBlockEntity) {
-            ((LootableContainerBlockEntity) this).generateLoot(null);
+        if (this instanceof RandomizableContainerBlockEntity) {
+            ((RandomizableContainerBlockEntity) this).unpackLootTable(null);
         }
-        if (this instanceof VehicleInventory) {
-            ((VehicleInventory) this).generateInventoryLoot(null);
+        if (this instanceof ContainerEntity) {
+            ((ContainerEntity) this).unpackChestVehicleLootTable(null);
         }
     }
 }

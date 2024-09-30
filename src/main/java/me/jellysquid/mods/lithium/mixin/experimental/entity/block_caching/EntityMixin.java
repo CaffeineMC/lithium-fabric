@@ -2,7 +2,7 @@ package me.jellysquid.mods.lithium.mixin.experimental.entity.block_caching;
 
 import me.jellysquid.mods.lithium.common.entity.block_tracking.BlockCache;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.BlockCacheProvider;
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

@@ -1,25 +1,25 @@
 package me.jellysquid.mods.lithium.common.world.blockview;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.CollisionView;
-import net.minecraft.world.border.WorldBorder;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.CollisionGetter;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-public record SingleBlockBlockView(BlockState state, BlockPos blockPos) implements BlockView, CollisionView {
+public record SingleBlockBlockView(BlockState state, BlockPos blockPos) implements BlockGetter, CollisionGetter {
     public static SingleBlockBlockView of(BlockState blockState, BlockPos blockPos) {
-        return new SingleBlockBlockView(blockState, blockPos.toImmutable());
+        return new SingleBlockBlockView(blockState, blockPos.immutable());
     }
 
     @Override
@@ -52,7 +52,7 @@ public record SingleBlockBlockView(BlockState state, BlockPos blockPos) implemen
     }
 
     @Override
-    public int getBottomY() {
+    public int getMinBuildHeight() {
         throw SingleBlockViewException.INSTANCE;
     }
 
@@ -63,52 +63,52 @@ public record SingleBlockBlockView(BlockState state, BlockPos blockPos) implemen
 
     @Nullable
     @Override
-    public BlockView getChunkAsView(int chunkX, int chunkZ) {
+    public BlockGetter getChunkForCollisions(int chunkX, int chunkZ) {
         throw SingleBlockViewException.INSTANCE;
     }
 
     @Override
-    public boolean doesNotIntersectEntities(@Nullable Entity except, VoxelShape shape) {
+    public boolean isUnobstructed(@Nullable Entity except, VoxelShape shape) {
         throw SingleBlockViewException.INSTANCE;
     }
 
     @Override
-    public boolean canPlace(BlockState state, BlockPos pos, ShapeContext context) {
+    public boolean isUnobstructed(BlockState state, BlockPos pos, CollisionContext context) {
         throw SingleBlockViewException.INSTANCE;
     }
 
     @Override
-    public boolean doesNotIntersectEntities(Entity entity) {
+    public boolean isUnobstructed(Entity entity) {
         throw SingleBlockViewException.INSTANCE;
     }
 
     @Override
-    public boolean isSpaceEmpty(@Nullable Entity entity, Box box) {
+    public boolean noCollision(@Nullable Entity entity, AABB box) {
         throw SingleBlockViewException.INSTANCE;
     }
 
     @Override
-    public List<VoxelShape> getEntityCollisions(@Nullable Entity entity, Box box) {
+    public List<VoxelShape> getEntityCollisions(@Nullable Entity entity, AABB box) {
         throw SingleBlockViewException.INSTANCE;
     }
 
     @Override
-    public Iterable<VoxelShape> getCollisions(@Nullable Entity entity, Box box) {
+    public Iterable<VoxelShape> getCollisions(@Nullable Entity entity, AABB box) {
         throw SingleBlockViewException.INSTANCE;
     }
 
     @Override
-    public Iterable<VoxelShape> getBlockCollisions(@Nullable Entity entity, Box box) {
+    public Iterable<VoxelShape> getBlockCollisions(@Nullable Entity entity, AABB box) {
         throw SingleBlockViewException.INSTANCE;
     }
 
     @Override
-    public boolean canCollide(@Nullable Entity entity, Box box) {
+    public boolean collidesWithSuffocatingBlock(@Nullable Entity entity, AABB box) {
         throw SingleBlockViewException.INSTANCE;
     }
 
     @Override
-    public Optional<Vec3d> findClosestCollision(@Nullable Entity entity, VoxelShape shape, Vec3d target, double x, double y, double z) {
+    public Optional<Vec3> findFreePosition(@Nullable Entity entity, VoxelShape shape, Vec3 target, double x, double y, double z) {
         throw SingleBlockViewException.INSTANCE;
     }
 

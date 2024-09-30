@@ -2,10 +2,10 @@ package me.jellysquid.mods.lithium.mixin.util.item_component_and_count_tracking;
 
 import me.jellysquid.mods.lithium.common.util.change_tracking.ChangePublisher;
 import me.jellysquid.mods.lithium.common.util.change_tracking.ChangeSubscriber;
-import net.minecraft.component.ComponentMapImpl;
-import net.minecraft.component.ComponentType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemStack;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.PatchedDataComponentMap;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,11 +17,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ItemStack.class)
-public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, ChangeSubscriber<ComponentMapImpl> {
+public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, ChangeSubscriber<PatchedDataComponentMap> {
 
     @Shadow
     @Final
-    ComponentMapImpl components;
+    PatchedDataComponentMap components;
 
     @Shadow
     private int count;
@@ -63,7 +63,7 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
 
         if (this.subscriber == null) {
             //noinspection unchecked
-            ((ChangePublisher<ComponentMapImpl>) (Object) this.components).lithium$unsubscribe(this);
+            ((ChangePublisher<PatchedDataComponentMap>) (Object) this.components).lithium$unsubscribe(this);
         }
         return retval;
     }
@@ -79,7 +79,7 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
 
         if (this.subscriber == null) {
             //noinspection unchecked
-            ((ChangePublisher<ComponentMapImpl>) (Object) this.components).lithium$unsubscribe(this);
+            ((ChangePublisher<PatchedDataComponentMap>) (Object) this.components).lithium$unsubscribe(this);
         }
     }
 
@@ -93,7 +93,7 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
     }
 
     @Override
-    public void lithium$forceUnsubscribe(ComponentMapImpl publisher, int subscriberData) {
+    public void lithium$forceUnsubscribe(PatchedDataComponentMap publisher, int subscriberData) {
         if (publisher != this.components) {
             throw new IllegalStateException("Invalid publisher, expected " + this.components + " but got " + publisher);
         }
@@ -106,7 +106,7 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
     private void startTrackingChanges() {
         //Safe because ComponentMapImplMixin
         //noinspection unchecked
-        ((ChangePublisher<ComponentMapImpl>) (Object) this.components).lithium$subscribe(this, 0);
+        ((ChangePublisher<PatchedDataComponentMap>) (Object) this.components).lithium$subscribe(this, 0);
     }
 
     @Inject(method = "setCount(I)V", at = @At("HEAD"))
@@ -120,7 +120,7 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
             if (count == 0) {
                 //Safe because ComponentMapImplMixin implements the interface
                 //noinspection unchecked
-                ((ChangePublisher<ComponentMapImpl>) (Object) this.components).lithium$unsubscribe(this);
+                ((ChangePublisher<PatchedDataComponentMap>) (Object) this.components).lithium$unsubscribe(this);
 
                 if (this.subscriber != null) {
                     this.subscriber.lithium$forceUnsubscribe((ItemStack) (Object) this, this.subscriberData);
@@ -133,7 +133,7 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
     }
 
     @Override
-    public void lithium$notify(ComponentMapImpl publisher, int subscriberData) {
+    public void lithium$notify(PatchedDataComponentMap publisher, int subscriberData) {
         if (publisher != this.components) {
             throw new IllegalStateException("Invalid publisher, expected " + this.components + " but got " + publisher);
         }
@@ -144,11 +144,11 @@ public abstract class ItemStackMixin implements ChangePublisher<ItemStack>, Chan
     }
 
     @Inject(
-            method = "set(Lnet/minecraft/component/ComponentType;Ljava/lang/Object;)Ljava/lang/Object;",
+            method = "set(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Ljava/lang/Object;",
             at = @At("RETURN")
     )
-    private <T> void onSetComponent(ComponentType<? super T> type, @Nullable T value, CallbackInfoReturnable<T> cir) {
-        if (type == DataComponentTypes.ENCHANTMENTS) {
+    private <T> void onSetComponent(DataComponentType<? super T> type, @Nullable T value, CallbackInfoReturnable<T> cir) {
+        if (type == DataComponents.ENCHANTMENTS) {
             if (this.subscriber instanceof ChangeSubscriber.EnchantmentSubscriber<ItemStack> enchantmentSubscriber) {
                 enchantmentSubscriber.lithium$notifyAfterEnchantmentChange((ItemStack) (Object) this, this.subscriberData);
             }

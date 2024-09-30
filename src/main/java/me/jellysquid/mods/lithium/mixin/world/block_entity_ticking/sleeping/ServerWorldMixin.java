@@ -1,23 +1,23 @@
 package me.jellysquid.mods.lithium.mixin.world.block_entity_ticking.sleeping;
 
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.BlockEntityTickInvoker;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(ServerWorld.class)
+@Mixin(ServerLevel.class)
 public class ServerWorldMixin {
 
     @Redirect(
-            method = "dumpBlockEntities(Ljava/io/Writer;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/BlockEntityTickInvoker;getPos()Lnet/minecraft/util/math/BlockPos;")
+            method = "dumpBlockEntityTickers",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/TickingBlockEntity;getPos()Lnet/minecraft/core/BlockPos;")
     )
-    private BlockPos getPosOrOrigin(BlockEntityTickInvoker instance) {
+    private BlockPos getPosOrOrigin(TickingBlockEntity instance) {
         BlockPos pos = instance.getPos();
         if (pos == null) {
-            return BlockPos.ORIGIN;
+            return BlockPos.ZERO;
         }
         return pos;
     }

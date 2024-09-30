@@ -6,14 +6,14 @@ import me.jellysquid.mods.lithium.common.util.Distances;
 import me.jellysquid.mods.lithium.common.util.tuples.SortedPointOfInterest;
 import me.jellysquid.mods.lithium.common.world.interests.PointOfInterestSetExtended;
 import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageSectionExtended;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.poi.PointOfInterest;
-import net.minecraft.world.poi.PointOfInterestSet;
-import net.minecraft.world.poi.PointOfInterestStorage;
-import net.minecraft.world.poi.PointOfInterestType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.SectionPos;
+import net.minecraft.world.entity.ai.village.poi.PoiManager;
+import net.minecraft.world.entity.ai.village.poi.PoiRecord;
+import net.minecraft.world.entity.ai.village.poi.PoiSection;
+import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.level.ChunkPos;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -29,16 +29,16 @@ import java.util.function.Predicate;
  * location in the world. For example, nether portals ordinarily search a huge volume around the "expected" location
  * of a portal, but it is almost always right at or nearby to the search origin.
  */
-public class NearbyPointOfInterestStream extends Spliterators.AbstractSpliterator<PointOfInterest> {
-    private final RegionBasedStorageSectionExtended<PointOfInterestSet> storage;
+public class NearbyPointOfInterestStream extends Spliterators.AbstractSpliterator<PoiRecord> {
+    private final RegionBasedStorageSectionExtended<PoiSection> storage;
 
-    private final Predicate<RegistryEntry<PointOfInterestType>> typeSelector;
-    private final PointOfInterestStorage.OccupationStatus occupationStatus;
+    private final Predicate<Holder<PoiType>> typeSelector;
+    private final PoiManager.Occupancy occupationStatus;
 
     private final LongArrayList chunksSortedByMinDistance;
     private final ArrayList<SortedPointOfInterest> points;
-    private final Predicate<PointOfInterest> afterSortingPredicate;
-    private final Consumer<PointOfInterest> collector;
+    private final Predicate<PoiRecord> afterSortingPredicate;
+    private final Consumer<PoiRecord> collector;
     private final BlockPos origin;
 
     private int chunkIndex;
@@ -46,13 +46,13 @@ public class NearbyPointOfInterestStream extends Spliterators.AbstractSpliterato
     private int pointIndex;
     private final Comparator<? super SortedPointOfInterest> pointComparator;
 
-    public NearbyPointOfInterestStream(Predicate<RegistryEntry<PointOfInterestType>> typeSelector,
-                                       PointOfInterestStorage.OccupationStatus status,
+    public NearbyPointOfInterestStream(Predicate<Holder<PoiType>> typeSelector,
+                                       PoiManager.Occupancy status,
                                        boolean useSquareDistanceLimit,
                                        boolean preferNegativeY,
-                                       @Nullable Predicate<PointOfInterest> afterSortingPredicate,
+                                       @Nullable Predicate<PoiRecord> afterSortingPredicate,
                                        BlockPos origin, int radius,
-                                       RegionBasedStorageSectionExtended<PointOfInterestSet> storage) {
+                                       RegionBasedStorageSectionExtended<PoiSection> storage) {
         super(Long.MAX_VALUE, Spliterator.ORDERED);
 
         this.storage = storage;
@@ -98,11 +98,11 @@ public class NearbyPointOfInterestStream extends Spliterators.AbstractSpliterato
             }
 
             // Sort by the chunk coord
-            int cmp3 = Integer.compare(ChunkSectionPos.getSectionCoord(o1.getX()), ChunkSectionPos.getSectionCoord(o2.getX()));
+            int cmp3 = Integer.compare(SectionPos.blockToSectionCoord(o1.getX()), SectionPos.blockToSectionCoord(o2.getX()));
             if (cmp3 != 0) {
                 return cmp3;
             }
-            return Integer.compare(ChunkSectionPos.getSectionCoord(o1.getZ()), ChunkSectionPos.getSectionCoord(o2.getZ()));
+            return Integer.compare(SectionPos.blockToSectionCoord(o1.getZ()), SectionPos.blockToSectionCoord(o2.getZ()));
 
         } : (o1, o2) -> {
             // Use the cached values from earlier
@@ -113,15 +113,15 @@ public class NearbyPointOfInterestStream extends Spliterators.AbstractSpliterato
             }
 
             // Sort by the chunk coord
-            int cmp2 = Integer.compare(ChunkSectionPos.getSectionCoord(o1.getX()), ChunkSectionPos.getSectionCoord(o2.getX()));
+            int cmp2 = Integer.compare(SectionPos.blockToSectionCoord(o1.getX()), SectionPos.blockToSectionCoord(o2.getX()));
             if (cmp2 != 0) {
                 return cmp2;
             }
-            int cmp3 = Integer.compare(ChunkSectionPos.getSectionCoord(o1.getZ()), ChunkSectionPos.getSectionCoord(o2.getZ()));
+            int cmp3 = Integer.compare(SectionPos.blockToSectionCoord(o1.getZ()), SectionPos.blockToSectionCoord(o2.getZ()));
             if (cmp3 != 0) {
                 return cmp3;
             }
-            return Integer.compare(ChunkSectionPos.getSectionCoord(o1.getY()), ChunkSectionPos.getSectionCoord(o2.getY()));
+            return Integer.compare(SectionPos.blockToSectionCoord(o1.getY()), SectionPos.blockToSectionCoord(o2.getY()));
 
         };
     }
@@ -139,7 +139,7 @@ public class NearbyPointOfInterestStream extends Spliterators.AbstractSpliterato
         for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
             for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
                 if (distanceLimitL2Sq >= Distances.getMinChunkToBlockDistanceL2Sq(origin, chunkX, chunkZ)) {
-                    chunkPositions.add(ChunkPos.toLong(chunkX, chunkZ));
+                    chunkPositions.add(ChunkPos.asLong(chunkX, chunkZ));
                 }
             }
         }
@@ -148,15 +148,15 @@ public class NearbyPointOfInterestStream extends Spliterators.AbstractSpliterato
         // in their own bucket (the chunk itself), but this does not change the ordering of points between each bucket.
         chunkPositions.sort(
                 (long c1, long c2) -> Double.compare(
-                        Distances.getMinChunkToBlockDistanceL2Sq(origin, ChunkPos.getPackedX(c1), ChunkPos.getPackedZ(c1)),
-                        Distances.getMinChunkToBlockDistanceL2Sq(origin, ChunkPos.getPackedX(c2), ChunkPos.getPackedZ(c2))));
+                        Distances.getMinChunkToBlockDistanceL2Sq(origin, ChunkPos.getX(c1), ChunkPos.getZ(c1)),
+                        Distances.getMinChunkToBlockDistanceL2Sq(origin, ChunkPos.getX(c2), ChunkPos.getZ(c2))));
 
         return chunkPositions;
     }
 
 
     @Override
-    public boolean tryAdvance(Consumer<? super PointOfInterest> action) {
+    public boolean tryAdvance(Consumer<? super PoiRecord> action) {
         // Accepted POI:
 
         // Order of the POI:
@@ -175,8 +175,8 @@ public class NearbyPointOfInterestStream extends Spliterators.AbstractSpliterato
         // Find the next ordered chunk to scan for points
         while (this.chunkIndex < this.chunksSortedByMinDistance.size()) {
             long chunkPos = this.chunksSortedByMinDistance.getLong(this.chunkIndex);
-            int chunkPosX = ChunkPos.getPackedX(chunkPos);
-            int chunkPosZ = ChunkPos.getPackedZ(chunkPos);
+            int chunkPosX = ChunkPos.getX(chunkPos);
+            int chunkPosZ = ChunkPos.getZ(chunkPos);
 
             // Keep track of the guaranteed minimum distance of newly collected POI. We can only consume the closest
             // POI if we know that there will not be any other POI with a smaller distance.
@@ -188,7 +188,7 @@ public class NearbyPointOfInterestStream extends Spliterators.AbstractSpliterato
 
             int previousSize = this.points.size();
             // Collect all points in the chunk into the active list of points
-            for (PointOfInterestSet set : this.storage.lithium$getInChunkColumn(chunkPosX, chunkPosZ)) {
+            for (PoiSection set : this.storage.lithium$getInChunkColumn(chunkPosX, chunkPosZ)) {
                 ((PointOfInterestSetExtended) set).lithium$collectMatchingPoints(this.typeSelector, this.occupationStatus, this.collector);
             }
 
@@ -212,7 +212,7 @@ public class NearbyPointOfInterestStream extends Spliterators.AbstractSpliterato
     }
 
 
-    private boolean tryAdvancePoint(Consumer<? super PointOfInterest> action) {
+    private boolean tryAdvancePoint(Consumer<? super PoiRecord> action) {
         while (this.pointIndex < this.points.size()) {
             SortedPointOfInterest next = this.points.get(this.pointIndex);
 

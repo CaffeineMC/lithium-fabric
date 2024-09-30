@@ -1,9 +1,9 @@
 package me.jellysquid.mods.lithium.common.ai.pathing;
 
-import net.minecraft.entity.ai.pathing.PathNodeType;
+import net.minecraft.world.level.pathfinder.PathType;
 
 public interface BlockStatePathingCache {
-    PathNodeType lithium$getPathNodeType();
+    PathType lithium$getPathNodeType();
 
-    PathNodeType lithium$getNeighborPathNodeType();
+    PathType lithium$getNeighborPathNodeType();
 }

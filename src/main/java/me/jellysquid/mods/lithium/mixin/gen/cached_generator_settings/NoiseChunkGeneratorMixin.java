@@ -1,9 +1,9 @@
 package me.jellysquid.mods.lithium.mixin.gen.cached_generator_settings;
 
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
-import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
+import net.minecraft.core.Holder;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -12,12 +12,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(NoiseChunkGenerator.class)
+@Mixin(NoiseBasedChunkGenerator.class)
 public class NoiseChunkGeneratorMixin {
 
     @Shadow
     @Final
-    private RegistryEntry<ChunkGeneratorSettings> settings;
+    private Holder<NoiseGeneratorSettings> settings;
     private int cachedSeaLevel;
 
     /**
@@ -44,7 +44,7 @@ public class NoiseChunkGeneratorMixin {
                     shift = At.Shift.BEFORE
             )
     )
-    private void hookConstructor(BiomeSource biomeSource, RegistryEntry<ChunkGeneratorSettings> settings, CallbackInfo ci) {
+    private void hookConstructor(BiomeSource biomeSource, Holder<NoiseGeneratorSettings> settings, CallbackInfo ci) {
         this.cachedSeaLevel = this.settings.value().seaLevel(); //TODO FIX Crash due to early access of registry
     }
 }

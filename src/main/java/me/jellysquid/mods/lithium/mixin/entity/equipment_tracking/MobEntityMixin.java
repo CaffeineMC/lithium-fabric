@@ -5,13 +5,13 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import me.jellysquid.mods.lithium.common.entity.EquipmentEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.world.World;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -19,42 +19,42 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(MobEntity.class)
+@Mixin(Mob.class)
 public abstract class MobEntityMixin extends Entity implements EquipmentEntity {
     @Shadow
-    private ItemStack bodyArmor;
+    private ItemStack bodyArmorItem;
 
-    public MobEntityMixin(EntityType<?> type, World world) {
+    public MobEntityMixin(EntityType<?> type, Level world) {
         super(type, world);
     }
 
     @WrapOperation(
-            method = "readCustomDataFromNbt(Lnet/minecraft/nbt/NbtCompound;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/DefaultedList;set(ILjava/lang/Object;)Ljava/lang/Object;"),
+            method = "readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/core/NonNullList;set(ILjava/lang/Object;)Ljava/lang/Object;"),
             require = 2
     )
-    private <E> E trackEquipChange(DefaultedList<E> list, int index, E element, Operation<E> original) {
+    private <E> E trackEquipChange(NonNullList<E> list, int index, E element, Operation<E> original) {
         E prevElement = original.call(list, index, element);
         this.trackEquipChange(prevElement, element);
         return prevElement;
     }
 
     @Inject(
-            method = "readCustomDataFromNbt(Lnet/minecraft/nbt/NbtCompound;)V",
+            method = "readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V",
             at = {@At("HEAD"), @At("RETURN")}
     )
-    private void trackBodyArmor(NbtCompound nbt, CallbackInfo ci, @Share("prevBodyArmor")LocalRef<ItemStack> prevBodyArmorRef) {
+    private void trackBodyArmor(CompoundTag nbt, CallbackInfo ci, @Share("prevBodyArmor")LocalRef<ItemStack> prevBodyArmorRef) {
         ItemStack prevBodyArmor = prevBodyArmorRef.get();
         if (prevBodyArmor == null) {
-            prevBodyArmorRef.set(this.bodyArmor);
-        } else if (prevBodyArmor != this.bodyArmor) {
-            this.trackEquipChange(prevBodyArmor, this.bodyArmor);
+            prevBodyArmorRef.set(this.bodyArmorItem);
+        } else if (prevBodyArmor != this.bodyArmorItem) {
+            this.trackEquipChange(prevBodyArmor, this.bodyArmorItem);
         }
     }
 
     @Unique
     private <E> void trackEquipChange(E prevElement, E element) {
-        if ((!this.getWorld().isClient()) && element instanceof ItemStack newStack && prevElement instanceof ItemStack prevStack) {
+        if ((!this.level().isClientSide()) && element instanceof ItemStack newStack && prevElement instanceof ItemStack prevStack) {
             this.lithium$onEquipmentReplaced(prevStack, newStack);
         }
     }

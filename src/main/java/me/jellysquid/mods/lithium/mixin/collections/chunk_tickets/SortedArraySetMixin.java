@@ -1,11 +1,11 @@
 package me.jellysquid.mods.lithium.mixin.collections.chunk_tickets;
 
-import net.minecraft.util.collection.SortedArraySet;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.Collection;
 import java.util.function.Predicate;
+import net.minecraft.util.SortedArraySet;
 
 @Mixin(SortedArraySet.class)
 public abstract class SortedArraySetMixin<T> implements Collection<T> {
@@ -13,7 +13,7 @@ public abstract class SortedArraySetMixin<T> implements Collection<T> {
     int size;
 
     @Shadow
-    T[] elements;
+    T[] contents;
 
     /**
      * Add an optimized implementation of {@link Collection#removeIf(Predicate)} which doesn't attempt to shift
@@ -22,7 +22,7 @@ public abstract class SortedArraySetMixin<T> implements Collection<T> {
      */
     @Override
     public boolean removeIf(Predicate<? super T> filter) {
-        T[] arr = this.elements;
+        T[] arr = this.contents;
 
         int writeLim = this.size;
         int writeIdx = 0;

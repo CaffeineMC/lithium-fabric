@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.common.entity;
 
 import me.jellysquid.mods.lithium.common.util.change_tracking.ChangeSubscriber;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public interface EquipmentEntity {
     void lithium$onEquipmentReplaced(ItemStack oldStack, ItemStack newStack);

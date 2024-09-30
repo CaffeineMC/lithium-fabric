@@ -1,9 +1,9 @@
 package me.jellysquid.mods.lithium.mixin.entity.fast_elytra_check;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -13,16 +13,15 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
 
-    public LivingEntityMixin(EntityType<?> type, World world) {
+    public LivingEntityMixin(EntityType<?> type, Level world) {
         super(type, world);
     }
 
-    @SuppressWarnings("InvalidInjectorMethodSignature")
     @Inject(
-            method = "tickFallFlying()V",
+            method = "updateFallFlying()V",
             at = @At(
                     value = "INVOKE_ASSIGN",
-                    target = "Lnet/minecraft/entity/LivingEntity;getFlag(I)Z",
+                    target = "Lnet/minecraft/world/entity/LivingEntity;getSharedFlag(I)Z",
                     shift = At.Shift.AFTER
             ),
             locals = LocalCapture.CAPTURE_FAILHARD,

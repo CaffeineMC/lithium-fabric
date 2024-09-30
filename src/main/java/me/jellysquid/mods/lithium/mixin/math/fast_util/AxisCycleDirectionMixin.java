@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.math.fast_util;
 
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
@@ -16,7 +16,7 @@ public class AxisCycleDirectionMixin {
         assert Direction.Axis.values().length == 3;
     }
 
-    @Mixin(targets = "net/minecraft/util/math/AxisCycleDirection$2")
+    @Mixin(targets = "net/minecraft/core/AxisCycle$2")
     public static class ForwardMixin {
         /**
          * @reason Avoid expensive array/modulo operations
@@ -37,7 +37,7 @@ public class AxisCycleDirectionMixin {
         }
     }
 
-    @Mixin(targets = "net/minecraft/util/math/AxisCycleDirection$3")
+    @Mixin(targets = "net/minecraft/core/AxisCycle$3")
     public static class BackwardMixin {
         /**
          * @reason Avoid expensive array/modulo operations

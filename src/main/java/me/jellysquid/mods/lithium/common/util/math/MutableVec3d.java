@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.util.math;
 
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.phys.Vec3;
 
 public class MutableVec3d {
     private double x, y, z;
@@ -17,14 +17,14 @@ public class MutableVec3d {
         return this.z;
     }
 
-    public void add(Vec3d vec) {
+    public void add(Vec3 vec) {
         this.x += vec.x;
         this.y += vec.y;
         this.z += vec.z;
     }
 
-    public Vec3d toImmutable() {
-        return new Vec3d(this.x, this.y, this.z);
+    public Vec3 toImmutable() {
+        return new Vec3(this.x, this.y, this.z);
     }
 }
 

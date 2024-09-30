@@ -1,16 +1,16 @@
 package me.jellysquid.mods.lithium.common.shapes;
 
 import it.unimi.dsi.fastutil.doubles.DoubleList;
-import net.minecraft.util.function.BooleanBiFunction;
-import net.minecraft.util.shape.VoxelSet;
-import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static net.minecraft.util.math.Direction.Axis.*;
+import static net.minecraft.core.Direction.Axis.*;
 
 public class VoxelShapeMatchesAnywhere {
 
-    public static void cuboidMatchesAnywhere(VoxelShape shapeA, VoxelShape shapeB, BooleanBiFunction predicate, CallbackInfoReturnable<Boolean> cir) {
+    public static void cuboidMatchesAnywhere(VoxelShape shapeA, VoxelShape shapeB, BooleanOp predicate, CallbackInfoReturnable<Boolean> cir) {
         //calling this method only if both shapes are not empty and have bounding box overlap
 
         if (shapeA instanceof VoxelShapeSimpleCube && shapeB instanceof VoxelShapeSimpleCube) {
@@ -55,8 +55,8 @@ public class VoxelShapeMatchesAnywhere {
             boolean acceptSimpleCubeAlone = predicate.apply(shapeA == simpleCube, shapeB == simpleCube);
             //test the area outside otherShape
             if (acceptSimpleCubeAlone && exceedsCube(simpleCube,
-                    otherShape.getMin(X), otherShape.getMin(Y), otherShape.getMin(Z),
-                    otherShape.getMax(X), otherShape.getMax(Y), otherShape.getMax(Z))) {
+                    otherShape.min(X), otherShape.min(Y), otherShape.min(Z),
+                    otherShape.max(X), otherShape.max(Y), otherShape.max(Z))) {
                 cir.setReturnValue(true);
                 return;
             }
@@ -64,25 +64,25 @@ public class VoxelShapeMatchesAnywhere {
             boolean acceptOtherShapeAlone = predicate.apply(shapeA == otherShape, shapeB == otherShape);
 
             //test the area inside otherShape
-            VoxelSet voxelSet = otherShape.voxels;
-            DoubleList pointPositionsX = otherShape.getPointPositions(X);
-            DoubleList pointPositionsY = otherShape.getPointPositions(Y);
-            DoubleList pointPositionsZ = otherShape.getPointPositions(Z);
+            DiscreteVoxelShape voxelSet = otherShape.shape;
+            DoubleList pointPositionsX = otherShape.getCoords(X);
+            DoubleList pointPositionsY = otherShape.getCoords(Y);
+            DoubleList pointPositionsZ = otherShape.getCoords(Z);
 
-            int xMax = voxelSet.getMax(X); // xMax <= pointPositionsX.size()
-            int yMax = voxelSet.getMax(Y);
-            int zMax = voxelSet.getMax(Z);
+            int xMax = voxelSet.lastFull(X); // xMax <= pointPositionsX.size()
+            int yMax = voxelSet.lastFull(Y);
+            int zMax = voxelSet.lastFull(Z);
 
             //keep the cube positions in local vars to avoid looking them up all the time
-            double simpleCubeMaxX = simpleCube.getMax(X);
-            double simpleCubeMinX = simpleCube.getMin(X);
-            double simpleCubeMaxY = simpleCube.getMax(Y);
-            double simpleCubeMinY = simpleCube.getMin(Y);
-            double simpleCubeMaxZ = simpleCube.getMax(Z);
-            double simpleCubeMinZ = simpleCube.getMin(Z);
+            double simpleCubeMaxX = simpleCube.max(X);
+            double simpleCubeMinX = simpleCube.min(X);
+            double simpleCubeMaxY = simpleCube.max(Y);
+            double simpleCubeMinY = simpleCube.min(Y);
+            double simpleCubeMaxZ = simpleCube.max(Z);
+            double simpleCubeMinZ = simpleCube.min(Z);
 
             //iterate over all entries of the VoxelSet
-            for (int x = voxelSet.getMin(X); x < xMax; x++) {
+            for (int x = voxelSet.firstFull(X); x < xMax; x++) {
                 //all of the positions of +1e-7 and -1e-7 and >, >=, <, <= are carefully chosen:
                 //for example for the following line:                       >= here fails the test
                 //                                        moving the - 1e-7 here to the other side of > as + 1e-7 fails the test
@@ -92,14 +92,14 @@ public class VoxelShapeMatchesAnywhere {
                     continue;
                 }
                 boolean xSliceExceedsCube = acceptOtherShapeAlone && !((simpleCubeMaxX >= pointPositionsX.getDouble(x + 1) - 1e-7 && simpleCubeMinX - 1e-7 <= pointPositionsX.getDouble(x)));
-                for (int y = voxelSet.getMin(Y); y < yMax; y++) {
+                for (int y = voxelSet.firstFull(Y); y < yMax; y++) {
                     boolean simpleCubeIntersectsYSlice = (simpleCubeMaxY - 1e-7 > pointPositionsY.getDouble(y) && simpleCubeMinY < pointPositionsY.getDouble(y + 1) - 1e-7);
                     if (!acceptOtherShapeAlone && !simpleCubeIntersectsYSlice) {
                         //if we cannot return when the simple cube is not intersecting the area, skip forward
                         continue;
                     }
                     boolean ySliceExceedsCube = acceptOtherShapeAlone && !((simpleCubeMaxY >= pointPositionsY.getDouble(y + 1) - 1e-7 && simpleCubeMinY - 1e-7 <= pointPositionsY.getDouble(y)));
-                    for (int z = voxelSet.getMin(Z); z < zMax; z++) {
+                    for (int z = voxelSet.firstFull(Z); z < zMax; z++) {
                         boolean simpleCubeIntersectsZSlice = (simpleCubeMaxZ - 1e-7 > pointPositionsZ.getDouble(z) && simpleCubeMinZ < pointPositionsZ.getDouble(z + 1) - 1e-7);
                         if (!acceptOtherShapeAlone && !simpleCubeIntersectsZSlice) {
                             //if we cannot return when the simple cube is not intersecting the area, skip forward
@@ -107,7 +107,7 @@ public class VoxelShapeMatchesAnywhere {
                         }
                         boolean zSliceExceedsCube = acceptOtherShapeAlone && !((simpleCubeMaxZ >= pointPositionsZ.getDouble(z + 1) - 1e-7 && simpleCubeMinZ - 1e-7 <= pointPositionsZ.getDouble(z)));
 
-                        boolean o = voxelSet.inBoundsAndContains(x, y, z);
+                        boolean o = voxelSet.isFullWide(x, y, z);
                         boolean s = simpleCubeIntersectsXSlice && simpleCubeIntersectsYSlice && simpleCubeIntersectsZSlice;
                         if (acceptAnd && o && s || acceptSimpleCubeAlone && !o && s || acceptOtherShapeAlone && o && (xSliceExceedsCube || ySliceExceedsCube || zSliceExceedsCube)) {
                             cir.setReturnValue(true);
@@ -122,26 +122,26 @@ public class VoxelShapeMatchesAnywhere {
 
     private static boolean isTiny(VoxelShape shapeA) {
         //avoid properties of SimplePairList, really close point positions are subject to special merging behavior
-        return shapeA.getMin(X) > shapeA.getMax(X) - 3e-7 ||
-                shapeA.getMin(Y) > shapeA.getMax(Y) - 3e-7 ||
-                shapeA.getMin(Z) > shapeA.getMax(Z) - 3e-7;
+        return shapeA.min(X) > shapeA.max(X) - 3e-7 ||
+                shapeA.min(Y) > shapeA.max(Y) - 3e-7 ||
+                shapeA.min(Z) > shapeA.max(Z) - 3e-7;
     }
 
     private static boolean exceedsCube(VoxelShapeSimpleCube a, double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-        return a.getMin(X) < minX - 1e-7 || a.getMax(X) > maxX + 1e-7 ||
-                a.getMin(Y) < minY - 1e-7 || a.getMax(Y) > maxY + 1e-7 ||
-                a.getMin(Z) < minZ - 1e-7 || a.getMax(Z) > maxZ + 1e-7;
+        return a.min(X) < minX - 1e-7 || a.max(X) > maxX + 1e-7 ||
+                a.min(Y) < minY - 1e-7 || a.max(Y) > maxY + 1e-7 ||
+                a.min(Z) < minZ - 1e-7 || a.max(Z) > maxZ + 1e-7;
     }
 
     private static boolean exceedsShape(VoxelShapeSimpleCube a, VoxelShapeSimpleCube b) {
-        return a.getMin(X) < b.getMin(X) - 1e-7 || a.getMax(X) > b.getMax(X) + 1e-7 ||
-                a.getMin(Y) < b.getMin(Y) - 1e-7 || a.getMax(Y) > b.getMax(Y) + 1e-7 ||
-                a.getMin(Z) < b.getMin(Z) - 1e-7 || a.getMax(Z) > b.getMax(Z) + 1e-7;
+        return a.min(X) < b.min(X) - 1e-7 || a.max(X) > b.max(X) + 1e-7 ||
+                a.min(Y) < b.min(Y) - 1e-7 || a.max(Y) > b.max(Y) + 1e-7 ||
+                a.min(Z) < b.min(Z) - 1e-7 || a.max(Z) > b.max(Z) + 1e-7;
     }
 
     private static boolean intersects(VoxelShapeSimpleCube a, VoxelShapeSimpleCube b) {
-        return a.getMin(X) < b.getMax(X) - 1e-7 && a.getMax(X) > b.getMin(X) + 1e-7 &&
-                a.getMin(Y) < b.getMax(Y) - 1e-7 && a.getMax(Y) > b.getMin(Y) + 1e-7 &&
-                a.getMin(Z) < b.getMax(Z) - 1e-7 && a.getMax(Z) > b.getMin(Z) + 1e-7;
+        return a.min(X) < b.max(X) - 1e-7 && a.max(X) > b.min(X) + 1e-7 &&
+                a.min(Y) < b.max(Y) - 1e-7 && a.max(Y) > b.min(Y) + 1e-7 &&
+                a.min(Z) < b.max(Z) - 1e-7 && a.max(Z) > b.min(Z) + 1e-7;
     }
 }

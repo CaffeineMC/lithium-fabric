@@ -5,10 +5,6 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import net.minecraft.entity.ai.brain.Activity;
-import net.minecraft.entity.ai.brain.Brain;
-import net.minecraft.entity.ai.brain.MemoryModuleState;
-import net.minecraft.entity.ai.brain.MemoryModuleType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -21,6 +17,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.minecraft.world.entity.schedule.Activity;
 
 @Mixin(Brain.class)
 public class BrainMixin {
@@ -38,7 +38,7 @@ public class BrainMixin {
     @Shadow
     @Final
     @Mutable
-    private Map<Activity, Set<Pair<MemoryModuleType<?>, MemoryModuleState>>> requiredActivityMemories;
+    private Map<Activity, Set<Pair<MemoryModuleType<?>, MemoryStatus>>> activityRequirements;
 
     @Inject(
             method = "<init>(Ljava/util/Collection;Ljava/util/Collection;Lcom/google/common/collect/ImmutableList;Ljava/util/function/Supplier;)V",
@@ -47,7 +47,7 @@ public class BrainMixin {
     private void reinitializeBrainCollections(Collection<?> memories, Collection<?> sensors, ImmutableList<?> memoryEntries, Supplier<?> codecSupplier, CallbackInfo ci) {
         this.memories = new Reference2ReferenceOpenHashMap<>(this.memories);
         this.sensors = new Reference2ReferenceLinkedOpenHashMap<>(this.sensors);
-        this.requiredActivityMemories = new Object2ObjectOpenHashMap<>(this.requiredActivityMemories);
+        this.activityRequirements = new Object2ObjectOpenHashMap<>(this.activityRequirements);
     }
 
 }

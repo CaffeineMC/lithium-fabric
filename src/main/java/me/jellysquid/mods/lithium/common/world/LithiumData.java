@@ -7,12 +7,12 @@ import me.jellysquid.mods.lithium.common.entity.block_tracking.ChunkSectionChang
 import me.jellysquid.mods.lithium.common.entity.block_tracking.SectionedBlockChangeTracker;
 import me.jellysquid.mods.lithium.common.entity.movement_tracker.SectionedEntityMovementTracker;
 import me.jellysquid.mods.lithium.common.util.deduplication.LithiumInterner;
-import net.minecraft.entity.ai.pathing.EntityNavigation;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.village.raid.Raid;
-import net.minecraft.world.World;
-import net.minecraft.world.event.listener.GameEventDispatcher;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.raid.Raid;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEventListenerRegistry;
 
 public interface LithiumData {
 
@@ -21,13 +21,13 @@ public interface LithiumData {
             // This should be faster than the chunk lookup, since there are usually a lot more chunks than
             // chunk with game event dispatchers (we only initialize them when non-empty set of listeners)
             // All Int2ObjectMap objects are also stored in a field of the corresponding WorldChunk.
-            Long2ReferenceOpenHashMap<Int2ObjectMap<GameEventDispatcher>> gameEventDispatchersByChunk,
+            Long2ReferenceOpenHashMap<Int2ObjectMap<GameEventListenerRegistry>> gameEventDispatchersByChunk,
 
             // Cached ominous banner, must not be mutated.
             ItemStack ominousBanner,
 
             // Set of active mob navigations (active = have a path)
-            ReferenceOpenHashSet<EntityNavigation> activeNavigations,
+            ReferenceOpenHashSet<PathNavigation> activeNavigations,
 
             // Block change tracker deduplication
             LithiumInterner<SectionedBlockChangeTracker> blockChangeTrackers,
@@ -38,10 +38,10 @@ public interface LithiumData {
             // Block ChunkSection listeners
             Long2ReferenceOpenHashMap<ChunkSectionChangeCallback> chunkSectionChangeCallbacks
     ) {
-        public Data(World world) {
+        public Data(Level world) {
             this(
                     new Long2ReferenceOpenHashMap<>(),
-                    world.getRegistryManager().getOptionalWrapper(RegistryKeys.BANNER_PATTERN).map(Raid::getOminousBanner).orElse(null),
+                    world.registryAccess().lookup(Registries.BANNER_PATTERN).map(Raid::getLeaderBannerInstance).orElse(null),
                     new ReferenceOpenHashSet<>(),
                     new LithiumInterner<>(),
                     new LithiumInterner<>(),

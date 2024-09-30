@@ -7,9 +7,9 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenCustomHashMap;
 import me.jellysquid.mods.lithium.common.util.change_tracking.ChangePublisher;
 import me.jellysquid.mods.lithium.common.util.change_tracking.ChangeSubscriber;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.function.LazyIterationConsumer;
+import net.minecraft.util.AbortableIterationConsumer;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,13 +23,13 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
     private static final Hash.Strategy<ItemStack> STRATEGY = new Hash.Strategy<>() {
         @Override
         public int hashCode(ItemStack itemStack) {
-            return HashCommon.mix(ItemStack.hashCode(itemStack));
+            return HashCommon.mix(ItemStack.hashItemAndComponents(itemStack));
         }
 
         @Override
         public boolean equals(ItemStack itemStack, ItemStack otherItemStack) {
             return itemStack == otherItemStack ||
-                    itemStack != null && otherItemStack != null && ItemStack.areItemsAndComponentsEqual(itemStack, otherItemStack);
+                    itemStack != null && otherItemStack != null && ItemStack.isSameItemSameComponents(itemStack, otherItemStack);
         }
     };
 
@@ -72,7 +72,7 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
         this.tempUncategorizedElements.forEach((index) -> {
             ItemEntity element = this.delegateWithNulls.get(index);
             if (element != null) {
-                if (element.getStack().isEmpty()) {
+                if (element.getItem().isEmpty()) {
                     this.delegateWithNulls.set(index, null);
                     this.unsubscribeElement(element);
                 } else {
@@ -115,7 +115,7 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
     public boolean add(ItemEntity element) {
         this.processOutdated();
 
-        if (element.getStack().isEmpty()) {
+        if (element.getItem().isEmpty()) {
             this.delegateWithNulls.add(null);
         } else {
             int index = this.delegateWithNulls.size();
@@ -127,7 +127,7 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
     }
 
     private void addToCategories(ItemEntity element, int index, boolean insertionSort) {
-        ItemStack stack = element.getStack();
+        ItemStack stack = element.getItem();
         if (stack.isEmpty()) {
             return;
         }
@@ -170,7 +170,7 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
 
     private static boolean isMaxHalfFull(ItemStack stack) {
         int count = stack.getCount();
-        int maxCount = stack.getMaxCount();
+        int maxCount = stack.getMaxStackSize();
         return isMaxHalfFull(count, maxCount);
     }
 
@@ -200,7 +200,7 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
     }
 
     private void removeElement(ItemEntity element) {
-        if (!element.getStack().isEmpty()) {
+        if (!element.getItem().isEmpty()) {
             int index = this.unsubscribeElement(element);
 
             if (index == this.delegateWithNulls.size() - 1) {
@@ -236,7 +236,7 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
 
         for (int i = 0, j = 0; i < this.delegate.size(); i++) {
             ItemEntity element = this.delegate.get(i);
-            if (!element.getStack().isEmpty()) {
+            if (!element.getItem().isEmpty()) {
                 this.delegateWithNulls.add(element);
                 this.addToCategories(element, j, false);
                 this.subscribeElement(element, j);
@@ -251,7 +251,7 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
     }
 
     private void removeFromCategories(ItemEntity element, int index) {
-        ItemStack stack = element.getStack();
+        ItemStack stack = element.getItem();
         if (stack.isEmpty()) {
             return;
         }
@@ -313,7 +313,7 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
             this.processOutdated();
 
             int index;
-            if (previousElement.getStack().isEmpty()) {
+            if (previousElement.getItem().isEmpty()) {
                 if (this.delegateWithNulls.size() == this.delegate.size()) {
                     index = i;
                 } else {
@@ -326,7 +326,7 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
                 this.removeFromCategories(previousElement, index);
             }
 
-            if (newElement.getStack().isEmpty()) {
+            if (newElement.getItem().isEmpty()) {
                 this.delegateWithNulls.set(index, null);
                 return previousElement;
             } else {
@@ -334,7 +334,7 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
                 this.addToCategories(newElement, index, true);
                 this.subscribeElement(newElement, index);
 
-                if (replaced != null && replaced != previousElement && !replaced.getStack().isEmpty()) {
+                if (replaced != null && replaced != previousElement && !replaced.getItem().isEmpty()) {
                     throw new IllegalStateException("Element mismatch, expected " + previousElement + " but got " + replaced);
                 }
             }
@@ -387,14 +387,14 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
     public void lithium$notifyCount(ItemEntity element, int index, int newCount) {
         this.processOutdated();
 
-        ItemStack stack = element.getStack();
+        ItemStack stack = element.getItem();
         if (newCount <= 0) {
             this.removeFromCategories(element, index);
             return;
         }
 
         boolean wasMaxHalfFull = isMaxHalfFull(stack);
-        boolean isMaxHalfFull = isMaxHalfFull(newCount, stack.getMaxCount());
+        boolean isMaxHalfFull = isMaxHalfFull(newCount, stack.getMaxStackSize());
 
         if (wasMaxHalfFull != isMaxHalfFull) {
             if (isMaxHalfFull) {
@@ -405,12 +405,12 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
         }
     }
 
-    public LazyIterationConsumer.NextIteration consumeForEntityStacking(ItemEntity searchingEntity, LazyIterationConsumer<ItemEntity> itemEntityConsumer) {
+    public AbortableIterationConsumer.Continuation consumeForEntityStacking(ItemEntity searchingEntity, AbortableIterationConsumer<ItemEntity> itemEntityConsumer) {
         this.processOutdated();
 
-        ItemStack stack = searchingEntity.getStack();
+        ItemStack stack = searchingEntity.getItem();
         int count = stack.getCount();
-        int maxCount = stack.getMaxCount();
+        int maxCount = stack.getMaxStackSize();
         if (count * 2 >= maxCount) { //>=50% full
             // Consume entities that are <= 50% full.
             return this.consumeElements(itemEntityConsumer, this.maxHalfFullElementsByCategory.get(stack));
@@ -421,9 +421,9 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
         }
     }
 
-    private LazyIterationConsumer.NextIteration consumeElements(LazyIterationConsumer<ItemEntity> elementConsumer, IntArrayList categoryList) {
+    private AbortableIterationConsumer.Continuation consumeElements(AbortableIterationConsumer<ItemEntity> elementConsumer, IntArrayList categoryList) {
         if (categoryList == null) {
-            return LazyIterationConsumer.NextIteration.CONTINUE;
+            return AbortableIterationConsumer.Continuation.CONTINUE;
         }
         int expectedModCount = this.modCount;
         int size = categoryList.size();
@@ -435,11 +435,11 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
             ItemEntity element = this.delegateWithNulls.get(categoryList.getInt(i));
 
             //The consumer must not modify the consumed element and or other elements in the collection, or must return ABORT.
-            LazyIterationConsumer.NextIteration next = elementConsumer.accept(element);
-            if (next != LazyIterationConsumer.NextIteration.CONTINUE) {
+            AbortableIterationConsumer.Continuation next = elementConsumer.accept(element);
+            if (next != AbortableIterationConsumer.Continuation.CONTINUE) {
                 return next;
             }
         }
-        return LazyIterationConsumer.NextIteration.CONTINUE;
+        return AbortableIterationConsumer.Continuation.CONTINUE;
     }
 }

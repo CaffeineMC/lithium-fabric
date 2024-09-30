@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.common.world.blockentity;
 
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public interface BlockEntityGetter {
     BlockEntity lithium$getLoadedExistingBlockEntity(BlockPos pos);

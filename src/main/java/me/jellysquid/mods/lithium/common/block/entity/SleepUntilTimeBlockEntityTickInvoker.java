@@ -1,17 +1,17 @@
 package me.jellysquid.mods.lithium.common.block.entity;
 
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.BlockEntityTickInvoker;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
 
 public record SleepUntilTimeBlockEntityTickInvoker(BlockEntity sleepingBlockEntity, long sleepUntilTickExclusive,
-                                                   BlockEntityTickInvoker delegate) implements BlockEntityTickInvoker {
+                                                   TickingBlockEntity delegate) implements TickingBlockEntity {
 
     @Override
     public void tick() {
         //noinspection ConstantConditions
-        long tickTime = this.sleepingBlockEntity.getWorld().getTime();
+        long tickTime = this.sleepingBlockEntity.getLevel().getGameTime();
         if (tickTime >= this.sleepUntilTickExclusive) {
             ((SleepingBlockEntity) this.sleepingBlockEntity).setTicker(this.delegate);
             this.delegate.tick();
@@ -25,12 +25,12 @@ public record SleepUntilTimeBlockEntityTickInvoker(BlockEntity sleepingBlockEnti
 
     @Override
     public BlockPos getPos() {
-        return this.sleepingBlockEntity.getPos();
+        return this.sleepingBlockEntity.getBlockPos();
     }
 
     @Override
-    public String getName() {
+    public String getType() {
         //noinspection ConstantConditions
-        return BlockEntityType.getId(this.sleepingBlockEntity.getType()).toString();
+        return BlockEntityType.getKey(this.sleepingBlockEntity.getType()).toString();
     }
 }

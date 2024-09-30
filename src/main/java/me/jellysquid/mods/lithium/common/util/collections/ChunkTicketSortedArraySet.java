@@ -1,11 +1,10 @@
 package me.jellysquid.mods.lithium.common.util.collections;
 
-import net.minecraft.server.world.ChunkTicket;
-import net.minecraft.util.collection.SortedArraySet;
-
 import java.util.Comparator;
+import net.minecraft.server.level.Ticket;
+import net.minecraft.util.SortedArraySet;
 
-public class ChunkTicketSortedArraySet<T> extends SortedArraySet<ChunkTicket<?>> {
+public class ChunkTicketSortedArraySet<T> extends SortedArraySet<Ticket<?>> {
 
     private long minExpireTime = Long.MAX_VALUE;
 
@@ -42,8 +41,8 @@ public class ChunkTicketSortedArraySet<T> extends SortedArraySet<ChunkTicket<?>>
 
     public void recalculateExpireTime() {
         this.minExpireTime = Long.MAX_VALUE;
-        for (ChunkTicket<?> c : this) {
-            this.addExpireTimeInternal((c.tickCreated + c.getType().getExpiryTicks()));
+        for (Ticket<?> c : this) {
+            this.addExpireTimeInternal((c.createdTick + c.getType().timeout()));
         }
     }
 }

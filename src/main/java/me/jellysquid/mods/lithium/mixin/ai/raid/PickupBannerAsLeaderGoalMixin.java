@@ -1,35 +1,35 @@
 package me.jellysquid.mods.lithium.mixin.ai.raid;
 
 import me.jellysquid.mods.lithium.common.world.LithiumData;
-import net.minecraft.block.entity.BannerPattern;
-import net.minecraft.entity.raid.RaiderEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.RegistryEntryLookup;
-import net.minecraft.village.raid.Raid;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.world.entity.raid.Raid;
+import net.minecraft.world.entity.raid.Raider;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BannerPattern;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(RaiderEntity.PickupBannerAsLeaderGoal.class)
-public class PickupBannerAsLeaderGoalMixin<T extends RaiderEntity> {
+@Mixin(Raider.ObtainRaidLeaderBannerGoal.class)
+public class PickupBannerAsLeaderGoalMixin<T extends Raider> {
     @Shadow
     @Final
-    private T actor;
+    private T mob;
 
     // The call to Raid#getOminousBanner() is very expensive, use a cached banner during AI ticking
     @Redirect(
-            method = "canStart()Z",
+            method = "canUse()Z",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/village/raid/Raid;getOminousBanner(Lnet/minecraft/registry/RegistryEntryLookup;)Lnet/minecraft/item/ItemStack;"
+                    target = "Lnet/minecraft/world/entity/raid/Raid;getLeaderBannerInstance(Lnet/minecraft/core/HolderGetter;)Lnet/minecraft/world/item/ItemStack;"
             )
     )
-    private ItemStack getOminousBanner(RegistryEntryLookup<BannerPattern> bannerPatternLookup) {
-        ItemStack ominousBanner = ((LithiumData) this.actor.getWorld()).lithium$getData().ominousBanner();
+    private ItemStack getOminousBanner(HolderGetter<BannerPattern> bannerPatternLookup) {
+        ItemStack ominousBanner = ((LithiumData) this.mob.level()).lithium$getData().ominousBanner();
         if (ominousBanner == null) {
-            ominousBanner = Raid.getOminousBanner(bannerPatternLookup);
+            ominousBanner = Raid.getLeaderBannerInstance(bannerPatternLookup);
         }
         return ominousBanner;
     }

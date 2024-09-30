@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.hopper;
 
-import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * Pattern of comparator updates that the given inventory is sending when a hopper
@@ -38,7 +38,7 @@ public enum ComparatorUpdatePattern {
         //example: inventory with items, but removing any single item does not change the signal strength
         @Override
         public void apply(BlockEntity blockEntity, LithiumStackList stackList) {
-            blockEntity.markDirty();
+            blockEntity.setChanged();
         }
 
         @Override
@@ -51,9 +51,9 @@ public enum ComparatorUpdatePattern {
         @Override
         public void apply(BlockEntity blockEntity, LithiumStackList stackList) {
             stackList.setReducedSignalStrengthOverride();
-            blockEntity.markDirty();
+            blockEntity.setChanged();
             stackList.clearSignalStrengthOverride();
-            blockEntity.markDirty();
+            blockEntity.setChanged();
         }
 
         @Override
@@ -66,11 +66,11 @@ public enum ComparatorUpdatePattern {
         // but there is another item that will reduce the signal strength when removed
         @Override
         public void apply(BlockEntity blockEntity, LithiumStackList stackList) {
-            blockEntity.markDirty();
+            blockEntity.setChanged();
             stackList.setReducedSignalStrengthOverride();
-            blockEntity.markDirty();
+            blockEntity.setChanged();
             stackList.clearSignalStrengthOverride();
-            blockEntity.markDirty();
+            blockEntity.setChanged();
         }
 
         @Override

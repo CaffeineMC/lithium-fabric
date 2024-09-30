@@ -1,7 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.math.fast_blockpos;
 
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,7 +28,7 @@ public class DirectionMixin {
      * @author JellySquid
      */
     @Overwrite
-    public int getOffsetX() {
+    public int getStepX() {
         return this.offsetX;
     }
 
@@ -37,7 +37,7 @@ public class DirectionMixin {
      * @author JellySquid
      */
     @Overwrite
-    public int getOffsetY() {
+    public int getStepY() {
         return this.offsetY;
     }
 
@@ -46,7 +46,7 @@ public class DirectionMixin {
      * @author JellySquid
      */
     @Overwrite
-    public int getOffsetZ() {
+    public int getStepZ() {
         return this.offsetZ;
     }
 }

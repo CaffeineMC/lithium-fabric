@@ -2,15 +2,15 @@ package me.jellysquid.mods.lithium.mixin.entity.equipment_tracking.enchantment_t
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import me.jellysquid.mods.lithium.common.entity.EquipmentEntity;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.EnchantmentEffectComponentTypes;
-import net.minecraft.component.type.ItemEnchantmentsComponent;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,13 +19,13 @@ import org.spongepowered.asm.mixin.injection.At;
 public abstract class LivingEntityMixin implements EquipmentEntity.TickableEnchantmentTrackingEntity {
 
     @Unique
-    private boolean maybeHasTickableEnchantments = (Object) this instanceof PlayerEntity;
+    private boolean maybeHasTickableEnchantments = (Object) this instanceof Player;
 
     @WrapWithCondition(
             method = "baseTick",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/enchantment/EnchantmentHelper;onTick(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/LivingEntity;)V")
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper;tickEffects(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LivingEntity;)V")
     )
-    private boolean maybeHasAnyTickableEnchantments(ServerWorld world, LivingEntity user) {
+    private boolean maybeHasAnyTickableEnchantments(ServerLevel world, LivingEntity user) {
         return this.maybeHasTickableEnchantments;
     }
 
@@ -48,10 +48,10 @@ public abstract class LivingEntityMixin implements EquipmentEntity.TickableEncha
     @Unique
     private static boolean stackHasTickableEnchantment(ItemStack stack) {
         if (!stack.isEmpty()) {
-            ItemEnchantmentsComponent enchantments = stack.get(DataComponentTypes.ENCHANTMENTS);
+            ItemEnchantments enchantments = stack.get(DataComponents.ENCHANTMENTS);
             if (enchantments != null && !enchantments.isEmpty()) {
-                for (RegistryEntry<Enchantment> enchantmentEntry : enchantments.getEnchantments()) {
-                    if (!enchantmentEntry.value().getEffect(EnchantmentEffectComponentTypes.TICK).isEmpty()) {
+                for (Holder<Enchantment> enchantmentEntry : enchantments.keySet()) {
+                    if (!enchantmentEntry.value().getEffects(EnchantmentEffectComponents.TICK).isEmpty()) {
                         return true;
                     }
                 }

@@ -6,13 +6,13 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import me.jellysquid.mods.lithium.common.util.Pos;
 import me.jellysquid.mods.lithium.common.util.collections.ListeningLong2ObjectOpenHashMap;
 import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageSectionExtended;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.server.world.ChunkErrorHandler;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.HeightLimitView;
-import net.minecraft.world.storage.ChunkPosKeyedStorage;
-import net.minecraft.world.storage.SerializingRegionBasedStorage;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.chunk.storage.ChunkIOErrorReporter;
+import net.minecraft.world.level.chunk.storage.SectionStorage;
+import net.minecraft.world.level.chunk.storage.SimpleRegionStorage;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -26,43 +26,43 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType") // We don't get a choice, this is Minecraft's doing!
-@Mixin(SerializingRegionBasedStorage.class)
+@Mixin(SectionStorage.class)
 public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBasedStorageSectionExtended<R> {
     @Mutable
     @Shadow
     @Final
-    private Long2ObjectMap<Optional<R>> loadedElements;
+    private Long2ObjectMap<Optional<R>> storage;
 
     @Shadow
     protected abstract Optional<R> get(long pos);
 
     @Shadow
-    protected abstract void loadDataAt(ChunkPos pos);
+    protected abstract void readColumn(ChunkPos pos);
 
     @Shadow
     @Final
-    protected HeightLimitView world;
+    protected LevelHeightAccessor levelHeightAccessor;
     private Long2ObjectOpenHashMap<BitSet> columns;
 
     @SuppressWarnings("rawtypes")
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(ChunkPosKeyedStorage storageAccess, Function codecFactory, Function factory, DynamicRegistryManager registryManager, ChunkErrorHandler errorHandler, HeightLimitView world, CallbackInfo ci) {
+    private void init(SimpleRegionStorage storageAccess, Function codecFactory, Function factory, RegistryAccess registryManager, ChunkIOErrorReporter errorHandler, LevelHeightAccessor world, CallbackInfo ci) {
         this.columns = new Long2ObjectOpenHashMap<>();
-        this.loadedElements = new ListeningLong2ObjectOpenHashMap<>(this::onEntryAdded, this::onEntryRemoved);
+        this.storage = new ListeningLong2ObjectOpenHashMap<>(this::onEntryAdded, this::onEntryRemoved);
     }
 
     private void onEntryRemoved(long key, Optional<R> value) {
-        int y = Pos.SectionYIndex.fromSectionCoord(this.world, ChunkSectionPos.unpackY(key));
+        int y = Pos.SectionYIndex.fromSectionCoord(this.levelHeightAccessor, SectionPos.y(key));
 
         // We only care about items belonging to a valid sub-chunk
-        if (y < 0 || y >= Pos.SectionYIndex.getNumYSections(this.world)) {
+        if (y < 0 || y >= Pos.SectionYIndex.getNumYSections(this.levelHeightAccessor)) {
             return;
         }
 
-        int x = ChunkSectionPos.unpackX(key);
-        int z = ChunkSectionPos.unpackZ(key);
+        int x = SectionPos.x(key);
+        int z = SectionPos.z(key);
 
-        long pos = ChunkPos.toLong(x, z);
+        long pos = ChunkPos.asLong(x, z);
         BitSet flags = this.columns.get(pos);
 
         if (flags != null) {
@@ -74,22 +74,22 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
     }
 
     private void onEntryAdded(long key, Optional<R> value) {
-        int y = Pos.SectionYIndex.fromSectionCoord(this.world, ChunkSectionPos.unpackY(key));
+        int y = Pos.SectionYIndex.fromSectionCoord(this.levelHeightAccessor, SectionPos.y(key));
 
         // We only care about items belonging to a valid sub-chunk
-        if (y < 0 || y >= Pos.SectionYIndex.getNumYSections(this.world)) {
+        if (y < 0 || y >= Pos.SectionYIndex.getNumYSections(this.levelHeightAccessor)) {
             return;
         }
 
-        int x = ChunkSectionPos.unpackX(key);
-        int z = ChunkSectionPos.unpackZ(key);
+        int x = SectionPos.x(key);
+        int z = SectionPos.z(key);
 
-        long pos = ChunkPos.toLong(x, z);
+        long pos = ChunkPos.asLong(x, z);
 
         BitSet flags = this.columns.get(pos);
 
         if (flags == null) {
-            this.columns.put(pos, flags = new BitSet(Pos.SectionYIndex.getNumYSections(this.world)));
+            this.columns.put(pos, flags = new BitSet(Pos.SectionYIndex.getNumYSections(this.levelHeightAccessor)));
         }
 
         flags.set(y, value.isPresent());
@@ -105,11 +105,11 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
         }
 
         List<R> list = new ArrayList<>();
-        int minYSection = Pos.SectionYCoord.getMinYSection(this.world);
+        int minYSection = Pos.SectionYCoord.getMinYSection(this.levelHeightAccessor);
         for (int chunkYIndex = sectionsWithPOI.nextSetBit(0); chunkYIndex != -1; chunkYIndex = sectionsWithPOI.nextSetBit(chunkYIndex + 1)) {
             int chunkY = chunkYIndex + minYSection;
             //noinspection SimplifyOptionalCallChains
-            R r = this.loadedElements.get(ChunkSectionPos.asLong(chunkX, chunkY, chunkZ)).orElse(null);
+            R r = this.storage.get(SectionPos.asLong(chunkX, chunkY, chunkZ)).orElse(null);
             if (r != null) {
                 list.add(r);
             }
@@ -127,8 +127,8 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
             return Collections::emptyIterator;
         }
 
-        Long2ObjectMap<Optional<R>> loadedElements = this.loadedElements;
-        HeightLimitView world = this.world;
+        Long2ObjectMap<Optional<R>> loadedElements = this.storage;
+        LevelHeightAccessor world = this.levelHeightAccessor;
 
         return () -> new AbstractIterator<>() {
             private int nextBit = sectionsWithPOI.nextSetBit(0);
@@ -138,7 +138,7 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
             protected R computeNext() {
                 // If the next bit is <0, that means that no remaining set bits exist
                 while (this.nextBit >= 0) {
-                    Optional<R> next = loadedElements.get(ChunkSectionPos.asLong(chunkX, Pos.SectionYCoord.fromSectionIndex(world, this.nextBit), chunkZ));
+                    Optional<R> next = loadedElements.get(SectionPos.asLong(chunkX, Pos.SectionYCoord.fromSectionIndex(world, this.nextBit), chunkZ));
 
                     // Find and advance to the next set bit
                     this.nextBit = sectionsWithPOI.nextSetBit(this.nextBit + 1);
@@ -154,7 +154,7 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
     }
 
     private BitSet getNonEmptyPOISections(int chunkX, int chunkZ) {
-        long pos = ChunkPos.toLong(chunkX, chunkZ);
+        long pos = ChunkPos.asLong(chunkX, chunkZ);
 
         BitSet flags = this.getNonEmptySections(pos, false);
 
@@ -162,7 +162,7 @@ public abstract class SerializingRegionBasedStorageMixin<R> implements RegionBas
             return flags;
         }
 
-        this.loadDataAt(new ChunkPos(pos));
+        this.readColumn(new ChunkPos(pos));
 
         return this.getNonEmptySections(pos, true);
     }

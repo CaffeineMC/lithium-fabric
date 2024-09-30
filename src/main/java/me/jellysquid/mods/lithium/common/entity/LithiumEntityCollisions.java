@@ -5,22 +5,22 @@ import me.jellysquid.mods.lithium.common.entity.block_tracking.block_support.Sup
 import me.jellysquid.mods.lithium.common.entity.movement.ChunkAwareBlockCollisionSweeper;
 import me.jellysquid.mods.lithium.common.util.Pos;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.function.BooleanBiFunction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.CollisionView;
-import net.minecraft.world.EntityView;
-import net.minecraft.world.World;
-import net.minecraft.world.border.WorldBorder;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.CollisionGetter;
+import net.minecraft.world.level.EntityGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,14 +37,14 @@ public class LithiumEntityCollisions {
      * Checks against the world border are replaced with our own optimized functions which do not go through the
      * VoxelShape system.
      */
-    public static List<VoxelShape> getBlockCollisions(World world, Entity entity, Box box) {
+    public static List<VoxelShape> getBlockCollisions(Level world, Entity entity, AABB box) {
         return new ChunkAwareBlockCollisionSweeper(world, entity, box).collectAll();
     }
 
     /***
      * @return True if the box (possibly that of an entity's) collided with any blocks
      */
-    public static boolean doesBoxCollideWithBlocks(World world, @Nullable Entity entity, Box box) {
+    public static boolean doesBoxCollideWithBlocks(Level world, @Nullable Entity entity, AABB box) {
         final ChunkAwareBlockCollisionSweeper sweeper = new ChunkAwareBlockCollisionSweeper(world, entity, box);
 
         final VoxelShape shape = sweeper.computeNext();
@@ -55,22 +55,22 @@ public class LithiumEntityCollisions {
     /**
      * @return True if the box (possibly that of an entity's) collided with any other hard entities
      */
-    public static boolean doesBoxCollideWithHardEntities(EntityView view, @Nullable Entity entity, Box box) {
+    public static boolean doesBoxCollideWithHardEntities(EntityGetter view, @Nullable Entity entity, AABB box) {
         if (isBoxEmpty(box)) {
             return false;
         }
 
-        return getEntityWorldBorderCollisionIterable(view, entity, box.expand(EPSILON), false).iterator().hasNext();
+        return getEntityWorldBorderCollisionIterable(view, entity, box.inflate(EPSILON), false).iterator().hasNext();
     }
 
     /**
      * Collects entity and world border collision boxes.
      */
-    public static void appendEntityCollisions(List<VoxelShape> entityCollisions, World world, Entity entity, Box box) {
+    public static void appendEntityCollisions(List<VoxelShape> entityCollisions, Level world, Entity entity, AABB box) {
         if (isBoxEmpty(box)) {
             return;
         }
-        Box expandedBox = box.expand(EPSILON);
+        AABB expandedBox = box.inflate(EPSILON);
 
         for(Entity otherEntity : WorldHelper.getEntitiesForCollision(world, expandedBox, entity)) {
             /*
@@ -81,22 +81,22 @@ public class LithiumEntityCollisions {
              * otherEntity as a vehicle.
              */
             if (entity == null) {
-                if (!otherEntity.isCollidable()) {
+                if (!otherEntity.canBeCollidedWith()) {
                     continue;
                 }
-            } else if (!entity.collidesWith(otherEntity)) {
+            } else if (!entity.canCollideWith(otherEntity)) {
                 continue;
             }
 
-            entityCollisions.add(VoxelShapes.cuboid(otherEntity.getBoundingBox()));
+            entityCollisions.add(Shapes.create(otherEntity.getBoundingBox()));
         }
     }
 
-    public static void appendWorldBorderCollision(ArrayList<VoxelShape> worldBorderCollisions, Entity entity, Box box) {
-        WorldBorder worldBorder = entity.getWorld().getWorldBorder();
+    public static void appendWorldBorderCollision(ArrayList<VoxelShape> worldBorderCollisions, Entity entity, AABB box) {
+        WorldBorder worldBorder = entity.level().getWorldBorder();
         //TODO this might be different regarding 1e-7 margins
         if (!isWithinWorldBorder(worldBorder, box) && isWithinWorldBorder(worldBorder, entity.getBoundingBox())) {
-            worldBorderCollisions.add(worldBorder.asVoxelShape());
+            worldBorderCollisions.add(worldBorder.getCollisionShape());
         }
     }
 
@@ -105,7 +105,7 @@ public class LithiumEntityCollisions {
      * Re-implements the function named above without stream code or unnecessary allocations. This can provide a small
      * boost in some situations (such as heavy entity crowding) and reduces the allocation rate significantly.
      */
-    public static Iterable<VoxelShape> getEntityWorldBorderCollisionIterable(EntityView view, @Nullable Entity entity, Box box, boolean includeWorldBorder) {
+    public static Iterable<VoxelShape> getEntityWorldBorderCollisionIterable(EntityGetter view, @Nullable Entity entity, AABB box, boolean includeWorldBorder) {
         assert !includeWorldBorder || entity != null;
         return new Iterable<>() {
             private List<Entity> entityList;
@@ -136,9 +136,9 @@ public class LithiumEntityCollisions {
                                 //get the world border at the end
                                 if (includeWorldBorder && !this.consumedWorldBorder) {
                                     this.consumedWorldBorder = true;
-                                    WorldBorder worldBorder = entity.getWorld().getWorldBorder();
+                                    WorldBorder worldBorder = entity.level().getWorldBorder();
                                     if (!isWithinWorldBorder(worldBorder, box) && isWithinWorldBorder(worldBorder, entity.getBoundingBox())) {
-                                        return worldBorder.asVoxelShape();
+                                        return worldBorder.getCollisionShape();
                                     }
                                 }
                                 return this.endOfData();
@@ -154,10 +154,10 @@ public class LithiumEntityCollisions {
                                  * otherEntity as a vehicle.
                                  */
                                 if (entity == null) {
-                                    if (!otherEntity.isCollidable()) {
+                                    if (!otherEntity.canBeCollidedWith()) {
                                         otherEntity = null;
                                     }
-                                } else if (!entity.collidesWith(otherEntity)) {
+                                } else if (!entity.canCollideWith(otherEntity)) {
                                     otherEntity = null;
                                 }
                                 nextFilterIndex++;
@@ -165,7 +165,7 @@ public class LithiumEntityCollisions {
                             this.index++;
                         } while (otherEntity == null);
 
-                        return VoxelShapes.cuboid(otherEntity.getBoundingBox());
+                        return Shapes.create(otherEntity.getBoundingBox());
                     }
                 };
             }
@@ -178,37 +178,37 @@ public class LithiumEntityCollisions {
      *
      * @return True if the {@param box} is fully within the {@param border}, otherwise false.
      */
-    public static boolean isWithinWorldBorder(WorldBorder border, Box box) {
-        double wboxMinX = Math.floor(border.getBoundWest());
-        double wboxMinZ = Math.floor(border.getBoundNorth());
+    public static boolean isWithinWorldBorder(WorldBorder border, AABB box) {
+        double wboxMinX = Math.floor(border.getMinX());
+        double wboxMinZ = Math.floor(border.getMinZ());
 
-        double wboxMaxX = Math.ceil(border.getBoundEast());
-        double wboxMaxZ = Math.ceil(border.getBoundSouth());
+        double wboxMaxX = Math.ceil(border.getMaxX());
+        double wboxMaxZ = Math.ceil(border.getMaxZ());
 
         return box.minX >= wboxMinX && box.minX <= wboxMaxX && box.minZ >= wboxMinZ && box.minZ <= wboxMaxZ &&
                 box.maxX >= wboxMinX && box.maxX <= wboxMaxX && box.maxZ >= wboxMinZ && box.maxZ <= wboxMaxZ;
     }
 
 
-    private static boolean isBoxEmpty(Box box) {
-        return box.getAverageSideLength() <= EPSILON;
+    private static boolean isBoxEmpty(AABB box) {
+        return box.getSize() <= EPSILON;
     }
 
-    public static boolean doesBoxCollideWithWorldBorder(CollisionView collisionView, Entity entity, Box box) {
+    public static boolean doesBoxCollideWithWorldBorder(CollisionGetter collisionView, Entity entity, AABB box) {
         if (isWithinWorldBorder(collisionView.getWorldBorder(), box)) {
             return false;
         } else {
             VoxelShape worldBorderShape = getWorldBorderCollision(collisionView, entity, box);
-            return worldBorderShape != null && VoxelShapes.matchesAnywhere(worldBorderShape, VoxelShapes.cuboid(box), BooleanBiFunction.AND);
+            return worldBorderShape != null && Shapes.joinIsNotEmpty(worldBorderShape, Shapes.create(box), BooleanOp.AND);
         }
     }
 
-    public static VoxelShape getWorldBorderCollision(CollisionView collisionView, @Nullable Entity entity, Box box) {
+    public static VoxelShape getWorldBorderCollision(CollisionGetter collisionView, @Nullable Entity entity, AABB box) {
         WorldBorder worldBorder = collisionView.getWorldBorder();
-        return worldBorder.canCollide(entity, box) ? worldBorder.asVoxelShape() : null;
+        return worldBorder.isInsideCloseToBorder(entity, box) ? worldBorder.getCollisionShape() : null;
     }
 
-    public static @Nullable VoxelShape getSupportingCollisionForEntity(World world, @Nullable Entity entity, Box entityBoundingBox) {
+    public static @Nullable VoxelShape getSupportingCollisionForEntity(Level world, @Nullable Entity entity, AABB entityBoundingBox) {
         if (entity instanceof SupportingBlockCollisionShapeProvider supportingBlockCollisionShapeProvider) {
             //Technically, the supporting block that vanilla calculates and caches is not always the one
             // that cancels the downwards motion, but usually it is, and this is only for a quick, additional test.
@@ -223,17 +223,17 @@ public class LithiumEntityCollisions {
     }
 
     @Nullable
-    private static VoxelShape getCollisionShapeBelowEntityFallback(World world, Entity entity, Box entityBoundingBox) {
-        int x = MathHelper.floor(entityBoundingBox.minX + (entityBoundingBox.maxX - entityBoundingBox.minX) / 2);
-        int y = MathHelper.floor(entityBoundingBox.minY);
-        int z = MathHelper.floor(entityBoundingBox.minZ + (entityBoundingBox.maxZ - entityBoundingBox.minZ) / 2);
-        if (world.isOutOfHeightLimit(y)) {
+    private static VoxelShape getCollisionShapeBelowEntityFallback(Level world, Entity entity, AABB entityBoundingBox) {
+        int x = Mth.floor(entityBoundingBox.minX + (entityBoundingBox.maxX - entityBoundingBox.minX) / 2);
+        int y = Mth.floor(entityBoundingBox.minY);
+        int z = Mth.floor(entityBoundingBox.minZ + (entityBoundingBox.maxZ - entityBoundingBox.minZ) / 2);
+        if (world.isOutsideBuildHeight(y)) {
             return null;
         }
-        Chunk chunk = world.getChunk(Pos.ChunkCoord.fromBlockCoord(x), Pos.ChunkCoord.fromBlockCoord(z), ChunkStatus.FULL, false);
+        ChunkAccess chunk = world.getChunk(Pos.ChunkCoord.fromBlockCoord(x), Pos.ChunkCoord.fromBlockCoord(z), ChunkStatus.FULL, false);
         if (chunk != null) {
-            ChunkSection cachedChunkSection = chunk.getSectionArray()[Pos.SectionYIndex.fromBlockCoord(world, y)];
-            return cachedChunkSection.getBlockState(x & 15, y & 15, z & 15).getCollisionShape(world, new BlockPos(x, y, z), entity == null ? ShapeContext.absent() : ShapeContext.of(entity));
+            LevelChunkSection cachedChunkSection = chunk.getSections()[Pos.SectionYIndex.fromBlockCoord(world, y)];
+            return cachedChunkSection.getBlockState(x & 15, y & 15, z & 15).getCollisionShape(world, new BlockPos(x, y, z), entity == null ? CollisionContext.empty() : CollisionContext.of(entity));
         }
         return null;
     }
@@ -248,7 +248,7 @@ public class LithiumEntityCollisions {
         return false;
     }
 
-    public static Box getSmallerBoxForSingleAxisMovement(Vec3d movement, Box entityBoundingBox, double velY, double velX, double velZ) {
+    public static AABB getSmallerBoxForSingleAxisMovement(Vec3 movement, AABB entityBoundingBox, double velY, double velX, double velZ) {
         double minX = entityBoundingBox.minX;
         double minY = entityBoundingBox.minY;
         double minZ = entityBoundingBox.minZ;
@@ -279,19 +279,19 @@ public class LithiumEntityCollisions {
             minZ += velZ;
         } else {
             //Movement is 0 or NaN, fall back to what vanilla usually does in this case
-            return entityBoundingBox.stretch(movement);
+            return entityBoundingBox.expandTowards(movement);
         }
 
-        return new Box(minX, minY, minZ, maxX, maxY, maxZ);
+        return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
-    public static boolean addEntityCollisionsIfRequired(boolean getEntityCollisions, @Nullable Entity entity, World world, List<VoxelShape> entityCollisions, Box movementSpace) {
+    public static boolean addEntityCollisionsIfRequired(boolean getEntityCollisions, @Nullable Entity entity, Level world, List<VoxelShape> entityCollisions, AABB movementSpace) {
         if (getEntityCollisions) {
             appendEntityCollisions(entityCollisions, world, entity, movementSpace);
         }
         return false;
     }
-    public static boolean addWorldBorderCollisionIfRequired(boolean getWorldBorderCollision, @Nullable Entity entity, ArrayList<VoxelShape> worldBorderCollisions, Box movementSpace) {
+    public static boolean addWorldBorderCollisionIfRequired(boolean getWorldBorderCollision, @Nullable Entity entity, ArrayList<VoxelShape> worldBorderCollisions, AABB movementSpace) {
         if (getWorldBorderCollision && entity != null) {
             appendWorldBorderCollision(worldBorderCollisions, entity, movementSpace);
         }

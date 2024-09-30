@@ -1,11 +1,11 @@
 package me.jellysquid.mods.lithium.common.util.change_tracking;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import net.minecraft.world.item.ItemStack;
 
 public interface ChangeSubscriber<T> {
 

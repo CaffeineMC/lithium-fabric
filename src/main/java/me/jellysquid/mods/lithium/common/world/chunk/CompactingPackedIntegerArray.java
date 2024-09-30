@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.world.chunk;
 
-import net.minecraft.world.chunk.Palette;
+import net.minecraft.world.level.chunk.Palette;
 
 public interface CompactingPackedIntegerArray {
     /**

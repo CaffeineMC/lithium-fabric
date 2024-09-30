@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.util.change_tracking;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public interface ChangePublisher<T> {
     void lithium$subscribe(ChangeSubscriber<T> subscriber, int subscriberData);

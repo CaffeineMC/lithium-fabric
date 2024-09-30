@@ -4,13 +4,13 @@ import com.llamalad7.mixinextras.sugar.Local;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.BlockCache;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.BlockCacheProvider;
 import me.jellysquid.mods.lithium.common.entity.block_tracking.block_support.SupportingBlockCollisionShapeProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,22 +23,22 @@ import java.util.Optional;
 @Mixin(Entity.class)
 public abstract class EntityMixin implements BlockCacheProvider, SupportingBlockCollisionShapeProvider {
     @Shadow
-    public abstract World getWorld();
+    public abstract Level level();
 
     @Shadow
     protected abstract double getGravity();
 
     @Shadow
-    public Optional<BlockPos> supportingBlockPos;
+    public Optional<BlockPos> mainSupportingBlockPos;
 
     @Inject(
-            method = "updateSupportingBlockPos", cancellable = true,
+            method = "checkSupportingBlock(ZLnet/minecraft/world/phys/Vec3;)V", cancellable = true,
             at = @At(
                     value = "INVOKE", shift = At.Shift.BEFORE,
-                    target = "Lnet/minecraft/entity/Entity;getBoundingBox()Lnet/minecraft/util/math/Box;"
+                    target = "Lnet/minecraft/world/entity/Entity;getBoundingBox()Lnet/minecraft/world/phys/AABB;"
             )
     )
-    private void cancelIfSkippable(boolean onGround, Vec3d movement, CallbackInfo ci) {
+    private void cancelIfSkippable(boolean onGround, Vec3 movement, CallbackInfo ci) {
         if (movement == null || (movement.x == 0 && movement.z == 0)) {
             //noinspection ConstantConditions
             BlockCache bc = this.getUpdatedBlockCache((Entity) (Object) this);
@@ -50,10 +50,10 @@ public abstract class EntityMixin implements BlockCacheProvider, SupportingBlock
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     @Inject(
-            method = "updateSupportingBlockPos",
+            method = "checkSupportingBlock(ZLnet/minecraft/world/phys/Vec3;)V",
             at = @At(
                     value = "INVOKE_ASSIGN", ordinal = 0, shift = At.Shift.AFTER,
-                    target = "Lnet/minecraft/world/World;findSupportingBlockPos(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;)Ljava/util/Optional;"
+                    target = "Lnet/minecraft/world/level/Level;findSupportingBlock(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;)Ljava/util/Optional;"
             )
     )
     private void cacheSupportingBlockSearch(CallbackInfo ci, @Local Optional<BlockPos> pos) {
@@ -61,14 +61,14 @@ public abstract class EntityMixin implements BlockCacheProvider, SupportingBlock
         if (bc.isTracking()) {
             bc.setCanSkipSupportingBlockSearch(true);
             if (pos.isPresent() && this.getGravity() > 0D) {
-                bc.cacheSupportingBlock(this.getWorld().getBlockState(pos.get()));
+                bc.cacheSupportingBlock(this.level().getBlockState(pos.get()));
             }
         }
     }
 
     @Inject(
-            method = "updateSupportingBlockPos",
-            at = @At(value = "INVOKE", ordinal = 1, target = "Lnet/minecraft/world/World;findSupportingBlockPos(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;)Ljava/util/Optional;")
+            method = "checkSupportingBlock(ZLnet/minecraft/world/phys/Vec3;)V",
+            at = @At(value = "INVOKE", ordinal = 1, target = "Lnet/minecraft/world/level/Level;findSupportingBlock(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;)Ljava/util/Optional;")
     )
     private void uncacheSupportingBlockSearch(CallbackInfo ci) {
         BlockCache bc = this.lithium$getBlockCache();
@@ -78,10 +78,10 @@ public abstract class EntityMixin implements BlockCacheProvider, SupportingBlock
     }
 
     @Inject(
-            method = "updateSupportingBlockPos",
+            method = "checkSupportingBlock(ZLnet/minecraft/world/phys/Vec3;)V",
             at = @At(value = "INVOKE", target = "Ljava/util/Optional;empty()Ljava/util/Optional;", remap = false)
     )
-    private void uncacheSupportingBlockSearch1(boolean onGround, Vec3d movement, CallbackInfo ci) {
+    private void uncacheSupportingBlockSearch1(boolean onGround, Vec3 movement, CallbackInfo ci) {
         BlockCache bc = this.lithium$getBlockCache();
         if (bc.isTracking()) {
             bc.setCanSkipSupportingBlockSearch(false);
@@ -93,9 +93,9 @@ public abstract class EntityMixin implements BlockCacheProvider, SupportingBlock
         BlockCache bc = this.getUpdatedBlockCache((Entity) (Object) this);
         if (bc.isTracking()) {
             BlockState cachedSupportingBlock = bc.getCachedSupportingBlock();
-            if (cachedSupportingBlock != null && this.supportingBlockPos.isPresent()) {
-                BlockPos blockPos = this.supportingBlockPos.get();
-                return cachedSupportingBlock.getCollisionShape(this.getWorld(), blockPos, ShapeContext.of((Entity) (Object) this)).offset(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+            if (cachedSupportingBlock != null && this.mainSupportingBlockPos.isPresent()) {
+                BlockPos blockPos = this.mainSupportingBlockPos.get();
+                return cachedSupportingBlock.getCollisionShape(this.level(), blockPos, CollisionContext.of((Entity) (Object) this)).move(blockPos.getX(), blockPos.getY(), blockPos.getZ());
             }
         }
         return null;

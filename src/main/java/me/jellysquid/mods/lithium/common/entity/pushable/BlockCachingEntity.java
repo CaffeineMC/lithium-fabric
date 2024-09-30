@@ -1,6 +1,6 @@
 package me.jellysquid.mods.lithium.common.entity.pushable;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 
 public interface BlockCachingEntity {
 

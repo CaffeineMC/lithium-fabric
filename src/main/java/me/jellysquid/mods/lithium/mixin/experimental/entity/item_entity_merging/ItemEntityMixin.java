@@ -5,15 +5,15 @@ import me.jellysquid.mods.lithium.common.entity.item.ItemEntityLazyIterationCons
 import me.jellysquid.mods.lithium.common.entity.item.ItemEntityList;
 import me.jellysquid.mods.lithium.common.world.WorldHelper;
 import me.jellysquid.mods.lithium.mixin.util.accessors.EntityTrackingSectionAccessor;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.collection.TypeFilterableList;
-import net.minecraft.util.function.LazyIterationConsumer;
-import net.minecraft.util.math.Box;
-import net.minecraft.world.World;
-import net.minecraft.world.entity.SectionedEntityCache;
+import net.minecraft.util.AbortableIterationConsumer;
+import net.minecraft.util.ClassInstanceMultiMap;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.entity.EntitySectionStorage;
+import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -27,49 +27,46 @@ import java.util.function.Predicate;
 @Mixin(ItemEntity.class)
 public abstract class ItemEntityMixin extends Entity {
 
-    public ItemEntityMixin(EntityType<?> type, World world) {
+    public ItemEntityMixin(EntityType<?> type, Level world) {
         super(type, world);
     }
 
-    @Shadow
-    public abstract ItemStack getStack();
-
     @Redirect(
-            method = "tryMerge()V",
+            method = "mergeWithNeighbours()V",
             at = @At(
-                    value = "INVOKE", target = "Lnet/minecraft/world/World;getEntitiesByClass(Ljava/lang/Class;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"
+                    value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getEntitiesOfClass(Ljava/lang/Class;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;"
             )
     )
-    private List<ItemEntity> getItems(World world, Class<ItemEntity> itemEntityClass, Box box, Predicate<ItemEntity> predicate) {
-        SectionedEntityCache<Entity> cache = WorldHelper.getEntityCacheOrNull(world);
+    private List<ItemEntity> getItems(Level world, Class<ItemEntity> itemEntityClass, AABB box, Predicate<ItemEntity> predicate) {
+        EntitySectionStorage<Entity> cache = WorldHelper.getEntityCacheOrNull(world);
         if (cache != null) {
             return consumeItemEntitiesForMerge(cache, (ItemEntity) (Object) this, box, predicate);
         }
 
-        return world.getEntitiesByClass(itemEntityClass, box, predicate);
+        return world.getEntitiesOfClass(itemEntityClass, box, predicate);
     }
 
 
     @Unique
-    private static ArrayList<ItemEntity> consumeItemEntitiesForMerge(SectionedEntityCache<Entity> cache, ItemEntity searchingItemEntity, Box box, Predicate<ItemEntity> predicate) {
+    private static ArrayList<ItemEntity> consumeItemEntitiesForMerge(EntitySectionStorage<Entity> cache, ItemEntity searchingItemEntity, AABB box, Predicate<ItemEntity> predicate) {
         ItemEntityLazyIterationConsumer itemEntityConsumer = new ItemEntityLazyIterationConsumer(searchingItemEntity, box, predicate);
-        cache.forEachInBox(box, section -> {
+        cache.forEachAccessibleNonEmptySection(box, section -> {
             //noinspection unchecked
-            TypeFilterableList<Entity> allEntities = ((EntityTrackingSectionAccessor<Entity>) section).getCollection();
+            ClassInstanceMultiMap<Entity> allEntities = ((EntityTrackingSectionAccessor<Entity>) section).getCollection();
 
             //noinspection unchecked
             TypeFilterableListInternalAccess<Entity> internalEntityList = (TypeFilterableListInternalAccess<Entity>) allEntities;
             List<ItemEntity> itemEntities = internalEntityList.lithium$getOrCreateAllOfTypeRaw(ItemEntity.class);
 
 
-            LazyIterationConsumer.NextIteration next = LazyIterationConsumer.NextIteration.CONTINUE;
+            AbortableIterationConsumer.Continuation next = AbortableIterationConsumer.Continuation.CONTINUE;
             if (itemEntities instanceof ItemEntityList itemEntityList) {
                 next = itemEntityList.consumeForEntityStacking(searchingItemEntity, itemEntityConsumer);
             } else if (itemEntities.size() > ItemEntityList.UPGRADE_THRESHOLD && itemEntities instanceof ArrayList<ItemEntity>) {
                 ItemEntityList itemEntityList = (ItemEntityList) internalEntityList.lithium$replaceCollectionAndGet(ItemEntity.class, ItemEntityList::new);
                 next = itemEntityList.consumeForEntityStacking(searchingItemEntity, itemEntityConsumer);
             } else {
-                for (int i = 0; next != LazyIterationConsumer.NextIteration.ABORT && i < itemEntities.size(); i++) {
+                for (int i = 0; next != AbortableIterationConsumer.Continuation.ABORT && i < itemEntities.size(); i++) {
                     ItemEntity entity = itemEntities.get(i);
                     next = itemEntityConsumer.accept(entity);
                 }

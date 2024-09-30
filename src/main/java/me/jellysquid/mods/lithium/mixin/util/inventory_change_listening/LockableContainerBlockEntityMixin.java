@@ -8,12 +8,12 @@ import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.
 import me.jellysquid.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
 import me.jellysquid.mods.lithium.common.hopper.InventoryHelper;
 import me.jellysquid.mods.lithium.common.hopper.LithiumStackList;
-import net.minecraft.block.entity.LockableContainerBlockEntity;
-import net.minecraft.inventory.Inventory;
+import net.minecraft.world.Container;
+import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(LockableContainerBlockEntity.class)
-public abstract class LockableContainerBlockEntityMixin implements InventoryChangeEmitter, Inventory {
+@Mixin(BaseContainerBlockEntity.class)
+public abstract class LockableContainerBlockEntityMixin implements InventoryChangeEmitter, Container {
     ReferenceArraySet<InventoryChangeListener> inventoryChangeListeners = null;
     ReferenceArraySet<InventoryChangeListener> inventoryHandlingTypeListeners = null;
 

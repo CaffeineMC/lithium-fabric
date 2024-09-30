@@ -1,9 +1,9 @@
 package me.jellysquid.mods.lithium.common.world.listeners;
 
-import net.minecraft.world.border.WorldBorder;
-import net.minecraft.world.border.WorldBorderListener;
+import net.minecraft.world.level.border.BorderChangeListener;
+import net.minecraft.world.level.border.WorldBorder;
 
-public interface WorldBorderListenerOnce extends WorldBorderListener {
+public interface WorldBorderListenerOnce extends BorderChangeListener {
 
     void lithium$onWorldBorderShapeChange(WorldBorder worldBorder);
 
@@ -12,37 +12,37 @@ public interface WorldBorderListenerOnce extends WorldBorderListener {
     }
 
     @Override
-    default void onSizeChange(WorldBorder border, double size) {
+    default void onBorderSizeSet(WorldBorder border, double size) {
         this.lithium$onWorldBorderShapeChange(border);
     }
 
     @Override
-    default void onInterpolateSize(WorldBorder border, double fromSize, double toSize, long time) {
+    default void onBorderSizeLerping(WorldBorder border, double fromSize, double toSize, long time) {
         this.lithium$onWorldBorderShapeChange(border);
     }
 
     @Override
-    default void onCenterChanged(WorldBorder border, double centerX, double centerZ) {
+    default void onBorderCenterSet(WorldBorder border, double centerX, double centerZ) {
         this.lithium$onWorldBorderShapeChange(border);
     }
 
     @Override
-    default void onWarningTimeChanged(WorldBorder border, int warningTime) {
+    default void onBorderSetWarningTime(WorldBorder border, int warningTime) {
 
     }
 
     @Override
-    default void onWarningBlocksChanged(WorldBorder border, int warningBlockDistance) {
+    default void onBorderSetWarningBlocks(WorldBorder border, int warningBlockDistance) {
 
     }
 
     @Override
-    default void onDamagePerBlockChanged(WorldBorder border, double damagePerBlock) {
+    default void onBorderSetDamagePerBlock(WorldBorder border, double damagePerBlock) {
 
     }
 
     @Override
-    default void onSafeZoneChanged(WorldBorder border, double safeZoneRadius) {
+    default void onBorderSetDamageSafeZOne(WorldBorder border, double safeZoneRadius) {
 
     }
 }
