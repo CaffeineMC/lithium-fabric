@@ -18,7 +18,7 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "me.jellysquid.mods.lithium.common.LithiumMod"
+            "net.caffeinemc.mods.lithium.common.LithiumMod"
         ]
     },
     "mixins": [

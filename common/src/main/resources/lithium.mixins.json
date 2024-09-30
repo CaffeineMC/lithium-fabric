@@ -1,8 +1,8 @@
 {
-  "package": "me.jellysquid.mods.lithium.mixin",
+  "package": "net.caffeinemc.mods.lithium.mixin",
   "required": true,
   "compatibilityLevel": "JAVA_16",
-  "plugin": "me.jellysquid.mods.lithium.mixin.LithiumMixinPlugin",
+  "plugin": "net.caffeinemc.mods.lithium.mixin.LithiumMixinPlugin",
   "injectors": {
     "defaultRequire": 1
   },
