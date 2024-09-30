@@ -1,15 +1,25 @@
 package net.caffeinemc.mods.lithium.common.hopper;
 
 import net.caffeinemc.mods.lithium.api.inventory.LithiumTransferConditionInventory;
+import net.caffeinemc.mods.lithium.common.util.DirectionConstants;
+import net.caffeinemc.mods.lithium.common.world.WorldHelper;
+import net.caffeinemc.mods.lithium.common.world.blockentity.BlockEntityGetter;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.CompoundContainer;
 import net.minecraft.world.Container;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Map;
 
 public class HopperHelper {
 
@@ -120,5 +130,24 @@ public class HopperHelper {
             }
         }
         return blockInventory;
+    }
+
+    public static void updateHopperOnUpdateSuppression(Level level, BlockPos pos, int flags, LevelChunk worldChunk, boolean stateChange) {
+        if ((flags & Block.UPDATE_NEIGHBORS) == 0 && stateChange) {
+            //No block updates were sent. We need to update nearby hoppers to avoid outdated inventory caches being used
+
+            //Small performance improvement when getting block entities within the same chunk.
+            Map<BlockPos, BlockEntity> blockEntities = WorldHelper.areNeighborsWithinSameChunk(pos) ? worldChunk.getBlockEntities() : null;
+            if (blockEntities == null || !blockEntities.isEmpty()) {
+                for (Direction direction : DirectionConstants.ALL) {
+                    BlockPos offsetPos = pos.relative(direction);
+                    //Directly get the block entity instead of getting the block state first. Maybe that is faster, maybe not.
+                    BlockEntity hopper = blockEntities != null ? blockEntities.get(offsetPos) : ((BlockEntityGetter) level).lithium$getLoadedExistingBlockEntity(offsetPos);
+                    if (hopper instanceof UpdateReceiver updateReceiver) {
+                        updateReceiver.lithium$invalidateCacheOnNeighborUpdate(direction == Direction.DOWN);
+                    }
+                }
+            }
+        }
     }
 }

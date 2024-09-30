@@ -1,6 +1,6 @@
 package net.caffeinemc.mods.lithium.common.reflection;
 
-import net.fabricmc.loader.api.FabricLoader;
+import net.caffeinemc.mods.lithium.common.services.PlatformMappingInformation;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -52,7 +52,7 @@ public class ReflectionUtil {
     //How to find the remapped methods:
     //1) Run in the debugger: System.out.println(FabricLoader.getInstance().getMappingResolver().getNamespaceData("intermediary").methodNames)
     //2) Ctrl+F for the method name, in this case "onEntityCollision". Make sure to find the correct one.
-    private static final String REMAPPED_ON_ENTITY_COLLISION = FabricLoader.getInstance().getMappingResolver().mapMethodName("intermediary", "net.minecraft.class_4970", "method_9548", "(Lnet/minecraft/class_2680;Lnet/minecraft/class_1937;Lnet/minecraft/class_2338;Lnet/minecraft/class_1297;)V");
+    private static final String REMAPPED_ON_ENTITY_COLLISION = PlatformMappingInformation.INSTANCE.mapMethodName("intermediary", "net.minecraft.class_4970", "method_9548", "(Lnet/minecraft/class_2680;Lnet/minecraft/class_1937;Lnet/minecraft/class_2338;Lnet/minecraft/class_1297;)V", "entityInside");
     private static final WeakHashMap<Class<?>, Boolean> CACHED_IS_ENTITY_TOUCHABLE = new WeakHashMap<>();
     public static boolean isBlockStateEntityTouchable(BlockState operand) {
         Class<? extends Block> blockClazz = operand.getBlock().getClass();

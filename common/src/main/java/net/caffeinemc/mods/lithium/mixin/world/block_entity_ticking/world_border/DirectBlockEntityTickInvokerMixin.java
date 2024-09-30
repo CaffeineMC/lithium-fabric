@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(targets = "net/minecraft/world/level/chunk/LevelChunk$BoundTickingBlockEntity")
 public abstract class DirectBlockEntityTickInvokerMixin implements WorldBorderListenerOnce {
 
-    @Shadow
+    @Shadow(aliases = {"field_27223", "this$0"})
     @Final
     LevelChunk field_27223;
 

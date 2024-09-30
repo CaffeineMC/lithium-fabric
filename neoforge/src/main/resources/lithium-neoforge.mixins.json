@@ -1,0 +1,18 @@
+{
+  "package" : "net.caffeinemc.mods.lithium.mixin.neoforge",
+  "required" : true,
+  "compatibilityLevel" : "JAVA_21",
+  "refmap" : "lithium-neoforge.refmap.json",
+  "injectors" : {
+    "defaultRequire" : 1
+  },
+  "overwrites" : {
+    "conformVisibility" : true
+  },
+  "mixins" : [
+    "EntrypointMixin",
+    "inventory_change_listening.ChestBlockEntityMixin"
+  ],
+  "client" : [
+  ]
+}

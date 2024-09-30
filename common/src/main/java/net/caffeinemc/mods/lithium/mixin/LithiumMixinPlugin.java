@@ -1,8 +1,8 @@
 package net.caffeinemc.mods.lithium.mixin;
 
-import net.caffeinemc.mods.lithium.common.LithiumMod;
 import net.caffeinemc.mods.lithium.common.config.LithiumConfig;
 import net.caffeinemc.mods.lithium.common.config.Option;
+import net.caffeinemc.mods.lithium.common.services.PlatformRuntimeInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.tree.ClassNode;
@@ -30,13 +30,11 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
 
         this.logger.info("Loaded configuration file for Lithium: {} options available, {} override(s) found",
                 this.config.getOptionCount(), this.config.getOptionOverrideCount());
-
-        LithiumMod.CONFIG = this.config;
     }
 
     @Override
     public String getRefMapperConfig() {
-        return null;
+        return PlatformRuntimeInformation.getInstance().platformUsesRefmap() ? "lithium.refmap.json" : null;
     }
 
     @Override

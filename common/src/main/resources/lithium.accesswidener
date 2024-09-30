@@ -1,23 +1,22 @@
 accessWidener v1 named
 
 accessible class net/minecraft/server/level/ChunkMap$TrackedEntity
+accessible class net/minecraft/server/level/ServerChunkCache$MainThreadExecutor
 accessible class net/minecraft/server/level/ServerLevel$EntityCallbacks
 accessible class net/minecraft/world/level/border/WorldBorder$BorderExtent
 accessible class net/minecraft/world/level/chunk/PaletteResize
 accessible class net/minecraft/world/level/chunk/PalettedContainer$Configuration
 accessible class net/minecraft/world/level/chunk/PalettedContainer$Data
 accessible class net/minecraft/world/phys/shapes/IndexMerger
-accessible method net/minecraft/world/level/chunk/PalettedContainer$Strategy calculateBitsForSerialization (Lnet/minecraft/core/IdMap;I)I
-accessible method net/minecraft/world/level/pathfinder/WalkNodeEvaluator getPathTypeFromState (Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/pathfinder/PathType;
-accessible class net/minecraft/server/level/ServerChunkCache$MainThreadExecutor
-accessible class net/minecraft/world/level/border/WorldBorder$BorderExtent
-accessible method net/minecraft/world/level/chunk/PalettedContainer$Configuration <init> (Lnet/minecraft/world/level/chunk/Palette$Factory;I)V
-accessible method net/minecraft/world/level/chunk/PalettedContainer$Strategy <init> (I)V
-accessible method net/minecraft/world/entity/ai/village/poi/PoiSection isValid ()Z
-accessible method net/minecraft/nbt/CompoundTag <init> (Ljava/util/Map;)V
-accessible method net/minecraft/world/level/material/Fluid isEmpty ()Z
-accessible method net/minecraft/world/phys/shapes/Shapes findBits (DD)I
-accessible field net/minecraft/world/phys/shapes/VoxelShape shape Lnet/minecraft/world/phys/shapes/DiscreteVoxelShape;
-accessible method net/minecraft/util/SortedArraySet <init> (ILjava/util/Comparator;)V
 accessible field net/minecraft/server/level/Ticket createdTick J
 accessible field net/minecraft/util/Mth SIN [F
+accessible field net/minecraft/world/phys/shapes/VoxelShape shape Lnet/minecraft/world/phys/shapes/DiscreteVoxelShape;
+accessible method net/minecraft/nbt/CompoundTag <init> (Ljava/util/Map;)V
+accessible method net/minecraft/util/SortedArraySet <init> (ILjava/util/Comparator;)V
+accessible method net/minecraft/world/entity/ai/village/poi/PoiSection isValid ()Z
+accessible method net/minecraft/world/level/chunk/PalettedContainer$Configuration <init> (Lnet/minecraft/world/level/chunk/Palette$Factory;I)V
+accessible method net/minecraft/world/level/chunk/PalettedContainer$Strategy <init> (I)V
+accessible method net/minecraft/world/level/chunk/PalettedContainer$Strategy calculateBitsForSerialization (Lnet/minecraft/core/IdMap;I)I
+accessible method net/minecraft/world/level/material/Fluid isEmpty ()Z
+accessible method net/minecraft/world/level/pathfinder/WalkNodeEvaluator getPathTypeFromState (Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/pathfinder/PathType;
+accessible method net/minecraft/world/phys/shapes/Shapes findBits (DD)I

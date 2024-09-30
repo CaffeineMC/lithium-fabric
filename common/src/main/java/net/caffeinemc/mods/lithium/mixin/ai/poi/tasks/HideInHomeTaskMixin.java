@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 public class HideInHomeTaskMixin {
 
     @Redirect(
-            method = "method_46979",
+            method = {"method_46979", "lambda$create$5"},
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/ai/village/poi/PoiManager;getRandom(Ljava/util/function/Predicate;Ljava/util/function/Predicate;Lnet/minecraft/world/entity/ai/village/poi/PoiManager$Occupancy;Lnet/minecraft/core/BlockPos;ILnet/minecraft/util/RandomSource;)Ljava/util/Optional;"
@@ -30,7 +30,7 @@ public class HideInHomeTaskMixin {
     }
 
     @Redirect(
-            method = "method_46978",
+            method = {"method_46978", "lambda$create$8"},
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/ai/village/poi/PoiManager;find(Ljava/util/function/Predicate;Ljava/util/function/Predicate;Lnet/minecraft/core/BlockPos;ILnet/minecraft/world/entity/ai/village/poi/PoiManager$Occupancy;)Ljava/util/Optional;"

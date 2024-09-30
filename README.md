@@ -1,4 +1,4 @@
-<img src="src/main/resources/assets/lithium/icon.png" width="128">
+<img src="common/src/main/resources/assets/lithium/lithium-icon.png" width="128">
 
 # Lithium (for Fabric)
 ![GitHub license](https://img.shields.io/github/license/CaffeineMC/lithium-fabric.svg)

@@ -1,12 +1,13 @@
 package net.caffeinemc.mods.lithium.mixin.block.hopper;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import net.caffeinemc.mods.lithium.api.inventory.LithiumCooldownReceivingInventory;
 import net.caffeinemc.mods.lithium.api.inventory.LithiumInventory;
 import net.caffeinemc.mods.lithium.common.block.entity.SleepingBlockEntity;
 import net.caffeinemc.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeListener;
 import net.caffeinemc.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
 import net.caffeinemc.mods.lithium.common.block.entity.inventory_comparator_tracking.ComparatorTracker;
-import net.caffeinemc.mods.lithium.common.compat.fabric_transfer_api_v1.FabricTransferApiCompat;
+import net.caffeinemc.mods.lithium.common.compat.TransferApiHelper;
 import net.caffeinemc.mods.lithium.common.entity.movement_tracker.SectionedEntityMovementListener;
 import net.caffeinemc.mods.lithium.common.entity.movement_tracker.SectionedInventoryEntityMovementTracker;
 import net.caffeinemc.mods.lithium.common.entity.movement_tracker.SectionedItemEntityMovementTracker;
@@ -215,8 +216,8 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
      * @param to   Hopper or Hopper Minecart that is extracting
      * @param from Inventory the hopper is extracting from
      */
-    @Inject(method = "suckInItems(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/block/entity/Hopper;)Z", at = @At(value = "FIELD", target = "Lnet/minecraft/core/Direction;DOWN:Lnet/minecraft/core/Direction;", shift = At.Shift.AFTER), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
-    private static void lithiumExtract(Level world, Hopper to, CallbackInfoReturnable<Boolean> cir, BlockPos blockPos, BlockState blockState, Container from) {
+    @Inject(method = "suckInItems(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/block/entity/Hopper;)Z", at = @At(value = "FIELD", target = "Lnet/minecraft/core/Direction;DOWN:Lnet/minecraft/core/Direction;", shift = At.Shift.AFTER), cancellable = true)
+    private static void lithiumExtract(Level world, Hopper to, CallbackInfoReturnable<Boolean> cir, @Local Container from) {
         if (!(to instanceof HopperBlockEntityMixin hopperBlockEntity)) {
             return; //optimizations not implemented for hopper minecarts
         }
@@ -730,7 +731,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                             return;
                         }
                     } else if (this.extractionMode == HopperCachingState.BlockInventory.NO_BLOCK_INVENTORY) {
-                        if (FabricTransferApiCompat.FABRIC_TRANSFER_API_V_1_PRESENT && FabricTransferApiCompat.canHopperInteractWithApiInventory((HopperBlockEntity) (Object) this, this.getBlockState(), true)) {
+                        if (TransferApiHelper.canHopperInteractWithApiInventory((HopperBlockEntity) (Object) this, this.getBlockState(), true)) {
                             return;
                         }
                         listenToExtractEntities = true;
@@ -747,7 +748,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                             return;
                         }
                     } else if (this.insertionMode == HopperCachingState.BlockInventory.NO_BLOCK_INVENTORY) {
-                        if (FabricTransferApiCompat.FABRIC_TRANSFER_API_V_1_PRESENT && FabricTransferApiCompat.canHopperInteractWithApiInventory((HopperBlockEntity) (Object) this, this.getBlockState(), false)) {
+                        if (TransferApiHelper.canHopperInteractWithApiInventory((HopperBlockEntity) (Object) this, this.getBlockState(), false)) {
                             return;
                         }
                         listenToInsertEntities = true;

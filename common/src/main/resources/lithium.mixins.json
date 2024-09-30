@@ -1,7 +1,7 @@
 {
   "package": "net.caffeinemc.mods.lithium.mixin",
   "required": true,
-  "compatibilityLevel": "JAVA_16",
+  "compatibilityLevel": "JAVA_21",
   "plugin": "net.caffeinemc.mods.lithium.mixin.LithiumMixinPlugin",
   "injectors": {
     "defaultRequire": 1
@@ -77,8 +77,6 @@
     "block.hopper.InventoryMixin",
     "block.hopper.ScreenHandlerMixin",
     "block.hopper.TypeFilterableListMixin",
-    "block.hopper.WorldMixin",
-    "block.hopper.worldedit_compat.WorldChunkMixin",
     "block.moving_block_shapes.PistonBlockEntityMixin",
     "block.moving_block_shapes.VoxelShapeMixin",
     "block.redstone_wire.RedstoneWireBlockMixin",
@@ -103,7 +101,6 @@
     "collections.goals.GoalSelectorMixin",
     "collections.mob_spawning.PoolMixin",
     "collections.mob_spawning.SpawnSettingsMixin",
-    "entity.collisions.fluid.EntityMixin",
     "entity.collisions.intersection.EntityViewMixin",
     "entity.collisions.intersection.WorldMixin",
     "entity.collisions.movement.EntityMixin",
@@ -192,7 +189,6 @@
     "util.entity_section_position.EntityTrackingSectionMixin",
     "util.entity_section_position.SectionedEntityCacheMixin",
     "util.inventory_change_listening.BlockEntityMixin",
-    "util.inventory_change_listening.ChestBlockEntityMixin",
     "util.inventory_change_listening.LockableContainerBlockEntityMixin",
     "util.inventory_change_listening.StackListReplacementTracking$InventoryChangeTrackingAbstractFurnaceBlockEntity",
     "util.inventory_change_listening.StackListReplacementTracking$InventoryChangeTrackingBarrelBlockEntity",
@@ -236,7 +232,7 @@
     "world.inline_block_access.WorldMixin",
     "world.inline_height.WorldChunkMixin",
     "world.inline_height.WorldMixin",
-    "world.raycast.BlockViewMixin",
+    "world.raycast.BlockGetterMixin",
     "world.raycast.RaycastContextAccessor",
     "world.temperature_cache.BiomeMixin",
     "world.tick_scheduler.ChunkTickSchedulerMixin"

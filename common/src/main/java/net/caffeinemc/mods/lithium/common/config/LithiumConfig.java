@@ -1,12 +1,7 @@
 package net.caffeinemc.mods.lithium.common.config;
 
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import net.caffeinemc.mods.lithium.common.compat.worldedit.WorldEditCompat;
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
-import net.fabricmc.loader.api.metadata.CustomValue;
-import net.fabricmc.loader.api.metadata.CustomValue.CvType;
-import net.fabricmc.loader.api.metadata.ModMetadata;
+import net.caffeinemc.mods.lithium.common.services.PlatformMixinOverrides;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,7 +12,7 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * Documentation of these options: https://github.com/jellysquid3/lithium-fabric/wiki/Configuration-File
+ * Documentation of these options: <a href="https://github.com/jellysquid3/lithium-fabric/wiki/Configuration-File">...</a>
  */
 @SuppressWarnings("CanBeFinal")
 public class LithiumConfig {
@@ -27,13 +22,6 @@ public class LithiumConfig {
 
     private final Map<String, Option> options = new HashMap<>();
     private final Set<Option> optionsWithDependencies = new ObjectLinkedOpenHashSet<>();
-
-    private void applyLithiumCompat() {
-        Option option = this.options.get("mixin.block.hopper.worldedit_compat");
-        if (!option.isEnabled() && WorldEditCompat.WORLD_EDIT_PRESENT) {
-            option.addModOverride(true, "lithium-fabric");
-        }
-    }
 
     private LithiumConfig() {
         // Defines the default rules which can be configured by the user or other mods.
@@ -96,6 +84,7 @@ public class LithiumConfig {
             }
 
             config.readProperties(props);
+
         } else {
             try {
                 writeDefaultConfig(file);
@@ -103,19 +92,12 @@ public class LithiumConfig {
                 LOGGER.warn("Could not write default configuration file", e);
             }
         }
-        config.applyLithiumCompat();
-
-        config.applyModOverrides();
-
-        // Check dependencies several times, because one iteration may disable a rule required by another rule
-        // This terminates because each additional iteration will disable one or more rules, and there is only a finite number of rules
-        //noinspection StatementWithEmptyBody
-        while (config.applyDependencies()) {
-            //noinspection UnnecessarySemicolon
-            ;
-        }
+        PlatformMixinOverrides.getInstance().applyModOverrides().forEach(config::applyModOverride);
+        PlatformMixinOverrides.getInstance().applyLithiumCompat(config.options);
+        config.applyDependencies();
 
         return config;
+
     }
 
     /**
@@ -183,50 +165,21 @@ public class LithiumConfig {
         }
     }
 
-    private void applyModOverrides() {
-        for (ModContainer container : FabricLoader.getInstance().getAllMods()) {
-            ModMetadata meta = container.getMetadata();
-
-            if (meta.containsCustomValue(JSON_KEY_LITHIUM_OPTIONS)) {
-                CustomValue overrides = meta.getCustomValue(JSON_KEY_LITHIUM_OPTIONS);
-
-                if (overrides.getType() != CvType.OBJECT) {
-                    LOGGER.warn("Mod '{}' contains invalid Lithium option overrides, ignoring", meta.getId());
-                    continue;
-                }
-
-                for (Map.Entry<String, CustomValue> entry : overrides.getAsObject()) {
-                    this.applyModOverride(meta, entry.getKey(), entry.getValue());
-                }
-            }
-        }
-    }
-
-    private void applyModOverride(ModMetadata meta, String name, CustomValue value) {
-        if (!name.startsWith("mixin.")) {
-            name = getMixinRuleName(name);
-        }
-        Option option = this.options.get(name);
+    protected void applyModOverride(PlatformMixinOverrides.MixinOverride override) {
+        Option option = this.options.get(override.option());
 
         if (option == null) {
-            LOGGER.warn("Mod '{}' attempted to override option '{}', which doesn't exist, ignoring", meta.getId(), name);
+            LOGGER.warn("Mod '{}' attempted to override option '{}', which doesn't exist, ignoring", override.modId(), override.option());
             return;
         }
-
-        if (value.getType() != CvType.BOOLEAN) {
-            LOGGER.warn("Mod '{}' attempted to override option '{}' with an invalid value, ignoring", meta.getId(), name);
-            return;
-        }
-
-        boolean enabled = value.getAsBoolean();
 
         // disabling the option takes precedence over enabling
-        if (!enabled && option.isEnabled()) {
+        if (!override.enabled() && option.isEnabled()) {
             option.clearModsDefiningValue();
         }
 
-        if (!enabled || option.isEnabled() || option.getDefiningMods().isEmpty()) {
-            option.addModOverride(enabled, meta.getId());
+        if (!override.enabled() || option.isEnabled() || option.getDefiningMods().isEmpty()) {
+            option.addModOverride(override.enabled(), override.modId());
         }
     }
 
@@ -266,7 +219,15 @@ public class LithiumConfig {
     /**
      * Tests all dependencies and disables options when their dependencies are not met.
      */
-    private boolean applyDependencies() {
+    private void applyDependencies() {
+        // Check dependencies several times, because one iteration may disable a rule required by another rule
+        // This terminates because each additional iteration will disable one or more rules, and there is only a finite number of rules
+        //noinspection StatementWithEmptyBody
+        while (this.applyDependenciesOnce()) {
+        }
+    }
+
+    private boolean applyDependenciesOnce() {
         boolean changed = false;
         for (Option optionWithDependency : this.optionsWithDependencies) {
             changed |= optionWithDependency.disableIfDependenciesNotMet(LOGGER, this);
@@ -287,11 +248,9 @@ public class LithiumConfig {
 
         try (Writer writer = new FileWriter(file)) {
             writer.write("# This is the configuration file for Lithium.\n");
-            writer.write("# This file exists for debugging purposes and should not be configured otherwise.\n");
-            writer.write("# Before configuring anything, take a backup of the worlds that will be opened.\n");
             writer.write("#\n");
             writer.write("# You can find information on editing this file and all the available options here:\n");
-            writer.write("# https://github.com/jellysquid3/lithium-fabric/wiki/Configuration-File\n");
+            writer.write("# https://github.com/CaffeineMC/lithium-fabric/wiki/Configuration-File\n");
             writer.write("#\n");
             writer.write("# By default, this file will be empty except for this notice.\n");
         }
