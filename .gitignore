@@ -22,8 +22,10 @@ bin/
 
 # fabric
 
-run/
-neoforge/runs
+/run/
+/common/run/
+/fabric/run/
+/neoforge/run/
 # macOS
 
 .DS_Store
