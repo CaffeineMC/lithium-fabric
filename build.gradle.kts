@@ -80,4 +80,10 @@ subprojects {
     tasks.withType<GenerateModuleMetadata>().configureEach {
         enabled = false
     }
+
+    //make builds more reproducible
+    tasks.withType<AbstractArchiveTask>().configureEach {
+        isReproducibleFileOrder = true
+        isPreserveFileTimestamps = false
+    }
 }

@@ -81,6 +81,9 @@ neoForge {
         create("client") {
             client()
         }
+        create("server") {
+            server()
+        }
     }
 
     mods {

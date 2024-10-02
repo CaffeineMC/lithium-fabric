@@ -24,7 +24,7 @@ dependencies {
         }
     })
 
-    modImplementation("net.fabricmc:fabric-loader:$FABRIC_LOADER_VERSION")
+    modCompileOnly("net.fabricmc:fabric-loader:$FABRIC_LOADER_VERSION")
 
     fun addDependentFabricModule(name: String) {
         val module = fabricApi.module(name, FABRIC_API_VERSION)

@@ -61,6 +61,14 @@ tasks.named("test").configure {
     enabled = false
 }
 
+//Mixin hotswap
+afterEvaluate {
+    loom.runs.configureEach {
+        // https://fabricmc.net/wiki/tutorial:mixin_hotswaps
+        vmArg("-javaagent:${ configurations.compileClasspath.get().find { it.name.contains("sponge-mixin") } }")
+    }
+}
+
 loom {
     if (project(":common").file("src/main/resources/lithium.accesswidener").exists())
         accessWidenerPath.set(project(":common").file("src/main/resources/lithium.accesswidener"))
@@ -69,11 +77,35 @@ loom {
     mixin { defaultRefmapName.set("lithium-fabric.refmap.json") }
 
     runs {
-        named("client") {
+        create("fabricClient") {
             client()
             configName = "Fabric Client"
             ideConfigGenerated(true)
             runDir("run")
+        }
+
+        create("fabricServer") {
+            server()
+            configName = "Fabric Server"
+            ideConfigGenerated(true)
+            runDir("run")
+        }
+
+        create("testmodServer") {
+            runDir("testserver");
+            server()
+            configName = "Fabric Testmod Server"
+            ideConfigGenerated(project.rootProject == project)
+            vmArg("-Dfabric.autoTest")
+        }
+
+        create("autoTestServer") {
+            runDir("testserver");
+            inherit(runs.named("testmodServer").get())
+            server()
+            configName = "Fabric Auto Testmod Server"
+            ideConfigGenerated(project.rootProject == project)
+            vmArg("-Dfabric.autoTest")
         }
     }
 }
