@@ -4,7 +4,7 @@
         depends = @MixinConfigDependency(dependencyPath = "mixin.util.block_entity_retrieval"),
         enabled = false
 )
-package net.caffeinemc.mods.lithium.mixin.fabric.compat.worldedit;
+package net.caffeinemc.mods.lithium.fabric.mixin.compat.worldedit;
 
 import net.caffeinemc.gradle.MixinConfigDependency;
 import net.caffeinemc.gradle.MixinConfigOption;

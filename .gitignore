@@ -34,5 +34,5 @@ neoforge/runs
 
 testserver/*
 
-src/main/resources/assets/lithium/lithium-mixin-config-default.properties
-src/main/resources/assets/lithium/lithium-mixin-config-dependencies.properties
+/common/src/main/resources/assets/lithium/lithium-mixin-config-default.properties
+/common/src/main/resources/assets/lithium/lithium-mixin-config-dependencies.properties

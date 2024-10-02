@@ -1,4 +1,4 @@
-package net.caffeinemc.mods.lithium.mixin.fabric.util.inventory_change_listening;
+package net.caffeinemc.mods.lithium.fabric.mixin.util.inventory_change_listening;
 
 import net.caffeinemc.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeEmitter;
 import net.minecraft.core.BlockPos;

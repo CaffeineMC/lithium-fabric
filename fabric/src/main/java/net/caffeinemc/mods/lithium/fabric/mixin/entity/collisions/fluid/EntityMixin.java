@@ -1,4 +1,4 @@
-package net.caffeinemc.mods.lithium.mixin.fabric.entity.collisions.fluid;
+package net.caffeinemc.mods.lithium.fabric.mixin.entity.collisions.fluid;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import net.caffeinemc.mods.lithium.common.block.BlockCountingSection;

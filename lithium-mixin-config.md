@@ -172,12 +172,6 @@ Requirements:
 - `mixin.util.inventory_change_listening=true`
 - `mixin.util.item_component_and_count_tracking=true`  
   
-### `mixin.block.hopper.worldedit_compat`
-(default: `false`)  
-Send updates to hoppers when adding inventory block entities to chunks when world edit is loaded. Fixes the issue of hoppers not noticing when inventories are placed using worldedit without any block updates.  
-Requirements:
-- `mixin.util.block_entity_retrieval=true`  
-  
 ### `mixin.block.moving_block_shapes`
 (default: `true`)  
 Moving blocks and retracting pistons avoid calculating their VoxelShapes by reusing previously created VoxelShapes.  
@@ -263,6 +257,16 @@ Uses fastutil hashsets for goals in the AI goal selector
 ### `mixin.collections.mob_spawning`
 (default: `true`)  
 Uses custom hashset/list combination for faster mob spawn checks  
+  
+### `mixin.compat.transfer_api`
+(default: `false`)  
+Allow hoppers to check whether a transfer-api inventory is present to avoid sleeping, which would prevent the hopper-inventory interaction. Enabled automatically when the transfer-api is present.  
+  
+### `mixin.compat.worldedit`
+(default: `false`)  
+Send updates to hoppers when adding inventory block entities to chunks when world edit is loaded. Fixes the issue of hoppers not noticing when inventories are placed using worldedit without any block updates. Enabled automatically when worldedit is present.  
+Requirements:
+- `mixin.util.block_entity_retrieval=true`  
   
 ### `mixin.entity`
 (default: `true`)  

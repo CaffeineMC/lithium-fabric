@@ -1,4 +1,4 @@
-package net.caffeinemc.mods.lithium.mixin.neoforge.block.hopper;
+package net.caffeinemc.mods.lithium.neoforge.mixin.block.hopper;
 
 import net.caffeinemc.mods.lithium.common.hopper.HopperHelper;
 import net.minecraft.core.BlockPos;

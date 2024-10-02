@@ -1,4 +1,4 @@
-package net.caffeinemc.mods.lithium.mixin.fabric.compat.worldedit;
+package net.caffeinemc.mods.lithium.fabric.mixin.compat.worldedit;
 
 import net.caffeinemc.mods.lithium.common.hopper.UpdateReceiver;
 import net.caffeinemc.mods.lithium.common.util.DirectionConstants;

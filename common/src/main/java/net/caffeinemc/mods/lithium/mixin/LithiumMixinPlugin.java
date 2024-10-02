@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.Set;
 
 public class LithiumMixinPlugin implements IMixinConfigPlugin {
-    private static final String MIXIN_PACKAGE_ROOT = "net.caffeinemc.mods.lithium.mixin.";
+    private static final String[] MIXIN_PACKAGE_ROOTS = {"net.caffeinemc.mods.lithium.mixin.", "net.caffeinemc.mods.lithium.fabric.mixin.", "net.caffeinemc.mods.lithium.neoforge.mixin."};
+    private static final Boolean DEBUG = false;
 
     private final Logger logger = LogManager.getLogger("Lithium");
 
@@ -39,14 +40,22 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (!mixinClassName.startsWith(MIXIN_PACKAGE_ROOT)) {
-            this.logger.error("Expected mixin '{}' to start with package root '{}', treating as foreign and " +
-                    "disabling!", mixinClassName, MIXIN_PACKAGE_ROOT);
-
+        if (DEBUG) {
+            this.logger.info("Checking mixin '{}' for target '{}'", mixinClassName, targetClassName);
+        }
+        String mixin = null;
+        for (String root : MIXIN_PACKAGE_ROOTS) {
+            if (mixinClassName.startsWith(root)) {
+                mixin = mixinClassName.substring(root.length());
+                break;
+            }
+        }
+        if (mixin == null) {
+            this.logger.error("Expected mixin '{}' to start with any of these package roots '{}', treating as foreign and " +
+                    "disabling!", mixinClassName, MIXIN_PACKAGE_ROOTS);
             return false;
         }
 
-        String mixin = mixinClassName.substring(MIXIN_PACKAGE_ROOT.length());
         Option option = this.config.getEffectiveOptionForMixin(mixin);
 
         if (option == null) {
@@ -73,7 +82,15 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
             }
         }
 
-        return option.isEnabled();
+        boolean enabled = option.isEnabled();
+        if (DEBUG) {
+            if (!enabled) {
+                this.logger.info("Disabling mixin '{}' due to rule '{}'", mixin, option.getName());
+            } else {
+                this.logger.info("Enabling mixin '{}' due to rule '{}'", mixin, option.getName());
+            }
+        }
+        return enabled;
     }
 
     @Override

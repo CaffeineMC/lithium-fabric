@@ -2,6 +2,7 @@ plugins {
     id("idea")
     id("net.neoforged.moddev") version "2.0.28-beta"
     id("java-library")
+    id("net.caffeinemc.mixin-config-plugin") version ("1.0-SNAPSHOT")
 }
 
 val MINECRAFT_VERSION: String by rootProject.extra
@@ -108,6 +109,8 @@ tasks.named("compileTestJava").configure {
 dependencies {
     compileOnly(project.project(":common").sourceSets.main.get().output)
     compileOnly(project.project(":common").sourceSets.getByName("api").output)
+
+    compileOnly("net.caffeinemc:mixin-config-plugin:1.0-SNAPSHOT")
     //In case of fabric-api dependencies, consider using forgified-fabric-api:
 //    includeDep("org.sinytra.forgified-fabric-api:fabric-block-view-api-v2:1.0.10+9afaaf8c19")
 }

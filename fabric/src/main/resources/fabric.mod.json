@@ -22,7 +22,7 @@
         ]
     },
     "mixins": [
-        "lithium.mixins.json"
+        "lithium.mixins.json", "lithium-fabric.mixins.json"
     ],
     "accessWidener": "lithium.accesswidener",
     "depends": {

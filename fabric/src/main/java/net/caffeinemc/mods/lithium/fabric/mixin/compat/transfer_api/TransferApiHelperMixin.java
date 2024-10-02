@@ -1,4 +1,4 @@
-package net.caffeinemc.mods.lithium.mixin.fabric.compat.transfer_api;
+package net.caffeinemc.mods.lithium.fabric.mixin.compat.transfer_api;
 
 import net.caffeinemc.mods.lithium.common.compat.TransferApiHelper;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;

@@ -1,4 +1,4 @@
-package net.caffeinemc.mods.lithium.mixin.fabric.block.hopper;
+package net.caffeinemc.mods.lithium.fabric.mixin.block.hopper;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import net.caffeinemc.mods.lithium.common.hopper.HopperHelper;

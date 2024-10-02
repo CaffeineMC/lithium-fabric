@@ -83,3 +83,32 @@ tasks {
 tasks.configureEach {
     group = null
 }
+
+tasks.named<net.caffeinemc.gradle.CreateMixinConfigTask>("createMixinConfig") {
+    inputFiles.set(
+            listOf(
+                    tasks.named("compileJava", JavaCompile::class).get().destinationDirectory.get(),
+                    project(":neoforge").tasks.named("compileJava", JavaCompile::class).get().destinationDirectory.get(),
+                    project(":fabric").tasks.named("compileJava", JavaCompile::class).get().destinationDirectory.get()
+            )
+    )
+    includeFiles.set(file("src/main/java/net/caffeinemc/mods/lithium"))
+    outputDirectory.set(file("src/main/resources/assets/lithium/"))
+    outputDirectoryForSummaryDocument = "."
+    mixinParentPackages = listOf("net.caffeinemc.mods.lithium", "net.caffeinemc.mods.lithium.fabric", "net.caffeinemc.mods.lithium.neoforge")
+    modShortName = "Lithium"
+}
+
+tasks.named<Jar>("jar") { // TODO decide whether jar or another task should depend on createMixinConfig
+    dependsOn("createMixinConfig")
+}
+
+//tasks.named<ProcessResources>("processResources") { // This creates a dependency cycle, no longer an option
+//    dependsOn("createMixinConfig")
+//}
+
+tasks.named<net.caffeinemc.gradle.CreateMixinConfigTask>("createMixinConfig") {
+    dependsOn("compileJava")
+    dependsOn(project(":fabric").tasks.named("compileJava", JavaCompile::class))
+    dependsOn(project(":neoforge").tasks.named("compileJava", JavaCompile::class))
+}

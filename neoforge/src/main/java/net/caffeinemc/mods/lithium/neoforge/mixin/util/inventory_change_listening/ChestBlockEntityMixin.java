@@ -1,4 +1,4 @@
-package net.caffeinemc.mods.lithium.mixin.neoforge.inventory_change_listening;
+package net.caffeinemc.mods.lithium.neoforge.mixin.util.inventory_change_listening;
 
 import net.caffeinemc.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeEmitter;
 import net.minecraft.core.BlockPos;
