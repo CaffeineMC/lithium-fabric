@@ -39,7 +39,6 @@ dependencies {
     fun addCompileOnlyFabricModule(name: String) {
         val module = fabricApi.module(name, FABRIC_API_VERSION)
         modCompileOnly(module)
-        include(module)
     }
 
     addCompileOnlyFabricModule("fabric-transfer-api-v1")

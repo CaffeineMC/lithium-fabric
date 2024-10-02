@@ -97,18 +97,14 @@ tasks.named<net.caffeinemc.gradle.CreateMixinConfigTask>("createMixinConfig") {
     outputDirectoryForSummaryDocument = "."
     mixinParentPackages = listOf("net.caffeinemc.mods.lithium", "net.caffeinemc.mods.lithium.fabric", "net.caffeinemc.mods.lithium.neoforge")
     modShortName = "Lithium"
-}
 
-tasks.named<Jar>("jar") { // TODO decide whether jar or another task should depend on createMixinConfig
-    dependsOn("createMixinConfig")
-}
-
-//tasks.named<ProcessResources>("processResources") { // This creates a dependency cycle, no longer an option
-//    dependsOn("createMixinConfig")
-//}
-
-tasks.named<net.caffeinemc.gradle.CreateMixinConfigTask>("createMixinConfig") {
     dependsOn("compileJava")
     dependsOn(project(":fabric").tasks.named("compileJava", JavaCompile::class))
     dependsOn(project(":neoforge").tasks.named("compileJava", JavaCompile::class))
 }
+
+tasks.named<Jar>("jar") {
+    dependsOn("createMixinConfig")
+}
+
+//TODO make run client and server tasks for fabric and neoforge depend on createMixinConfig / its output files
