@@ -23,6 +23,10 @@ public class LithiumMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void onLoad(String mixinPackage) {
+        if (this.config != null) {
+            return;
+        }
+
         try {
             this.config = LithiumConfig.load(new File("./config/lithium.properties"));
         } catch (Exception e) {
