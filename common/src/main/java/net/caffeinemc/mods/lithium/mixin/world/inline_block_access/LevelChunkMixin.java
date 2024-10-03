@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
-@Mixin(LevelChunk.class)
+@Mixin(value = LevelChunk.class, priority = 500)
 public abstract class LevelChunkMixin extends ChunkAccess {
     private static final BlockState DEFAULT_BLOCK_STATE = Blocks.AIR.defaultBlockState();
     private static final FluidState DEFAULT_FLUID_STATE = Fluids.EMPTY.defaultFluidState();
