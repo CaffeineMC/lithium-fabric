@@ -1,6 +1,7 @@
 package net.caffeinemc.mods.lithium.mixin.collections.gamerules;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.world.level.GameRules;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -10,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
-import net.minecraft.world.level.GameRules;
 
 @Mixin(GameRules.class)
 public class GameRulesMixin {

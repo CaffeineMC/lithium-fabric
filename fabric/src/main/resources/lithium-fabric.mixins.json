@@ -13,7 +13,7 @@
   "mixins" : [
     "block.hopper.LevelMixin",
     "compat.transfer_api.TransferApiHelperMixin",
-    "compat.worldedit.WorldChunkMixin",
+    "compat.worldedit.LevelChunkMixin",
     "entity.collisions.fluid.EntityMixin",
     "util.inventory_change_listening.ChestBlockEntityMixin"
   ],

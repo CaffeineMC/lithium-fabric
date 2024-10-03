@@ -55,7 +55,7 @@ public interface BlockGetterMixin {
         return new BiFunction<>() {
             int chunkX = Integer.MIN_VALUE, chunkZ = Integer.MIN_VALUE;
             ChunkAccess chunk = null;
-            final boolean handleFluids = ((RaycastContextAccessor) context).getFluidHandling() != ClipContext.Fluid.NONE;
+            final boolean handleFluids = ((ClipContextAccessor) context).getFluidHandling() != ClipContext.Fluid.NONE;
 
             @Override
             public BlockHitResult apply(ClipContext innerContext, BlockPos pos) {

@@ -2,11 +2,12 @@ package net.caffeinemc.mods.lithium.common.entity.movement_tracker;
 
 import net.caffeinemc.mods.lithium.common.util.tuples.WorldSectionBox;
 import net.caffeinemc.mods.lithium.common.world.LithiumData;
-import net.caffeinemc.mods.lithium.mixin.block.hopper.EntityTrackingSectionAccessor;
+import net.caffeinemc.mods.lithium.mixin.block.hopper.EntitySectionAccessor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ClassInstanceMultiMap;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class SectionedItemEntityMovementTracker<S extends Entity> extends Sectio
         for (int sectionIndex = 0; sectionIndex < this.sortedSections.size(); sectionIndex++) {
             if (this.sectionVisible[sectionIndex]) {
                 //noinspection unchecked
-                ClassInstanceMultiMap<S> collection = ((EntityTrackingSectionAccessor<S>) this.sortedSections.get(sectionIndex)).getCollection();
+                ClassInstanceMultiMap<S> collection = ((EntitySectionAccessor<S>) this.sortedSections.get(sectionIndex)).getCollection();
 
                 for (S entity : collection.find(this.clazz)) {
                     if (entity.isAlive()) {

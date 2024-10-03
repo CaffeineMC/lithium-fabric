@@ -5,7 +5,7 @@ import net.caffeinemc.mods.lithium.common.block.BlockStateFlags;
 import net.caffeinemc.mods.lithium.common.util.Pos;
 import net.caffeinemc.mods.lithium.common.world.ChunkView;
 import net.caffeinemc.mods.lithium.common.world.WorldHelper;
-import net.caffeinemc.mods.lithium.mixin.ai.pathing.PathContextAccessor;
+import net.caffeinemc.mods.lithium.mixin.ai.pathing.PathfindingContextAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -103,7 +103,7 @@ public abstract class PathNodeCache {
                     if (section != null) {
                         state = section.getBlockState(adjX & 15, adjY & 15, adjZ & 15);
                     } else {
-                        BlockPos.MutableBlockPos pos = ((PathContextAccessor) context).getLastNodePos().set(adjX, adjY, adjZ);
+                        BlockPos.MutableBlockPos pos = ((PathfindingContextAccessor) context).getLastNodePos().set(adjX, adjY, adjZ);
                         state = world.getBlockState(pos);
                     }
 

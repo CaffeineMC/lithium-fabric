@@ -28,7 +28,7 @@ public abstract class EntityMixin implements BlockCacheProvider {
     private void cancelIfSkippable(CallbackInfo ci) {
         //noinspection ConstantConditions
         if (!((Object) this instanceof ServerPlayer)) {
-            BlockCache bc = this.getUpdatedBlockCache((Entity)(Object)this);
+            BlockCache bc = this.getUpdatedBlockCache((Entity) (Object) this);
             if (bc.canSkipBlockTouching()) {
                 ci.cancel();
             }
@@ -53,7 +53,7 @@ public abstract class EntityMixin implements BlockCacheProvider {
     private void checkTouchableBlock(CallbackInfo ci, AABB box, BlockPos blockPos, BlockPos blockPos2, BlockPos.MutableBlockPos mutable, int i, int j, int k, BlockState blockState) {
         BlockCache bc = this.lithium$getBlockCache();
         if (bc.canSkipBlockTouching() &&
-                0 != (((BlockStateFlagHolder)blockState).lithium$getAllFlags() & 1 << BlockStateFlags.ENTITY_TOUCHABLE.getIndex())
+                0 != (((BlockStateFlagHolder) blockState).lithium$getAllFlags() & 1 << BlockStateFlags.ENTITY_TOUCHABLE.getIndex())
         ) {
             bc.setCanSkipBlockTouching(false);
         }

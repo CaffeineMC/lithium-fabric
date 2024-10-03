@@ -2,12 +2,13 @@ package net.caffeinemc.mods.lithium.common.shapes;
 
 import it.unimi.dsi.fastutil.doubles.*;
 import net.caffeinemc.mods.lithium.mixin.minimal_nonvanilla.collisions.empty_space.ArrayVoxelShapeInvoker;
-import net.caffeinemc.mods.lithium.mixin.minimal_nonvanilla.collisions.empty_space.BitSetVoxelSetAccessor;
+import net.caffeinemc.mods.lithium.mixin.minimal_nonvanilla.collisions.empty_space.BitSetDiscreteVoxelShapeAccessor;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import java.util.BitSet;
 import java.util.List;
 import java.util.Optional;
@@ -103,7 +104,7 @@ public class VoxelShapeHelper {
         bitSetVoxelSet.fill(xSize, ySize, zSize);
         //Clear the values have just written, but without updating min/max x, y, z values. The voxelSet is empty
         // but has the correct min/max values after this
-        BitSet bitSet = ((BitSetVoxelSetAccessor) (Object) bitSetVoxelSet).getStorage();
+        BitSet bitSet = ((BitSetDiscreteVoxelShapeAccessor) (Object) bitSetVoxelSet).getStorage();
         bitSet.clear();
 
         //Add all points inside the collidingShape, remove all points in other boxes afterward

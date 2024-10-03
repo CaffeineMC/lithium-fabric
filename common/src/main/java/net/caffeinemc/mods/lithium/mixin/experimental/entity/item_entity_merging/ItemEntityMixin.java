@@ -4,7 +4,7 @@ import net.caffeinemc.mods.lithium.common.entity.TypeFilterableListInternalAcces
 import net.caffeinemc.mods.lithium.common.entity.item.ItemEntityLazyIterationConsumer;
 import net.caffeinemc.mods.lithium.common.entity.item.ItemEntityList;
 import net.caffeinemc.mods.lithium.common.world.WorldHelper;
-import net.caffeinemc.mods.lithium.mixin.util.accessors.EntityTrackingSectionAccessor;
+import net.caffeinemc.mods.lithium.mixin.util.accessors.EntitySectionAccessor;
 import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.ClassInstanceMultiMap;
 import net.minecraft.world.entity.Entity;
@@ -50,7 +50,7 @@ public abstract class ItemEntityMixin extends Entity {
         ItemEntityLazyIterationConsumer itemEntityConsumer = new ItemEntityLazyIterationConsumer(searchingItemEntity, box, predicate);
         cache.forEachAccessibleNonEmptySection(box, section -> {
             //noinspection unchecked
-            ClassInstanceMultiMap<Entity> allEntities = ((EntityTrackingSectionAccessor<Entity>) section).getCollection();
+            ClassInstanceMultiMap<Entity> allEntities = ((EntitySectionAccessor<Entity>) section).getCollection();
 
             //noinspection unchecked
             TypeFilterableListInternalAccess<Entity> internalEntityList = (TypeFilterableListInternalAccess<Entity>) allEntities;

@@ -22,7 +22,7 @@ public abstract class CampfireBlockEntityMixin extends BlockEntity implements Sl
 
     @Inject(
             method = "cookTick(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/CampfireBlockEntity;)V",
-            at = @At("RETURN" ),
+            at = @At("RETURN"),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     private static void trySleepLit(Level world, BlockPos pos, BlockState state, CampfireBlockEntity campfire, CallbackInfo ci, boolean hadProgress) {

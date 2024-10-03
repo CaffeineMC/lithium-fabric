@@ -53,7 +53,7 @@ public abstract class AbstractFurnaceBlockEntityMixin extends BlockEntity implem
         this.sleepingTicker = sleepingTicker;
     }
 
-    @Inject(method = "serverTick(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity;)V", at = @At("RETURN" ))
+    @Inject(method = "serverTick(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity;)V", at = @At("RETURN"))
     private static void checkSleep(Level world, BlockPos pos, BlockState state, AbstractFurnaceBlockEntity blockEntity, CallbackInfo ci) {
         ((AbstractFurnaceBlockEntityMixin) (Object) blockEntity).checkSleep(state);
     }
@@ -64,7 +64,7 @@ public abstract class AbstractFurnaceBlockEntityMixin extends BlockEntity implem
         }
     }
 
-    @Inject(method = "loadAdditional(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;)V", at = @At("RETURN" ))
+    @Inject(method = "loadAdditional(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;)V", at = @At("RETURN"))
     private void wakeUpAfterFromTag(CallbackInfo ci) {
         if (this.isSleeping() && this.level != null && !this.level.isClientSide) {
             this.wakeUpNow();

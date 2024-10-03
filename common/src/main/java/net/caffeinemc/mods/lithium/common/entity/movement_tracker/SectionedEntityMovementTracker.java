@@ -4,13 +4,14 @@ import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.caffeinemc.mods.lithium.common.util.tuples.WorldSectionBox;
 import net.caffeinemc.mods.lithium.common.world.LithiumData;
-import net.caffeinemc.mods.lithium.mixin.util.entity_movement_tracking.ServerEntityManagerAccessor;
-import net.caffeinemc.mods.lithium.mixin.util.entity_movement_tracking.ServerWorldAccessor;
+import net.caffeinemc.mods.lithium.mixin.util.entity_movement_tracking.PersistentEntitySectionManagerAccessor;
+import net.caffeinemc.mods.lithium.mixin.util.entity_movement_tracking.ServerLevelAccessor;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.entity.EntitySection;
 import net.minecraft.world.level.entity.EntitySectionStorage;
+
 import java.util.ArrayList;
 
 public abstract class SectionedEntityMovementTracker<E extends EntityAccess, S> {
@@ -81,7 +82,7 @@ public abstract class SectionedEntityMovementTracker<E extends EntityAccess, S> 
 
         if (this.timesRegistered == 0) {
             //noinspection unchecked
-            EntitySectionStorage<E> cache = ((ServerEntityManagerAccessor<E>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
+            EntitySectionStorage<E> cache = ((PersistentEntitySectionManagerAccessor<E>) ((ServerLevelAccessor) world).getEntityManager()).getCache();
 
             WorldSectionBox trackedSections = this.trackedWorldSections;
             int size = trackedSections.numSections();
@@ -114,7 +115,7 @@ public abstract class SectionedEntityMovementTracker<E extends EntityAccess, S> 
         }
         assert this.timesRegistered == 0;
         //noinspection unchecked
-        EntitySectionStorage<E> cache = ((ServerEntityManagerAccessor<E>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
+        EntitySectionStorage<E> cache = ((PersistentEntitySectionManagerAccessor<E>) ((ServerLevelAccessor) world).getEntityManager()).getCache();
         ((LithiumData) world).lithium$getData().entityMovementTrackers().deleteCanonical(this);
 
         ArrayList<EntitySection<E>> sections = this.sortedSections;

@@ -4,10 +4,10 @@ import net.caffeinemc.mods.lithium.common.client.ClientWorldAccessor;
 import net.caffeinemc.mods.lithium.common.entity.EntityClassGroup;
 import net.caffeinemc.mods.lithium.common.entity.pushable.EntityPushablePredicate;
 import net.caffeinemc.mods.lithium.common.world.chunk.ClassGroupFilterableList;
-import net.caffeinemc.mods.lithium.mixin.util.accessors.ClientEntityManagerAccessor;
-import net.caffeinemc.mods.lithium.mixin.util.accessors.EntityTrackingSectionAccessor;
-import net.caffeinemc.mods.lithium.mixin.util.accessors.ServerEntityManagerAccessor;
-import net.caffeinemc.mods.lithium.mixin.util.accessors.ServerWorldAccessor;
+import net.caffeinemc.mods.lithium.mixin.util.accessors.EntitySectionAccessor;
+import net.caffeinemc.mods.lithium.mixin.util.accessors.PersistentEntitySectionManagerAccessor;
+import net.caffeinemc.mods.lithium.mixin.util.accessors.ServerLevelAccessor;
+import net.caffeinemc.mods.lithium.mixin.util.accessors.TransientEntitySectionManagerAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.ClassInstanceMultiMap;
@@ -72,10 +72,10 @@ public class WorldHelper {
     public static EntitySectionStorage<Entity> getEntityCacheOrNull(Level world) {
         if (world instanceof ClientWorldAccessor) {
             //noinspection unchecked
-            return ((ClientEntityManagerAccessor<Entity>) ((ClientWorldAccessor) world).lithium$getEntityManager()).getCache();
-        } else if (world instanceof ServerWorldAccessor) {
+            return ((TransientEntitySectionManagerAccessor<Entity>) ((ClientWorldAccessor) world).lithium$getEntityManager()).getCache();
+        } else if (world instanceof ServerLevelAccessor) {
             //noinspection unchecked
-            return ((ServerEntityManagerAccessor<Entity>) ((ServerWorldAccessor) world).getEntityManager()).getCache();
+            return ((PersistentEntitySectionManagerAccessor<Entity>) ((ServerLevelAccessor) world).getEntityManager()).getCache();
         }
         return null;
     }
@@ -84,7 +84,7 @@ public class WorldHelper {
         ArrayList<Entity> entities = new ArrayList<>();
         cache.forEachAccessibleNonEmptySection(box, section -> {
             //noinspection unchecked
-            ClassInstanceMultiMap<Entity> allEntities = ((EntityTrackingSectionAccessor<Entity>) section).getCollection();
+            ClassInstanceMultiMap<Entity> allEntities = ((EntitySectionAccessor<Entity>) section).getCollection();
             //noinspection unchecked
             Collection<Entity> entitiesOfType = ((ClassGroupFilterableList<Entity>) allEntities).lithium$getAllOfGroupType(entityClassGroup);
             if (!entitiesOfType.isEmpty()) {

@@ -9,10 +9,10 @@ import org.spongepowered.asm.mixin.Overwrite;
 /**
  * Inlining the offsets makes a *very small* improvement to the generated machine code, but when paired
  * with the other patches in Direction, it seems worthwhile enough given how simple the implementation is...
- *
+ * <p>
  * This class has been subject of many similar patches, but I've not been able to replicate the same magnitude of
  * improvement that has apparently been shown by other people through just inlining direction vectors.
- *
+ * <p>
  * In fact, when inlining the {@link BlockPos#relative(Direction)} method, the common approach ended up generating
  * significantly worse machine code by introducing a costly branching switch table and hugely inflating the
  * instruction count, which seems to match what I would expect.

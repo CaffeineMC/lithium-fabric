@@ -54,7 +54,7 @@ public abstract class EntityMixin implements BlockCacheProvider {
         }
 
 
-        BlockCache bc = this.getUpdatedBlockCache((Entity)(Object)this);
+        BlockCache bc = this.getUpdatedBlockCache((Entity) (Object) this);
 
         byte cachedTouchingFireLava = bc.getIsTouchingFireLava();
         if (cachedTouchingFireLava == (byte) 0) {

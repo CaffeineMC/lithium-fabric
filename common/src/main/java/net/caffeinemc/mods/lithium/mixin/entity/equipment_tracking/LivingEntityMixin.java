@@ -35,7 +35,7 @@ public abstract class LivingEntityMixin extends Entity implements ChangeSubscrib
 
     @Override
     public void lithium$notify(@Nullable ItemStack publisher, int zero) {
-        if (this instanceof EquipmentEntity.EquipmentTrackingEntity equipmentTrackingEntity) {
+        if (this instanceof EquipmentTrackingEntity equipmentTrackingEntity) {
             equipmentTrackingEntity.lithium$onEquipmentChanged();
         }
     }
@@ -57,11 +57,11 @@ public abstract class LivingEntityMixin extends Entity implements ChangeSubscrib
 
     @Override
     public void lithium$onEquipmentReplaced(ItemStack oldStack, ItemStack newStack) {
-        if (this instanceof EquipmentEntity.TickableEnchantmentTrackingEntity enchantmentTrackingEntity) {
+        if (this instanceof TickableEnchantmentTrackingEntity enchantmentTrackingEntity) {
             enchantmentTrackingEntity.lithium$updateHasTickableEnchantments(oldStack, newStack);
         }
 
-        if (this instanceof EquipmentEntity.EquipmentTrackingEntity equipmentTrackingEntity) {
+        if (this instanceof EquipmentTrackingEntity equipmentTrackingEntity) {
             equipmentTrackingEntity.lithium$onEquipmentChanged();
         }
 

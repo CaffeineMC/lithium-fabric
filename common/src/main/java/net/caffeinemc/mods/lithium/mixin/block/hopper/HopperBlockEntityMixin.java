@@ -244,7 +244,7 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         for (int i = 0; i < fromSize; i++) {
             int fromSlot = availableSlots != null ? availableSlots[i] : i;
             ItemStack itemStack = fromStackList.get(fromSlot);
-            if (!itemStack.isEmpty() && canTakeItemFromContainer(to , from, itemStack, fromSlot, Direction.DOWN)) {
+            if (!itemStack.isEmpty() && canTakeItemFromContainer(to, from, itemStack, fromSlot, Direction.DOWN)) {
                 //calling removeStack is necessary due to its side effects (markDirty in LootableContainerBlockEntity)
                 ItemStack takenItem = from.removeItem(fromSlot, 1);
                 assert !takenItem.isEmpty();
@@ -565,8 +565,6 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
         return inventory;
     }
 
-    //Entity tracker initialization:
-
     private void initCollectItemEntityTracker() {
         assert this.level instanceof ServerLevel;
         AABB inputBox = this.getSuckAabb().move(this.worldPosition.getX(), this.worldPosition.getY(), this.worldPosition.getZ());
@@ -606,8 +604,6 @@ public abstract class HopperBlockEntityMixin extends BlockEntity implements Hopp
                 );
         this.insertInventoryEntityFailedSearchTime = Long.MIN_VALUE;
     }
-
-    //Cached data invalidation:
 
     @Inject(method = "setBlockState(Lnet/minecraft/world/level/block/state/BlockState;)V", at = @At("HEAD"))
     private void invalidateOnSetCachedState(BlockState state, CallbackInfo ci) {

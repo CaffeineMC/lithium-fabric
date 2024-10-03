@@ -29,7 +29,7 @@ public abstract class EntityMixin implements BlockCacheProvider {
             cancellable = true
     )
     private void skipFluidSearchUsingCache(TagKey<Fluid> fluid, double speed, CallbackInfoReturnable<Boolean> cir) {
-        BlockCache bc = this.getUpdatedBlockCache((Entity)(Object)this);
+        BlockCache bc = this.getUpdatedBlockCache((Entity) (Object) this);
         double fluidHeight = bc.getStationaryFluidHeightOrDefault(fluid, -1d);
         if (fluidHeight != -1d) {
             this.fluidHeight.put(fluid, fluidHeight); //Note: If the region is unloaded in target method, this still puts 0. However, default return value is 0, and vanilla doesn't use any method that reveals this difference.

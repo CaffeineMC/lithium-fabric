@@ -4,7 +4,7 @@ import net.caffeinemc.mods.lithium.api.inventory.LithiumDefaultedList;
 import net.caffeinemc.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
 import net.caffeinemc.mods.lithium.common.util.change_tracking.ChangePublisher;
 import net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber;
-import net.caffeinemc.mods.lithium.mixin.block.hopper.DefaultedListAccessor;
+import net.caffeinemc.mods.lithium.mixin.block.hopper.NonNullListAccessor;
 import net.minecraft.core.NonNullList;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
@@ -31,7 +31,7 @@ public class LithiumStackList extends NonNullList<ItemStack> implements LithiumD
 
     public LithiumStackList(NonNullList<ItemStack> original, int maxCountPerStack) {
         //noinspection unchecked
-        super(((DefaultedListAccessor<ItemStack>) original).getDelegate(), ItemStack.EMPTY);
+        super(((NonNullListAccessor<ItemStack>) original).getDelegate(), ItemStack.EMPTY);
         this.maxCountPerStack = maxCountPerStack;
 
         this.cachedSignalStrength = -1;

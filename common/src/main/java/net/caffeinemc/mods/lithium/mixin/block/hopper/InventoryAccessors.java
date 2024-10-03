@@ -4,19 +4,13 @@ import net.caffeinemc.mods.lithium.api.inventory.LithiumInventory;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.vehicle.AbstractMinecartContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
-import net.minecraft.world.level.block.entity.BarrelBlockEntity;
-import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
-import net.minecraft.world.level.block.entity.ChestBlockEntity;
-import net.minecraft.world.level.block.entity.DispenserBlockEntity;
-import net.minecraft.world.level.block.entity.HopperBlockEntity;
-import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.world.level.block.entity.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 public class InventoryAccessors {
     @Mixin(AbstractFurnaceBlockEntity.class)
-    public abstract static class InventoryAccessorAbstractFurnaceBlockEntity implements LithiumInventory {
+    public abstract static class AbstractFurnaceBlockEntityMixin implements LithiumInventory {
         @Accessor("items")
         public abstract NonNullList<ItemStack> getInventoryLithium();
 
@@ -25,7 +19,7 @@ public class InventoryAccessors {
     }
 
     @Mixin(BarrelBlockEntity.class)
-    public abstract static class InventoryAccessorBarrelBlockEntity implements LithiumInventory {
+    public abstract static class BarrelBlockEntityMixin implements LithiumInventory {
         @Override
         @Accessor("items")
         public abstract NonNullList<ItemStack> getInventoryLithium();
@@ -36,7 +30,7 @@ public class InventoryAccessors {
     }
 
     @Mixin(BrewingStandBlockEntity.class)
-    public abstract static class InventoryAccessorBrewingStandBlockEntity implements LithiumInventory {
+    public abstract static class BrewingStandBlockEntityMixin implements LithiumInventory {
         @Override
         @Accessor("items")
         public abstract NonNullList<ItemStack> getInventoryLithium();
@@ -47,7 +41,7 @@ public class InventoryAccessors {
     }
 
     @Mixin(ChestBlockEntity.class)
-    public abstract static class InventoryAccessorChestBlockEntity implements LithiumInventory {
+    public abstract static class ChestBlockEntityMixin implements LithiumInventory {
         @Override
         @Accessor("items")
         public abstract NonNullList<ItemStack> getInventoryLithium();
@@ -58,7 +52,7 @@ public class InventoryAccessors {
     }
 
     @Mixin(DispenserBlockEntity.class)
-    public abstract static class InventoryAccessorDispenserBlockEntity implements LithiumInventory {
+    public abstract static class DispenserBlockEntityMixin implements LithiumInventory {
         @Override
         @Accessor("items")
         public abstract NonNullList<ItemStack> getInventoryLithium();
@@ -69,7 +63,7 @@ public class InventoryAccessors {
     }
 
     @Mixin(HopperBlockEntity.class)
-    public abstract static class InventoryAccessorHopperBlockEntity implements LithiumInventory {
+    public abstract static class HopperBlockEntityMixin implements LithiumInventory {
         @Override
         @Accessor("items")
         public abstract NonNullList<ItemStack> getInventoryLithium();
@@ -80,7 +74,7 @@ public class InventoryAccessors {
     }
 
     @Mixin(ShulkerBoxBlockEntity.class)
-    public abstract static class InventoryAccessorShulkerBoxBlockEntity implements LithiumInventory {
+    public abstract static class ShulkerBoxBlockEntityMixin implements LithiumInventory {
         @Override
         @Accessor("itemStacks")
         public abstract NonNullList<ItemStack> getInventoryLithium();
@@ -91,7 +85,7 @@ public class InventoryAccessors {
     }
 
     @Mixin(AbstractMinecartContainer.class)
-    public abstract static class InventoryAccessorStorageMinecartEntity implements LithiumInventory {
+    public abstract static class AbstractMinecartContainerMixin implements LithiumInventory {
         @Override
         @Accessor("itemStacks")
         public abstract NonNullList<ItemStack> getInventoryLithium();

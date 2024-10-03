@@ -62,7 +62,7 @@ public class BlockEntityMixin implements ComparatorTracker {
         return this.hasComparators == COMPARATOR_PRESENT;
     }
 
-    @Inject(method = "setRemoved()V", at = @At("HEAD" ))
+    @Inject(method = "setRemoved()V", at = @At("HEAD"))
     private void forgetNearbyComparators(CallbackInfo ci) {
         //Compatibility with mods that move block entities (e.g. fabric-carpet)
         this.hasComparators = UNKNOWN;

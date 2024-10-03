@@ -90,7 +90,7 @@ public class HopperBlockEntityMixin extends BlockEntity implements SleepingBlock
 
     @Inject(
             method = "setCooldown(I)V",
-            at = @At("HEAD" )
+            at = @At("HEAD")
     )
     private void wakeUpOnCooldownSet(int transferCooldown, CallbackInfo ci) {
         if (transferCooldown == 7) {

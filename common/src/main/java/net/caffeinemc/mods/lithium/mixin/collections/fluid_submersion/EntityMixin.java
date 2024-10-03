@@ -1,6 +1,9 @@
 package net.caffeinemc.mods.lithium.mixin.collections.fluid_submersion;
 
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.material.Fluid;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -11,9 +14,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Set;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.material.Fluid;
 
 @Mixin(Entity.class)
 public class EntityMixin {

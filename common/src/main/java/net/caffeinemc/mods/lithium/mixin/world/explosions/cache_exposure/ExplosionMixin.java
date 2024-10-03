@@ -16,8 +16,10 @@ import org.spongepowered.asm.mixin.injection.At;
  */
 @Mixin(Explosion.class)
 public abstract class ExplosionMixin implements ExplosionCache {
-    @Unique private float cachedExposure;
-    @Unique private Entity cachedEntity;
+    @Unique
+    private float cachedExposure;
+    @Unique
+    private Entity cachedEntity;
 
     @Override
     public void lithium_fabric$cacheExposure(Entity entity, float exposure) {
