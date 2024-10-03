@@ -35,6 +35,3 @@ bin/
 # lithium
 
 fabric/testserver/*
-
-/common/src/main/resources/assets/lithium/lithium-mixin-config-default.properties
-/common/src/main/resources/assets/lithium/lithium-mixin-config-dependencies.properties

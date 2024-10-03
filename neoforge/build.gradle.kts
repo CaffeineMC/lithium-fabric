@@ -119,3 +119,33 @@ dependencies {
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+sourceSets {
+    val main by getting {
+        resources {
+            srcDir(layout.buildDirectory.dir("neoforge-mixin-config-output"))
+        }
+    }
+}
+
+tasks.named<net.caffeinemc.gradle.CreateMixinConfigTask>("neoforgeCreateMixinConfig") {
+    inputFiles.set(
+            listOf(
+                    tasks.named("compileJava", JavaCompile::class).get().destinationDirectory.get(),
+                    project(":common").tasks.named("compileJava", JavaCompile::class).get().destinationDirectory.get(),
+            )
+    )
+    includeFiles.set(file("src/main/java/net/caffeinemc/mods/lithium"))
+    outputDirectory.set(layout.buildDirectory.dir("neoforge-mixin-config-output"))
+    outputAssetsPath = "assets/lithium"
+    outputPathForSummaryDocument = "lithium-neoforge-mixin-config.md"
+    mixinParentPackages = listOf("net.caffeinemc.mods.lithium", "net.caffeinemc.mods.lithium.neoforge")
+    modShortName = "Lithium"
+
+    dependsOn("compileJava")
+    dependsOn(project(":common").tasks.named("compileJava", JavaCompile::class))
+}
+
+tasks.named("processResources") {
+    dependsOn("neoforgeCreateMixinConfig")
+}

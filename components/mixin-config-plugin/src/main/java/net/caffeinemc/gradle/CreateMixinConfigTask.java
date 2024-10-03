@@ -31,8 +31,8 @@ public abstract class CreateMixinConfigTask extends DefaultTask {
     public String mixinPackage = "mixin";
     @Option(option = "modShortName", description = "Short name of the mod.")
     public String modShortName;
-    @Option(option = "outputDirectoryForSummaryDocument", description = "Output directory for the summary markdown with all mixin rules and descriptions.")
-    public String outputDirectoryForSummaryDocument;
+    @Option(option = "outputPathForSummaryDocument", description = "Output path for the summary markdown with all mixin rules and descriptions.")
+    public String outputPathForSummaryDocument;
 
     @InputFiles
     public abstract ListProperty<Directory> getInputFiles();
@@ -42,6 +42,9 @@ public abstract class CreateMixinConfigTask extends DefaultTask {
 
     @OutputDirectory
     public abstract DirectoryProperty getOutputDirectory();
+
+    @Option(option = "outputAssetsPath", description = "The path to the assets folder.")
+    public String outputAssetsPath;
 
     @TaskAction
     public void run() {
@@ -120,9 +123,10 @@ public abstract class CreateMixinConfigTask extends DefaultTask {
         }
 
         try {
-            DefaultConfigCreator.writeDefaultConfig(this.modShortName, outputDirectory.resolve(this.modShortName.toLowerCase() + "-mixin-config-default.properties").toFile(), sortedMixinConfigOptions);
-            DefaultConfigCreator.writeMixinDependencies(this.modShortName, outputDirectory.resolve(this.modShortName.toLowerCase() + "-mixin-config-dependencies.properties").toFile(), sortedMixinConfigOptions);
-            DefaultConfigCreator.writeMixinConfigSummaryMarkdown(this.modShortName, Path.of(this.outputDirectoryForSummaryDocument).resolve(this.modShortName.toLowerCase() + "-mixin-config.md").toFile(), sortedMixinConfigOptions);
+            Files.createDirectories(outputDirectory.resolve(outputAssetsPath));
+            DefaultConfigCreator.writeDefaultConfig(this.modShortName, outputDirectory.resolve(outputAssetsPath).resolve(this.modShortName.toLowerCase() + "-mixin-config-default.properties").toFile(), sortedMixinConfigOptions);
+            DefaultConfigCreator.writeMixinDependencies(this.modShortName, outputDirectory.resolve(outputAssetsPath).resolve(this.modShortName.toLowerCase() + "-mixin-config-dependencies.properties").toFile(), sortedMixinConfigOptions);
+            DefaultConfigCreator.writeMixinConfigSummaryMarkdown(this.modShortName, Path.of(this.outputPathForSummaryDocument).toFile(), sortedMixinConfigOptions);
         } catch (IOException e) {
             e.printStackTrace();
         }

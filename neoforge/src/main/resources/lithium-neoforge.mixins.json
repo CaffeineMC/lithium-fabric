@@ -11,7 +11,7 @@
     "conformVisibility" : true
   },
   "mixins" : [
-    "EntrypointMixin",
+    "startup.EntrypointMixin",
     "util.inventory_change_listening.ChestBlockEntityMixin"
   ],
   "client" : [
