@@ -1,4 +1,4 @@
-package net.caffeinemc.mods.lithium.neoforge.mixin;
+package net.caffeinemc.mods.lithium.neoforge.mixin.startup;
 
 import net.caffeinemc.mods.lithium.common.LithiumMod;
 import net.minecraft.client.Minecraft;
