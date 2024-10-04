@@ -1,7 +1,6 @@
 package me.jellysquid.mods.lithium.mixin.math.sine_lut;
 
 import me.jellysquid.mods.lithium.common.util.math.CompactSineLUT;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.util.math.MathHelper;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,18 +15,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinMathHelper {
     @Shadow
     @Mutable
-    public static float[] SINE_TABLE;
+    private static float[] SINE_TABLE;
 
     @Inject(method = "<clinit>", at = @At("RETURN"))
     private static void onClassInit(CallbackInfo ci) {
         new CompactSineLUT(); // Force class initialisation
         MixinMathHelper.SINE_TABLE = null;
-    }
-
-    static {
-        ServerLifecycleEvents.SERVER_STARTING.register((server) -> {
-            MixinMathHelper.SINE_TABLE = null;
-        });
     }
 
     /**
