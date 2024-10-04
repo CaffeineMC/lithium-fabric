@@ -1,7 +1,7 @@
 package net.caffeinemc.mods.lithium.common.hopper;
 
 import net.caffeinemc.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
-import net.caffeinemc.mods.lithium.mixin.block.hopper.DoubleInventoryAccessor;
+import net.caffeinemc.mods.lithium.mixin.block.hopper.CompoundContainerAccessor;
 import net.minecraft.world.CompoundContainer;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
@@ -115,10 +115,10 @@ public class LithiumDoubleStackList extends LithiumStackList {
     public void runComparatorUpdatePatternOnFailedExtract(LithiumStackList masterStackList, Container inventory) {
         if (inventory instanceof CompoundContainer) {
             this.first.runComparatorUpdatePatternOnFailedExtract(
-                    this, ((DoubleInventoryAccessor)inventory).getFirst()
+                    this, ((CompoundContainerAccessor) inventory).getFirst()
             );
             this.second.runComparatorUpdatePatternOnFailedExtract(
-                    this, ((DoubleInventoryAccessor)inventory).getSecond()
+                    this, ((CompoundContainerAccessor) inventory).getSecond()
             );
         }
     }

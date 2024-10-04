@@ -6,7 +6,7 @@ import net.caffeinemc.mods.lithium.common.block.entity.inventory_change_tracking
 import net.caffeinemc.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeListener;
 import net.caffeinemc.mods.lithium.common.block.entity.inventory_change_tracking.InventoryChangeTracker;
 import net.caffeinemc.mods.lithium.common.block.entity.inventory_comparator_tracking.ComparatorTracker;
-import net.caffeinemc.mods.lithium.mixin.block.hopper.DoubleInventoryAccessor;
+import net.caffeinemc.mods.lithium.mixin.block.hopper.CompoundContainerAccessor;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.CompoundContainer;
@@ -32,8 +32,8 @@ public class LithiumDoubleInventory extends CompoundContainer implements Lithium
      * @return The only non-removed LithiumDoubleInventory instance for the double inventory. Null if not compatible
      */
     public static LithiumDoubleInventory getLithiumInventory(CompoundContainer doubleInventory) {
-        Container vanillaFirst = ((DoubleInventoryAccessor) doubleInventory).getFirst();
-        Container vanillaSecond = ((DoubleInventoryAccessor) doubleInventory).getSecond();
+        Container vanillaFirst = ((CompoundContainerAccessor) doubleInventory).getFirst();
+        Container vanillaSecond = ((CompoundContainerAccessor) doubleInventory).getSecond();
         if (vanillaFirst != vanillaSecond && vanillaFirst instanceof LithiumInventory first && vanillaSecond instanceof LithiumInventory second) {
             LithiumDoubleInventory newDoubleInventory = new LithiumDoubleInventory(first, second);
             LithiumDoubleStackList doubleStackList = LithiumDoubleStackList.getOrCreate(
