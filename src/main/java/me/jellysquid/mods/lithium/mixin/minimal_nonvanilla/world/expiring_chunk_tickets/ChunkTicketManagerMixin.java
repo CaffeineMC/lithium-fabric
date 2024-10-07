@@ -72,7 +72,7 @@ public abstract class ChunkTicketManagerMixin {
     private void unregisterExpiringTicket(long pos, ChunkTicket<?> ticket, CallbackInfo ci) {
         if (canExpire(ticket)) {
             SortedArraySet<ChunkTicket<?>> ticketsAtPos = this.positionWithExpiringTicket.get(pos);
-            if (canNoneExpire(ticketsAtPos)) {
+            if (ticketsAtPos != null && canNoneExpire(ticketsAtPos)) {
                 this.positionWithExpiringTicket.remove(pos);
             }
         }
