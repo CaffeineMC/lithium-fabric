@@ -1,25 +1,21 @@
-package net.caffeinemc.mods.lithium.mixin.experimental.entity.block_caching.fluid_pushing;
+package net.caffeinemc.mods.lithium.fabric.mixin.experimental.entity.block_caching.fluid_pushing;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import net.caffeinemc.mods.lithium.common.entity.block_tracking.BlockCache;
 import net.caffeinemc.mods.lithium.common.entity.block_tracking.BlockCacheProvider;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin implements BlockCacheProvider {
-    @Shadow
-    public abstract AABB getBoundingBox();
-
     @Shadow
     protected Object2DoubleMap<TagKey<Fluid>> fluidHeight;
 
@@ -38,12 +34,11 @@ public abstract class EntityMixin implements BlockCacheProvider {
         }
     }
 
-    @SuppressWarnings("InvalidInjectorMethodSignature")
     @Inject(
-            method = "updateFluidHeightAndDoFluidPushing(Lnet/minecraft/tags/TagKey;D)Z", locals = LocalCapture.CAPTURE_FAILHARD,
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/Vec3;length()D", ordinal = 0, shift = At.Shift.BEFORE)
+            method = "updateFluidHeightAndDoFluidPushing(Lnet/minecraft/tags/TagKey;D)Z",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/Vec3;length()D", ordinal = 0)
     )
-    private void cacheFluidSearchResult(TagKey<Fluid> fluid, double speed, CallbackInfoReturnable<Boolean> cir, AABB box, int i1, int i2, int i3, int i4, int i5, int i6, double fluidHeight, boolean isPushedbyFluids, boolean touchingFluid, Vec3 fluidPush, int i7) {
+    private void cacheFluidSearchResult(TagKey<Fluid> fluid, double speed, CallbackInfoReturnable<Boolean> cir, @Local(ordinal = 1) double fluidHeight, @Local(ordinal = 1) boolean touchingFluid, @Local Vec3 fluidPush) {
         BlockCache bc = this.lithium$getBlockCache();
         if (bc.isTracking() && fluidPush.lengthSqr() == 0d) {
             if (touchingFluid == (fluidHeight == 0d)) {

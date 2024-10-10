@@ -358,12 +358,6 @@ Requirements:
 (default: `true`)  
 Skip searching for fire or lava in the burn time countdown logic when they are not on fire and the result does not make a difference. Also use the block listening system to cache whether the entity is touching fire or lava.  
   
-### `mixin.experimental.entity.block_caching.fluid_pushing`
-(default: `true`)  
-Use the block listening system to cache entity fluid interaction when not touching fluid currents.  
-Requirements:
-- `mixin.util.block_tracking=true`  
-  
 ### `mixin.experimental.entity.block_caching.suffocation`
 (default: `true`)  
 Use the block listening system to cache the entity suffocation check.  
