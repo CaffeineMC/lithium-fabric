@@ -22,8 +22,10 @@ bin/
 
 # fabric
 
-run/*
-
+/run/
+/common/run/
+/fabric/run/
+/neoforge/run/
 # macOS
 
 .DS_Store
@@ -32,7 +34,4 @@ run/*
 
 # lithium
 
-testserver/*
-
-src/main/resources/assets/lithium/lithium-mixin-config-default.properties
-src/main/resources/assets/lithium/lithium-mixin-config-dependencies.properties
+fabric/testserver/*

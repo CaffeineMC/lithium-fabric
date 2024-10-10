@@ -1,0 +1,23 @@
+{
+  "package" : "net.caffeinemc.mods.lithium.fabric.mixin",
+  "required" : true,
+  "compatibilityLevel" : "JAVA_21",
+  "plugin" : "net.caffeinemc.mods.lithium.mixin.LithiumMixinPlugin",
+  "refmap" : "lithium-fabric.refmap.json",
+  "injectors" : {
+    "defaultRequire" : 1
+  },
+  "overwrites" : {
+    "conformVisibility" : true
+  },
+  "mixins" : [
+    "block.hopper.LevelMixin",
+    "compat.transfer_api.TransferApiHelperMixin",
+    "compat.worldedit.LevelChunkMixin",
+    "entity.collisions.fluid.EntityMixin",
+    "experimental.entity.block_caching.fluid_pushing.EntityMixin",
+    "util.inventory_change_listening.ChestBlockEntityMixin"
+  ],
+  "client" : [
+  ]
+}

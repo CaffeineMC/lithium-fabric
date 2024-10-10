@@ -11,6 +11,6 @@ public class GradleMixinConfigPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        project.getTasks().register("createMixinConfig", CreateMixinConfigTask.class);
+        project.getTasks().register(project.getName() + "CreateMixinConfig", CreateMixinConfigTask.class);
     }
 }
