@@ -2,7 +2,7 @@
 plugins {
     id("java")
     id("idea")
-    id("net.fabricmc.fabric-loom") version ("1.15-SNAPSHOT")
+    id("net.fabricmc.fabric-loom") version ("1.17-SNAPSHOT")
 }
 
 repositories {

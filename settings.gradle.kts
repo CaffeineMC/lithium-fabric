@@ -12,4 +12,4 @@ includeBuild("components/mixin-config-plugin")
 include("common")
 //Comment out fabric or neoforge to disable the respective platform
 include("fabric")
-include("neoforge")
+//include("neoforge")
