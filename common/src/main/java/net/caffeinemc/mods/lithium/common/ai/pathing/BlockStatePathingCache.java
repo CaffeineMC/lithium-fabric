@@ -7,5 +7,7 @@ public interface BlockStatePathingCache {
 
     PathType lithium$getNeighborPathNodeType();
 
+    void lithium$clearPathTypeCache();
+
     void lithium$initializePathNodeTypeCache();
 }

@@ -19,6 +19,12 @@ public abstract class BlockStateBaseMixin implements BlockStatePathingCache {
     private PathType pathNodeTypeNeighbor = null;
 
     @Override
+    public void lithium$clearPathTypeCache() {
+        this.pathNodeType = null;
+        this.pathNodeTypeNeighbor = null;
+    }
+
+    @Override
     public void lithium$initializePathNodeTypeCache() {
         // Reset the cached path node types, to ensure they are re-calculated.
         this.pathNodeType = null;

@@ -216,6 +216,7 @@
     "util.entity_section_position.EntitySectionStorageMixin",
     "util.in_world_tracking.entity.EntityMixin",
     "util.in_world_tracking.entity.LivingEntityMixin",
+    "util.initialization.MappedRegistryMixin",
     "util.inventory_change_listening.BaseContainerBlockEntityMixin",
     "util.inventory_change_listening.BlockEntityMixin",
     "util.inventory_change_listening.StackListReplacementTracking$AbstractFurnaceBlockEntityMixin",

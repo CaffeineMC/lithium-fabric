@@ -4,4 +4,6 @@ public interface BlockStateFlagHolder {
     int lithium$getAllFlags();
 
     void lithium$initializeFlags();
+
+    void lithium$resetFlags();
 }

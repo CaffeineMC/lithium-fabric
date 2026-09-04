@@ -31,6 +31,11 @@ public class BlockStateBaseMixin implements BlockStateFlagHolder {
     }
 
     @Override
+    public void lithium$resetFlags() {
+        this.flags = -1;
+    }
+
+    @Override
     public int lithium$getAllFlags() {
         int blockStateFlags = this.flags;
         if (blockStateFlags == -1) {

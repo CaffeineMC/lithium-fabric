@@ -601,7 +601,7 @@ Tracking whether entities are currently part of a level
   
 ### `mixin.util.initialization`
 (default: `true`)  
-Platform dependent initialization hooks.
+Initialization hooks
   
 ### `mixin.util.inventory_change_listening`
 (default: `true`)  
