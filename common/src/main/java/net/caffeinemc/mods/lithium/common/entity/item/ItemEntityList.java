@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenCustomHashMap;
 import net.caffeinemc.mods.lithium.common.util.change_tracking.ChangePublisher;
 import net.caffeinemc.mods.lithium.common.util.change_tracking.ChangeSubscriber;
 import net.minecraft.util.AbortableIterationConsumer;
+import net.minecraft.util.Continuation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -405,7 +406,7 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
         }
     }
 
-    public AbortableIterationConsumer.Continuation consumeForEntityStacking(ItemEntity searchingEntity, AbortableIterationConsumer<ItemEntity> itemEntityConsumer) {
+    public Continuation consumeForEntityStacking(ItemEntity searchingEntity, AbortableIterationConsumer<ItemEntity> itemEntityConsumer) {
         this.processOutdated();
 
         ItemStack stack = searchingEntity.getItem();
@@ -421,9 +422,9 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
         }
     }
 
-    private AbortableIterationConsumer.Continuation consumeElements(AbortableIterationConsumer<ItemEntity> elementConsumer, IntArrayList categoryList) {
+    private Continuation consumeElements(AbortableIterationConsumer<ItemEntity> elementConsumer, IntArrayList categoryList) {
         if (categoryList == null) {
-            return AbortableIterationConsumer.Continuation.CONTINUE;
+            return Continuation.CONTINUE;
         }
         int expectedModCount = this.modCount;
         int size = categoryList.size();
@@ -435,11 +436,11 @@ public class ItemEntityList extends AbstractList<ItemEntity> implements ChangeSu
             ItemEntity element = this.delegateWithNulls.get(categoryList.getInt(i));
 
             //The consumer must not modify the consumed element and or other elements in the collection, or must return ABORT.
-            AbortableIterationConsumer.Continuation next = elementConsumer.accept(element);
-            if (next != AbortableIterationConsumer.Continuation.CONTINUE) {
+            Continuation next = elementConsumer.accept(element);
+            if (next != Continuation.CONTINUE) {
                 return next;
             }
         }
-        return AbortableIterationConsumer.Continuation.CONTINUE;
+        return Continuation.CONTINUE;
     }
 }

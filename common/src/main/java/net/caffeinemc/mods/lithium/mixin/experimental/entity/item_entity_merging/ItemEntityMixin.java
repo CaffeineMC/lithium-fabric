@@ -5,8 +5,8 @@ import net.caffeinemc.mods.lithium.common.entity.item.ItemEntityLazyIterationCon
 import net.caffeinemc.mods.lithium.common.entity.item.ItemEntityList;
 import net.caffeinemc.mods.lithium.common.world.WorldHelper;
 import net.caffeinemc.mods.lithium.mixin.util.accessors.EntitySectionAccessor;
-import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.ClassInstanceMultiMap;
+import net.minecraft.util.Continuation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -57,14 +57,14 @@ public abstract class ItemEntityMixin extends Entity {
             List<ItemEntity> itemEntities = internalEntityList.lithium$getOrCreateAllOfTypeRaw(ItemEntity.class);
 
 
-            AbortableIterationConsumer.Continuation next = AbortableIterationConsumer.Continuation.CONTINUE;
+            Continuation next = Continuation.CONTINUE;
             if (itemEntities instanceof ItemEntityList itemEntityList) {
                 next = itemEntityList.consumeForEntityStacking(searchingItemEntity, itemEntityConsumer);
             } else if (itemEntities.size() > ItemEntityList.UPGRADE_THRESHOLD && itemEntities instanceof ArrayList<ItemEntity>) {
                 ItemEntityList itemEntityList = (ItemEntityList) internalEntityList.lithium$replaceCollectionAndGet(ItemEntity.class, ItemEntityList::new);
                 next = itemEntityList.consumeForEntityStacking(searchingItemEntity, itemEntityConsumer);
             } else {
-                for (int i = 0; next != AbortableIterationConsumer.Continuation.ABORT && i < itemEntities.size(); i++) {
+                for (int i = 0; next != Continuation.ABORT && i < itemEntities.size(); i++) {
                     ItemEntity entity = itemEntities.get(i);
                     next = itemEntityConsumer.accept(entity);
                 }

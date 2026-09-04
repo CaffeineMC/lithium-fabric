@@ -4,7 +4,7 @@ import net.caffeinemc.mods.lithium.common.block.redstone.RedstoneWirePowerCalcul
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RedStoneWireBlock;
+import net.minecraft.world.level.block.RedstoneWireBlock;
 import net.minecraft.world.level.redstone.RedstoneWireEvaluator;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,14 +13,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(RedStoneWireBlock.class)
-public class RedStoneWireBlockMixin extends Block {
+@Mixin(RedstoneWireBlock.class)
+public class RedstoneWireBlockMixin extends Block {
 
     @Shadow
     @Final
     private RedstoneWireEvaluator evaluator;
 
-    public RedStoneWireBlockMixin(Properties settings) {
+    public RedstoneWireBlockMixin(Properties settings) {
         super(settings);
     }
 

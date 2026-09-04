@@ -11,8 +11,8 @@ import net.caffeinemc.mods.lithium.mixin.util.accessors.PersistentEntitySectionM
 import net.caffeinemc.mods.lithium.mixin.util.accessors.ServerLevelAccessor;
 import net.caffeinemc.mods.lithium.mixin.util.accessors.TransientEntitySectionManagerAccessor;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.ClassInstanceMultiMap;
+import net.minecraft.util.Continuation;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
@@ -109,7 +109,7 @@ public class WorldHelper {
                     }
                 }
             }
-            return AbortableIterationConsumer.Continuation.CONTINUE;
+            return Continuation.CONTINUE;
         });
         return entities;
     }

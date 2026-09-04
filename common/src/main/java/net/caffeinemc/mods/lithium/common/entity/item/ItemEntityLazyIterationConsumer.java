@@ -2,9 +2,11 @@ package net.caffeinemc.mods.lithium.common.entity.item;
 
 import net.caffeinemc.mods.lithium.mixin.util.accessors.ItemEntityAccessor;
 import net.minecraft.util.AbortableIterationConsumer;
+import net.minecraft.util.Continuation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
+
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.function.Predicate;

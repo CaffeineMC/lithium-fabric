@@ -363,10 +363,6 @@ Skips repeated checks whether the equipment of an entity changed.
 (default: `true`)  
 Skip repeatedly writing to the data tracker that an entity is not flying
   
-### `mixin.entity.fast_hand_swing`
-(default: `true`)  
-Skip hand swinging speed and animation calculations when the hand of an entity is not swinging
-  
 ### `mixin.entity.fast_powder_snow_check`
 (default: `true`)  
 Skip checking whether an entity is inside powder snow for movement speed slowdown when it is not freezing

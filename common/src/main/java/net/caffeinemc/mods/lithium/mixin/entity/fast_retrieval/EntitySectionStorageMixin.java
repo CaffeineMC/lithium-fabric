@@ -3,6 +3,7 @@ package net.caffeinemc.mods.lithium.mixin.entity.fast_retrieval;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.AbortableIterationConsumer;
+import net.minecraft.util.Continuation;
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.entity.EntitySection;
 import net.minecraft.world.level.entity.EntitySectionStorage;
@@ -66,8 +67,8 @@ public abstract class EntitySectionStorageMixin<T extends EntityAccess> {
         }
     }
 
-    private AbortableIterationConsumer.Continuation forEachInColumn(int x, int minY, int maxY, int z, AbortableIterationConsumer<EntitySection<T>> action) {
-        AbortableIterationConsumer.Continuation ret = AbortableIterationConsumer.Continuation.CONTINUE;
+    private Continuation forEachInColumn(int x, int minY, int maxY, int z, AbortableIterationConsumer<EntitySection<T>> action) {
+        Continuation ret = Continuation.CONTINUE;
         //y from negative to positive, but y is treated as unsigned
         for (int y = Math.max(minY, 0); y <= maxY; y++) {
             if ((ret = this.consumeSection(SectionPos.asLong(x, y, z), action)).shouldAbort()) {
@@ -83,7 +84,7 @@ public abstract class EntitySectionStorageMixin<T extends EntityAccess> {
         return ret;
     }
 
-    private AbortableIterationConsumer.Continuation consumeSection(long pos, AbortableIterationConsumer<EntitySection<T>> action) {
+    private Continuation consumeSection(long pos, AbortableIterationConsumer<EntitySection<T>> action) {
         EntitySection<T> section = this.getSection(pos);
         //noinspection SizeReplaceableByIsEmpty
         if (section != null &&
@@ -91,6 +92,6 @@ public abstract class EntitySectionStorageMixin<T extends EntityAccess> {
                 && section.getStatus().isAccessible()) {
             return action.accept(section);
         }
-        return AbortableIterationConsumer.Continuation.CONTINUE;
+        return Continuation.CONTINUE;
     }
 }

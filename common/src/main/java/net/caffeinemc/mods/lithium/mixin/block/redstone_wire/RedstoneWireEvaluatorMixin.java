@@ -3,7 +3,7 @@ package net.caffeinemc.mods.lithium.mixin.block.redstone_wire;
 import net.caffeinemc.mods.lithium.common.block.redstone.RedstoneWirePowerCalculations;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.RedStoneWireBlock;
+import net.minecraft.world.level.block.RedstoneWireBlock;
 import net.minecraft.world.level.redstone.RedstoneWireEvaluator;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,7 +17,7 @@ public class RedstoneWireEvaluatorMixin {
 
     @Shadow
     @Final
-    private RedStoneWireBlock wireBlock;
+    private RedstoneWireBlock wireBlock;
 
     @Inject(
             method = "getIncomingWireSignal(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)I",

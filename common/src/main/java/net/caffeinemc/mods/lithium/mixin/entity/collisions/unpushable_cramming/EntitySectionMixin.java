@@ -6,8 +6,8 @@ import net.caffeinemc.mods.lithium.common.entity.pushable.PushableEntityClassGro
 import net.caffeinemc.mods.lithium.common.util.collections.ReferenceMaskedList;
 import net.caffeinemc.mods.lithium.common.world.ClimbingMobCachingSection;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.ClassInstanceMultiMap;
+import net.minecraft.util.Continuation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.level.Level;
@@ -44,7 +44,7 @@ public abstract class EntitySectionMixin<T extends EntityAccess> implements Clim
     private ReferenceMaskedList<Entity> pushableEntities;
 
     @Override
-    public AbortableIterationConsumer.Continuation lithium$collectPushableEntities(Level world, Entity except, AABB box, EntityPushablePredicate<? super Entity> entityPushablePredicate, ArrayList<Entity> entities) {
+    public Continuation lithium$collectPushableEntities(Level world, Entity except, AABB box, EntityPushablePredicate<? super Entity> entityPushablePredicate, ArrayList<Entity> entities) {
         Iterator<?> entityIterator;
         if (this.pushableEntities != null) {
             entityIterator = this.pushableEntities.iterator();
@@ -67,7 +67,7 @@ public abstract class EntitySectionMixin<T extends EntityAccess> implements Clim
         if (this.pushableEntities == null && i >= 25 && i >= (j * 2)) {
             this.startFilteringPushableEntities();
         }
-        return AbortableIterationConsumer.Continuation.CONTINUE;
+        return Continuation.CONTINUE;
     }
 
     @Unique

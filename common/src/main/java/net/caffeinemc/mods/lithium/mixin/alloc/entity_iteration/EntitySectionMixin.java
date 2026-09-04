@@ -12,7 +12,7 @@ import java.util.Iterator;
 public class EntitySectionMixin {
 
     @Redirect(
-            method = "getEntities(Lnet/minecraft/world/phys/AABB;Lnet/minecraft/util/AbortableIterationConsumer;)Lnet/minecraft/util/AbortableIterationConsumer$Continuation;",
+            method = "getEntities(Lnet/minecraft/world/phys/AABB;Lnet/minecraft/util/AbortableIterationConsumer;)Lnet/minecraft/util/Continuation;",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/util/ClassInstanceMultiMap;iterator()Ljava/util/Iterator;")
     )
     private Iterator<?> directIterator(ClassInstanceMultiMap<?> instance) {

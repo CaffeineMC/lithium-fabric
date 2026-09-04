@@ -16,7 +16,6 @@
     "block.hopper.LevelMixin",
     "collections.poi_types.PoiTypesMixin",
     "compat.worldedit.LevelChunkMixin",
-    "util.initialization.FuelValuesMixin",
     "util.inventory_change_listening.BlockEntityMixin",
     "util.inventory_change_listening.ChestBlockEntityMixin"
   ],

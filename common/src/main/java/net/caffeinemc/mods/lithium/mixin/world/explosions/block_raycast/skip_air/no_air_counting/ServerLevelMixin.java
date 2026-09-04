@@ -10,9 +10,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ServerExplosion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Iterator;
 
 @Mixin(value = ServerLevel.class, priority = 10000)
 public class ServerLevelMixin {
@@ -43,18 +43,23 @@ public class ServerLevelMixin {
         return blockCount;
     }
 
-    @Inject(
+    @WrapOperation(
             method = "explode(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;Lnet/minecraft/world/level/ExplosionDamageCalculator;DDDFZLnet/minecraft/world/level/Level$ExplosionInteraction;Lnet/minecraft/core/particles/ParticleOptions;Lnet/minecraft/core/particles/ParticleOptions;Lnet/minecraft/util/random/WeightedList;Lnet/minecraft/core/Holder;)V",
-            at = @At("RETURN")
+            at = @At(value = "INVOKE", target = "Ljava/util/Iterator;hasNext()Z")
     )
-    private void runDelayedExplosionWithoutCountingBlocks(CallbackInfo ci, @Local(name = "explosion") ServerExplosion explosion, @Share("explodeOperation") LocalRef<Operation<Integer>> explodeOperation) {
-        Operation<Integer> explosionCall = explodeOperation.get();
-        if (explosionCall != null) {
-            if (explosion instanceof LithiumExplosion lithiumExplosion) {
-                lithiumExplosion.lithium$setSkipAirWithoutCounting();
+    private boolean runDelayedExplosionWithoutCountingBlocks(Iterator<?> instance, Operation<Boolean> original, @Local(name = "explosion") ServerExplosion explosion, @Share("explodeOperation") LocalRef<Operation<Integer>> explodeOperation) {
+        boolean hasNext = original.call(instance);
+        if (!hasNext) {
+            Operation<Integer> explosionCall = explodeOperation.get();
+            if (explosionCall != null) {
+                if (explosion instanceof LithiumExplosion lithiumExplosion) {
+                    lithiumExplosion.lithium$setSkipAirWithoutCounting();
+                }
+                explosionCall.call(explosion);
+                explodeOperation.set(null);
             }
-            explosionCall.call(explosion);
-            explodeOperation.set(null);
         }
+
+        return hasNext;
     }
 }

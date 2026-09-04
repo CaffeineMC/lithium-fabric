@@ -2,7 +2,6 @@ package net.caffeinemc.mods.lithium.mixin.collections.mob_spawning;
 
 import com.google.common.collect.Maps;
 import net.minecraft.util.random.WeightedList;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import org.spongepowered.asm.mixin.Final;
@@ -20,18 +19,18 @@ public class MobSpawnSettingsMixin {
     @Mutable
     @Shadow
     @Final
-    private Map<MobCategory, WeightedList<MobSpawnSettings.SpawnerData>> spawners;
+    private Map<MobCategory, WeightedList<MobSpawnSettings.SpawnerData>> spawnsByCategory;
 
     /**
      * Re-initialize the spawn category lists with a much faster backing collection type for enum keys. This provides
      * a modest speed-up for mob spawning as {@link MobSpawnSettings#getMobs(MobCategory)} is a rather hot method.
      */
-    @Inject(method = "<init>(FLjava/util/Map;Ljava/util/Map;)V", at = @At("RETURN"))
-    private void reinit(float creatureSpawnProbability, Map<MobCategory, WeightedList<MobSpawnSettings.SpawnerData>> spawners, Map<EntityType<?>, MobSpawnSettings.MobSpawnCost> spawnCosts, CallbackInfo ci) {
+    @Inject(method = "<init>(Ljava/util/Map;Ljava/util/Map;)V", at = @At("RETURN"))
+    private void reinit(CallbackInfo ci) {
         Map<MobCategory, WeightedList<MobSpawnSettings.SpawnerData>> spawns = Maps.newEnumMap(MobCategory.class);
 
-        spawns.putAll(this.spawners);
+        spawns.putAll(this.spawnsByCategory);
 
-        this.spawners = spawns;
+        this.spawnsByCategory = spawns;
     }
 }
