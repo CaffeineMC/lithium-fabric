@@ -6,8 +6,7 @@
         depends = {
                 @MixinConfigDependency(dependencyPath = "mixin.util.chunk_access"),
                 @MixinConfigDependency(dependencyPath = "mixin.util.initialization")
-        },
-        enabled = false //TODO find out why this optimization causes the goat and frog jump tests to become very flaky (but only when no player is looking at it closely)
+        }
 )
 package net.caffeinemc.mods.lithium.mixin.ai.pathing;
 
