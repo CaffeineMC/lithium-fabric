@@ -8,7 +8,7 @@ modId = "lithium"
 version = "${version}"
 displayName = "Lithium"
 
-logoFile = "assets/lithium/lithium-icon.png"
+iconFile = "assets/lithium/lithium-icon.png"
 
 authors = "2No2Name, JellySquid"
 
