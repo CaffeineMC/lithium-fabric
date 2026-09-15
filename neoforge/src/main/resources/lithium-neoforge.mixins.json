@@ -3,7 +3,7 @@
   "required" : true,
   "compatibilityLevel" : "JAVA_25",
   "mixinextras" : {
-    "minVersion" : "0.5.3"
+    "minVersion" : "0.5.4"
   },
   "plugin" : "net.caffeinemc.mods.lithium.mixin.LithiumMixinPlugin",
   "injectors" : {

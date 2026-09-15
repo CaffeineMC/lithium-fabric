@@ -51,15 +51,6 @@ repositories {
     maven("https://maven.su5ed.dev/releases")
     maven("https://maven.neoforged.net/releases/")
 
-    maven {
-        name = "Maven for PR #3403" // https://github.com/neoforged/NeoForge/pull/3403
-        url = uri("https://prmaven.neoforged.net/NeoForge/pr3403")
-        content {
-            includeModule("net.neoforged", "neoforge")
-            includeModule("net.neoforged", "testframework")
-        }
-    }
-
     exclusiveContent {
         forRepository {
             maven {
