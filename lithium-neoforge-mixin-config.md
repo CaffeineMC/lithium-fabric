@@ -25,7 +25,7 @@ Mob AI optimizations
 Optimizes Non-POI block search using maybeHas to return early or reduce block searches
   
 ### `mixin.ai.pathing`
-(default: `false`)  
+(default: `true`)  
 A faster code path is used for determining what kind of path-finding node type is associated with a
 given block. Additionally, a faster chunk cache will be used for accessing blocks while evaluating
 paths.  
@@ -357,10 +357,6 @@ Skips repeated checks whether the equipment of an entity changed.
 (default: `true`)  
 Skip repeatedly writing to the data tracker that an entity is not flying
   
-### `mixin.entity.fast_hand_swing`
-(default: `true`)  
-Skip hand swinging speed and animation calculations when the hand of an entity is not swinging
-  
 ### `mixin.entity.fast_powder_snow_check`
 (default: `true`)  
 Skip checking whether an entity is inside powder snow for movement speed slowdown when it is not freezing
@@ -603,7 +599,7 @@ Tracking whether entities are currently part of a level
   
 ### `mixin.util.initialization`
 (default: `true`)  
-Platform dependent initialization hooks.
+Initialization hooks
   
 ### `mixin.util.inventory_change_listening`
 (default: `true`)  

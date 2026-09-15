@@ -16,7 +16,6 @@
     "block.hopper.HopperBlockEntityMixin",
     "block.hopper.LevelMixin",
     "chunk_load_tricks.ChunkLoadTricksMixin",
-    "util.initialization.DataMapHooksMixin",
     "util.inventory_change_listening.ChestBlockEntityMixin"
   ],
   "client" : [

@@ -17,7 +17,7 @@ val MC_SUPPORTED_RANGE_NEOFORGE by extra { "[26.3, 26.4)" } // e.g. "[26.1, 26.2
 val MC_PUBLISHING_MIN_VERSION by extra { "26.3" } // Minimum mc version for mod publish plugin, format: https://modmuss50.github.io/mod-publish-plugin/platforms/modrinth/
 val MC_PUBLISHING_MAX_VERSION by extra { "26.3" } //Inclusive maximum mc version for mod publish plugin
 
-val NEOFORGE_VERSION by extra { "26.3.0.0-beta" }
+val NEOFORGE_VERSION by extra { "26.2.0.209-pr-3403-port-26.3" }
 val FABRIC_LOADER_VERSION by extra { "0.19.5" }
 val FABRIC_API_VERSION by extra { "0.160.4+26.3" }
 

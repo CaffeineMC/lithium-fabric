@@ -25,7 +25,7 @@ Mob AI optimizations
 Optimizes Non-POI block search using maybeHas to return early or reduce block searches
   
 ### `mixin.ai.pathing`
-(default: `false`)  
+(default: `true`)  
 A faster code path is used for determining what kind of path-finding node type is associated with a
 given block. Additionally, a faster chunk cache will be used for accessing blocks while evaluating
 paths.  
