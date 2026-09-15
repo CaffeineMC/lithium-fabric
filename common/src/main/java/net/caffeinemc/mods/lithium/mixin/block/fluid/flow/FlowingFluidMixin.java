@@ -125,7 +125,7 @@ public abstract class FlowingFluidMixin {
             BlockPos flowTargetPos = pos.relative(flowDirection);
             byte blockIndex = indexFromDiamondXZOffset(pos, flowTargetPos, searchRadius);
             BlockState flowTargetBlock = world.getBlockState(flowTargetPos);
-            blockStateCache[blockIndex] = flowTargetBlock;
+            blockStateCache[Byte.toUnsignedInt(blockIndex)] = flowTargetBlock;
             if (this.canMaybeFlowIntoBlock(world, flowTargetBlock, flowTargetPos)) {
                 if (onlyPossibleFlowDirection == null) {
                     onlyPossibleFlowDirection = flowDirection;
@@ -260,14 +260,15 @@ public abstract class FlowingFluidMixin {
                 byte currentInfo = entry.getByteValue();
 
                 int rowLength = 2 * searchRadius + 1;
-                int row = blockIndex / rowLength;
-                int column = blockIndex % rowLength;
+                int blockIndexUnsigned = Byte.toUnsignedInt(blockIndex);
+                int row = blockIndexUnsigned / rowLength;
+                int column = blockIndexUnsigned % rowLength;
                 int unevenColumn = column % 2;
                 int xOffset = (row * 2 + column + unevenColumn - searchRadius * 2) / 2;
                 int zOffset = xOffset - column + searchRadius;
 
                 BlockPos currentPos = startPos.offset(xOffset, 0, zOffset);
-                BlockState currentState = blockStateCache[blockIndex];
+                BlockState currentState = blockStateCache[blockIndexUnsigned];
 
                 for (int j = 0; j < DirectionConstants.HORIZONTAL.length; j++) {
                     Direction flowDirection = DirectionConstants.HORIZONTAL[j];
