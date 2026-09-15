@@ -69,9 +69,6 @@ dependencies {
 
     implementation("com.google.code.findbugs:jsr305:3.0.1")
 
-    implementation(project.project(":common").sourceSets.getByName("api").output)
-    implementation(project.project(":common").sourceSets.getByName("main").output)
-
     compileOnly("net.caffeinemc:mixin-config-plugin:1.0-SNAPSHOT")
 
     testImplementation("net.fabricmc:fabric-loader-junit:${FABRIC_LOADER_VERSION}")
@@ -118,6 +115,14 @@ sourceSets {
     val main by getting
     val parent = project(":common").sourceSets.getByName("gametest")
 
+    main {
+        java.srcDirs(
+                project(":common").sourceSets.getByName("api").java.srcDirs,
+                project(":common").sourceSets.getByName("main").java.srcDirs
+        )
+        resources.srcDirs(project(":common").sourceSets.getByName("main").resources.srcDirs)
+    }
+
     val gametest by getting {
         java.srcDir("src/gametest/java")
         resources.srcDir("src/gametest/resources")
@@ -128,6 +133,7 @@ sourceSets {
         runtimeClasspath += main.output
         compileClasspath += parent.compileClasspath
         runtimeClasspath += parent.runtimeClasspath
+        java.srcDirs(parent.java.srcDirs)
     }
 
     test {
@@ -193,7 +199,6 @@ loom {
 
 tasks {
     processResources {
-        from(project.project(":common").sourceSets.main.get().resources)
         inputs.property("version", project.version)
 
         filesMatching("fabric.mod.json") {
@@ -207,7 +212,6 @@ tasks {
     jar {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-        from(zipTree(project.project(":common").tasks.jar.get().archiveFile))
         destinationDirectory = rootDir.resolve("build").resolve("libs")
     }
 }
@@ -224,7 +228,6 @@ tasks.named<net.caffeinemc.gradle.CreateMixinConfigTask>("fabricCreateMixinConfi
     inputFiles.set(
             listOf(
                     tasks.named("compileJava", JavaCompile::class).get().destinationDirectory.get(),
-                    project(":common").tasks.named("compileJava", JavaCompile::class).get().destinationDirectory.get(),
             )
     )
     includeFiles.set(file("src/main/java/net/caffeinemc/mods/lithium"))
@@ -235,7 +238,6 @@ tasks.named<net.caffeinemc.gradle.CreateMixinConfigTask>("fabricCreateMixinConfi
     modShortName = "Lithium"
 
     dependsOn("compileJava")
-    dependsOn(project(":common").tasks.named("compileJava", JavaCompile::class))
 
     doLast {
         copy {

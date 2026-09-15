@@ -27,6 +27,14 @@ project.sourceSets {
     val main by getting
     val parent = project(":common").sourceSets.getByName("gametest")
 
+    main {
+        java.srcDirs(
+                project(":common").sourceSets.getByName("api").java.srcDirs,
+                project(":common").sourceSets.getByName("main").java.srcDirs
+        )
+        resources.srcDirs(project(":common").sourceSets.getByName("main").resources.srcDirs)
+    }
+
     create("gametest") {
         java.srcDirs("src/gametest/java")
         resources.srcDirs("src/gametest/resources")
@@ -37,6 +45,7 @@ project.sourceSets {
         runtimeClasspath += main.output
         compileClasspath += parent.compileClasspath
         runtimeClasspath += parent.runtimeClasspath
+        java.srcDirs(parent.java.srcDirs)
     }
 }
 
@@ -74,16 +83,6 @@ tasks.processResources {
 }
 
 tasks.jar {
-    val api = project.project(":common").sourceSets.getByName("api")
-    from(api.output.classesDirs)
-    from(api.output.resourcesDir)
-
-    val main = project.project(":common").sourceSets.getByName("main")
-    from(main.output.classesDirs)
-    from(main.output.resourcesDir!!) {
-        exclude("*.accesswidener")
-    }
-
     from(rootDir.resolve("LICENSE.md"))
 }
 
@@ -128,8 +127,6 @@ neoForge {
     mods {
         create("lithium") {
             sourceSet(project.sourceSets.main.get())
-            sourceSet(project.project(":common").sourceSets.main.get())
-            sourceSet(project.project(":common").sourceSets.getByName("api"))
             sourceSet(project.sourceSets.getByName("gametest"))
         }
     }
@@ -150,9 +147,6 @@ tasks.named("compileTestJava").configure {
 }
 
 dependencies {
-    compileOnly(project.project(":common").sourceSets.getByName("main").output)
-    compileOnly(project.project(":common").sourceSets.getByName("api").output)
-
     compileOnly("net.caffeinemc:mixin-config-plugin:1.0-SNAPSHOT")
     //In case of fabric-api dependencies, consider using forgified-fabric-api:
 //    includeDep("org.sinytra.forgified-fabric-api:fabric-block-view-api-v2:1.0.10+9afaaf8c19")
@@ -172,7 +166,6 @@ tasks.named<net.caffeinemc.gradle.CreateMixinConfigTask>("neoforgeCreateMixinCon
     inputFiles.set(
             listOf(
                     tasks.named("compileJava", JavaCompile::class).get().destinationDirectory.get(),
-                    project(":common").tasks.named("compileJava", JavaCompile::class).get().destinationDirectory.get(),
             )
     )
     includeFiles.set(file("src/main/java/net/caffeinemc/mods/lithium"))
@@ -183,7 +176,6 @@ tasks.named<net.caffeinemc.gradle.CreateMixinConfigTask>("neoforgeCreateMixinCon
     modShortName = "Lithium"
 
     dependsOn("compileJava")
-    dependsOn(project(":common").tasks.named("compileJava", JavaCompile::class))
 
     doLast {
         copy {
