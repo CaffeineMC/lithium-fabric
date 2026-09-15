@@ -254,6 +254,14 @@ tasks.named("processResources") {
 publishMods {
     val mcDisplayVersionLithiumVersion = "mc$MC_DISPLAY_VERSION-$MOD_VERSION"
     val mcCompileVersionLithiumVersion = "mc$MINECRAFT_COMPILE_VERSION-$MOD_VERSION"
+    val publishSite = providers.environmentVariable("PUBLISH_SITE").orNull ?: "both"
+    val publishToCurseforge = publishSite == "both" || publishSite == "curseforge"
+    val publishToModrinth = publishSite == "both" || publishSite == "modrinth"
+
+    if (!publishToCurseforge && !publishToModrinth) {
+        throw IllegalArgumentException("PUBLISH_SITE must be modrinth, curseforge or both!")
+    }
+
     version = "$mcCompileVersionLithiumVersion-fabric"
     file = tasks.jar.get().archiveFile
     changelog = rootProject.file("CHANGELOG.md").readText().trim()
@@ -261,26 +269,30 @@ publishMods {
     modLoaders.add("fabric")
     modLoaders.add("quilt")
 
-    curseforge {
-        accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
-        projectId = "360438"
-        minecraftVersionRange {
-            start = "$MC_PUBLISHING_MIN_VERSION"
-            end = "$MC_PUBLISHING_MAX_VERSION"
+    if (publishToCurseforge) {
+        curseforge {
+            accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
+            projectId = "360438"
+            minecraftVersionRange {
+                start = "$MC_PUBLISHING_MIN_VERSION"
+                end = "$MC_PUBLISHING_MAX_VERSION"
+            }
+            displayName = "Lithium $mcDisplayVersionLithiumVersion for Fabric"
+            client = true
+            server = true
         }
-        displayName = "Lithium $mcDisplayVersionLithiumVersion for Fabric"
-        client = true
-        server = true
     }
 
-    modrinth {
-        accessToken = providers.environmentVariable("MODRINTH_API_KEY")
-        projectId = "gvQqBUqZ"
-        minecraftVersionRange {
-            start = "$MC_PUBLISHING_MIN_VERSION"
-            end = "$MC_PUBLISHING_MAX_VERSION"
+    if (publishToModrinth) {
+        modrinth {
+            accessToken = providers.environmentVariable("MODRINTH_API_KEY")
+            projectId = "gvQqBUqZ"
+            minecraftVersionRange {
+                start = "$MC_PUBLISHING_MIN_VERSION"
+                end = "$MC_PUBLISHING_MAX_VERSION"
+            }
+            displayName = "Lithium $MOD_VERSION for Fabric"
         }
-        displayName = "Lithium $MOD_VERSION for Fabric"
     }
 }
 

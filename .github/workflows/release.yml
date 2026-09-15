@@ -19,6 +19,13 @@ on:
           - both
           - fabric
           - neoforge
+      publishSite:
+        type: choice
+        description: Publishing Site
+        options:
+          - both
+          - modrinth
+          - curseforge
 
 jobs:
   build:
@@ -97,6 +104,7 @@ jobs:
           RELEASE_WORKFLOW: true
           RELEASE_TYPE: ${{ inputs.releaseType }}
           PLATFORM: ${{ inputs.platform }}
+          PUBLISH_SITE: ${{ inputs.publishSite }}
           MODRINTH_API_KEY: ${{ secrets.MODRINTH_API_KEY }}
           CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
         run: ./gradlew lithiumPublish
